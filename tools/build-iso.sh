@@ -64,6 +64,9 @@ rsync -a --delete \
 	--exclude '/config/chroot' --exclude '/config/common' --exclude '/config/source' \
 	"$ROOT/live-build/" "$WORKDIR/"
 
+# Empty directories are not stored in git (fresh checkouts lack them).
+mkdir -p "$WORKDIR/config/packages.chroot" "$WORKDIR/config/archives" \
+	"$WORKDIR/config/includes.chroot_after_packages"
 rm -f "$WORKDIR"/config/packages.chroot/*.deb
 if compgen -G "$DEBDIR/*.deb" >/dev/null; then
 	cp "$DEBDIR"/*.deb "$WORKDIR/config/packages.chroot/"
