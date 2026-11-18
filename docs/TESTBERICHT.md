@@ -26,7 +26,9 @@ Ohne KVM ist alles 5–10× langsamer als auf echter Hardware; Startzeiten unten
 | #4 | Korrekturen aus den VM-Tests | ✅ ISO 2,1 GB (zstd), 10 min |
 | #5 | xz-komprimiert, GRUB-UEFI-Korrektur | ✅ 2 091 161 600 Byte, 18 min |
 | #6 | EFI-Fallback im Installer, Widget-Layout, Willkommensassistent, Rechnername | ✅ 2 091 169 792 Byte, 12 min (Grundlage des 2. Installationstests) |
-| #7 | **finales ISO**: zusätzlich NVRAM-Eintrag aus dem Live-System, Booteintrag „NovaOS“ | ✅ `novaos-0.1.0-amd64.iso`, 2 091 169 792 Byte, 12 min, SHA256 `54059f545bc816efbb5acf4c01f8fd242530225053cf67326f8a6ddd19046249`; Boot-Rauchtest (BIOS-Menü + Live-Desktop) bestanden |
+| #7 | **finales ISO**: zusätzlich NVRAM-Eintrag aus dem Live-System, Booteintrag „NovaOS“ | ✅ `novaos-0.1.0-amd64.iso`, 2 091 169 792 Byte, 12 min, SHA256 `54059f545bc816efbb5acf4c01f8fd242530225053cf67326f8a6ddd19046249`; Boot-Rauchtest (BIOS-Menü + Live-Desktop) bestanden; Grundlage des 3. Installationstests |
+| CI 1 | GitHub Actions, Commit 60afa64 | ❌ `config/packages.chroot` fehlte im frischen Checkout (git speichert keine leeren Ordner) → `build-iso.sh` legt die Ordner an |
+| CI 2 | GitHub Actions, Commit dd9b848 (gleicher ISO-Inhalt wie #7, nur Build-Skript-Korrektur) | ✅ Unit-Tests + ISO-Build, 2 092 853 248 Byte, SHA256 `a468107495b5e1485647d913ce2d7a20345139ee0490de6e21cd6db99b58fb1a`, als Release **`build-2`** veröffentlicht. Dieses ISO selbst wurde **nicht** in QEMU gestartet (das Repository ist privat, der Download war aus der Testumgebung ohne Anmeldung nicht möglich); es stammt aus denselben Quellen wie #7. |
 
 ## Ergebnisse
 
@@ -135,12 +137,26 @@ Durchgeführt mit ISO #4 im UEFI-Modus, vollständig über die grafische Oberfl�
 | Fallback einmal von Hand gestartet (`fs0:\EFI\BOOT\BOOTX64.EFI`) | ✅ | shims `fbx64` legte `Boot0007` → `\EFI\NovaOS\shimx64.efi` an und setzte ihn an **Platz 1** der Bootreihenfolge |
 | `efibootmgr -c` aus dem laufenden NovaOS | ✅ | RC=0, Eintrag angelegt → NVRAM-Schreiben funktioniert; Schluss: Der Aufruf **im Ziel-chroot** des Installers war das Problem |
 | Herunterfahren → Start **ohne jeden Eingriff** | ✅ | GRUB → Kernel → Anmeldebildschirm (auch mit einem absichtlich defekten Eintrag an Platz 1 fiel die Firmware korrekt auf NovaOS zurück) |
-| Korrektur in Build #7 | ⚠️ | `efibootmgr` wird jetzt aus dem Live-System aufgerufen (dort sind die EFI-Variablen eingehängt), Booteintrag heißt „NovaOS“. Der gleichwertige Befehl wurde in der VM erfolgreich ausgeführt; ein **dritter** kompletter Installationslauf mit Build #7 wurde aus Zeitgründen **nicht** mehr durchgeführt. |
+| Korrektur in Build #7 | ✅ | `efibootmgr` wird jetzt aus dem Live-System aufgerufen (dort sind die EFI-Variablen eingehängt), Booteintrag heißt „NovaOS“ – siehe dritter Installationstest |
 
-**Bewertung:** Auf echten PCs, deren Firmware die Festplatte vor einer UEFI-Shell (die es dort
-meist gar nicht gibt) startet, greift der Fallback-Pfad bereits mit Build #6. Für VMs mit
-vorhandener NVRAM-Historie (wie hier) sorgt in Build #7 der NVRAM-Eintrag aus dem Live-System
-für den direkten Start – dies ist plausibel, aber im Gesamtablauf noch nicht getestet.
+#### Dritter vollständiger Installationstest (finales ISO #7, UEFI)
+
+| Schritt | Ergebnis | Details |
+|---|---|---|
+| Komplette Installation über die Oberfläche bis „Alles erledigt“ | ✅ | inkl. Schritte `novaos-efi-fallback` und NVRAM-Eintrag aus dem Live-System |
+| Neustart in **derselben** Test-VM wie bei der Installation | ❌ (Testaufbau) | wieder UEFI-Shell, `bcfg boot dump` ohne NovaOS-Eintrag. **Ursache im Testaufbau:** Mein Testtreiber gab nur dem CD-Laufwerk einen QEMU-`bootindex`, der Festplatte keinen. OVMF gleicht die Booteinträge bei jedem Neustart mit dieser QEMU-Bootreihenfolge ab und nimmt nicht passende Einträge (hier: „NovaOS“ auf der Festplatte) aus der Bootreihenfolge; ohne CD und ohne `bootindex` stand die eingebaute UEFI-Shell vor der Festplatte. |
+| Testtreiber korrigiert: Festplatte bekommt immer einen `bootindex` (wie bei virt-manager/GNOME Boxes) | ✅ | `tests/qemu/novaqemu.py` |
+| Start der **unveränderten** installierten Festplatte, NVRAM unverändert | ✅ | Firmware startet `Boot0001 "UEFI Misc Device"` (Fallback-Pfad `EFI/BOOT/BOOTX64.EFI` = shim) → shims Fallback legt den Eintrag an → Anmeldebildschirm, **ohne jeden Eingriff** |
+| NVRAM danach (aus `OVMF_VARS.fd` ausgelesen) | ✅ | `BootOrder: 0003 0001 0000 0002`, `Boot0003 "NovaOS" → \EFI\NovaOS\shimx64.efi` |
+| „Neu starten“ am Anmeldebildschirm | ✅ | serielle Konsole: `BdsDxe: starting Boot0003 "NovaOS"` → Splash → Anmeldebildschirm |
+| „Herunterfahren“ am Anmeldebildschirm | ✅ | VM schaltet sich aus |
+
+**Bewertung:** Das installierte System startet unter UEFI selbstständig – entweder über den
+NVRAM-Eintrag „NovaOS“ oder, falls die Firmware ihn verwirft oder nie gespeichert hat, über
+den Fallback-Pfad, der den Eintrag automatisch neu anlegt. Beides ist jetzt im Gesamtablauf
+getestet. Einschränkung: Eine Firmware, die eine UEFI-Shell **vor** der Festplatte startet
+(nur in manchen VM-Konfigurationen), bleibt in der Shell stehen; dann hilft einmalig
+`fs0:\EFI\BOOT\BOOTX64.EFI` (siehe [INSTALLATION.md](INSTALLATION.md)).
 
 Weitere Beobachtungen: Systemmonitor-Widgets zeigten erst nach einiger Zeit Daten; nach
 einem Auflösungswechsel in der VM wurden die Desktop-Widgets über die Desktop-Symbole

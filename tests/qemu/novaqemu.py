@@ -110,10 +110,18 @@ class Machine:
             if not os.path.exists(self.disk):
                 subprocess.run(["qemu-img", "create", "-f", "qcow2", self.disk, self.disk_size], check=True,
                                stdout=subprocess.DEVNULL)
-            args += ["-drive", f"file={self.disk},if=virtio,format=qcow2"]
+            # Always give the disk a boot index (as virt-manager/GNOME Boxes do).
+            # Without any bootindex OVMF keeps its built-in UEFI shell before the
+            # disk; with a bootindex only on the CD-ROM, OVMF drops boot entries
+            # that do not match QEMU's boot order at the next reset (found in the
+            # installation test: the "NovaOS" NVRAM entry vanished).
+            disk_index = 2 if (self.iso and self.boot_iso) else 1
+            args += ["-drive", f"file={self.disk},if=none,format=qcow2,id=hd0",
+                     "-device", f"virtio-blk-pci,drive=hd0,bootindex={disk_index}"]
         if self.iso:
+            cd_index = 1 if self.boot_iso else 3
             args += ["-drive", f"file={self.iso},media=cdrom,readonly=on,if=none,id=cd0",
-                     "-device", "ide-cd,drive=cd0" + (",bootindex=1" if self.boot_iso else "")]
+                     "-device", f"ide-cd,drive=cd0,bootindex={cd_index}"]
         if self.kernel_args is not None:
             kdir = self._extract_kernel()
             args += ["-kernel", f"{kdir}/vmlinuz", "-initrd", f"{kdir}/initrd.img", "-append", self.kernel_args]

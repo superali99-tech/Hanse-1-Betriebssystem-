@@ -12,4 +12,7 @@
   Nova Task Manager, Nova Welcome, Nova Help, Über NovaOS
 * Integrierte Apps unter NovaOS-Namen: Nova Browser (Firefox ESR), Nova Files, Nova Terminal,
   Nova Settings, Nova Calculator, Nova Media, Nova Photos
+* Installiertes System startet unter UEFI selbstständig: NVRAM-Eintrag „NovaOS“ aus dem
+  Live-System plus Fallback-Pfad `EFI/BOOT/BOOTX64.EFI` (shim legt den Eintrag bei Verlust neu an)
+* ISO-Build und Veröffentlichung als GitHub-Release über GitHub Actions
 * Sicherheit: ufw aktiv, automatische Sicherheitsupdates, Flatpak-Sandbox, keine Telemetrie

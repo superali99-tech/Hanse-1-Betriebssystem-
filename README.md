@@ -46,10 +46,14 @@ Ausführlich: [docs/BUILD.md](docs/BUILD.md) · Testen/Installieren: [docs/INSTA
 
 ### Fertiges ISO herunterladen
 
+**Aktuelles ISO:** Release [`build-2`](../../releases/tag/build-2) → `novaos-0.1.0-amd64.iso`
+(2,1 GB), SHA256 `a468107495b5e1485647d913ce2d7a20345139ee0490de6e21cd6db99b58fb1a`.
+Solange das Repository privat ist, ist der Download nur angemeldet möglich.
+
 GitHub Actions baut das ISO automatisch, sobald ein Versions-Tag (`v*`) gepusht wird, und
 veröffentlicht es auf der Seite **Releases** dieses Repositorys (Datei
 `novaos-<version>-amd64.iso` unter *Assets*, dazu die SHA256-Prüfsumme). Ein Build dauert
-etwa 45–60 Minuten. Manuell: *Actions → Build NovaOS ISO → Run workflow*.
+etwa 25–60 Minuten. Manuell: *Actions → Build NovaOS ISO → Run workflow*.
 
 ## Dokumentation
 
