@@ -1,0 +1,7 @@
+screenshot tests/qemu/out/boot1-bios/t0008.png
+screenshot tests/qemu/out/boot1-bios/t0040.png
+screenshot tests/qemu/out/boot1-bios/t0090.png
+screenshot tests/qemu/out/boot1-bios/t0150.png
+screenshot tests/qemu/out/boot1-bios/t0240.png
+screenshot tests/qemu/out/boot1-bios/t0330.png
+screenshot tests/qemu/out/boot1-bios/t0420.png

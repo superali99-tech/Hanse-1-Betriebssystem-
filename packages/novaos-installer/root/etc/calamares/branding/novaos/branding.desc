@@ -1,0 +1,46 @@
+---
+componentName: novaos
+
+welcomeStyleCalamares: false
+welcomeExpandingLogo: true
+windowExpanding: normal
+windowSize: 1024px,680px
+windowPlacement: center
+sidebar: widget
+navigation: widget
+
+strings:
+    productName:         NovaOS
+    shortProductName:    NovaOS
+    version:             @VERSION@
+    shortVersion:        @VERSION@
+    versionedName:       NovaOS @VERSION@
+    shortVersionedName:  NovaOS @VERSION@
+    bootloaderEntryName: NovaOS
+    productUrl:          https://github.com/superali99-tech/Hanse-1-Betriebssystem-
+    supportUrl:          https://github.com/superali99-tech/Hanse-1-Betriebssystem-/issues
+    knownIssuesUrl:      https://github.com/superali99-tech/Hanse-1-Betriebssystem-/blob/main/docs/TESTBERICHT.md
+    releaseNotesUrl:     https://github.com/superali99-tech/Hanse-1-Betriebssystem-/blob/main/CHANGELOG.md
+    donateUrl:           https://github.com/superali99-tech/Hanse-1-Betriebssystem-
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:      "welcome.png"
+
+# Static image slideshow shown while installing
+slideshow:
+    - "slide1.png"
+    - "slide2.png"
+    - "slide3.png"
+    - "slide4.png"
+
+style:
+   SidebarBackground:        "#151a3a"
+   SidebarText:              "#ffffff"
+   SidebarTextCurrent:       "#ffffff"
+   SidebarBackgroundCurrent: "#7c5cff"
+
+uploadServer :
+    type :    "none"
+    url :     ""

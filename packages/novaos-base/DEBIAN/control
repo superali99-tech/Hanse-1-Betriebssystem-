@@ -1,0 +1,17 @@
+Package: novaos-base
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: base-files, flatpak, ufw, unattended-upgrades, systemd-zram-generator
+Recommends: grub-common
+Description: NovaOS base system configuration
+ Identity (os-release), security defaults and system configuration of
+ NovaOS, a desktop operating system based on Debian 13 "trixie":
+  * os-release / version information
+  * Flathub as system-wide Flatpak remote
+  * automatic security updates (unattended-upgrades)
+  * firewall enabled by default (ufw: deny incoming, allow outgoing)
+  * persistent system journal, compressed RAM swap (zram)
+  * GRUB theme for the installed system

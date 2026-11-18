@@ -1,0 +1,11 @@
+[Daemon]
+Autolock=true
+LockGrace=10
+Timeout=10
+
+[Greeter]
+WallpaperPlugin=org.kde.image
+
+[Greeter][Wallpaper][org.kde.image][General]
+Image=file:///usr/share/wallpapers/NovaAurora/
+PreviewImage=file:///usr/share/wallpapers/NovaAurora/contents/images_dark/3840x2160.png

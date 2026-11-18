@@ -1,0 +1,3 @@
+# NovaOS: no telemetry. KDE's opt-in user feedback stays disabled.
+[Global]
+FeedbackLevel=0

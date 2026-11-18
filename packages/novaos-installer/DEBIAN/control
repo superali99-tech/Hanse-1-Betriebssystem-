@@ -1,0 +1,15 @@
+Package: novaos-installer
+Version: @VERSION@
+Section: admin
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: calamares, rsync, cryptsetup, pkexec, live-config, squashfs-tools, dosfstools, efibootmgr, os-prober
+Description: NovaOS graphical installer (Calamares configuration)
+ Calamares configuration and branding of NovaOS: language, keyboard, time
+ zone, disk selection (erase / alongside / manual, optional LUKS encryption),
+ user account, progress slideshow. Installs a Secure Boot capable GRUB
+ (Debian's signed shim) on UEFI machines and grub-pc on BIOS machines.
+ .
+ This package is only needed on the live medium; the installer removes it
+ from the installed system.

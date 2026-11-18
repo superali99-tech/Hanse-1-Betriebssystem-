@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3840" height="2160" viewBox="0 0 3840 2160">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EEF1FF"/><stop offset="0.55" stop-color="#E3E8FF"/><stop offset="1" stop-color="#F3E8FF"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.72" cy="0.30" r="0.45">
+      <stop offset="0" stop-color="#B9A8FF" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#B9A8FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="band0" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7C5CFF" stop-opacity="1"/><stop offset="0.55" stop-color="#7C5CFF" stop-opacity="0"/></linearGradient><linearGradient id="band1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3D7BFF" stop-opacity="1"/><stop offset="0.55" stop-color="#3D7BFF" stop-opacity="0"/></linearGradient><linearGradient id="band2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#22D3EE" stop-opacity="1"/><stop offset="0.55" stop-color="#22D3EE" stop-opacity="0"/></linearGradient><linearGradient id="band3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F472B6" stop-opacity="1"/><stop offset="0.55" stop-color="#F472B6" stop-opacity="0"/></linearGradient>
+    <filter id="soft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="24"/></filter>
+  </defs>
+  <rect width="3840" height="2160" fill="url(#sky)"/>
+  <rect width="3840" height="2160" fill="url(#glow)"/>
+  
+  <path d="M -384 648 C 320 648 320 845 640 845 C 960 845 960 809 1280 809 C 1600 809 1600 582 1920 582 C 2240 582 2240 433 2560 433 C 2880 433 2880 538 3200 538 C 3520 538 3520 773 3840 773 L 4224 2376 L -384 2376 Z" fill="url(#band0)" opacity="0.42" filter="url(#soft)"/><path d="M -384 1166 C 320 1166 320 1197 640 1197 C 960 1197 960 911 1280 911 C 1600 911 1600 646 1920 646 C 2240 646 2240 715 2560 715 C 2880 715 2880 1037 3200 1037 C 3520 1037 3520 1231 3840 1231 L 4224 2376 L -384 2376 Z" fill="url(#band1)" opacity="0.34" filter="url(#soft)"/><path d="M -384 1588 C 320 1588 320 1284 640 1284 C 960 1284 960 891 1280 891 C 1600 891 1600 876 1920 876 C 2240 876 2240 1255 2560 1255 C 2880 1255 2880 1581 3200 1581 C 3520 1581 3520 1467 3840 1467 L 4224 2376 L -384 2376 Z" fill="url(#band2)" opacity="0.25" filter="url(#soft)"/><path d="M -384 1693 C 320 1693 320 1181 640 1181 C 960 1181 960 1035 1280 1035 C 1600 1035 1600 1427 1920 1427 C 2240 1427 2240 1895 2560 1895 C 2880 1895 2880 1884 3200 1884 C 3520 1884 3520 1408 3840 1408 L 4224 2376 L -384 2376 Z" fill="url(#band3)" opacity="0.2" filter="url(#soft)"/>
+</svg>

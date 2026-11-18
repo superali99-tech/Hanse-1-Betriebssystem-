@@ -1,0 +1,18 @@
+Package: novaos-desktop
+Version: @VERSION@
+Section: kde
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: novaos-base, plasma-desktop, plasma-workspace, kwin-wayland | kwin-x11, sddm, sddm-theme-breeze, plymouth, plymouth-label, fonts-inter, fonts-hack, python3, dpkg (>= 1.17.14)
+Recommends: firefox-esr, dolphin, konsole, kcalc, haruna, gwenview, plasma-widgets-addons, kdeplasma-addons-data
+Description: NovaOS desktop design (KDE Plasma 6)
+ The NovaOS look and feel for KDE Plasma 6:
+  * Plasma global themes "NovaOS" (light) and "NovaOS Dark"
+  * Nova Light / Nova Dark colour schemes with violet accent
+  * "Nova Aurora" wallpaper (light and dark variant)
+  * floating panel with start menu, pinned apps, tray and clock
+  * desktop widgets: calendar, CPU, memory, weather
+  * NovaOS app icons, login splash, boot splash (Plymouth), login screen
+  * Nova Browser (Firefox ESR) privacy policies (no telemetry)
+  * upstream apps presented under NovaOS names (Nova Files, Nova Terminal, …)

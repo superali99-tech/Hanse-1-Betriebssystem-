@@ -1,0 +1,13 @@
+# NovaOS central search (Alt+Space / Alt+F2): apps, files, settings, calculator
+[General]
+FreeFloating=true
+ActivateWhenTypingOnDesktop=true
+historyBehavior=CompletionSuggestion
+
+[Plugins]
+krunner_appstreamEnabled=false
+baloosearchEnabled=true
+krunner_systemsettingsEnabled=true
+krunner_servicesEnabled=true
+calculatorEnabled=true
+unitconverterEnabled=true

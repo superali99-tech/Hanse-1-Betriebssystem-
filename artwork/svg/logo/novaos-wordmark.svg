@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="140" viewBox="0 0 560 140">
+  <defs>
+    <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7C5CFF"/><stop offset="1" stop-color="#3D7BFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="120" height="120" rx="31" fill="url(#lg)"/>
+  <g transform="translate(70 70) scale(0.864) translate(-50 -50)">
+    <path d="M 50 6 C 53 32 68 47 94 50 C 68 53 53 68 50 94 C 47 68 32 53 6 50 C 32 47 47 32 50 6 Z" fill="#fff"/>
+  </g>
+  <circle cx="98.8" cy="42.4" r="5" fill="#fff"/>
+  <text x="160" y="97" font-family="Inter, 'Inter Display', sans-serif" font-size="78" font-weight="700" fill="#1A1B2E">Nova<tspan font-weight="300">OS</tspan></text>
+</svg>

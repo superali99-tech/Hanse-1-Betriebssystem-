@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Store
+GenericName=App Store
+GenericName[de]=App-Store
+Comment=Find, install and update apps from Flathub
+Comment[de]=Apps von Flathub finden, installieren und aktualisieren
+Exec=nova-store %U
+Icon=nova-store
+Terminal=false
+Categories=Qt;System;PackageManager;
+Keywords=apps;software;install;flatpak;flathub;store;
+Keywords[de]=Apps;Software;installieren;Programme;Flatpak;Flathub;Store;
+MimeType=x-scheme-handler/appstream;
+StartupNotify=true

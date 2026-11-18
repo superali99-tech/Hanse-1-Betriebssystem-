@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = configure ]; then
+	ln -sf /usr/lib/novaos/os-release /usr/lib/os-release
+	# /etc/os-release must point to /usr/lib/os-release (it can be a plain
+	# copy after debootstrap).
+	if [ ! -L /etc/os-release ]; then
+		ln -sf ../usr/lib/os-release /etc/os-release
+	fi
+
+	# Flathub (system wide) for Nova Store
+	if command -v flatpak >/dev/null 2>&1; then
+		flatpak remote-add --system --if-not-exists flathub \
+			/usr/share/novaos/flatpak/flathub.flatpakrepo || true
+	fi
+
+	# Firewall on by default (rules are applied by ufw.service at boot)
+	if [ -f /etc/ufw/ufw.conf ] && [ ! -e /var/lib/novaos/ufw-configured ]; then
+		sed -i 's/^ENABLED=.*/ENABLED=yes/' /etc/ufw/ufw.conf
+		mkdir -p /var/lib/novaos && touch /var/lib/novaos/ufw-configured
+	fi
+
+	mkdir -p /var/log/journal
+fi
+exit 0

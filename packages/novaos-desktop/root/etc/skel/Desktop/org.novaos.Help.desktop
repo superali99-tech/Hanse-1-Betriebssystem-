@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Help
+Name[de]=Nova Hilfe
+Comment=Help and first steps
+Comment[de]=Hilfe und erste Schritte
+Exec=nova-help
+Icon=nova-help

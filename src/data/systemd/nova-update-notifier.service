@@ -1,0 +1,8 @@
+[Unit]
+Description=NovaOS update notification
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nova-updates --notify
+Nice=10

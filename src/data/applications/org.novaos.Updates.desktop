@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Updates
+GenericName=Software Updates
+GenericName[de]=Aktualisierungen
+Comment=Install system and app updates
+Comment[de]=System- und App-Updates installieren
+Exec=nova-updates
+Icon=nova-updates
+Terminal=false
+Categories=Qt;System;Settings;
+Keywords=update;upgrade;security;apt;
+Keywords[de]=Update;Aktualisierung;Sicherheit;apt;

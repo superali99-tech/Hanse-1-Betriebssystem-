@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Help
+Name[de]=Nova Hilfe
+GenericName=Help
+GenericName[de]=Hilfe
+Comment=Help and first steps with NovaOS
+Comment[de]=Hilfe und erste Schritte mit NovaOS
+Exec=nova-help
+Icon=nova-help
+Terminal=false
+Categories=Qt;Utility;Documentation;
+Keywords=help;manual;documentation;
+Keywords[de]=Hilfe;Handbuch;Anleitung;

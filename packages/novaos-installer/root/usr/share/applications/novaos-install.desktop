@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Install NovaOS
+Name[de]=NovaOS installieren
+GenericName=System Installer
+GenericName[de]=Installationsprogramm
+Comment=Install NovaOS on this computer
+Comment[de]=NovaOS auf diesem Computer installieren
+Exec=novaos-install
+Icon=novaos-install
+Terminal=false
+Categories=Qt;System;
+Keywords=install;installer;calamares;
+Keywords[de]=installieren;Installation;

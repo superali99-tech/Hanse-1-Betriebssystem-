@@ -1,0 +1,12 @@
+[Unit]
+Description=Nova Calendar appointment reminders
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/nova-calendar --reminders
+Restart=on-failure
+Nice=10
+
+[Install]
+WantedBy=graphical-session.target

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta charset='utf-8'><title>Updates and security</title><style>
+body { font-family: Inter, sans-serif; font-size: 11pt; line-height: 1.5; }
+h1 { font-size: 22pt; color: #7C5CFF; margin-bottom: 4px; }
+h2 { font-size: 14pt; margin-top: 18px; }
+code, kbd { font-family: Hack, monospace; background: rgba(124,92,255,0.12); padding: 1px 4px; }
+.tip { border-left: 4px solid #7C5CFF; padding: 6px 10px; background: rgba(124,92,255,0.08); }
+</style></head><body>
+<h1>Updates and security</h1>
+<h2>Nova Updates</h2>
+<p><b>Nova Updates</b> shows system updates (Debian packages, kernel, drivers) and app updates (Flatpak) together. <i>Install all updates</i> asks for your password once.</p>
+<h2>Automatic security updates</h2>
+<p>Security updates are installed automatically every day (unattended-upgrades); this can be disabled in Nova Updates. You are notified when other updates are available.</p>
+<h2>Firewall</h2>
+<p>The firewall (ufw) is enabled: incoming connections are blocked, outgoing allowed. Settings: <i>Nova Settings → Network → Firewall</i>.</p>
+<h2>Encryption</h2>
+<p>The installer can fully encrypt the disk (LUKS). The password is then asked at every boot.</p>
+<h2>Secure Boot</h2>
+<p>NovaOS uses the Microsoft-signed <i>shim</i> and Debian's signed GRUB and kernel, so it boots on most PCs with Secure Boot enabled. Custom kernel modules (e.g. DKMS drivers) must then be signed with a MOK.</p>
+</body></html>

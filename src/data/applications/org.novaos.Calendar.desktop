@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Calendar
+GenericName=Calendar
+GenericName[de]=Kalender
+Comment=Manage your appointments
+Comment[de]=Termine verwalten
+Exec=nova-calendar
+Icon=nova-calendar
+Terminal=false
+Categories=Qt;Office;Calendar;
+MimeType=text/calendar;
+Keywords=calendar;appointment;event;reminder;
+Keywords[de]=Kalender;Termin;Erinnerung;

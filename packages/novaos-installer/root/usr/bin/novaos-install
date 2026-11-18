@@ -1,0 +1,22 @@
+#!/bin/sh
+# Start the NovaOS installer (Calamares) with administrator rights.
+# In the live session the user may use sudo without password (live-config);
+# otherwise pkexec asks for the administrator password.
+# Calamares needs the live medium's /etc/fstab out of the way (same as
+# Debian's calamares-install-debian helper).
+export QT_AUTO_SCREEN_SCALE_FACTOR=1
+command -v xhost >/dev/null 2>&1 && xhost +si:localuser:root >/dev/null 2>&1
+
+if sudo -n true 2>/dev/null; then
+	sudo -n mv /etc/fstab /etc/fstab.orig.calamares 2>/dev/null
+	sudo -n -E calamares "$@"
+	rc=$?
+	sudo -n mv /etc/fstab.orig.calamares /etc/fstab 2>/dev/null
+else
+	pkexec env DISPLAY="$DISPLAY" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
+		XAUTHORITY="$XAUTHORITY" calamares "$@"
+	rc=$?
+fi
+
+command -v xhost >/dev/null 2>&1 && xhost -si:localuser:root >/dev/null 2>&1
+exit $rc

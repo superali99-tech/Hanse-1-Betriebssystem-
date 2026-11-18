@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+# Replace Debian's os-release with the NovaOS one. The original file is kept
+# (diverted) and restored when novaos-base is removed.
+if [ "$1" = install ] || [ "$1" = upgrade ]; then
+	dpkg-divert --package novaos-base --add --rename \
+		--divert /usr/lib/os-release.debian /usr/lib/os-release
+fi

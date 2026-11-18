@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+	configure|triggered)
+		/usr/lib/novaos/novaos-rebrand apply || echo "novaos-desktop: rebranding failed" >&2
+		;;
+esac
+
+if [ "$1" = configure ]; then
+	# Boot splash
+	if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+		plymouth-set-default-theme novaos || true
+		if command -v update-initramfs >/dev/null 2>&1; then
+			dpkg-trigger --no-await update-initramfs 2>/dev/null || true
+		fi
+	fi
+	command -v gtk-update-icon-cache >/dev/null 2>&1 && gtk-update-icon-cache -q -f /usr/share/icons/hicolor || true
+	# Desktop shortcuts must be executable to be trusted by Plasma
+	chmod 0755 /etc/skel/Desktop/*.desktop 2>/dev/null || true
+fi
+exit 0

@@ -1,0 +1,26 @@
+#!/bin/sh
+# live-config component: NovaOS live session setup (runs at every live boot).
+# Puts the installer and help on the desktop of the live user.
+
+. /usr/lib/live/config.sh
+
+LIVE_USERNAME="${LIVE_USERNAME:-nova}"
+for _PARAMETER in ${LIVE_CONFIG_CMDLINE}; do
+	case "${_PARAMETER}" in
+		live-config.username=*|username=*) LIVE_USERNAME="${_PARAMETER#*username=}" ;;
+	esac
+done
+
+component_was_executed "novaos" && exit 0
+echo -n " novaos"
+
+HOME_DIR="/home/${LIVE_USERNAME}"
+DESKTOP_DIR="${HOME_DIR}/Desktop"
+if [ -d "${HOME_DIR}" ]; then
+	mkdir -p "${DESKTOP_DIR}"
+	cp /usr/share/applications/novaos-install.desktop "${DESKTOP_DIR}/novaos-install.desktop"
+	chmod 0755 "${DESKTOP_DIR}"/*.desktop
+	chown -R "${LIVE_USERNAME}:" "${DESKTOP_DIR}"
+fi
+
+touch /var/lib/live/config/novaos

@@ -1,0 +1,13 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [{ "Name": "NovaOS Project" }],
+        "Description": "NovaOS – modern dark theme with floating panel",
+        "Description[de]": "NovaOS – modernes dunkles Design mit schwebender Leiste",
+        "Id": "org.novaos.desktop.dark",
+        "License": "GPL-3.0-or-later",
+        "Name": "NovaOS Dark",
+        "Version": "0.1.0"
+    },
+    "X-Plasma-APIVersion": "2"
+}

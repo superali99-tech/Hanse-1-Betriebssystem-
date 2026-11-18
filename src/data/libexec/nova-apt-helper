@@ -1,0 +1,132 @@
+#!/usr/bin/python3 -I
+"""Privileged helper of Nova Updates (runs as root through pkexec/polkit).
+
+Only a fixed set of operations is allowed; package names are validated.
+Output (one line each, for the GUI):
+    PROGRESS <percent> <text>
+    LOG <text>
+    ERROR <text>
+    DONE
+Usage:
+    nova-apt-helper refresh
+    nova-apt-helper upgrade
+    nova-apt-helper install PKG...
+    nova-apt-helper remove PKG...
+    nova-apt-helper auto-updates on|off
+"""
+
+import os
+import re
+import subprocess
+import sys
+
+PKG_RE = re.compile(r"^[a-z0-9][a-z0-9+.\-]*(:[a-z0-9]+)?$")
+PERIODIC = "/etc/apt/apt.conf.d/20novaos-periodic"
+ENV = dict(os.environ, DEBIAN_FRONTEND="noninteractive", LC_ALL="C.UTF-8", PATH="/usr/sbin:/usr/bin:/sbin:/bin")
+APT_OPTS = [
+    "-y", "-q",
+    "-o", "Dpkg::Options::=--force-confdef",
+    "-o", "Dpkg::Options::=--force-confold",
+    "-o", "Dpkg::Use-Pty=0",
+]
+
+
+def out(line: str) -> None:
+    sys.stdout.write(line.rstrip("\n") + "\n")
+    sys.stdout.flush()
+
+
+def run_apt(args: list[str], phase_weight: tuple[int, int] = (0, 100)) -> int:
+    """Run apt-get, translate its status-fd into PROGRESS lines."""
+    r, w = os.pipe()
+    proc = subprocess.Popen(["apt-get", *APT_OPTS, "-o", f"APT::Status-Fd={w}", *args], env=ENV,
+                            pass_fds=(w,), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    os.close(w)
+    lo, hi = phase_weight
+    import selectors
+
+    sel = selectors.DefaultSelector()
+    status = os.fdopen(r, "r", errors="replace")
+    sel.register(status, selectors.EVENT_READ, "status")
+    sel.register(proc.stdout, selectors.EVENT_READ, "out")
+    open_streams = 2
+    while open_streams:
+        for key, _ in sel.select():
+            line = key.fileobj.readline()
+            if not line:
+                sel.unregister(key.fileobj)
+                open_streams -= 1
+                continue
+            if key.data == "out":
+                out("LOG " + line.rstrip())
+                continue
+            parts = line.rstrip("\n").split(":", 3)
+            if len(parts) < 4:
+                continue
+            kind, pkg, pct, text = parts
+            try:
+                pct_f = float(pct)
+            except ValueError:
+                continue
+            if kind == "dlstatus":
+                total = lo + (hi - lo) * 0.5 * pct_f / 100
+                out(f"PROGRESS {total:.0f} Download: {text}")
+            elif kind == "pmstatus":
+                total = lo + (hi - lo) * (0.5 + 0.5 * pct_f / 100)
+                out(f"PROGRESS {total:.0f} {text}")
+            elif kind == "pmerror":
+                out(f"ERROR {pkg}: {text}")
+    return proc.wait()
+
+
+def main() -> int:
+    if os.geteuid() != 0:
+        out("ERROR nova-apt-helper must run as root (via pkexec)")
+        return 1
+    if len(sys.argv) < 2:
+        out("ERROR missing command")
+        return 2
+    cmd, args = sys.argv[1], sys.argv[2:]
+    if cmd == "refresh":
+        out("PROGRESS 5 Refreshing package lists")
+        rc = subprocess.run(["apt-get", "-q", "update"], env=ENV, stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT, text=True)
+        for line in rc.stdout.splitlines():
+            out("LOG " + line)
+        if rc.returncode != 0:
+            out("ERROR apt-get update failed")
+            return rc.returncode
+    elif cmd == "upgrade":
+        out("PROGRESS 1 Refreshing package lists")
+        subprocess.run(["apt-get", "-q", "update"], env=ENV, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        rc = run_apt(["full-upgrade"], (2, 95))
+        if rc != 0:
+            out("ERROR apt-get full-upgrade failed (exit code %d)" % rc)
+            return rc
+        out("PROGRESS 97 Removing packages that are no longer needed")
+        run_apt(["autoremove", "--purge"], (97, 99))
+    elif cmd in ("install", "remove"):
+        if not args or not all(PKG_RE.match(a) for a in args):
+            out("ERROR invalid package name")
+            return 2
+        rc = run_apt([cmd, *args] if cmd == "install" else ["remove", *args], (0, 99))
+        if rc != 0:
+            out(f"ERROR apt-get {cmd} failed (exit code {rc})")
+            return rc
+    elif cmd == "auto-updates" and args and args[0] in ("on", "off"):
+        val = "1" if args[0] == "on" else "0"
+        with open(PERIODIC, "w", encoding="utf-8") as fh:
+            fh.write("// Managed by Nova Updates\n"
+                     f'APT::Periodic::Update-Package-Lists "1";\n'
+                     f'APT::Periodic::Unattended-Upgrade "{val}";\n'
+                     'APT::Periodic::AutocleanInterval "7";\n')
+    else:
+        out("ERROR unknown command")
+        return 2
+    out("PROGRESS 100 Done")
+    out("DONE")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

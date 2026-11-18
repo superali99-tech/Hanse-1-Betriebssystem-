@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Task Manager
+GenericName=Task Manager
+GenericName[de]=Aufgabenverwaltung
+Comment=Processes, CPU, memory, disks and error logs
+Comment[de]=Prozesse, Prozessor, Arbeitsspeicher, Datenträger und Fehlerprotokolle
+Exec=nova-taskmanager
+Icon=nova-taskmanager
+Terminal=false
+Categories=Qt;System;Monitor;
+Keywords=process;cpu;memory;task;kill;monitor;
+Keywords[de]=Prozess;Prozessor;Speicher;Aufgaben;beenden;

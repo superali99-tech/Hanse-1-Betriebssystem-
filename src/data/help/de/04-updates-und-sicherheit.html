@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html><head><meta charset='utf-8'><title>Updates und Sicherheit</title><style>
+body { font-family: Inter, sans-serif; font-size: 11pt; line-height: 1.5; }
+h1 { font-size: 22pt; color: #7C5CFF; margin-bottom: 4px; }
+h2 { font-size: 14pt; margin-top: 18px; }
+code, kbd { font-family: Hack, monospace; background: rgba(124,92,255,0.12); padding: 1px 4px; }
+.tip { border-left: 4px solid #7C5CFF; padding: 6px 10px; background: rgba(124,92,255,0.08); }
+</style></head><body>
+<h1>Updates und Sicherheit</h1>
+<h2>Nova Updates</h2>
+<p><b>Nova Updates</b> zeigt System-Updates (Debian-Pakete, Kernel, Treiber) und App-Updates (Flatpak) gemeinsam an. <i>Alle Updates installieren</i> fragt einmal nach Ihrem Passwort.</p>
+<h2>Automatische Sicherheitsupdates</h2>
+<p>Sicherheitsupdates werden täglich automatisch im Hintergrund installiert (unattended-upgrades). Das lässt sich in Nova Updates abschalten. Sie erhalten eine Benachrichtigung, wenn weitere Updates bereitstehen.</p>
+<h2>Firewall</h2>
+<p>Die Firewall (ufw) ist aktiv: eingehende Verbindungen werden blockiert, ausgehende erlaubt. Einstellungen: <i>Nova Settings → Netzwerk → Firewall</i>.</p>
+<h2>Verschlüsselung</h2>
+<p>Bei der Installation kann die Festplatte vollständig verschlüsselt werden (LUKS). Das Passwort wird dann bei jedem Start abgefragt.</p>
+<h2>Secure Boot</h2>
+<p>NovaOS verwendet den von Microsoft signierten <i>shim</i> sowie den signierten GRUB und Kernel von Debian. Auf den meisten PCs startet NovaOS daher auch mit aktiviertem Secure Boot. Eigene Kernelmodule (z. B. DKMS-Treiber) müssen dann per MOK signiert werden.</p>
+</body></html>

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=About NovaOS
+Name[de]=Über NovaOS
+Comment=Version and system information
+Comment[de]=Version und Systeminformationen
+Exec=nova-about
+Icon=nova-about
+Terminal=false
+Categories=Qt;System;
+Keywords=version;system;info;hardware;
+Keywords[de]=Version;System;Info;Hardware;

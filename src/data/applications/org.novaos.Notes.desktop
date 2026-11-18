@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Notes
+GenericName=Notes
+GenericName[de]=Notizen
+Comment=Write and organize notes
+Comment[de]=Notizen schreiben und verwalten
+Exec=nova-notes
+Icon=nova-notes
+Terminal=false
+Categories=Qt;Utility;TextEditor;
+Keywords=notes;markdown;memo;
+Keywords[de]=Notizen;Markdown;Merkzettel;

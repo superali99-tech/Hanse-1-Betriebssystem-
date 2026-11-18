@@ -1,0 +1,31 @@
+#!/bin/sh
+# Final apt sources of the installed system (Debian trixie + security
+# updates) and removal of the temporary live-medium source.
+set -e
+. /usr/lib/novaos/calamares/common.sh
+T=$(target_root "$1")
+[ -n "$T" ] || exit 1
+
+rm -f "$T/etc/apt/sources.list.d/novaos-live-medium.list"
+if mountpoint -q "$T/run/live/medium" 2>/dev/null; then
+	umount "$T/run/live/medium" || umount -l "$T/run/live/medium" || true
+fi
+rmdir "$T/run/live/medium" "$T/run/live" 2>/dev/null || true
+
+# deb822 sources (Debian 13 style); drop the sources of the live image
+rm -rf "$T/etc/apt/novaos-disabled"
+rm -f "$T/etc/apt/sources.list"
+cat > "$T/etc/apt/sources.list.d/debian.sources" <<EOT
+Types: deb
+URIs: http://deb.debian.org/debian
+Suites: trixie trixie-updates
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+
+Types: deb
+URIs: http://security.debian.org/debian-security
+Suites: trixie-security
+Components: main contrib non-free non-free-firmware
+Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+EOT
+exit 0

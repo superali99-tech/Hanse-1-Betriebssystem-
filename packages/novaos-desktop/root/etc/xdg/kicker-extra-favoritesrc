@@ -1,0 +1,3 @@
+# Favourites shown in the NovaOS start menu (Kickoff)
+[General]
+Prepend=firefox-esr.desktop;org.novaos.Store.desktop;org.kde.dolphin.desktop;org.kde.konsole.desktop;org.novaos.Notes.desktop;org.novaos.Calendar.desktop;org.kde.kcalc.desktop;org.kde.haruna.desktop;org.kde.gwenview.desktop;org.novaos.TaskManager.desktop;org.novaos.Updates.desktop;systemsettings.desktop;org.novaos.Help.desktop

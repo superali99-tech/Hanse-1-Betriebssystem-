@@ -14,6 +14,6 @@ Pin-Priority: -1
 
 # Heavy recommends that NovaOS does not need (Nova Browser = Firefox ESR,
 # ark uses libarchive/7zip, Noto core+CJK base fonts cover all scripts).
-Package: konqueror konqueror-doc unar fonts-noto-cjk-extra fonts-noto-extra kdeconnect
+Package: konqueror konqueror-doc unar fonts-noto-cjk-extra fonts-noto-extra kdeconnect kaccounts-providers khelpcenter
 Pin: release *
 Pin-Priority: -1

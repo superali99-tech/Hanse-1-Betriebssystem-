@@ -44,6 +44,11 @@ for src in "$ROOT"/packages/*/; do
 		[ -f "$stage/DEBIAN/$s" ] && chmod 0755 "$stage/DEBIAN/$s"
 	done
 	find "$stage" -path "$stage/DEBIAN" -prune -o -type d -exec chmod 0755 {} +
+	# Every file below /etc is a conffile (local changes survive upgrades)
+	if [ -d "$stage/etc" ]; then
+		( cd "$stage" && find etc -type f | sed 's|^|/|' | sort ) >> "$stage/DEBIAN/conffiles"
+		sort -u -o "$stage/DEBIAN/conffiles" "$stage/DEBIAN/conffiles"
+	fi
 	# Generate md5sums
 	( cd "$stage" && find . -path ./DEBIAN -prune -o -type f -print0 | sort -z | \
 		xargs -0 -r md5sum | sed 's| \./| |' > DEBIAN/md5sums )

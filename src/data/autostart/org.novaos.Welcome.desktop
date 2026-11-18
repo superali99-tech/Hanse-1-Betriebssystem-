@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Welcome to NovaOS
+Name[de]=Willkommen bei NovaOS
+Exec=nova-welcome --autostart
+Icon=nova-welcome
+NoDisplay=true
+X-KDE-autostart-phase=2
+OnlyShowIn=KDE;

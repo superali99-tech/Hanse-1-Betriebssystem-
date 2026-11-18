@@ -1,0 +1,5 @@
+# NovaOS ships Nova Store (Flatpak/Flathub) and Nova Updates; KDE Discover
+# would duplicate both, telemetry/crash upload SDKs are not wanted.
+Package: plasma-discover plasma-discover-backend-flatpak plasma-discover-backend-fwupd popularity-contest python3-sentry-sdk
+Pin: release *
+Pin-Priority: -1

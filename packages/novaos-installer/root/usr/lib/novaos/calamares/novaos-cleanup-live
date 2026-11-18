@@ -1,0 +1,10 @@
+#!/bin/sh
+# Remove live-session-only configuration from the installed system.
+set -e
+. /usr/lib/novaos/calamares/common.sh
+T=$(target_root "$1")
+[ -n "$T" ] || exit 1
+rm -f "$T/etc/sddm.conf.d/zz-novaos-live.conf" "$T/etc/sudoers.d/novaos-live"
+rm -f "$T/etc/xdg/autostart/novaos-install-icon.desktop"
+# The live user's home/desktop files are not part of the squashfs, nothing else to do.
+exit 0

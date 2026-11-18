@@ -1,0 +1,34 @@
+#!/bin/sh
+# Install the right GRUB package for this machine into the target:
+#   UEFI -> grub-efi-amd64 + Debian's signed shim/GRUB (Secure Boot capable),
+#           shim is also installed to the removable path EFI/BOOT/BOOTX64.EFI
+#   BIOS -> grub-pc
+# Based on calamares-settings-debian's bootloader-config (GPL-3+).
+set -e
+. /usr/lib/novaos/calamares/common.sh
+T=$(target_root "$1")
+[ -n "$T" ] || { log "target root not found"; exit 1; }
+export DEBIAN_FRONTEND=noninteractive
+
+# Encrypted root: make sure the initramfs can unlock it
+if grep -q 'luks\|crypt' "$T/etc/crypttab" 2>/dev/null; then
+	log "encrypted root detected - installing cryptsetup-initramfs"
+	echo "UMASK=0077" > "$T/etc/initramfs-tools/conf.d/initramfs-permissions"
+	chroot "$T" apt-get -y install cryptsetup-initramfs cryptsetup keyutils || true
+fi
+
+if [ -d /sys/firmware/efi/efivars ]; then
+	log "UEFI system: installing grub-efi-amd64 (signed, Secure Boot capable)"
+	echo "grub-efi-amd64 grub2/force_efi_extra_removable boolean true" | chroot "$T" debconf-set-selections
+	echo "grub-efi-amd64 grub2/update_nvram boolean true" | chroot "$T" debconf-set-selections
+	chroot "$T" apt-get -y install grub-efi-amd64 grub-efi-amd64-signed shim-signed
+else
+	log "BIOS system: installing grub-pc"
+	chroot "$T" apt-get -y install grub-pc
+fi
+
+# Dual boot: let os-prober find other operating systems
+if [ -f "$T/etc/default/grub" ]; then
+	sed -i 's/^#\?GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' "$T/etc/default/grub"
+fi
+exit 0

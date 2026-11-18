@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><head><meta charset='utf-8'><title>Problemlösung</title><style>
+body { font-family: Inter, sans-serif; font-size: 11pt; line-height: 1.5; }
+h1 { font-size: 22pt; color: #7C5CFF; margin-bottom: 4px; }
+h2 { font-size: 14pt; margin-top: 18px; }
+code, kbd { font-family: Hack, monospace; background: rgba(124,92,255,0.12); padding: 1px 4px; }
+.tip { border-left: 4px solid #7C5CFF; padding: 6px 10px; background: rgba(124,92,255,0.08); }
+</style></head><body>
+<h1>Problemlösung</h1>
+<h2>Das System reagiert nicht</h2>
+<p><kbd>Strg+Esc</kbd> öffnet die Aufgabenverwaltung; hängende Programme können dort beendet werden.</p>
+<h2>Nach einem Update startet etwas nicht</h2>
+<p>Im Startmenü des Rechners (GRUB) unter <i>Erweiterte Optionen</i> einen älteren Kernel wählen oder mit <b>Timeshift</b> einen Schnappschuss wiederherstellen.</p>
+<h2>Grafikprobleme beim Start</h2>
+<p>Im Startmenü des Live-Mediums <i>sicherer Grafikmodus (nomodeset)</i> wählen.</p>
+<h2>Fehlerprotokolle</h2>
+<p>Nova Task Manager → <i>Fehlerprotokolle</i> zeigt Fehler des aktuellen Starts. Im Terminal: <code>journalctl -b -p err</code>.</p>
+</body></html>

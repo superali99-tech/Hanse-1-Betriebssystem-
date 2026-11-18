@@ -1,0 +1,19 @@
+Package: novaos-apps
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: python3 (>= 3.11), python3-pyqt6, python3-gi, gir1.2-flatpak-1.0, gir1.2-glib-2.0, flatpak, python3-psutil, python3-icalendar, libnotify-bin, pkexec, apt, novaos-base
+Recommends: novaos-desktop, kinfocenter, pciutils
+Description: NovaOS system applications
+ The applications developed for NovaOS (Python 3 / Qt 6):
+  * Nova Store – app store for Flathub (install, update, remove, permissions,
+    ratings from ODRS)
+  * Nova Updates – system (APT) and app (Flatpak) updates, update notifier
+  * Nova Notes – Markdown notes with autosave
+  * Nova Calendar – local appointments (iCalendar) with reminders
+  * Nova Task Manager – processes, performance graphs, error logs
+  * Nova Welcome – first-run assistant
+  * Nova Help – offline help
+  * About NovaOS – version and system information

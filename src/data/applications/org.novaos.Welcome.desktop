@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Welcome to NovaOS
+Name[de]=Willkommen bei NovaOS
+GenericName=Welcome Assistant
+GenericName[de]=Willkommensassistent
+Exec=nova-welcome
+Icon=nova-welcome
+Terminal=false
+Categories=Qt;System;

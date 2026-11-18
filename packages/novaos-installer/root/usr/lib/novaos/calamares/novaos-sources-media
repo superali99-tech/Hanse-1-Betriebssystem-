@@ -1,0 +1,23 @@
+#!/bin/sh
+# Make the package pool on the NovaOS medium available to apt in the target,
+# so the bootloader can be installed without internet access.
+set -e
+. /usr/lib/novaos/calamares/common.sh
+T=$(target_root "$1")
+M=$(live_medium)
+[ -n "$T" ] || { log "target root not found"; exit 1; }
+if [ -z "$M" ]; then
+	log "live medium not found - bootloader packages will be fetched from the network"
+	exit 0
+fi
+mkdir -p "$T/run/live/medium"
+mount --bind "$M" "$T/run/live/medium"
+# Use only the medium while installing (works offline); the final sources
+# are written by novaos-sources-final.
+mkdir -p "$T/etc/apt/novaos-disabled"
+for f in "$T/etc/apt/sources.list" "$T"/etc/apt/sources.list.d/*.list "$T"/etc/apt/sources.list.d/*.sources; do
+	[ -e "$f" ] && mv "$f" "$T/etc/apt/novaos-disabled/"
+done
+echo "deb [trusted=yes] file:/run/live/medium trixie main" > "$T/etc/apt/sources.list.d/novaos-live-medium.list"
+chroot "$T" apt-get update || log "apt-get update (medium) failed"
+exit 0

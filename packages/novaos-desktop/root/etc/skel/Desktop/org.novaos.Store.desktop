@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Store
+Name[de]=Nova Store
+Comment=Find and install apps
+Comment[de]=Apps finden und installieren
+Exec=nova-store
+Icon=nova-store

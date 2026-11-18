@@ -1,0 +1,161 @@
+#!/usr/bin/python3
+"""Present upstream applications under their NovaOS names.
+
+For every entry in MAPPING the upstream .desktop file is diverted with
+dpkg-divert to /usr/share/novaos/rebrand/orig/ and a rebranded copy is
+generated at the original location. Only Name/Icon (and optionally
+GenericName/NoDisplay) of the [Desktop Entry] group are changed, everything
+else (Exec, MimeType, actions, translations of comments) stays upstream.
+
+Because the copy is regenerated from the diverted original by a dpkg trigger,
+upstream updates (e.g. a new Exec line) are picked up automatically.
+
+Usage: novaos-rebrand apply | remove | status
+"""
+
+from __future__ import annotations
+
+import os
+import subprocess
+import sys
+
+APPS = "/usr/share/applications"
+ORIG = "/usr/share/novaos/rebrand/orig"
+PKG = "novaos-desktop"
+MARK = "X-NovaOS-Rebranded=true"
+
+# desktop file id: (new name, icon, generic name en, generic name de, hide)
+MAPPING = {
+    "firefox-esr.desktop": ("Nova Browser", "nova-browser", "Web Browser (Firefox ESR)", "Webbrowser (Firefox ESR)", False),
+    "org.kde.dolphin.desktop": ("Nova Files", "nova-files", "File Manager", "Dateimanager", False),
+    "org.kde.konsole.desktop": ("Nova Terminal", "nova-terminal", "Terminal", "Terminal", False),
+    "systemsettings.desktop": ("Nova Settings", "nova-settings", "System Settings", "Systemeinstellungen", False),
+    "org.kde.kcalc.desktop": ("Nova Calculator", "nova-calculator", "Calculator", "Taschenrechner", False),
+    "org.kde.haruna.desktop": ("Nova Media", "nova-media", "Video and Music Player", "Video- und Musikplayer", False),
+    "org.kde.gwenview.desktop": ("Nova Photos", "nova-photos", "Image Viewer and Editor", "Bildbetrachter und -bearbeitung", False),
+    # Nova Task Manager replaces the KDE system monitor in the menu (still
+    # reachable via Ctrl+Esc / krunner).
+    "org.kde.plasma-systemmonitor.desktop": ("System Monitor (KDE)", "utilities-system-monitor", "", "", True),
+}
+
+
+def diverted(path: str) -> bool:
+    out = subprocess.run(["dpkg-divert", "--listpackage", path], capture_output=True, text=True).stdout.strip()
+    return out == PKG
+
+
+def divert(desktop_id: str) -> None:
+    src = os.path.join(APPS, desktop_id)
+    if diverted(src):
+        return
+    os.makedirs(ORIG, exist_ok=True)
+    # A previously generated file (not owned by dpkg) must not be moved away
+    # as "original".
+    if os.path.exists(src) and _is_generated(src):
+        os.unlink(src)
+    subprocess.run(["dpkg-divert", "--package", PKG, "--add", "--rename",
+                    "--divert", os.path.join(ORIG, desktop_id), src], check=True,
+                   stdout=subprocess.DEVNULL)
+
+
+def undivert(desktop_id: str) -> None:
+    src = os.path.join(APPS, desktop_id)
+    if os.path.exists(src) and _is_generated(src):
+        os.unlink(src)
+    if diverted(src):
+        subprocess.run(["dpkg-divert", "--package", PKG, "--remove", "--rename",
+                        "--divert", os.path.join(ORIG, desktop_id), src], check=True,
+                       stdout=subprocess.DEVNULL)
+
+
+def _is_generated(path: str) -> bool:
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            return MARK in fh.read()
+    except OSError:
+        return False
+
+
+def rebrand_text(text: str, name: str, icon: str, generic_en: str, generic_de: str, hide: bool) -> str:
+    out: list[str] = []
+    group = None
+    upstream_name = ""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            if group == "[Desktop Entry]":
+                out.extend(_extra_lines(name, icon, generic_en, generic_de, hide, upstream_name))
+            group = stripped
+            out.append(line)
+            continue
+        if group == "[Desktop Entry]":
+            key = stripped.split("=", 1)[0] if "=" in stripped else ""
+            base = key.split("[", 1)[0]
+            if base == "Name":
+                if key == "Name":
+                    upstream_name = stripped.split("=", 1)[1]
+                continue
+            if base == "Icon" or base == "NoDisplay" or base == "X-NovaOS-Rebranded" or base == "X-NovaOS-Upstream-Name":
+                continue
+            if base == "GenericName" and generic_en:
+                continue
+        out.append(line)
+    if group == "[Desktop Entry]":
+        out.extend(_extra_lines(name, icon, generic_en, generic_de, hide, upstream_name))
+    return "\n".join(out).rstrip("\n") + "\n"
+
+
+def _extra_lines(name, icon, generic_en, generic_de, hide, upstream_name) -> list[str]:
+    lines = [f"Name={name}", f"Icon={icon}"]
+    if generic_en:
+        lines += [f"GenericName={generic_en}", f"GenericName[de]={generic_de}"]
+    if hide:
+        lines.append("NoDisplay=true")
+    if upstream_name:
+        lines.append(f"X-NovaOS-Upstream-Name={upstream_name}")
+    lines.append(MARK)
+    return lines
+
+
+def apply() -> None:
+    for desktop_id, (name, icon, gen_en, gen_de, hide) in MAPPING.items():
+        divert(desktop_id)
+        orig = os.path.join(ORIG, desktop_id)
+        target = os.path.join(APPS, desktop_id)
+        if not os.path.exists(orig):
+            # upstream package not installed (yet) - trigger will run later
+            if os.path.exists(target) and _is_generated(target):
+                os.unlink(target)
+            continue
+        with open(orig, encoding="utf-8") as fh:
+            text = fh.read()
+        new = rebrand_text(text, name, icon, gen_en, gen_de, hide)
+        tmp = target + ".novaos-tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(new)
+        os.chmod(tmp, 0o644)
+        os.replace(tmp, target)
+    _refresh_caches()
+
+
+def remove() -> None:
+    for desktop_id in MAPPING:
+        undivert(desktop_id)
+    _refresh_caches()
+
+
+def status() -> None:
+    for desktop_id in MAPPING:
+        target = os.path.join(APPS, desktop_id)
+        state = "rebranded" if _is_generated(target) else ("upstream" if os.path.exists(target) else "missing")
+        print(f"{desktop_id:45s} {state:10s} diverted={diverted(target)}")
+
+
+def _refresh_caches() -> None:
+    if os.path.exists("/usr/bin/update-desktop-database"):
+        subprocess.run(["update-desktop-database", "-q", APPS], check=False)
+
+
+if __name__ == "__main__":
+    cmd = sys.argv[1] if len(sys.argv) > 1 else "status"
+    {"apply": apply, "remove": remove, "status": status}.get(cmd, status)()

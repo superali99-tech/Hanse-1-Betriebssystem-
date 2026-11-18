@@ -1,0 +1,9 @@
+# File search index: names only by default (fast, low CPU/RAM). Full-text
+# indexing can be enabled in Settings -> Search -> File Search.
+[Basic Settings]
+Indexing-Enabled=true
+
+[General]
+only basic indexing=true
+index hidden folders=false
+exclude folders[$e]=$HOME/.cache/,$HOME/.local/share/flatpak/,$HOME/.var/
