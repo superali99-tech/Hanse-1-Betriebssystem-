@@ -83,6 +83,20 @@ class Machine:
             args = ["-machine", "q35,smm=on", "-global", "driver=cfi.pflash01,property=secure,value=on"] + args
         return args
 
+    @staticmethod
+    def _vga_args() -> list[str]:
+        """Standard VGA; NOVA_QEMU_RES=WxH offers that mode via EDID (e.g. for videos).
+
+        The default 16 MB video memory is too small for KWin above ~1280x800
+        (console framebuffer + KWin buffers: "atomic commit failed: out of
+        memory"), so these modes get 64 MB. (With virtio-vga the screendump
+        stayed black.)"""
+        res = os.environ.get("NOVA_QEMU_RES", "")
+        if "x" in res:
+            w, h = res.lower().split("x", 1)
+            return ["-device", f"VGA,edid=on,xres={int(w)},yres={int(h)},vgamem_mb=64"]
+        return ["-vga", "std"]
+
     def start(self) -> None:
         for p in (self.mon_path, self.serial_path, self.qmp_path):
             if os.path.exists(p):
@@ -97,7 +111,7 @@ class Machine:
             args += ["-machine", "q35"]
         args += self._firmware_args()
         args += [
-            "-vga", "std", "-display", "none",
+            *self._vga_args(), "-display", "none",
             "-monitor", f"unix:{self.mon_path},server,nowait",
             "-qmp", f"unix:{self.qmp_path},server,nowait",
             "-chardev", f"socket,id=ser0,path={self.serial_path},server=on,wait=off,logfile={self.serial_log}",

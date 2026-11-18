@@ -8,6 +8,7 @@ taken from the active palette via ``palette(...)`` or derived from it.
 
 from __future__ import annotations
 
+from PyQt6.QtCore import QEvent, QObject
 from PyQt6.QtGui import QColor, QPalette
 from PyQt6.QtWidgets import QApplication
 
@@ -117,5 +118,27 @@ def stylesheet() -> str:
     """
 
 
+class _PaletteWatcher(QObject):
+    """Re-computes the stylesheet when the colour scheme changes at runtime.
+
+    The stylesheet derives colours from the palette; without this, apps that
+    are open while the user switches light/dark kept the old colours (found
+    while recording the trailer: dark text on a dark background)."""
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802 - Qt API
+        if obj is QApplication.instance() and event.type() == QEvent.Type.ApplicationPaletteChange:
+            css = stylesheet()
+            if css != obj.styleSheet():
+                obj.setStyleSheet(css)
+        return False
+
+
+_watcher: _PaletteWatcher | None = None
+
+
 def apply(app: QApplication) -> None:
+    global _watcher
     app.setStyleSheet(stylesheet())
+    if _watcher is None:
+        _watcher = _PaletteWatcher(app)
+        app.installEventFilter(_watcher)
