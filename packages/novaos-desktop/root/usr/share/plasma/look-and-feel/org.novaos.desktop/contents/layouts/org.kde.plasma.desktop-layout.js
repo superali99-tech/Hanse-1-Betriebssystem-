@@ -11,18 +11,21 @@ for (var i = 0; i < desktops.length; i++) {
     d.writeConfig("FillMode", "2");
 
     if (i === 0) {
+        // Two compact columns at the right edge. The whole block fits into
+        // 1024x768, so Plasma does not have to move the widgets when the
+        // resolution changes (e.g. in virtual machines during login).
         var geo = screenGeometry(d.screen);
-        var w = gridUnit * 18;
-        var x = geo.width - w - gridUnit * 2;
-        var y = gridUnit * 2;
+        var g = gridUnit;
+        var colA = 17 * g, colB = 11 * g, gap = g;
+        var right = geo.width - 2 * g;
+        var xA = right - colB - gap - colA;
+        var xB = right - colB;
+        var y = 2 * g;
         try {
-            d.addWidget("org.kde.plasma.calendar", x, y, w, gridUnit * 17);
-            y += gridUnit * 18;
-            d.addWidget("org.kde.plasma.systemmonitor.cpu", x, y, w, gridUnit * 9);
-            y += gridUnit * 10;
-            d.addWidget("org.kde.plasma.systemmonitor.memory", x, y, w, gridUnit * 9);
-            y += gridUnit * 10;
-            d.addWidget("org.kde.plasma.weather", x, y, w, gridUnit * 9);
+            d.addWidget("org.kde.plasma.calendar", xA, y, colA, 16 * g);
+            d.addWidget("org.kde.plasma.weather", xA, y + 17 * g, colA, 8 * g);
+            d.addWidget("org.kde.plasma.systemmonitor.cpu", xB, y, colB, 12 * g);
+            d.addWidget("org.kde.plasma.systemmonitor.memory", xB, y + 13 * g, colB, 12 * g);
         } catch (e) {
             print("NovaOS layout: could not add desktop widgets: " + e);
         }

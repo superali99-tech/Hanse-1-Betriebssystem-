@@ -289,8 +289,14 @@ class WelcomeWindow(QWidget):
         self.dots.setText("  ".join("●" if i == idx else "○" for i in range(n)))
 
     def finish(self) -> None:
-        SETTINGS.setValue("done", not self.cb_again.isChecked())
         self.close()
+
+    def closeEvent(self, event):  # noqa: N802
+        # Closing the window (also via the title bar) counts as "seen",
+        # unless the user asked to see the assistant again.
+        SETTINGS.setValue("done", not self.cb_again.isChecked())
+        SETTINGS.sync()
+        super().closeEvent(event)
 
 
 def main() -> int:
