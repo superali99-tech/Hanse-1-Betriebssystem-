@@ -28,6 +28,7 @@ Design, eigenem App Store, eigenen System-Apps und einem grafischen Installer.
 | Sicherheit | Firewall (ufw) aktiv, automatische Sicherheitsupdates, Flatpak-Sandbox, optionale LUKS-Vollverschlüsselung, Secure-Boot-Kette, persistentes Journal, Timeshift-Snapshots |
 | Datenschutz | keine Telemetrie, keine GeoIP-Abfragen, siehe [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) |
 | Installation | Live-System + Calamares 3.3 (Sprache, Tastatur, Zeitzone, Partitionierung inkl. Dual-Boot/Verschlüsselung, Benutzer, Fortschritt), BIOS + UEFI |
+| **NovaOS TV** | App für Fernseher mit Google TV / Android TV (z. B. Metz): NovaOS-Design, App-Kacheln, Favoriten, Suche, TV-Einstellungen, Bedienung per Fernbedienung, keine Internet-Berechtigung – siehe [tv/README.md](tv/README.md) |
 
 ## Schnellstart
 
@@ -73,7 +74,8 @@ packages/            Quellen der NovaOS-Debian-Pakete (base, desktop, apps, inst
 src/novaos/          Python/Qt6-Quellcode der Nova-Apps
 src/data/            .desktop-Dateien, polkit, systemd-Units, Hilfe, APT-Helfer
 artwork/             Generator für Logo, Icons, Wallpaper, Boot-Splash, Installer-Folien
-tools/               Build-Skripte (build-iso.sh, build-debs.sh, check-host.sh)
+tools/               Build-Skripte (build-iso.sh, build-debs.sh, check-host.sh), trailer/
+tv/                  NovaOS TV – App für Google TV / Android TV (APK, ohne Gradle gebaut)
 tests/               Unit-, UI- und QEMU-Tests
 docs/                Dokumentation
 ```
