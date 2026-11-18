@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 10-foot UI: Android TV runs at 960x540 dp (1080p = xhdpi) -->
+    <dimen name="margin_side">48dp</dimen>
+    <dimen name="tile_w">176dp</dimen>
+    <dimen name="tile_h">99dp</dimen>
+    <dimen name="tile_gap">14dp</dimen>
+    <dimen name="row_title">18sp</dimen>
+</resources>

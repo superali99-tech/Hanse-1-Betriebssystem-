@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.NovaTV" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorAccent">@color/nova_violet</item>
+        <item name="android:colorPrimary">@color/nova_violet</item>
+        <item name="android:textColorPrimary">@color/text</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.Material.Dialog.Alert</item>
+        <item name="android:windowOverscan">false</item>
+    </style>
+</resources>

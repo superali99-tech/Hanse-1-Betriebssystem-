@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="nova_violet">#7C5CFF</color>
+    <color name="nova_blue">#3D7BFF</color>
+    <color name="bg">#0B0E1F</color>
+    <color name="text">#FFFFFF</color>
+    <color name="text_muted">#B8BEDD</color>
+    <color name="tile">#26FFFFFF</color>
+    <color name="tile_focused">#40FFFFFF</color>
+</resources>

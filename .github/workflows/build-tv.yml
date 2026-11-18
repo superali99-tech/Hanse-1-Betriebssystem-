@@ -1,0 +1,75 @@
+# Build the NovaOS TV app (Android TV / Google TV APK) and publish it as a
+# GitHub release ("Releases" page -> novaos-tv-<version>.apk).
+#
+# Triggers:
+#   * manually: Actions -> "Build NovaOS TV app" -> "Run workflow"
+#   * pushing a tag "tv-v*" (e.g. tv-v0.1.1)
+#
+# Signing: with the repository secrets NOVAOS_TV_KEYSTORE_B64 (base64 of a
+# PKCS12 keystore with alias "novaos") and NOVAOS_TV_KS_PASS the APK is signed
+# with that fixed key, so later versions install as updates. Without them a
+# new key is created for every build (then uninstall the old version first).
+name: Build NovaOS TV app
+
+on:
+  push:
+    tags: ["tv-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Android SDK on the runner
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/build-tools" "$ANDROID_HOME/platforms"
+          java -version
+
+      - name: Signing key (optional repository secret)
+        env:
+          KS_B64: ${{ secrets.NOVAOS_TV_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/novaos-tv.keystore"
+            echo "NOVAOS_TV_KEYSTORE=$RUNNER_TEMP/novaos-tv.keystore" >> "$GITHUB_ENV"
+            echo "SIGNING=release key" >> "$GITHUB_ENV"
+          else
+            echo "SIGNING=temporary key (no NOVAOS_TV_KEYSTORE_B64 secret)" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build APK (includes the logic tests)
+        env:
+          NOVAOS_TV_BUILD: ${{ github.run_number }}
+          NOVAOS_TV_KS_PASS: ${{ secrets.NOVAOS_TV_KS_PASS }}
+        run: ./tv/build.sh
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          . ./VERSION.sh
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="tv-build-$GITHUB_RUN_NUMBER"; fi
+          APK=build/tv/novaos-tv-${NOVAOS_VERSION}.apk
+          SHA=$(cut -d' ' -f1 "$APK.sha256")
+          cat > notes.md <<EOF
+          **NovaOS TV ${NOVAOS_VERSION}** – die NovaOS-Oberfläche als App für Fernseher mit **Google TV / Android TV** (z. B. Metz, Sony, Philips, TCL) ab Android 7.
+
+          **Download:** \`novaos-tv-${NOVAOS_VERSION}.apk\` (unten unter *Assets*)
+          **SHA256:** \`${SHA}\` · Signatur: ${SIGNING}
+
+          Installation auf dem Fernseher (ohne PC):
+          1. APK auf einen USB-Stick kopieren und den Stick in den Fernseher stecken.
+          2. Im Play Store des Fernsehers einen Dateimanager installieren (z. B. „File Commander“ oder „X-plore“).
+          3. Mit dem Dateimanager die APK auf dem Stick öffnen → beim ersten Mal „Unbekannte Apps installieren“ für den Dateimanager erlauben → **Installieren**.
+          4. NovaOS TV erscheint danach in der App-Reihe des Fernsehers.
+
+          Ausführliche Anleitung: tv/README.md · Gebaut aus Commit ${GITHUB_SHA}.
+          EOF
+          gh release create "$TAG" "$APK" "$APK.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --prerelease --title "NovaOS TV ${NOVAOS_VERSION} (App für Google TV / Android TV) – ${TAG}" --notes-file notes.md
