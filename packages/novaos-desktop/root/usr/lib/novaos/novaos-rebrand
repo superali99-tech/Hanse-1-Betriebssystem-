@@ -80,28 +80,41 @@ def rebrand_text(text: str, name: str, icon: str, generic_en: str, generic_de: s
     out: list[str] = []
     group = None
     upstream_name = ""
+    previous_upstream = ""
+
+    def close_entry():
+        trailing = 0
+        while out and not out[-1].strip():
+            out.pop()
+            trailing += 1
+        out.extend(_extra_lines(name, icon, generic_en, generic_de, hide, previous_upstream or upstream_name))
+        out.extend([""] * trailing)
+
     for line in text.splitlines():
         stripped = line.strip()
         if stripped.startswith("[") and stripped.endswith("]"):
             if group == "[Desktop Entry]":
-                out.extend(_extra_lines(name, icon, generic_en, generic_de, hide, upstream_name))
+                close_entry()
             group = stripped
             out.append(line)
             continue
         if group == "[Desktop Entry]":
             key = stripped.split("=", 1)[0] if "=" in stripped else ""
             base = key.split("[", 1)[0]
+            if key == "X-NovaOS-Upstream-Name":
+                previous_upstream = stripped.split("=", 1)[1]
+                continue
             if base == "Name":
                 if key == "Name":
                     upstream_name = stripped.split("=", 1)[1]
                 continue
-            if base == "Icon" or base == "NoDisplay" or base == "X-NovaOS-Rebranded" or base == "X-NovaOS-Upstream-Name":
+            if base in ("Icon", "NoDisplay", "X-NovaOS-Rebranded"):
                 continue
             if base == "GenericName" and generic_en:
                 continue
         out.append(line)
     if group == "[Desktop Entry]":
-        out.extend(_extra_lines(name, icon, generic_en, generic_de, hide, upstream_name))
+        close_entry()
     return "\n".join(out).rstrip("\n") + "\n"
 
 

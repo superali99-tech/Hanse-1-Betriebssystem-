@@ -552,7 +552,7 @@ class StoreWindow(QMainWindow):
         lay.addStretch(1)
 
     def _queue_progress(self, key: str, pct: int, text: str) -> None:
-        self.queue_label.setText(text)
+        self.queue_label.setText(f"{text} – {pct} %")
         self.queue_progress.setValue(pct)
         self.queue_label.show()
         self.queue_progress.show()

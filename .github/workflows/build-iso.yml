@@ -1,0 +1,54 @@
+# Build the NovaOS ISO on GitHub Actions (manual trigger).
+# The ISO (~2 GB) is uploaded as workflow artifact.
+name: Build NovaOS ISO
+
+on:
+  workflow_dispatch:
+    inputs:
+      compression:
+        description: "squashfs compression (xz = smaller, zstd = faster)"
+        default: "xz"
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install test dependencies
+        run: sudo apt-get update && sudo apt-get install -y python3-pytest python3-yaml python3-icalendar desktop-file-utils
+      - name: Unit tests
+        run: python3 -m pytest -q tests/unit
+
+  iso:
+    needs: test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Free disk space (remove preinstalled SDKs not needed here)
+        run: |
+          sudo apt-get clean
+          for d in /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; do
+            if [ -d "$d" ]; then sudo find "$d" -mindepth 1 -delete; fi
+          done
+          df -h /
+      - name: Install Debian live-build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y distro-info cpio rsync xorriso squashfs-tools librsvg2-bin
+          cd /tmp
+          wget -q http://deb.debian.org/debian/pool/main/l/live-build/live-build_20250505+deb13u1_all.deb \
+                  http://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.141_all.deb \
+                  http://deb.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2025.1_all.deb
+          sudo dpkg -i ./*.deb
+      - name: Build ISO
+        run: sudo NOVAOS_SQUASHFS_COMPRESSION=${{ github.event.inputs.compression }} ./tools/build-iso.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: novaos-iso
+          path: |
+            build/out/*.iso
+            build/out/*.sha256
+            build/out/*.packages
+          compression-level: 0

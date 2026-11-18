@@ -408,7 +408,7 @@ class DetailsPage(QWidget):
         self.status.setVisible(busy)
         if busy:
             self.progress.setValue(op.progress)
-            self.status.setText(op.status or _("Waiting…"))
+            self.status.setText(f"{op.status} – {op.progress} %" if op.status else _("Waiting…"))
 
     def _install(self) -> None:
         app = self.app
@@ -444,7 +444,7 @@ class DetailsPage(QWidget):
     def _on_progress(self, key: str, pct: int, text: str) -> None:
         if self.app and key in (self.app.flatpak_name, "__all__"):
             self.progress.setValue(pct)
-            self.status.setText(text)
+            self.status.setText(f"{text} – {pct} %")
             self._refresh_actions()
 
     def _on_finished(self, key: str, ok: bool, message: str) -> None:

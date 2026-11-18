@@ -12,10 +12,10 @@ navigation: widget
 strings:
     productName:         NovaOS
     shortProductName:    NovaOS
-    version:             @VERSION@
-    shortVersion:        @VERSION@
-    versionedName:       NovaOS @VERSION@
-    shortVersionedName:  NovaOS @VERSION@
+    version:             "@VERSION@"
+    shortVersion:        "@VERSION@"
+    versionedName:       "NovaOS @VERSION@"
+    shortVersionedName:  "NovaOS @VERSION@"
     bootloaderEntryName: NovaOS
     productUrl:          https://github.com/superali99-tech/Hanse-1-Betriebssystem-
     supportUrl:          https://github.com/superali99-tech/Hanse-1-Betriebssystem-/issues

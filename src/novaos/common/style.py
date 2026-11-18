@@ -113,7 +113,7 @@ def stylesheet() -> str:
     }}
     QProgressBar::chunk {{ border-radius: 4px; background: {ACCENT}; }}
     QScrollArea {{ background: transparent; border: none; }}
-    QScrollArea > QWidget > QWidget {{ background: transparent; }}
+    QScrollArea > QWidget#qt_scrollarea_viewport > QWidget {{ background: transparent; }}
     """
 
 

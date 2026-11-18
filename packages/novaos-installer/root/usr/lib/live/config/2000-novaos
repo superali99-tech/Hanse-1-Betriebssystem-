@@ -21,6 +21,28 @@ if [ -d "${HOME_DIR}" ]; then
 	cp /usr/share/applications/novaos-install.desktop "${DESKTOP_DIR}/novaos-install.desktop"
 	chmod 0755 "${DESKTOP_DIR}"/*.desktop
 	chown -R "${LIVE_USERNAME}:" "${DESKTOP_DIR}"
+
+	# Live session: no automatic screen lock and no automatic sleep
+	# (there is no password the user knows by heart, and sleeping in
+	# the middle of an installation is not helpful).
+	mkdir -p "${HOME_DIR}/.config"
+	cat > "${HOME_DIR}/.config/kscreenlockerrc" <<EOF
+[Daemon]
+Autolock=false
+LockOnResume=false
+EOF
+	cat > "${HOME_DIR}/.config/powerdevilrc" <<EOF
+[AC][Display]
+DimDisplayWhenIdle=false
+TurnOffDisplayWhenIdle=false
+
+[AC][SuspendAndShutdown]
+AutoSuspendAction=0
+
+[Battery][SuspendAndShutdown]
+AutoSuspendAction=0
+EOF
+	chown -R "${LIVE_USERNAME}:" "${HOME_DIR}/.config"
 fi
 
 touch /var/lib/live/config/novaos

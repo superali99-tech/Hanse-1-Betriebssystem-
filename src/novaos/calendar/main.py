@@ -7,7 +7,7 @@ import subprocess
 import sys
 import time
 
-from PyQt6.QtCore import QDate, QDateTime, QTime, Qt
+from PyQt6.QtCore import QDate, QDateTime, QLocale, QTime, Qt
 from PyQt6.QtGui import QAction, QColor, QKeySequence, QTextCharFormat
 from PyQt6.QtWidgets import (
     QCalendarWidget,
@@ -194,7 +194,7 @@ class CalendarWindow(QMainWindow):
 
     def refresh_day(self) -> None:
         day = self.selected_day()
-        self.day_label.setText(QDate(day.year, day.month, day.day).toString("dddd, d. MMMM yyyy"))
+        self.day_label.setText(QLocale.system().toString(QDate(day.year, day.month, day.day), "dddd, d. MMMM yyyy"))
         self.events.clear()
         events = self.store.on_day(day)
         if not events:
