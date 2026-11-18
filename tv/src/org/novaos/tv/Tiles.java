@@ -40,6 +40,10 @@ final class Tiles {
     }
 
     private static View iconAndLabel(Context c, Drawable icon, String label, int iconDp) {
+        return iconAndLabel(c, icon, label, iconDp, 1);
+    }
+
+    private static View iconAndLabel(Context c, Drawable icon, String label, int iconDp, int maxLines) {
         LinearLayout col = new LinearLayout(c);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setGravity(Gravity.CENTER);
@@ -52,8 +56,9 @@ final class Tiles {
         tv.setTextColor(c.getColor(R.color.text));
         tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
         tv.setGravity(Gravity.CENTER);
-        tv.setSingleLine(true);
+        tv.setMaxLines(maxLines);
         tv.setEllipsize(TextUtils.TruncateAt.END);
+        tv.setLineSpacing(0, 0.92f);
         LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         tlp.topMargin = dp(c, 6);
@@ -85,13 +90,17 @@ final class Tiles {
     static FrameLayout action(Context c, int iconRes, int labelRes, boolean accent) {
         FrameLayout f = frame(c, accent);
         String label = c.getString(labelRes);
-        f.addView(iconAndLabel(c, c.getDrawable(iconRes), label, 38));
+        // two lines: German labels such as "Bluetooth & Fernbedienungen" are long
+        f.addView(iconAndLabel(c, c.getDrawable(iconRes), label, 34, 2));
         f.setContentDescription(label);
         return f;
     }
 
+    /** Text-only tile (e.g. "no favorites yet"): not selectable with the remote. */
     static FrameLayout info(Context c, int textRes) {
         FrameLayout f = frame(c, false);
+        f.setFocusable(false);
+        f.setClickable(false);
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) f.getLayoutParams();
         lp.width = lp.width * 2 + c.getResources().getDimensionPixelSize(R.dimen.tile_gap);
         TextView tv = new TextView(c);

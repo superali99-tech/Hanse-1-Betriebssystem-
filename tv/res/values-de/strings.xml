@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">NovaOS TV</string>
     <string name="row_favorites">Favoriten</string>
-    <string name="row_apps">Apps</string>
+    <string name="row_apps">Alle Apps</string>
     <string name="row_settings">Einstellungen</string>
     <string name="fav_empty">OK auf einer App gedrückt halten, um sie hier anzuheften</string>
     <string name="search_apps">Apps suchen</string>

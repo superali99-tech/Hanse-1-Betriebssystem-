@@ -19,9 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingStart="@dimen/margin_side"
+        android:paddingStart="40dp"
         android:paddingTop="27dp"
-        android:paddingEnd="@dimen/margin_side">
+        android:paddingEnd="40dp">
 
         <EditText
             android:id="@+id/query"
@@ -62,7 +62,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipChildren="false"
-                android:padding="6dp" />
+                android:clipToPadding="false"
+                android:padding="14dp" />
         </ScrollView>
     </LinearLayout>
 </FrameLayout>

@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
 
         // All apps (first tile: search)
         LinearLayout appRow = addRow(apps.isEmpty() ? getString(R.string.row_apps)
-                : getString(R.string.row_apps) + "  ·  " + getString(R.string.apps_count, apps.size()));
+                : getString(R.string.row_apps) + "  ·  " + apps.size());
         FrameLayout search = Tiles.action(this, R.drawable.ic_search, R.string.search_apps, true);
         search.setTag("act:search");
         search.setOnClickListener(v -> startActivity(new Intent(this, SearchActivity.class)));
@@ -142,16 +142,51 @@ public class MainActivity extends Activity {
         about.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
         setRow.addView(about);
 
+        lockRowEdges();
         View target = focusTag != null ? rows.findViewWithTag(focusTag) : null;
         if (target == null) target = firstTile();
         if (target != null) target.requestFocus();
     }
 
+    /** Rows of tiles (the LinearLayouts inside the HorizontalScrollViews). */
+    private List<LinearLayout> tileRows() {
+        List<LinearLayout> out = new ArrayList<>();
+        for (int i = 0; i < rows.getChildCount(); i++) {
+            View v = rows.getChildAt(i);
+            if (v instanceof HorizontalScrollView) out.add((LinearLayout) ((HorizontalScrollView) v).getChildAt(0));
+        }
+        return out;
+    }
+
     private View firstTile() {
-        if (rows.getChildCount() < 2) return null;
-        HorizontalScrollView hs = (HorizontalScrollView) rows.getChildAt(1);
-        LinearLayout row = (LinearLayout) hs.getChildAt(0);
-        return row.getChildCount() > 0 ? row.getChildAt(0) : null;
+        for (LinearLayout row : tileRows()) {
+            for (int i = 0; i < row.getChildCount(); i++) {
+                if (row.getChildAt(i).isFocusable()) return row.getChildAt(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Left/right stays inside a row (like on every TV launcher): without this,
+     * "right" on the last tile of a short row jumped diagonally into the next
+     * row (found in the Android test).
+     */
+    private void lockRowEdges() {
+        for (LinearLayout row : tileRows()) {
+            View first = null, last = null;
+            for (int i = 0; i < row.getChildCount(); i++) {
+                View t = row.getChildAt(i);
+                if (!t.isFocusable()) continue;
+                if (t.getId() == View.NO_ID) t.setId(View.generateViewId());
+                if (first == null) first = t;
+                last = t;
+            }
+            if (first != null) {
+                first.setNextFocusLeftId(first.getId());
+                last.setNextFocusRightId(last.getId());
+            }
+        }
     }
 
     private LinearLayout addRow(String title) {

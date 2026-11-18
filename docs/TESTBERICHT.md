@@ -163,6 +163,50 @@ einem Auflösungswechsel in der VM wurden die Desktop-Widgets über die Desktop-
 verschoben → Layout in Build #6 kompakter (passt in 1024×768). Der Willkommensassistent
 erschien erneut, wenn er per X geschlossen wurde → Schließen zählt ab Build #6 als erledigt.
 
+### Trailer-Aufnahmen (Live-System, Full-HD) – dabei gefunden
+
+| Befund | Ergebnis |
+|---|---|
+| Live-System in 1920×1080 (QEMU std-VGA mit EDID, 64 MB Videospeicher) | ✅ Desktop, Store, alle Nova-Apps, Browser, Dunkelmodus aufgenommen (`docs/screenshots/fullhd/`) |
+| Full HD mit 16 MB Videospeicher | ❌ KWin „atomic commit failed: out of memory“ → Testtreiber nutzt 64 MB |
+| Nova Store: echte App-Installation (Tux Paint) mit Fortschritt, danach „Öffnen“ startet die App | ✅ |
+| Hell → dunkel im laufenden Betrieb | ⚠️ → behoben: bereits geöffnete Nova-Apps behielten die hellen Farben (dunkle Schrift auf dunklem Grund). Die Apps berechnen ihr Stylesheet jetzt bei `ApplicationPaletteChange` neu (Unit-Test `test_style.py`). Im ISO `build-2` ist dieser Fehler noch enthalten. |
+
+## NovaOS TV (App für Google TV / Android TV)
+
+Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm
+1280×720 bei 213 dpi – das entspricht der Darstellung eines 720p-Fernsehers (960×540 dp).
+Bedient wurde ausschließlich mit Tastenereignissen der Fernbedienung (`DPAD_UP/DOWN/LEFT/RIGHT`,
+`DPAD_CENTER`, langes OK, `BACK`). Bilder: [docs/screenshots/tv/](screenshots/tv/).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Build ohne Gradle (`tv/build.sh`), 17 Logik-Tests | ✅ | lokal und in GitHub Actions (Release `tv-build-1`) |
+| APK-Inhalt (`aapt2 dump badging`) | ✅ | `leanback-launchable-activity`, Banner, `minSdk 24`, `targetSdk 34`, nur `ACCESS_NETWORK_STATE` und `REQUEST_DELETE_PACKAGES`, **keine** Internet-Berechtigung |
+| Installation (`pm install`) und Update über die alte Version (gleicher Schlüssel) | ✅ | |
+| Startseite: Uhr, Datum, Netzwerkstatus, Favoriten, alle Apps (20), Einstellungen | ✅ | „Nicht verbunden“ korrekt (VM ohne Netzwerk) |
+| Fokus mit der Fernbedienung | ✅ | weißer Rahmen + Vergrößerung; Seite scrollt mit |
+| „Links/rechts“ am Reihenende | ❌ → behoben | sprang schräg in die nächste Reihe → Reihenenden gesperrt |
+| Hinweiszeile unten | ❌ → behoben | lag über der Einstellungsreihe (fehlendes Abschneiden der Scrollfläche) |
+| Hinweis-Kachel „noch keine Favoriten“ | ⚠️ → behoben | war anwählbar, ohne Funktion → nicht mehr fokussierbar, Startfokus auf „Apps suchen“ |
+| Favoriten: hinzufügen (langes OK → Menü), verschieben, Speicherung | ✅ | nur lokal in `shared_prefs`; bleiben nach Sprachwechsel erhalten |
+| App-Menü bei System-Apps | ✅ | ohne „Deinstallieren“ (richtig) |
+| Suche (auch mit Umlaut-/Groß-Klein-Toleranz), Treffer starten, „Zurück“ | ✅ | „cal“ → 3 Apps; App startet; Zurück → Suche → Startseite |
+| Fokussierte Kachel in der Suche | ❌ → behoben | links abgeschnitten (`clipToPadding`) |
+| Einstellungs-Kacheln (Ton, Bild & Anzeige) | ✅ | öffnen die Android-Einstellungen |
+| Über-Seite | ✅ | Version, Gerät, Datenschutz, Favoriten zurücksetzen |
+| **Deutsch** (Systemsprache de-DE) | ✅ | 24-h-Uhr, „Mittwoch, 18. November“, alle Texte deutsch; „Bluetooth & Fernbedienungen“ war abgeschnitten → zweizeilig; „Apps · 20 Apps“ → „Alle Apps · 20“ |
+
+Hinweise zur Testumgebung (keine App-Fehler): Die QEMU-Bildausgabe von Android-x86 vertauscht
+Rot und Blau – mit Androids eigenem Bildspeicher (`screencap`) überprüft, die Screenshots sind
+farbkorrigiert (`tests/qemu/fix_android_colors.py`). Unter reiner CPU-Emulation setzte sich die
+VM mehrfach zurück, während Android Apps übersetzte (dex2oat); umgangen mit dem Filter
+`extract`. Android-x86 ist kein Google TV: Die Anzeige von NovaOS TV in der App-Reihe eines
+Fernsehers (Leanback-Banner) konnte daher nur über die APK-Daten geprüft werden.
+
+**Nicht getestet:** echter Fernseher (Metz/Google TV), echte Fernbedienung, Spracheingabe,
+„Deinstallieren“ einer Nutzer-App, WLAN/LAN-Anzeige mit Verbindung, 4K-Fernseher.
+
 ### Nicht getestet
 
 * echte Hardware (WLAN-Chips, Bluetooth, Drucker, Webcam, Mehrere Monitore, Akku) – nur

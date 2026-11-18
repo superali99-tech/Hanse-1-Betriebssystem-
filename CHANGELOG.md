@@ -9,6 +9,11 @@
   Einstellungen: `/etc/novaos/updates.conf`. Tägliche Sicherheitsupdates optional.
 * Boot-Bildschirm: Meldungen werden jetzt angezeigt (falscher Plymouth-Funktionsname korrigiert)
 * Status: Unit-Tests bestanden; Test im installierten System **noch nicht abgeschlossen**
+* **NovaOS TV:** App für Google TV / Android TV (Startseite mit Favoriten, allen Apps, Suche,
+  TV-Einstellungen, Bedienung per Fernbedienung, Deutsch/Englisch, keine Internet-Berechtigung);
+  in Android-x86 9 getestet, gefundene Bedien- und Layoutfehler behoben
+* Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
+* Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 
 ## 0.1.0 „Aurora“ – erste Entwicklerversion
 
