@@ -16,7 +16,7 @@ from novaos.store.flatpak_backend import FlatpakBackend, InstalledApp, StoreErro
 from novaos.store.ratings import RatingsService
 
 CATALOG_MAX_AGE = 6 * 3600
-UPDATE_CHECK_INTERVAL_MS = 6 * 3600 * 1000
+UPDATE_CHECK_INTERVAL_MS = 14 * 24 * 3600 * 1000  # every 2 weeks, like the system updates
 
 
 @dataclass

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.1 „Aurora“ – in Arbeit
+
+* **Updates alle 14 Tage, Installation beim Neustart:** NovaOS sucht alle 14 Tage nach
+  Updates (Debian + systemweite Flatpak-Apps), lädt sie herunter und installiert sie beim
+  nächsten Neustart (systemd offline updates, Fortschritt im Boot-Bildschirm). Alle
+  Benutzer erhalten „Update verfügbar – bitte neu starten“ (bei Anmeldung, alle 4 Stunden).
+  Einstellungen: `/etc/novaos/updates.conf`. Tägliche Sicherheitsupdates optional.
+* Boot-Bildschirm: Meldungen werden jetzt angezeigt (falscher Plymouth-Funktionsname korrigiert)
+* Status: Unit-Tests bestanden; Test im installierten System **noch nicht abgeschlossen**
+
 ## 0.1.0 „Aurora“ – erste Entwicklerversion
 
 * Startfähiges 64-Bit-ISO (BIOS + UEFI, Secure-Boot-Kette von Debian) auf Basis von

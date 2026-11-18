@@ -1,4 +1,7 @@
-// Refresh package lists daily and run unattended-upgrades (security fixes).
-APT::Periodic::Update-Package-Lists "1";
-APT::Periodic::Unattended-Upgrade "1";
+// NovaOS updates run every 14 days and are installed at the next restart
+// (novaos-update-check.timer, /etc/novaos/updates.conf). The daily Debian
+// mechanism is therefore off by default; "Additionally install security
+// updates daily" in Nova Updates switches unattended-upgrades on.
+APT::Periodic::Update-Package-Lists "0";
+APT::Periodic::Unattended-Upgrade "0";
 APT::Periodic::AutocleanInterval "7";

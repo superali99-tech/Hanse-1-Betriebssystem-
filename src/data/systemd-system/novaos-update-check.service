@@ -1,0 +1,13 @@
+[Unit]
+Description=NovaOS: search for updates and download them (installed at the next restart)
+Documentation=man:systemd.offline-updates(7)
+Wants=network-online.target
+After=network-online.target
+ConditionKernelCommandLine=!boot=live
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/locale
+ExecStart=/usr/libexec/novaos/nova-scheduled-update check
+Nice=10
+IOSchedulingClass=idle

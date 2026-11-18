@@ -1,9 +1,19 @@
 #!/bin/sh
 set -e
 if [ "$1" = configure ]; then
-	# Enable user services for all users (update notifier, calendar reminders)
+	mkdir -p /var/lib/novaos/updates
+	chmod 0755 /var/lib/novaos /var/lib/novaos/updates
 	if command -v systemctl >/dev/null 2>&1; then
-		systemctl --global enable nova-update-notifier.timer nova-calendar-reminders.service >/dev/null 2>&1 || true
+		# User services for all users: update notification ("Update available",
+		# at login, every 4 h and as soon as updates are ready), calendar reminders
+		systemctl --global enable nova-update-notifier.timer nova-update-notifier.path \
+			nova-calendar-reminders.service >/dev/null 2>&1 || true
+		# Search for updates every 14 days, install them at the next restart
+		systemctl enable novaos-update-check.timer >/dev/null 2>&1 || true
+		if [ -d /run/systemd/system ]; then
+			systemctl daemon-reload >/dev/null 2>&1 || true
+			systemctl start novaos-update-check.timer >/dev/null 2>&1 || true
+		fi
 	fi
 	command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database -q /usr/share/applications || true
 	# Byte-compile for faster start-up

@@ -247,7 +247,7 @@ class StoreWindow(QMainWindow):
         p.addWidget(self.rb_user)
 
         p = panel(_("Updates"))
-        cb = QCheckBox(_("Check for app updates automatically (every 6 hours)"))
+        cb = QCheckBox(_("Check for app updates automatically (every 2 weeks)"))
         cb.setChecked(self.c.auto_update_check)
         cb.toggled.connect(lambda on: setattr(self.c, "auto_update_check", on))
         p.addWidget(cb)

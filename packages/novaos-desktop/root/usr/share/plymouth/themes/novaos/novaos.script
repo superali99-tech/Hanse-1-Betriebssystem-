@@ -48,10 +48,38 @@ fun display_normal_callback() {
 }
 Plymouth.SetDisplayNormalFunction(display_normal_callback);
 
+# Messages ("plymouth display-message"), e.g. while updates are installed.
+# (The function is called SetDisplayMessageFunction - checked against
+# script.so of Debian 13; an older version of this theme used a wrong name.)
 fun message_callback(text) {
-    m.image = Image.Text(text, 0.8, 0.8, 0.9);
+    m.image = Image.Text(text, 0.85, 0.85, 0.95);
     m.sprite = Sprite(m.image);
     m.sprite.SetX(sw / 2 - m.image.GetWidth() / 2);
-    m.sprite.SetY(sh * 0.88);
+    m.sprite.SetY(sh * 0.80);
 }
-Plymouth.SetMessageFunction(message_callback);
+Plymouth.SetDisplayMessageFunction(message_callback);
+
+fun hide_message_callback(text) {
+    m.sprite = Sprite();
+}
+Plymouth.SetHideMessageFunction(hide_message_callback);
+
+# Offline updates ("plymouth system-update --progress=N"): progress bar
+bar.w = 360;
+bar.h = 6;
+bar.x = sw / 2 - bar.w / 2;
+bar.y = sh * 0.80 + 36;
+fun system_update_callback(progress) {
+    if (!bar.bg) {
+        bar.bg_image = Image("dot.png").Scale(bar.w, bar.h);
+        bar.bg = Sprite(bar.bg_image);
+        bar.bg.SetPosition(bar.x, bar.y, 1);
+        bar.bg.SetOpacity(0.25);
+    }
+    fill = Math.Int(bar.w * progress / 100);
+    if (fill < 1) fill = 1;
+    bar.fg_image = Image("dot.png").Scale(fill, bar.h);
+    bar.fg = Sprite(bar.fg_image);
+    bar.fg.SetPosition(bar.x, bar.y, 2);
+}
+Plymouth.SetSystemUpdateFunction(system_update_callback);

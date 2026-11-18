@@ -9,8 +9,8 @@ code, kbd { font-family: Hack, monospace; background: rgba(124,92,255,0.12); pad
 <h1>Updates and security</h1>
 <h2>Nova Updates</h2>
 <p><b>Nova Updates</b> shows system updates (Debian packages, kernel, drivers) and app updates (Flatpak) together. <i>Install all updates</i> asks for your password once.</p>
-<h2>Automatic security updates</h2>
-<p>Security updates are installed automatically every day (unattended-upgrades); this can be disabled in Nova Updates. You are notified when other updates are available.</p>
+<h2>Automatic updates every 14 days</h2>
+<p>Every <b>14 days</b> NovaOS searches for updates for the system and for apps from Nova Store and downloads them in the background. <b>All users</b> are then notified (<i>“Update available”</i>) at every login and every 4 hours until the computer is restarted. The updates are installed <b>during the restart</b>, then NovaOS starts normally. NovaOS never restarts on its own.</p><p>Nova Updates can additionally install security updates daily, or install all updates immediately. Interval and settings: <code>/etc/novaos/updates.conf</code>.</p>
 <h2>Firewall</h2>
 <p>The firewall (ufw) is enabled: incoming connections are blocked, outgoing allowed. Settings: <i>Nova Settings → Network → Firewall</i>.</p>
 <h2>Encryption</h2>

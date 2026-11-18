@@ -9,8 +9,8 @@ code, kbd { font-family: Hack, monospace; background: rgba(124,92,255,0.12); pad
 <h1>Updates und Sicherheit</h1>
 <h2>Nova Updates</h2>
 <p><b>Nova Updates</b> zeigt System-Updates (Debian-Pakete, Kernel, Treiber) und App-Updates (Flatpak) gemeinsam an. <i>Alle Updates installieren</i> fragt einmal nach Ihrem Passwort.</p>
-<h2>Automatische Sicherheitsupdates</h2>
-<p>Sicherheitsupdates werden täglich automatisch im Hintergrund installiert (unattended-upgrades). Das lässt sich in Nova Updates abschalten. Sie erhalten eine Benachrichtigung, wenn weitere Updates bereitstehen.</p>
+<h2>Automatische Updates alle 14 Tage</h2>
+<p>NovaOS sucht <b>alle 14 Tage</b> automatisch nach Updates für das System und für Apps aus dem Nova Store und lädt sie im Hintergrund herunter. Danach erhalten <b>alle Benutzer</b> die Meldung <i>„Update verfügbar“</i> – bei jeder Anmeldung und alle 4 Stunden, bis der PC neu gestartet wird. <b>Beim Neustart</b> werden die Updates installiert („Updates werden installiert – bitte den Computer nicht ausschalten“), anschließend startet NovaOS normal. Es wird nie ungefragt neu gestartet.</p><p>Wer möchte, kann in Nova Updates zusätzlich tägliche Sicherheitsupdates im Hintergrund einschalten oder jederzeit mit <i>Alle Updates installieren</i> sofort aktualisieren. Abstand und Einstellungen: <code>/etc/novaos/updates.conf</code>.</p>
 <h2>Firewall</h2>
 <p>Die Firewall (ufw) ist aktiv: eingehende Verbindungen werden blockiert, ausgehende erlaubt. Einstellungen: <i>Nova Settings → Netzwerk → Firewall</i>.</p>
 <h2>Verschlüsselung</h2>

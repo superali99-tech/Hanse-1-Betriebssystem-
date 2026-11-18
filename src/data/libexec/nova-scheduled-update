@@ -1,0 +1,7 @@
+#!/usr/bin/python3 -I
+"""NovaOS scheduled updates: status | check [--force] | offline (see novaos.updates.scheduled)."""
+import sys
+
+from novaos.updates.scheduled import main
+
+sys.exit(main())

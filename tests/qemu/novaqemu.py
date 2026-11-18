@@ -6,7 +6,7 @@ the QEMU monitor, keyboard input, serial console access (login + commands)
 and an optional virtual hard disk for installation/persistence tests.
 
 Example:
-    python3 tests/qemu/novaqemu.py build/out/novaos-0.1.0-amd64.iso \
+    python3 tests/qemu/novaqemu.py build/out/novaos-0.1.1-amd64.iso \
         --out tests/qemu/out/bios --screens 30,90,180,300
 
 Works without KVM (TCG), but then everything is ~5-10x slower.

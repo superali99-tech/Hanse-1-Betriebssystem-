@@ -1,10 +1,10 @@
 [Unit]
-Description=Check for NovaOS updates daily
+Description=NovaOS: remind to restart when updates are ready
 
 [Timer]
-OnStartupSec=15min
-OnUnitActiveSec=1d
-Persistent=true
+# shortly after login, then every 4 hours while updates wait for a restart
+OnStartupSec=2min
+OnUnitActiveSec=4h
 
 [Install]
 WantedBy=timers.target

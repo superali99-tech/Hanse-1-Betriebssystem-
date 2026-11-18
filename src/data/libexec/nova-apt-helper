@@ -105,6 +105,13 @@ def main() -> int:
             return rc
         out("PROGRESS 97 Removing packages that are no longer needed")
         run_apt(["autoremove", "--purge"], (97, 99))
+        # Updates that were waiting for a restart are installed now.
+        try:
+            from novaos.updates.scheduled import clear_prepared
+
+            clear_prepared()
+        except Exception as exc:  # noqa: BLE001
+            out(f"LOG could not clear prepared updates: {exc}")
     elif cmd in ("install", "remove"):
         if not args or not all(PKG_RE.match(a) for a in args):
             out("ERROR invalid package name")
@@ -116,8 +123,9 @@ def main() -> int:
     elif cmd == "auto-updates" and args and args[0] in ("on", "off"):
         val = "1" if args[0] == "on" else "0"
         with open(PERIODIC, "w", encoding="utf-8") as fh:
-            fh.write("// Managed by Nova Updates\n"
-                     f'APT::Periodic::Update-Package-Lists "1";\n'
+            fh.write("// Managed by Nova Updates: daily security updates in addition to the\n"
+                     "// NovaOS update every 14 days (installed at restart)\n"
+                     f'APT::Periodic::Update-Package-Lists "{val}";\n'
                      f'APT::Periodic::Unattended-Upgrade "{val}";\n'
                      'APT::Periodic::AutocleanInterval "7";\n')
     else:

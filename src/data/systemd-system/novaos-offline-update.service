@@ -1,0 +1,17 @@
+# Started in system-update.target, i.e. at a boot where /system-update exists
+# (see systemd.offline-updates(7)). Installs the updates that
+# novaos-update-check downloaded, then reboots into the updated system.
+[Unit]
+Description=NovaOS: install downloaded updates
+DefaultDependencies=no
+Requires=sysinit.target
+After=sysinit.target systemd-journald.socket system-update-pre.target
+Before=shutdown.target system-update.target
+ConditionPathExists=/var/lib/novaos/updates/prepared
+FailureAction=reboot
+
+[Service]
+Type=oneshot
+EnvironmentFile=-/etc/default/locale
+ExecStart=/usr/libexec/novaos/nova-scheduled-update offline
+TimeoutStartSec=infinity

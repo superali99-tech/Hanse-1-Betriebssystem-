@@ -7,6 +7,7 @@ import html
 import os
 import subprocess
 import sys
+import time
 
 from PyQt6.QtCore import QProcess, Qt, QTimer
 from PyQt6.QtGui import QIcon
@@ -30,7 +31,7 @@ from PyQt6.QtWidgets import (
 from novaos.common.app import create_app, nova_icon, themed_icon
 from novaos.common.i18n import _
 from novaos.store import worker
-from novaos.updates import apt
+from novaos.updates import apt, scheduled
 
 PKEXEC = "/usr/bin/pkexec"
 
@@ -136,12 +137,15 @@ class UpdatesWindow(QMainWindow):
         h = QLabel(_("Automatic updates"))
         h.setObjectName("NovaSubtitle")
         pl.addWidget(h)
-        self.cb_auto = QCheckBox(_("Install security updates automatically (daily, in the background)"))
+        self.schedule_label = QLabel()
+        self.schedule_label.setWordWrap(True)
+        pl.addWidget(self.schedule_label)
+        self.cb_auto = QCheckBox(_("Additionally install security updates daily in the background"))
         self.cb_auto.setChecked(apt.auto_updates_enabled())
         self.cb_auto.toggled.connect(self.toggle_auto)
         pl.addWidget(self.cb_auto)
-        note = QLabel(_("NovaOS is based on Debian 13 “trixie”. Security fixes come from the Debian security team; "
-                        "apps from Flathub are updated separately. You are notified when updates are available."))
+        note = QLabel(_("NovaOS is based on Debian 13 “trixie”. Security fixes come from the Debian security team, "
+                        "apps from Flathub. Interval and settings: /etc/novaos/updates.conf"))
         note.setWordWrap(True)
         note.setObjectName("NovaMuted")
         pl.addWidget(note)
@@ -210,9 +214,34 @@ class UpdatesWindow(QMainWindow):
             self.headline.setText(_("Your system is up to date"))
             self.subline.setText(_("Package lists from {when}.").format(when=checked))
         self.btn_install.setEnabled(total > 0)
+        self.btn_reboot.setText(_("Restart now"))
         self.btn_reboot.setVisible(apt.reboot_required())
         if apt.reboot_required():
             self.subline.setText(self.subline.text() + " " + _("A restart is required to finish previous updates."))
+        prepared = scheduled.pending()
+        if prepared:
+            self.headline.setText(_("Update available – please restart"))
+            self.subline.setText(_("{n} updates have been downloaded and will be installed when you restart the "
+                                   "computer.").format(n=prepared.get("count", 0)))
+            self.btn_reboot.setText(_("Restart and install"))
+            self.btn_reboot.show()
+        result = scheduled.last_result()
+        if result and not result.get("ok", True) and not prepared:
+            self.subline.setText(self.subline.text() + " " + _("The last automatic installation reported errors: "
+                                                               "{e}").format(e="; ".join(result.get("errors", []))))
+        self._show_schedule()
+
+    def _show_schedule(self) -> None:
+        cfg = scheduled.read_config()
+        fmt = lambda t: datetime.datetime.fromtimestamp(t).strftime("%d.%m.%Y") if t else _("never")  # noqa: E731
+        if scheduled.is_yes(cfg["ENABLED"]):
+            text = _("NovaOS searches for updates every {d} days, downloads them in the background and installs "
+                     "them at the next restart. All users are notified.").format(d=scheduled.interval_days(cfg))
+            text += " " + _("Last search: {last} · next search: {next}.").format(
+                last=fmt(scheduled.last_check()), next=fmt(scheduled.next_check()))
+        else:
+            text = _("The automatic update search is switched off.")
+        self.schedule_label.setText(text)
 
     # ------------------------------------------------------------- installing
     def install_all(self) -> None:
@@ -317,29 +346,52 @@ class UpdatesWindow(QMainWindow):
         self.progress_label.setText(html.unescape(text))
 
 
+def _restart_prompt() -> None:
+    """Plasma's own restart dialog (lets the user save work); Nova Updates as fallback."""
+    rc = subprocess.run(["dbus-send", "--session", "--type=method_call", "--dest=org.kde.LogoutPrompt",
+                         "/LogoutPrompt", "org.kde.LogoutPrompt.promptReboot"], capture_output=True).returncode
+    if rc != 0:
+        subprocess.Popen(["nova-updates"], start_new_session=True)
+
+
 def notifier() -> int:
-    """Called by the systemd user timer: notify about pending updates."""
+    """Run in every user session (systemd user timer + path unit).
+
+    * updates downloaded by the 14-day check → "Update available, please
+      restart" (repeated at login and every 4 hours until the restart)
+    * after the restart → one-time "Updates installed" (or an error)
+    """
     from PyQt6.QtCore import QSettings
 
-    if not QSettings("NovaOS", "nova-updates").value("notify", True, type=bool):
+    settings = QSettings("NovaOS", "nova-updates")
+    if not settings.value("notify", True, type=bool):
         return 0
-    try:
-        pkgs = apt.list_upgradable()
-    except Exception:  # noqa: BLE001
-        pkgs = []
-    apps = flatpak_updates()
-    total = len(pkgs) + len(apps)
-    if not total:
+    result = scheduled.last_result()
+    seen = settings.value("last_result_seen", 0.0, type=float)
+    if result and result.get("time", 0) > seen:
+        settings.setValue("last_result_seen", float(result["time"]))
+        settings.sync()
+        if time.time() - result["time"] < 3 * 86400:
+            if result.get("ok"):
+                title, body = _("Updates installed"), _("NovaOS was updated at the last restart ({n} updates).").format(
+                    n=result.get("count", 0))
+            else:
+                title, body = _("Updates could not be installed"), _("Details are shown in Nova Updates.")
+            subprocess.run(["notify-send", "-a", _("Nova Updates"), "-i", "nova-updates", title, body],
+                           capture_output=True, timeout=30)
+    prepared = scheduled.pending()
+    if not prepared:
         return 0
-    sec = sum(1 for p in pkgs if p.security)
-    body = _("{n} updates available").format(n=total)
-    if sec:
-        body += " – " + _("{s} security updates.").format(s=sec)
+    body = _("{n} updates are ready and will be installed when you restart. Please restart your PC so that "
+             "NovaOS stays up to date.").format(n=prepared.get("count", 0))
     try:
-        res = subprocess.run(["notify-send", "-a", _("Nova Updates"), "-i", "nova-updates", "-u",
-                              "critical" if sec else "normal", "-A", "open=" + _("Show updates"), "-w",
-                              _("Updates are available"), body], capture_output=True, text=True, timeout=3600)
-        if res.stdout.strip() == "open":
+        res = subprocess.run(["notify-send", "-a", _("Nova Updates"), "-i", "nova-updates", "-u", "critical",
+                              "-A", "restart=" + _("Restart now"), "-A", "open=" + _("Details"), "-w",
+                              _("Update available"), body], capture_output=True, text=True, timeout=3600)
+        action = res.stdout.strip()
+        if action == "restart":
+            _restart_prompt()
+        elif action == "open":
             subprocess.Popen(["nova-updates"], start_new_session=True)
     except (OSError, subprocess.TimeoutExpired):
         pass

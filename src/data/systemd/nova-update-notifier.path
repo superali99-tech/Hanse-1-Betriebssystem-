@@ -1,0 +1,9 @@
+[Unit]
+Description=NovaOS: notify as soon as updates are ready
+
+[Path]
+PathChanged=/var/lib/novaos/updates/prepared
+Unit=nova-update-notifier.service
+
+[Install]
+WantedBy=default.target

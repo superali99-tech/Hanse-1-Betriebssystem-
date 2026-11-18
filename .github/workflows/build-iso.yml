@@ -1,7 +1,7 @@
 # Build the NovaOS ISO on GitHub Actions and publish it as a GitHub release.
 #
 # Triggers:
-#   * pushing a version tag (e.g. "git tag v0.1.0 && git push origin v0.1.0")
+#   * pushing a version tag (e.g. "git tag v0.1.1 && git push origin v0.1.1")
 #   * manually: Actions -> "Build NovaOS ISO" -> "Run workflow"
 #
 # The ISO (~2 GB) is attached to a (pre-)release, so it can be downloaded

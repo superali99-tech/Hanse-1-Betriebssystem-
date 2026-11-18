@@ -16,20 +16,20 @@
 ## 1. ISO herunterladen und prüfen
 
 Das fertige ISO liegt auf der Seite **Releases** des Repositorys (aktuell Release `build-2`,
-Datei `novaos-0.1.0-amd64.iso` unter *Assets*, ca. 2,1 GB). Solange das Repository privat
+Datei `novaos-0.1.1-amd64.iso` unter *Assets*, ca. 2,1 GB). Solange das Repository privat
 ist, funktioniert der Download nur, wenn man auf github.com angemeldet ist und Zugriff
 auf das Repository hat.
 
 ```bash
-sha256sum -c novaos-0.1.0-amd64.iso.sha256
+sha256sum -c novaos-0.1.1-amd64.iso.sha256
 # erwartet für build-2: a468107495b5e1485647d913ce2d7a20345139ee0490de6e21cd6db99b58fb1a
 ```
 
-Unter Windows: `certutil -hashfile novaos-0.1.0-amd64.iso SHA256`.
+Unter Windows: `certutil -hashfile novaos-0.1.1-amd64.iso SHA256`.
 
 **USB-Stick (für einen echten PC):** mit [balenaEtcher](https://etcher.balena.io/) oder
 Rufus (im *DD-Modus*) bzw. unter Linux mit
-`sudo dd if=novaos-0.1.0-amd64.iso of=/dev/sdX bs=4M status=progress conv=fsync`
+`sudo dd if=novaos-0.1.1-amd64.iso of=/dev/sdX bs=4M status=progress conv=fsync`
 schreiben. **Achtung:** Dabei wird der gesamte Stick überschrieben – vorher genau prüfen,
 dass `/dev/sdX` wirklich der USB-Stick ist (`lsblk`).
 
@@ -42,7 +42,7 @@ qemu-img create -f qcow2 novaos.qcow2 40G
 qemu-system-x86_64 -enable-kvm -m 4096 -smp 4 -cpu host -machine q35 \
   -drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
   -drive if=pflash,format=raw,file=OVMF_VARS_copy.fd \
-  -drive file=novaos-0.1.0-amd64.iso,media=cdrom,readonly=on,if=none,id=cd0 \
+  -drive file=novaos-0.1.1-amd64.iso,media=cdrom,readonly=on,if=none,id=cd0 \
   -device ide-cd,drive=cd0,bootindex=1 \
   -drive file=novaos.qcow2,if=none,id=hd0 -device virtio-blk-pci,drive=hd0,bootindex=2 \
   -vga virtio -display gtk -device usb-tablet -nic user,model=virtio-net-pci

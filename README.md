@@ -4,7 +4,7 @@
 **Debian 13 „trixie“** (stable) mit **Linux 6.12** und **KDE Plasma 6** – mit eigenem
 Design, eigenem App Store, eigenen System-Apps und einem grafischen Installer.
 
-> Status: **0.1.0 „Aurora“ – Entwicklerversion.** Das ISO wird aus diesem Repository
+> Status: **0.1.1 „Aurora“ – Entwicklerversion.** Das ISO wird aus diesem Repository
 > gebaut und wurde in QEMU getestet: Live-Start (BIOS, UEFI, Secure Boot), Desktop,
 > Browser mit echten Websites, Nova Store mit echter App-Installation, grafische
 > Installation auf eine virtuelle Festplatte, Anmeldung, Persistenz, Neustart und
@@ -34,7 +34,7 @@ Design, eigenem App Store, eigenen System-Apps und einem grafischen Installer.
 ```bash
 # ISO bauen (Debian 13 / Ubuntu 24.04 Host, root, ~25 GB frei)
 ./tools/check-host.sh
-sudo make iso                 # Ergebnis: build/out/novaos-0.1.0-amd64.iso
+sudo make iso                 # Ergebnis: build/out/novaos-0.1.1-amd64.iso
 
 # Tests
 make test                     # Unit-Tests und statische Prüfungen

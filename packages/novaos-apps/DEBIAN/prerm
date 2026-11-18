@@ -2,7 +2,9 @@
 set -e
 if [ "$1" = remove ] || [ "$1" = purge ]; then
 	if command -v systemctl >/dev/null 2>&1; then
-		systemctl --global disable nova-update-notifier.timer nova-calendar-reminders.service >/dev/null 2>&1 || true
+		systemctl --global disable nova-update-notifier.timer nova-update-notifier.path \
+			nova-calendar-reminders.service >/dev/null 2>&1 || true
+		systemctl disable --now novaos-update-check.timer >/dev/null 2>&1 || true
 	fi
 	find /usr/lib/python3/dist-packages/novaos -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
 fi
