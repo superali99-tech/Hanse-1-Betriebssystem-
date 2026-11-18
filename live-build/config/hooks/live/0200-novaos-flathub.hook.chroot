@@ -1,0 +1,13 @@
+#!/bin/sh
+# Register Flathub as system-wide Flatpak remote (used by Nova Store).
+# The .flatpakrepo file (incl. Flathub's public GPG key) is shipped by the
+# novaos-base package, so no network access is needed here.
+set -e
+
+REPO=/usr/share/novaos/flatpak/flathub.flatpakrepo
+if [ -f "$REPO" ] && command -v flatpak >/dev/null; then
+	flatpak remote-add --system --if-not-exists flathub "$REPO"
+	flatpak remotes --system --show-details
+else
+	echo "W: flatpak or $REPO missing - Flathub not configured" >&2
+fi

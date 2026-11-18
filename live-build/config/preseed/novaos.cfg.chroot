@@ -1,0 +1,11 @@
+# Debconf defaults for NovaOS
+locales locales/default_environment_locale select de_DE.UTF-8
+locales locales/locales_to_be_generated multiselect de_DE.UTF-8 UTF-8, en_US.UTF-8 UTF-8, en_GB.UTF-8 UTF-8, fr_FR.UTF-8 UTF-8, es_ES.UTF-8 UTF-8, it_IT.UTF-8 UTF-8, tr_TR.UTF-8 UTF-8
+keyboard-configuration keyboard-configuration/layoutcode string de
+keyboard-configuration keyboard-configuration/xkb-keymap select de
+sddm shared/default-x-display-manager select sddm
+unattended-upgrades unattended-upgrades/enable_auto_updates boolean true
+popularity-contest popularity-contest/participate boolean false
+# Firmware licences (needed for older Intel WLAN chips)
+firmware-ipw2x00 firmware-ipw2x00/license/accepted boolean true
+firmware-ivtv firmware-ivtv/license/accepted boolean true

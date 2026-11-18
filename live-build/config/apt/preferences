@@ -1,0 +1,19 @@
+# NovaOS apt pinning used while building the image.
+# Packages pinned to -1 are never installed (they are only pulled in through
+# "Recommends", so nothing breaks).
+
+# NovaOS ships its own app store (Nova Store) and welcome app (Nova Welcome).
+Package: plasma-discover plasma-discover-backend-flatpak plasma-discover-backend-fwupd plasma-discover-common plasma-welcome
+Pin: release *
+Pin-Priority: -1
+
+# No telemetry / crash upload SDKs, no popularity contest.
+Package: popularity-contest python3-sentry-sdk
+Pin: release *
+Pin-Priority: -1
+
+# Heavy recommends that NovaOS does not need (Nova Browser = Firefox ESR,
+# ark uses libarchive/7zip, Noto core+CJK base fonts cover all scripts).
+Package: konqueror konqueror-doc unar fonts-noto-cjk-extra fonts-noto-extra kdeconnect
+Pin: release *
+Pin-Priority: -1

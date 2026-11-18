@@ -1,0 +1,76 @@
+# NovaOS – base system (Debian 13 trixie)
+
+# Live system
+live-boot
+live-config
+live-config-systemd
+
+# Core utilities
+sudo
+locales
+console-setup
+keyboard-configuration
+tzdata
+ca-certificates
+curl
+wget
+bash-completion
+nano
+less
+man-db
+manpages-de
+htop
+rsync
+zstd
+unzip
+7zip
+dctrl-tools
+xdg-user-dirs
+xdg-utils
+dbus-user-session
+systemd-timesyncd
+systemd-zram-generator
+polkitd
+pkexec
+
+# Updates & security
+unattended-upgrades
+apt-listchanges
+ufw
+fwupd
+
+# Storage, filesystems, encryption
+cryptsetup
+cryptsetup-initramfs
+keyutils
+lvm2
+btrfs-progs
+dosfstools
+exfatprogs
+ntfs-3g
+e2fsprogs
+mtools
+os-prober
+efibootmgr
+udisks2
+
+# Bootloader binaries (the installer picks grub-pc or grub-efi for the target)
+grub-pc-bin
+grub-efi-amd64-bin
+grub-efi-amd64-signed
+shim-signed
+
+# Snapshots / system restore
+timeshift
+
+# Firmware for real hardware (WLAN, Bluetooth, GPU, audio, CPU microcode)
+live-task-non-free-firmware-pc
+firmware-linux-free
+firmware-misc-nonfree
+firmware-intel-graphics
+firmware-mediatek
+
+# Virtual machine guest support
+spice-vdagent
+qemu-guest-agent
+open-vm-tools-desktop

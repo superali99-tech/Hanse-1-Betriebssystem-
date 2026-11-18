@@ -1,0 +1,10 @@
+#!/bin/sh
+# Pre-generate the most common locales so the live system and the installer
+# do not have to run locale-gen at boot time.
+set -e
+
+for loc in de_DE en_US en_GB fr_FR es_ES it_IT tr_TR; do
+	sed -i "s/^# *\(${loc}.UTF-8 UTF-8\)/\1/" /etc/locale.gen
+done
+locale-gen
+update-locale LANG=de_DE.UTF-8

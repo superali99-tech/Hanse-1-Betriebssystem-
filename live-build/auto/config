@@ -1,0 +1,57 @@
+#!/bin/sh
+# NovaOS live-build configuration.
+#
+# This file is executed by `lb config`. It describes the NovaOS ISO:
+# Debian 13 "trixie" (stable) base, amd64, hybrid ISO that boots on
+# BIOS and UEFI (incl. Secure Boot via Debian's signed shim/grub/kernel).
+#
+# Values can be overridden from the environment, e.g.
+#   NOVAOS_MIRROR=http://ftp.de.debian.org/debian ./tools/build-iso.sh
+set -e
+
+: "${NOVAOS_VERSION:?NOVAOS_VERSION not set - run ./tools/build-iso.sh instead of lb config directly}"
+: "${NOVAOS_VERSION_ISO:?}"
+
+MIRROR="${NOVAOS_MIRROR:-http://deb.debian.org/debian}"
+MIRROR_SECURITY="${NOVAOS_MIRROR_SECURITY:-http://security.debian.org/debian-security}"
+COMPRESSION="${NOVAOS_SQUASHFS_COMPRESSION:-xz}"
+
+lb config noauto \
+	--mode debian \
+	--system live \
+	--distribution trixie \
+	--architecture amd64 \
+	--archive-areas "main contrib non-free non-free-firmware" \
+	--parent-archive-areas "main contrib non-free non-free-firmware" \
+	--security true \
+	--updates true \
+	--backports false \
+	--mirror-bootstrap "${MIRROR}" \
+	--mirror-chroot "${MIRROR}" \
+	--mirror-chroot-security "${MIRROR_SECURITY}" \
+	--mirror-binary "${MIRROR}" \
+	--mirror-binary-security "${MIRROR_SECURITY}" \
+	--linux-flavours amd64 \
+	--initramfs live-boot \
+	--initsystem systemd \
+	--bootloaders "grub-pc grub-efi" \
+	--uefi-secure-boot enable \
+	--binary-images iso-hybrid \
+	--debian-installer none \
+	--firmware-chroot false \
+	--firmware-binary false \
+	--memtest none \
+	--apt-recommends true \
+	--apt-indices true \
+	--cache true \
+	--cache-packages true \
+	--chroot-squashfs-compression-type "${COMPRESSION}" \
+	--iso-application "NovaOS ${NOVAOS_VERSION}" \
+	--iso-publisher "NovaOS Project" \
+	--iso-preparer "NovaOS live-build (tools/build-iso.sh)" \
+	--iso-volume "NOVAOS_${NOVAOS_VERSION_ISO}" \
+	--image-name "novaos-${NOVAOS_VERSION}" \
+	--hdd-label "NOVAOS" \
+	--bootappend-live "boot=live components quiet splash username=nova user-fullname=NovaOS-Live hostname=novaos locales=de_DE.UTF-8 keyboard-layouts=de timezone=Europe/Berlin" \
+	--bootappend-live-failsafe "boot=live components username=nova hostname=novaos memtest noapic noapm nodma nomce nosmp nosplash vga=788" \
+	"${@}"

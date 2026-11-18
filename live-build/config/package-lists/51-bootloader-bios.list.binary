@@ -1,0 +1,2 @@
+# BIOS / legacy boot loader for the installed system (see 50-bootloader-efi).
+grub-pc

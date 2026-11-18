@@ -1,0 +1,10 @@
+# Packages copied into the ISO's /pool so that the installer can install the
+# right bootloader for the target machine without network access.
+# UEFI (incl. Secure Boot). grub-pc conflicts with grub-efi-amd64, so the
+# BIOS variant lives in a separate list (one apt resolver run per list).
+grub-efi
+grub-efi-amd64
+grub-efi-amd64-signed
+shim-signed
+cryptsetup-initramfs
+keyutils

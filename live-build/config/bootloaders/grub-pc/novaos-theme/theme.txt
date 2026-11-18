@@ -1,0 +1,49 @@
+# NovaOS GRUB theme (live medium)
+desktop-image: "../splash.png"
+desktop-color: "#0b1020"
+title-text: ""
+message-font: "Unifont Regular 16"
+message-color: "#e6ebff"
+terminal-font: "Unifont Regular 16"
+
++ boot_menu {
+	left = 20%
+	width = 60%
+	top = 48%
+	height = 36%
+	item_font = "Unifont Regular 16"
+	item_color = "#c9d1f0"
+	selected_item_font = "Unifont Regular 16"
+	selected_item_color = "#ffffff"
+	item_height = 28
+	item_padding = 8
+	item_spacing = 6
+	icon_width = 0
+	icon_height = 0
+	item_icon_space = 0
+	selected_item_pixmap_style = "select_*.png"
+	scrollbar = false
+}
+
++ label {
+	top = 100%-40
+	left = 0
+	width = 100%
+	height = 20
+	align = "center"
+	color = "#8f9bc7"
+	font = "Unifont Regular 16"
+	text = "Pfeiltasten: Auswahl   Enter: Starten   e: Bearbeiten   c: Konsole"
+}
+
++ progress_bar {
+	id = "__timeout__"
+	left = 30%
+	top = 100%-80
+	width = 40%
+	height = 8
+	fg_color = "#7c5cff"
+	bg_color = "#1b2140"
+	border_color = "#1b2140"
+	show_text = false
+}

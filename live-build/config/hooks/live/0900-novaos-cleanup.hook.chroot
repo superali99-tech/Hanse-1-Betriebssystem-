@@ -1,0 +1,10 @@
+#!/bin/sh
+# Final cleanup of the image.
+set -e
+
+# Rebuild caches that NovaOS packages touch.
+command -v update-desktop-database >/dev/null && update-desktop-database -q /usr/share/applications || true
+command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -q -f /usr/share/icons/hicolor || true
+command -v glib-compile-schemas >/dev/null && glib-compile-schemas /usr/share/glib-2.0/schemas || true
+
+apt-get clean

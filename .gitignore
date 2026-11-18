@@ -1,0 +1,7 @@
+build/
+*.iso
+__pycache__/
+*.pyc
+.pytest_cache/
+/live-build/config/packages.chroot/*.deb
+/tests/qemu/out/

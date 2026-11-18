@@ -1,0 +1,25 @@
+#!/bin/sh
+# Enable NovaOS system services and security defaults.
+set -e
+
+# Firewall: ufw with "deny incoming / allow outgoing" (ufw's defaults).
+# The rules are loaded by ufw.service at boot.
+if [ -f /etc/ufw/ufw.conf ]; then
+	sed -i 's/^ENABLED=.*/ENABLED=yes/' /etc/ufw/ufw.conf
+fi
+
+for unit in NetworkManager.service bluetooth.service cups.service \
+            avahi-daemon.service ufw.service power-profiles-daemon.service \
+            unattended-upgrades.service systemd-timesyncd.service \
+            fstrim.timer apt-daily.timer apt-daily-upgrade.timer; do
+	if systemctl list-unit-files "$unit" >/dev/null 2>&1; then
+		systemctl enable "$unit" || echo "W: could not enable $unit" >&2
+	fi
+done
+
+# Persistent journal (error logs survive reboots)
+mkdir -p /var/log/journal
+systemd-tmpfiles --create --prefix /var/log/journal 2>/dev/null || true
+
+# SDDM is the display manager
+echo /usr/bin/sddm > /etc/X11/default-display-manager

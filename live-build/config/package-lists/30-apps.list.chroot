@@ -1,0 +1,43 @@
+# NovaOS – preinstalled applications
+#
+# Upstream applications that are presented under NovaOS names:
+#   Nova Browser  -> firefox-esr (Debian security-supported ESR)
+#   Nova Files    -> dolphin
+#   Nova Terminal -> konsole
+#   Nova Settings -> systemsettings
+#   Nova Calculator -> kcalc
+#   Nova Media    -> haruna (mpv)
+#   Nova Photos   -> gwenview
+# The NovaOS-specific apps (Store, Updates, Notes, Calendar, Task Manager,
+# Welcome, Help, About) are built from src/ and shipped as novaos-* .debs
+# in config/packages.chroot/.
+
+firefox-esr
+firefox-esr-l10n-de
+hunspell-de-de
+dolphin
+konsole
+kcalc
+haruna
+gwenview
+okular
+ark
+kate
+kde-spectacle
+ksystemlog
+partitionmanager
+
+# Flatpak + Flathub (Nova Store backend)
+flatpak
+appstream
+
+# Runtime dependencies of the NovaOS apps (also declared in the .debs)
+python3
+python3-pyqt6
+python3-gi
+gir1.2-flatpak-1.0
+gir1.2-glib-2.0
+python3-psutil
+python3-icalendar
+python3-dbus
+libnotify-bin
