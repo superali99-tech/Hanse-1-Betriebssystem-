@@ -44,8 +44,12 @@ make qemu                     # ISO in QEMU booten (Screenshots)
 
 Ausführlich: [docs/BUILD.md](docs/BUILD.md) · Testen/Installieren: [docs/INSTALLATION.md](docs/INSTALLATION.md)
 
-Das ISO kann auch per GitHub Actions gebaut werden (Workflow *Build NovaOS ISO*, manueller
-Start); es wird dann als Artefakt zum Download bereitgestellt.
+### Fertiges ISO herunterladen
+
+GitHub Actions baut das ISO automatisch, sobald ein Versions-Tag (`v*`) gepusht wird, und
+veröffentlicht es auf der Seite **Releases** dieses Repositorys (Datei
+`novaos-<version>-amd64.iso` unter *Assets*, dazu die SHA256-Prüfsumme). Ein Build dauert
+etwa 45–60 Minuten. Manuell: *Actions → Build NovaOS ISO → Run workflow*.
 
 ## Dokumentation
 

@@ -1,8 +1,17 @@
-# Build the NovaOS ISO on GitHub Actions (manual trigger).
-# The ISO (~2 GB) is uploaded as workflow artifact.
+# Build the NovaOS ISO on GitHub Actions and publish it as a GitHub release.
+#
+# Triggers:
+#   * pushing a version tag (e.g. "git tag v0.1.0 && git push origin v0.1.0")
+#   * manually: Actions -> "Build NovaOS ISO" -> "Run workflow"
+#
+# The ISO (~2 GB) is attached to a (pre-)release, so it can be downloaded
+# from the "Releases" page of the repository. GitHub allows up to 2 GiB per
+# release file; the build fails early if the ISO gets bigger.
 name: Build NovaOS ISO
 
 on:
+  push:
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       compression:
@@ -10,13 +19,18 @@ on:
         default: "xz"
         required: true
 
+permissions:
+  contents: write
+
 jobs:
   test:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Install test dependencies
-        run: sudo apt-get update && sudo apt-get install -y python3-pytest python3-yaml python3-icalendar desktop-file-utils
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pytest python3-yaml python3-icalendar python3-pyqt6 desktop-file-utils
       - name: Unit tests
         run: python3 -m pytest -q tests/unit
 
@@ -26,13 +40,15 @@ jobs:
     timeout-minutes: 240
     steps:
       - uses: actions/checkout@v4
+
       - name: Free disk space (remove preinstalled SDKs not needed here)
         run: |
           sudo apt-get clean
-          for d in /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL; do
+          for d in /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost; do
             if [ -d "$d" ]; then sudo find "$d" -mindepth 1 -delete; fi
           done
           df -h /
+
       - name: Install Debian live-build
         run: |
           sudo apt-get update
@@ -42,13 +58,37 @@ jobs:
                   http://deb.debian.org/debian/pool/main/d/debootstrap/debootstrap_1.0.141_all.deb \
                   http://deb.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2025.1_all.deb
           sudo dpkg -i ./*.deb
+
       - name: Build ISO
-        run: sudo NOVAOS_SQUASHFS_COMPRESSION=${{ github.event.inputs.compression }} ./tools/build-iso.sh
-      - uses: actions/upload-artifact@v4
-        with:
-          name: novaos-iso
-          path: |
-            build/out/*.iso
-            build/out/*.sha256
-            build/out/*.packages
-          compression-level: 0
+        run: sudo NOVAOS_SQUASHFS_COMPRESSION=${{ github.event.inputs.compression || 'xz' }} ./tools/build-iso.sh
+
+      - name: Check ISO size (GitHub release limit 2 GiB)
+        run: |
+          ls -la build/out/
+          size=$(stat -c %s build/out/novaos-*-amd64.iso)
+          echo "ISO size: $size bytes"
+          test "$size" -lt 2147483648
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="build-$GITHUB_RUN_NUMBER"; fi
+          . ./VERSION.sh
+          SHA=$(cut -d' ' -f1 build/out/*.iso.sha256)
+          cat > release-notes.md <<EOF
+          NovaOS ${NOVAOS_VERSION} „${NOVAOS_CODENAME}“ – Entwicklerversion (Debian 13 „trixie“, KDE Plasma 6).
+
+          **Download:** \`novaos-${NOVAOS_VERSION}-amd64.iso\` (unten unter *Assets*)
+          **SHA256:** \`${SHA}\`
+
+          1. Prüfen: \`sha256sum -c novaos-${NOVAOS_VERSION}-amd64.iso.sha256\`
+          2. In einer VM testen oder mit z. B. balenaEtcher / \`dd\` auf einen USB-Stick schreiben
+          3. Live-System starten (Benutzer \`nova\`, Passwort \`live\`), dann „NovaOS installieren“
+
+          Anleitung: docs/INSTALLATION.md · Testbericht und bekannte Einschränkungen: docs/TESTBERICHT.md
+          Gebaut von GitHub Actions aus Commit ${GITHUB_SHA}.
+          EOF
+          gh release create "$TAG" build/out/novaos-*-amd64.iso build/out/*.iso.sha256 build/out/*.packages \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "NovaOS ${NOVAOS_VERSION} (${NOVAOS_CODENAME}) – ${TAG}" --notes-file release-notes.md
