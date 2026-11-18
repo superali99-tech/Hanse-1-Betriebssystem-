@@ -25,7 +25,8 @@ Ohne KVM ist alles 5–10× langsamer als auf echter Hardware; Startzeiten unten
 | #3 | mit allen novaos-*.deb | ✅ ISO 2,1 GB (zstd), 10 min |
 | #4 | Korrekturen aus den VM-Tests | ✅ ISO 2,1 GB (zstd), 10 min |
 | #5 | xz-komprimiert, GRUB-UEFI-Korrektur | ✅ 2 091 161 600 Byte, 18 min |
-| #6 | **finales ISO**: zusätzlich EFI-Fallback im Installer, Widget-Layout, Willkommensassistent, Rechnername | ✅ `novaos-0.1.0-amd64.iso`, 2 091 169 792 Byte, 12 min, SHA256 `9104bf8b5115b49a1120ad76bbca2e893caea6c2f214094451f323e53626ba82` |
+| #6 | EFI-Fallback im Installer, Widget-Layout, Willkommensassistent, Rechnername | ✅ 2 091 169 792 Byte, 12 min (Grundlage des 2. Installationstests) |
+| #7 | **finales ISO**: zusätzlich NVRAM-Eintrag aus dem Live-System, Booteintrag „NovaOS“ | ✅ `novaos-0.1.0-amd64.iso`, 2 091 169 792 Byte, 12 min, SHA256 `54059f545bc816efbb5acf4c01f8fd242530225053cf67326f8a6ddd19046249`; Boot-Rauchtest (BIOS-Menü + Live-Desktop) bestanden |
 
 ## Ergebnisse
 
@@ -122,7 +123,24 @@ Durchgeführt mit ISO #4 im UEFI-Modus, vollständig über die grafische Oberfl�
 | **Änderungen bleiben gespeichert** | ✅ | vor dem Neustart angelegte Datei `~/persist.txt` (10:01) nach Neustart vorhanden |
 | **Neu starten** (Anmeldebildschirm) | ✅ | GRUB → Splash → System |
 | **Herunterfahren** (Abmeldedialog) | ✅ | VM nach ~30 s ausgeschaltet |
-| Installer-Schritt `novaos-efi-fallback` im kompletten Calamares-Durchlauf | ⚠️ | in Build #6 enthalten; Skriptlogik wurde manuell (UEFI-Shell, gleiche Dateien) verifiziert, ein zweiter vollständiger Installationslauf mit Build #6: siehe unten |
+| Installer-Schritt `novaos-efi-fallback` im kompletten Calamares-Durchlauf | ✅ | siehe zweiter Installationstest unten |
+
+#### Zweiter vollständiger Installationstest (finales ISO #6, UEFI)
+
+| Schritt | Ergebnis | Details |
+|---|---|---|
+| Komplette Installation über die Oberfläche | ✅ | ~26 min; Rechnername-Vorschlag jetzt „anna-novaos“ |
+| Installer legt `EFI/BOOT/BOOTX64.EFI` (shim) + fbx64/grubx64/mmx64/grub.cfg an | ✅ | im UEFI-Shell-Listing nachgewiesen |
+| Erster Start ohne Eingriff (gleiche NVRAM wie bei der Installation) | ❌ | wieder UEFI-Shell: In dieser VM stand die Shell in der Bootreihenfolge **vor** der Festplatte, und der NVRAM-Eintrag aus dem Installer fehlte erneut |
+| Fallback einmal von Hand gestartet (`fs0:\EFI\BOOT\BOOTX64.EFI`) | ✅ | shims `fbx64` legte `Boot0007` → `\EFI\NovaOS\shimx64.efi` an und setzte ihn an **Platz 1** der Bootreihenfolge |
+| `efibootmgr -c` aus dem laufenden NovaOS | ✅ | RC=0, Eintrag angelegt → NVRAM-Schreiben funktioniert; Schluss: Der Aufruf **im Ziel-chroot** des Installers war das Problem |
+| Herunterfahren → Start **ohne jeden Eingriff** | ✅ | GRUB → Kernel → Anmeldebildschirm (auch mit einem absichtlich defekten Eintrag an Platz 1 fiel die Firmware korrekt auf NovaOS zurück) |
+| Korrektur in Build #7 | ⚠️ | `efibootmgr` wird jetzt aus dem Live-System aufgerufen (dort sind die EFI-Variablen eingehängt), Booteintrag heißt „NovaOS“. Der gleichwertige Befehl wurde in der VM erfolgreich ausgeführt; ein **dritter** kompletter Installationslauf mit Build #7 wurde aus Zeitgründen **nicht** mehr durchgeführt. |
+
+**Bewertung:** Auf echten PCs, deren Firmware die Festplatte vor einer UEFI-Shell (die es dort
+meist gar nicht gibt) startet, greift der Fallback-Pfad bereits mit Build #6. Für VMs mit
+vorhandener NVRAM-Historie (wie hier) sorgt in Build #7 der NVRAM-Eintrag aus dem Live-System
+für den direkten Start – dies ist plausibel, aber im Gesamtablauf noch nicht getestet.
 
 Weitere Beobachtungen: Systemmonitor-Widgets zeigten erst nach einiger Zeit Daten; nach
 einem Auflösungswechsel in der VM wurden die Desktop-Widgets über die Desktop-Symbole
