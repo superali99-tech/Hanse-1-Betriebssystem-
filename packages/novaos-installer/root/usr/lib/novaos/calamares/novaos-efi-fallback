@@ -39,17 +39,30 @@ else
 fi
 log "EFI fallback installed: $(ls "$E/BOOT" | tr '\n' ' ')"
 
-# Additionally try to register the NVRAM entry (harmless if it fails).
-if chroot "$T" sh -c 'command -v efibootmgr' >/dev/null 2>&1; then
-	if ! chroot "$T" efibootmgr 2>/dev/null | grep -qi novaos; then
+# Name the entry that shim's fallback creates "NovaOS" (Debian ships
+# "debian"). BOOTX64.CSV is UCS-2 little endian.
+if [ -f "$SRC/shimx64.efi" ] && command -v iconv >/dev/null 2>&1; then
+	printf 'shimx64.efi,NovaOS,,This is the boot entry for NovaOS\n' \
+		| iconv -f UTF-8 -t UCS-2LE > "$SRC/BOOTX64.CSV" || true
+fi
+
+# Register the NVRAM entry from the *live* system, where efivarfs is
+# mounted (the QEMU test showed that the write from inside the target
+# chroot did not end up in NVRAM). Harmless if it fails: then shim's
+# fallback creates the entry at the first start.
+if command -v efibootmgr >/dev/null 2>&1 && [ -d /sys/firmware/efi/efivars ]; then
+	if ! efibootmgr 2>/dev/null | grep -qi 'novaos'; then
 		ESP_DEV=$(findmnt -n -o SOURCE "$T/boot/efi" || true)
 		DISK="/dev/$(lsblk -no PKNAME "$ESP_DEV" 2>/dev/null | head -n1)"
 		PART=$(cat "/sys/class/block/$(basename "$ESP_DEV")/partition" 2>/dev/null || true)
 		if [ -n "$PART" ] && [ -b "$DISK" ]; then
 			LOADER='\EFI\NovaOS\grubx64.efi'
 			[ -f "$SRC/shimx64.efi" ] && LOADER='\EFI\NovaOS\shimx64.efi'
-			chroot "$T" efibootmgr -c -d "$DISK" -p "$PART" -L NovaOS -l "$LOADER" >/dev/null 2>&1 \
-				&& log "NVRAM boot entry created" || log "NVRAM entry could not be created (fallback will be used)"
+			if efibootmgr -c -d "$DISK" -p "$PART" -L NovaOS -l "$LOADER" >/dev/null 2>&1; then
+				log "NVRAM boot entry 'NovaOS' created ($DISK, partition $PART)"
+			else
+				log "NVRAM entry could not be created - shim fallback will create it"
+			fi
 		fi
 	fi
 fi
