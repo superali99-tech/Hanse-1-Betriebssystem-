@@ -4,9 +4,15 @@
 **Debian 13 „trixie“** (stable) mit **Linux 6.12** und **KDE Plasma 6** – mit eigenem
 Design, eigenem App Store, eigenen System-Apps und einem grafischen Installer.
 
-> Status: **0.1.0 „Aurora“ – Entwicklerversion.** Das ISO wird reproduzierbar aus diesem
-> Repository gebaut und wurde in QEMU getestet. Was genau getestet wurde und was nicht,
-> steht ehrlich in [docs/TESTBERICHT.md](docs/TESTBERICHT.md).
+> Status: **0.1.0 „Aurora“ – Entwicklerversion.** Das ISO wird aus diesem Repository
+> gebaut und wurde in QEMU getestet: Live-Start (BIOS, UEFI, Secure Boot), Desktop,
+> Browser mit echten Websites, Nova Store mit echter App-Installation, grafische
+> Installation auf eine virtuelle Festplatte, Anmeldung, Persistenz, Neustart und
+> Herunterfahren. Was genau getestet wurde, welche Fehler gefunden wurden und was
+> **nicht** getestet ist (z. B. echte Hardware), steht in
+> [docs/TESTBERICHT.md](docs/TESTBERICHT.md).
+
+![NovaOS Desktop](docs/screenshots/04-startmenue.png)
 
 ## Was ist drin?
 

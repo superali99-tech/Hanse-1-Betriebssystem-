@@ -15,11 +15,13 @@ UEFI-Firmware (Microsoft-UEFI-CA)
 * **Live-Medium:** live-build wird mit `--uefi-secure-boot enable` aufgerufen und legt
   die signierte Kette unter `EFI/boot/` des ISO ab.
 * **Installiertes System:** `novaos-bootloader-config` installiert auf UEFI-Rechnern
-  `grub-efi-amd64-signed` und `shim-signed` und setzt
-  `grub2/force_efi_extra_removable=true`, damit shim auch unter
-  `EFI/BOOT/BOOTX64.EFI` liegt (Fallback für Firmware, die NVRAM-Einträge verliert).
-  Calamares' eigene Fallback-Kopie ist deaktiviert (`installEFIFallback: false`), damit
-  dort nicht ein unsignierter GRUB landet.
+  `grub-efi-amd64-signed` und `shim-signed`; Calamares' `grub-install` legt damit
+  shim + signierten GRUB unter `EFI/NovaOS/` ab. Anschließend kopiert
+  `novaos-efi-fallback` die signierte Kette zusätzlich nach `EFI/BOOT/BOOTX64.EFI`
+  (inkl. `fbx64.efi`, das den NVRAM-Eintrag „NovaOS“ aus `EFI/NovaOS/BOOTX64.CSV` neu
+  anlegt) – für Firmware ohne bzw. mit verlorenem NVRAM-Eintrag. Calamares' eigene
+  Fallback-Kopie ist deaktiviert (`installEFIFallback: false`), damit dort nicht ein
+  unsignierter GRUB landet.
 
 ## Einschränkungen (ehrlich)
 
@@ -36,7 +38,13 @@ UEFI-Firmware (Microsoft-UEFI-CA)
    automatisch die aktuellen signierten Pakete aus Debian).
 4. **NovaOS-eigene Pakete** enthalten keinen Boot-Code und müssen daher nicht signiert werden.
 
-## Testergebnis
+## Testergebnis (QEMU/OVMF)
 
-Siehe [TESTBERICHT.md](TESTBERICHT.md): Dort ist dokumentiert, ob der Boot mit
-OVMF + Secure Boot (Microsoft-Schlüssel) in QEMU tatsächlich getestet wurde.
+* ✅ **Live-Medium mit aktivem Secure Boot** (OVMF `OVMF_CODE_4M.secboot.fd` +
+  `OVMF_VARS_4M.ms.fd`, d. h. Microsoft-Schlüssel, Secure Boot erzwungen): startet bis zum
+  NovaOS-Bootsplash.
+* ✅ Installiertes System (UEFI ohne Secure Boot) startet über den shim-Fallback-Pfad.
+* ⬜ Installiertes System **mit** aktivem Secure Boot wurde nicht getestet (die Kette ist
+  dieselbe signierte shim/GRUB/Kernel-Kombination wie auf dem Live-Medium).
+
+Details: [TESTBERICHT.md](TESTBERICHT.md).

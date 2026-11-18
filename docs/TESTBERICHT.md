@@ -24,7 +24,8 @@ Ohne KVM ist alles 5–10× langsamer als auf echter Hardware; Startzeiten unten
 | #2 | Debian/KDE ohne NovaOS-Pakete | ✅ ISO 2,1 GB (zstd), 11 min |
 | #3 | mit allen novaos-*.deb | ✅ ISO 2,1 GB (zstd), 10 min |
 | #4 | Korrekturen aus den VM-Tests | ✅ ISO 2,1 GB (zstd), 10 min |
-| #5 | **finales ISO**, xz-komprimiert, GRUB-UEFI-Korrektur | ✅ `novaos-0.1.0-amd64.iso`, 2 091 161 600 Byte, 18 min, SHA256 `6cbf62d009306f11a89cd6fd7300629c0b0d106b73f5d4dffe3cad0c74a89dd8` |
+| #5 | xz-komprimiert, GRUB-UEFI-Korrektur | ✅ 2 091 161 600 Byte, 18 min |
+| #6 | **finales ISO**: zusätzlich EFI-Fallback im Installer, Widget-Layout, Willkommensassistent, Rechnername | ✅ `novaos-0.1.0-amd64.iso`, 2 091 169 792 Byte, 12 min, SHA256 `9104bf8b5115b49a1120ad76bbca2e893caea6c2f214094451f323e53626ba82` |
 
 ## Ergebnisse
 
@@ -98,9 +99,35 @@ Kalender inkl. iCalendar-Import/-Export und Erinnerungen, APT-Ausgabe, Übersetz
 vollständig inkl. Platzhalter, Rebranding, Shell-Syntax aller Skripte, Calamares-YAML
 ohne doppelte Schlüssel, `desktop-file-validate`, Paketlisten).
 
-### Installation
+### Installation (Calamares, UEFI, leere 30-GB-Festplatte)
 
-INSTALLATION_RESULTS
+Durchgeführt mit ISO #4 im UEFI-Modus, vollständig über die grafische Oberfläche
+(Mausklicks und Tastatur über QMP), ohne Internetzugang für den Installer.
+
+| Schritt | Ergebnis | Details |
+|---|---|---|
+| Installer aus dem Willkommensassistenten starten | ✅ | Calamares mit NovaOS-Branding, deutsch |
+| Anforderungsprüfung | ✅ | Hinweis „nicht mit dem Internet verbunden“ (TLS-Proxy der Testumgebung) – nur Warnung, Installation offline möglich |
+| Standort/Zeitzone, Tastatur | ✅ | Europe/Berlin, Deutsch – ohne GeoIP-Abfrage |
+| Partitionierung | ✅ | **Keine Option vorausgewählt, „Weiter“ gesperrt bis zur ausdrücklichen Wahl**; „Festplatte löschen“ → 512 MiB EFI + 29,5 GiB ext4; Verschlüsselung angeboten |
+| Benutzer | ✅ | Name, Login, Rechnername, Passwort mit Prüfung |
+| Zusammenfassung + **zusätzliche Sicherheitsabfrage** | ✅ | „Diese Änderungen können nicht rückgängig gemacht werden“ |
+| Installation mit Fortschritt und Diashow | ✅ | ~29 min unter Emulation (parallel lief ein ISO-Build) |
+| „Alles erledigt“ | ✅ | |
+| **Erster Start von der Festplatte** | ❌ → behoben | OVMF landete in der UEFI-Shell. Ursache: `EFI/NovaOS/` enthielt korrekt shim + signierten GRUB, aber es gab **keinen NVRAM-Booteintrag** und der Fallback-Pfad `EFI/BOOT/` war leer (meine Annahme, das grub-efi-Paket befülle ihn, war falsch). **Fix:** neuer Installer-Schritt `novaos-efi-fallback` (shim → `EFI/BOOT/BOOTX64.EFI` + fbx64/mmx64/grubx64, zusätzlich efibootmgr-Versuch). |
+| Installiertes System manuell über shim gestartet | ✅ | NovaOS-GRUB-Theme → Kernel → SDDM |
+| Anmeldung mit dem bei der Installation gesetzten Passwort | ✅ | SDDM mit NovaOS-Hintergrund, Plasma (Wayland), Erststart-Assistent |
+| Fallback-Dateien wie vom neuen Skript angelegt, frischer UEFI-NVRAM | ✅ | **System startet automatisch**: shim → GRUB → Kernel → Splash → Anmeldung |
+| Zweiter Start (persistenter NVRAM) | ✅ | automatisch bis zur Anmeldung |
+| **Änderungen bleiben gespeichert** | ✅ | vor dem Neustart angelegte Datei `~/persist.txt` (10:01) nach Neustart vorhanden |
+| **Neu starten** (Anmeldebildschirm) | ✅ | GRUB → Splash → System |
+| **Herunterfahren** (Abmeldedialog) | ✅ | VM nach ~30 s ausgeschaltet |
+| Installer-Schritt `novaos-efi-fallback` im kompletten Calamares-Durchlauf | ⚠️ | in Build #6 enthalten; Skriptlogik wurde manuell (UEFI-Shell, gleiche Dateien) verifiziert, ein zweiter vollständiger Installationslauf mit Build #6: siehe unten |
+
+Weitere Beobachtungen: Systemmonitor-Widgets zeigten erst nach einiger Zeit Daten; nach
+einem Auflösungswechsel in der VM wurden die Desktop-Widgets über die Desktop-Symbole
+verschoben → Layout in Build #6 kompakter (passt in 1024×768). Der Willkommensassistent
+erschien erneut, wenn er per X geschlossen wurde → Schließen zählt ab Build #6 als erledigt.
 
 ### Nicht getestet
 

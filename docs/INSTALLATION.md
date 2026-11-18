@@ -35,6 +35,11 @@ qemu-system-x86_64 -enable-kvm -m 4096 -smp 4 -cpu host -machine q35 \
 (`OVMF_VARS_copy.fd` ist eine Kopie von `/usr/share/OVMF/OVMF_VARS_4M.fd`. Für BIOS-Boot die
 beiden `-drive if=pflash` Zeilen weglassen.)
 
+> **Hinweis aus den NovaOS-Tests:** Ohne KVM (reine Software-Emulation, `-accel tcg`)
+> stürzten Plasma und KWin in QEMU ab, solange die emulierte CPU AVX/AVX2 meldete. Mit
+> `-cpu max,avx=off,avx2=off,fma=off` lief alles stabil. Mit KVM (`-enable-kvm -cpu host`)
+> tritt das nicht auf. Ohne KVM ist NovaOS in QEMU zudem sehr langsam.
+
 **VirtualBox:** Neue VM „Debian (64-bit)“, 4 GB RAM, 40 GB Festplatte, *EFI aktivieren*,
 Grafik *VMSVGA* mit 128 MB, ISO als optisches Laufwerk einlegen.
 
