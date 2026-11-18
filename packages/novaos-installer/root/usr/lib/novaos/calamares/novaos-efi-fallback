@@ -1,0 +1,56 @@
+#!/bin/sh
+# Make the installed system bootable even if the firmware has no NVRAM boot
+# entry for NovaOS (or loses it, which many PCs and virtual machines do):
+# Debian's signed shim + GRUB are copied to the removable-media path
+# EFI/BOOT/BOOTX64.EFI. shim's fallback (fbx64.efi) then re-creates the
+# "NovaOS" boot entry from EFI/NovaOS/BOOTX64.CSV on the next start.
+# The chain stays signed, so this works with Secure Boot as well.
+#
+# Found by the NovaOS QEMU installation test: without this step OVMF dropped
+# to the UEFI shell after installation.
+set -e
+. /usr/lib/novaos/calamares/common.sh
+T=$(target_root "$1")
+[ -n "$T" ] || { log "target root not found"; exit 1; }
+[ -d /sys/firmware/efi ] || { log "BIOS system - nothing to do"; exit 0; }
+
+E="$T/boot/efi/EFI"
+SRC=""
+for d in NovaOS novaos debian; do
+	if [ -f "$E/$d/shimx64.efi" ] || [ -f "$E/$d/grubx64.efi" ]; then
+		SRC="$E/$d"
+		break
+	fi
+done
+if [ -z "$SRC" ]; then
+	log "no GRUB/shim found below $E - cannot create fallback"
+	exit 1
+fi
+
+mkdir -p "$E/BOOT"
+if [ -f "$SRC/shimx64.efi" ]; then
+	cp "$SRC/shimx64.efi" "$E/BOOT/BOOTX64.EFI"
+	for f in grubx64.efi mmx64.efi fbx64.efi grub.cfg; do
+		[ -f "$SRC/$f" ] && cp "$SRC/$f" "$E/BOOT/$f"
+	done
+else
+	cp "$SRC/grubx64.efi" "$E/BOOT/BOOTX64.EFI"
+	[ -f "$SRC/grub.cfg" ] && cp "$SRC/grub.cfg" "$E/BOOT/grub.cfg"
+fi
+log "EFI fallback installed: $(ls "$E/BOOT" | tr '\n' ' ')"
+
+# Additionally try to register the NVRAM entry (harmless if it fails).
+if chroot "$T" sh -c 'command -v efibootmgr' >/dev/null 2>&1; then
+	if ! chroot "$T" efibootmgr 2>/dev/null | grep -qi novaos; then
+		ESP_DEV=$(findmnt -n -o SOURCE "$T/boot/efi" || true)
+		DISK="/dev/$(lsblk -no PKNAME "$ESP_DEV" 2>/dev/null | head -n1)"
+		PART=$(cat "/sys/class/block/$(basename "$ESP_DEV")/partition" 2>/dev/null || true)
+		if [ -n "$PART" ] && [ -b "$DISK" ]; then
+			LOADER='\EFI\NovaOS\grubx64.efi'
+			[ -f "$SRC/shimx64.efi" ] && LOADER='\EFI\NovaOS\shimx64.efi'
+			chroot "$T" efibootmgr -c -d "$DISK" -p "$PART" -L NovaOS -l "$LOADER" >/dev/null 2>&1 \
+				&& log "NVRAM boot entry created" || log "NVRAM entry could not be created (fallback will be used)"
+		fi
+	fi
+fi
+exit 0

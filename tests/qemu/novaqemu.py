@@ -256,8 +256,30 @@ class Machine:
             time.sleep(0.12)
 
     def key(self, combo: str) -> None:
-        self.hmp(f"sendkey {combo}")
+        self.hmp(f"sendkey {combo} 30")
         time.sleep(0.15)
+
+    # Characters on a German (de) keyboard layout -> QEMU key (US scancode names)
+    DE_KEYS = {
+        "y": "z", "z": "y", "Y": "shift-z", "Z": "shift-y",
+        "-": "slash", "_": "shift-slash", "/": "shift-7", ":": "shift-dot", ";": "shift-comma",
+        "=": "shift-0", "?": "shift-minus", "+": "bracket_right", "*": "shift-bracket_right",
+        "#": "backslash", "'": "shift-backslash", '"': "shift-2", "$": "shift-4", "%": "shift-5",
+        "&": "shift-6", "(": "shift-8", ")": "shift-9", "!": "shift-1", "<": "less", ">": "shift-less",
+        "|": "alt_r-less", "~": "alt_r-bracket_right", "\\": "alt_r-minus", "@": "alt_r-q",
+        "{": "alt_r-7", "[": "alt_r-8", "]": "alt_r-9", "}": "alt_r-0", " ": "spc", "\n": "ret",
+        ".": "dot", ",": "comma",
+    }
+
+    def type_de(self, text: str) -> None:
+        """Type text into a guest that uses the German keyboard layout."""
+        for ch in text:
+            if ch in self.DE_KEYS:
+                self.key(self.DE_KEYS[ch])
+            elif ch.isalpha() and ch.isupper():
+                self.key(f"shift-{ch.lower()}")
+            elif ch.isalnum():
+                self.key(ch)
 
     def type(self, text: str) -> None:
         for ch in text:
@@ -364,7 +386,7 @@ def main() -> int:
     p.add_argument("--no-cdrom-boot", action="store_true", help="boot from the disk first")
     p.add_argument("--kernel-args", help="boot the ISO kernel directly with these arguments")
     p.add_argument("--memory", type=int, default=4096)
-    for name in ("shot", "click", "dclick", "rclick", "type", "key", "run", "login", "serial", "stop"):
+    for name in ("shot", "click", "dclick", "rclick", "type", "typede", "key", "run", "login", "serial", "stop"):
         q = sub.add_parser(name, help="control a VM started with 'start'")
         q.add_argument("out")
         q.add_argument("args", nargs="*")
@@ -404,6 +426,8 @@ def main() -> int:
         m.click(int(a[0]), int(a[1]), "right" if args.cmd == "rclick" else "left", double=args.cmd == "dclick")
     elif args.cmd == "type":
         m.type(" ".join(a))
+    elif args.cmd == "typede":
+        m.type_de(" ".join(a))
     elif args.cmd == "key":
         for combo in a:
             m.key(combo)
