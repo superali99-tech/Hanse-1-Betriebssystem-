@@ -47,9 +47,13 @@ setup)
 	python3 - "$work/serial.sock" <<'EOF'
 import socket, sys, time
 s = socket.socket(socket.AF_UNIX); s.connect(sys.argv[1]); s.settimeout(2)
-deadline = time.time() + 1800
+# Under TCG the guest reset itself while dex2oat compiled the apps: "extract" (no
+# compilation) avoids that. Set again on every poll, so it also applies after a reset.
+EXTRACT = (b"for p in first-boot boot install bg-dexopt inactive shared; do setprop pm.dexopt.$p extract; done;"
+           b" setprop dalvik.vm.dex2oat-filter extract\n")
+deadline = time.time() + 2400
 while time.time() < deadline:
-    s.sendall(b"\ngetprop sys.boot_completed\n")
+    s.sendall(b"\n" + EXTRACT + b"getprop sys.boot_completed\n")
     buf = b""
     end = time.time() + 5
     while time.time() < end:
