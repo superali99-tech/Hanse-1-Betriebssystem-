@@ -32,20 +32,33 @@ public final class ImageLoader {
     private static boolean pruned = false;
 
     public static void load(ImageView view, String url) {
+        load(view, url, null, null);
+    }
+
+    /**
+     * Like load(view, url), but tries a second address if the first one has no picture,
+     * and runs onLoaded (on the UI thread) when a picture is shown.
+     */
+    public static void load(ImageView view, String url, String fallback, Runnable onLoaded) {
         view.setTag(url);  // plain tag: this class is shared with NovaOS Mobile
         Bitmap cached = MEMORY.get(url);
         if (cached != null) {
             view.setImageBitmap(cached);
+            if (onLoaded != null) onLoaded.run();
             return;
         }
         view.setImageDrawable(null);
         Context app = view.getContext().getApplicationContext();
         POOL.execute(() -> {
             Bitmap bmp = fetch(app, url);
+            if (bmp == null && fallback != null) bmp = fetch(app, fallback);
             if (bmp == null) return;
             MEMORY.put(url, bmp);
+            Bitmap shown = bmp;
             UI.post(() -> {
-                if (url.equals(view.getTag())) view.setImageBitmap(bmp);
+                if (!url.equals(view.getTag())) return;
+                view.setImageBitmap(shown);
+                if (onLoaded != null) onLoaded.run();
             });
         });
     }

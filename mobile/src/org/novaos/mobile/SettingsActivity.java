@@ -26,6 +26,14 @@ public class SettingsActivity extends Activity {
         }
         LinearLayout content = Page.setup(this, R.string.settings_title,
                 getString(R.string.about_version, version, Build.MANUFACTURER, Build.MODEL, Build.VERSION.RELEASE));
+        UpdateInfo update = Updates.pending(this);
+        content.addView(row(R.drawable.ic_refresh, R.string.update_title, update != null
+                        ? getString(R.string.update_available) + " · NovaOS " + update.versionName
+                        : getString(R.string.update_current, Updates.installedName(this)),
+                v -> startActivity(new android.content.Intent(this, UpdateActivity.class))));
+        content.addView(row(R.drawable.ic_novaos_restart, R.string.restart, getString(R.string.restart_sub),
+                v -> startActivity(new android.content.Intent(this, BootActivity.class)
+                        .putExtra(BootActivity.EXTRA_RESTART, true))));
         content.addView(row(R.drawable.ic_home_set, R.string.set_home, getString(R.string.set_home_sub),
                 v -> Launch.settings(this, Settings.ACTION_HOME_SETTINGS)));
         content.addView(row(R.drawable.ic_refresh, R.string.reset_favorites, null, v -> {

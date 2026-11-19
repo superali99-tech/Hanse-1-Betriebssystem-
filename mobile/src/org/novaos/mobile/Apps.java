@@ -29,7 +29,8 @@ final class Apps {
         Intent main = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
         for (ResolveInfo ri : pm.queryIntentActivities(main, 0)) {
             ActivityInfo ai = ri.activityInfo;
-            if (ai == null || ai.packageName.equals(c.getPackageName())) continue;  // not NovaOS itself
+            // NovaOS's own apps (Store, Camera, ...) are listed, the home screen itself is not
+            if (ai == null || ai.name.equals(HomeActivity.class.getName())) continue;
             boolean system = (ai.applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
             list.add(new App(String.valueOf(ri.loadLabel(pm)), new ComponentName(ai.packageName, ai.name),
                     ri.loadIcon(pm), system));

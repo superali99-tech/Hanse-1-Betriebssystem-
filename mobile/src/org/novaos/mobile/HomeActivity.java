@@ -56,6 +56,7 @@ public class HomeActivity extends Activity {
     private String torchId;
     private boolean torchOn;
     private CameraManager.TorchCallback torchCallback;
+    private boolean bootShown;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -114,7 +115,23 @@ public class HomeActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateGreeting();
+        if (Updates.justUpdated(this) && !bootShown) {
+            bootShown = true;  // start animation after an update or on the first start
+            startActivity(new Intent(this, BootActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
         loadApps();
+        if (Updates.due(this)) {
+            worker.execute(() -> {
+                Updates.check(getApplicationContext());
+                runOnUiThread(() -> {
+                    if (!isDestroyed()) {
+                        shown = null;
+                        loadApps();
+                    }
+                });
+            });
+        }
     }
 
     @Override
@@ -164,6 +181,8 @@ public class HomeActivity extends Activity {
                 if (isDestroyed()) return;
                 apps = list;
                 StringBuilder sig = new StringBuilder(Favorites.raw(this));
+                UpdateInfo u = Updates.pending(this);
+                if (u != null) sig.append("|update").append(u.versionCode);
                 for (App a : list) sig.append('|').append(a.key()).append(a.label);
                 if (!sig.toString().equals(shown)) {
                     shown = sig.toString();
@@ -177,6 +196,18 @@ public class HomeActivity extends Activity {
     private void rebuild() {
         rows.removeAllViews();
         int side = Ui.dp(this, 6);
+
+        // "system software update available" (from the NovaOS website)
+        UpdateInfo update = Updates.pending(this);
+        if (update != null) {
+            View banner = novaCard(R.drawable.ic_refresh, getString(R.string.home_update_banner),
+                    getString(R.string.home_update_sub, update.versionName), true,
+                    v -> startActivity(new Intent(this, UpdateActivity.class)));
+            LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    Ui.dp(this, 112));
+            bl.topMargin = Ui.dp(this, 14);
+            rows.addView(banner, bl);
+        }
 
         // Nova: TV and Nova Filme
         rows.addView(Ui.section(this, R.string.nova));

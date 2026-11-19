@@ -1,0 +1,5 @@
+# "What's new" after an update (shown once after the restart animation). de|en per line.
+Nova Store: echte Apps installieren – freie Apps direkt aus F-Droid, bekannte Apps über den Play Store|Nova Store: install real apps – free apps directly from F-Droid, popular apps via the Play Store
+Neue NovaOS-Apps: Kamera, Galerie, Dateien und Notizen|New NovaOS apps: Camera, Gallery, Files and Notes
+Systemsoftware-Update in den NovaOS-Einstellungen, mit Neustart-Animation|System software update in the NovaOS settings, with restart animation
+Eigene NovaOS-Apps erscheinen jetzt auch in der App-Übersicht|NovaOS's own apps now appear in the app overview
