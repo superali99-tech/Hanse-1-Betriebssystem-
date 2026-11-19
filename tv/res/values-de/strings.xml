@@ -77,7 +77,7 @@
     <string name="video_hint">OK: Pause / Weiter  ·  ◀ ▶ 10 Sekunden  ·  ▲ ▼ Info  ·  Zurück: beenden</string>
     <string name="video_paused">Pausiert</string>
     <string name="video_ended">Zu Ende – Zurück: schließen</string>
-    <string name="video_blocked">Dieses Video darf nur auf YouTube laufen. OK: in der YouTube-App öffnen</string>
+    <string name="video_blocked">Dieses Video ist hier nicht verfügbar – oft nur in Deutschland oder nur auf YouTube (Fehler %1$d). OK: in der YouTube-App öffnen</string>
     <string name="video_error">Das Video kann nicht abgespielt werden (Fehler %1$d). OK: in der YouTube-App öffnen</string>
     <string name="video_no_webview">Auf diesem Fernseher fehlt der Web-Player (Android System WebView) – das Video öffnet sich in der YouTube-App.</string>
 </resources>

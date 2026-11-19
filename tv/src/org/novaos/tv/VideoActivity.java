@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,7 @@ public class VideoActivity extends Activity {
     private TextView info, state;
     private ProgressBar progress;
     private String videoId, source;
-    private int playerState = -2, playerError = 0;
+    private int playerState = -2, playerError = 0, loggedError = 0;
     private double position, duration;
     private long barUntil;
 
@@ -205,8 +206,14 @@ public class VideoActivity extends Activity {
             progress.setProgress((int) Math.min(1000, position * 1000 / duration));
         }
         if (playerError != 0) {
+            if (playerError != loggedError) {
+                Log.w("NovaOS-TV", "YouTube player error " + playerError + " for " + videoId);
+                loggedError = playerError;
+            }
+            // 101/150: not allowed here - usually "only in Germany" (embedding was checked
+            // before), 153: player could not identify the app
             state.setText(playerError == 101 || playerError == 150 || playerError == 153
-                    ? getString(R.string.video_blocked) : getString(R.string.video_error, playerError));
+                    ? getString(R.string.video_blocked, playerError) : getString(R.string.video_error, playerError));
             bar.setVisibility(View.VISIBLE);
             return;
         }

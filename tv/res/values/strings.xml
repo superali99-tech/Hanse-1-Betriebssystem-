@@ -77,7 +77,7 @@
     <string name="video_hint">OK: pause / continue  ·  ◀ ▶ 10 seconds  ·  ▲ ▼ info  ·  Back: end</string>
     <string name="video_paused">Paused</string>
     <string name="video_ended">Finished – Back: close</string>
-    <string name="video_blocked">This video may only be played on YouTube. OK: open in the YouTube app</string>
+    <string name="video_blocked">This video is not available here – often only in Germany or only on YouTube (error %1$d). OK: open in the YouTube app</string>
     <string name="video_error">The video cannot be played (error %1$d). OK: open in the YouTube app</string>
     <string name="video_no_webview">The web player (Android System WebView) is missing on this TV – the video opens in the YouTube app.</string>
 </resources>

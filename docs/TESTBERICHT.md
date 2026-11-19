@@ -236,8 +236,19 @@ Hinweise zur Testumgebung: Mit dem bochs-DRM-Grafiktreiber stürzte der Kernel d
 Booten ab (`ttm_bo_vm_open`), mit VESA-Grafik lief sie stabil. Nach einem Neustart der
 Android-Oberfläche (Sprachwechsel) musste das WLAN-HAL neu gestartet werden.
 
+#### Nova Filme direkt in der App (eingebetteter YouTube-Player)
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Einbett-Erlaubnis aller Kanäle (YouTube oEmbed) | ✅ | Die Biene Maja, ZDFtivi, KiKA verbieten das Einbetten → entfernt; einzelne Videos werden beim Laden aussortiert (Serien: 6 → 4) |
+| Player-Seite mit aktuellem Chromium (Playwright), Referer | ✅ | YouTube erhält `Referer: https://org.novaos.tv/` (App-Kennung nach den YouTube-Regeln) |
+| Weltweit freigegebenes Testvideo: Autostart, ▶ +30 s, OK = Pause, OK = weiter | ✅ | Zustände 1 → 1 (0:36) → 2 → 1, Zeit läuft weiter |
+| Netzkino-, Moviedome-, Terra-X-, funk-Videos aus den USA | ⚠️ erwartet | YouTube: „Der Uploader stellt dieses Video in deinem Land nicht zur Verfügung“ (Fehler 150) – Freigabe nur für Deutschland; die App zeigt dazu einen Hinweis und bietet die YouTube-App an |
+| Android-x86: Player öffnet sich mit NovaOS-Infoleiste **unter** dem Bild, Titel und Länge (43:40) | ✅ | Bild: `14-nova-filme-player.png` |
+| Android-x86: Wiedergabe | ❌ (Testumgebung) | WebView 75 (2019) scheitert am TLS-Proxy der Testumgebung (`SSL error … net_error -213`); auf Google TV ist WebView aktuell |
+
 **Nicht getestet:** echter Fernseher mit Tuner (Senderliste aus Antenne/Kabel/Satellit,
-Erlaubnisdialog, Umschalten ins Live-TV der Hersteller-App), Abspielen in der YouTube-App,
+Erlaubnisdialog, Umschalten ins Live-TV der Hersteller-App), Nova-Filme-Wiedergabe aus Deutschland,
 Sender mit Geoblocking aus Deutschland (ZDF, 3sat, ARTE, phoenix, ONE, MDR, rbb, SWR, Radio
 Bremen, WELT – aus den USA alle mit HTTP 403, also erreichbar, aber gesperrt), Ton.
 
