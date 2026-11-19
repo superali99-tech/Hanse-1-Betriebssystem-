@@ -11,12 +11,9 @@ import android.net.NetworkCapabilities;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.format.DateFormat;
-import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
@@ -29,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/** NovaOS TV start page: favorites, all apps, TV settings. Operated with the remote (D-pad). */
+/** NovaOS TV start page: favorites, TV channels, Nova Filme, all apps, TV settings. Operated with the remote (D-pad). */
 public class MainActivity extends Activity {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private LinearLayout rows;
@@ -119,6 +116,35 @@ public class MainActivity extends Activity {
             if (e != null) favRow.addView(appTile(e, "fav:"));
         }
 
+        // TV: channels of the TV's own tuner (all, incl. private channels) + internet live streams
+        List<Channel> channels = Channels.get(this);
+        LinearLayout tvRow = addRow(getString(R.string.row_tv) + "  ·  " + getString(R.string.tv_count, channels.size()));
+        FrameLayout tuner = Tiles.action(this, R.drawable.ic_antenna, R.string.tile_tuner, false);
+        tuner.setTag("act:tuner");
+        tuner.setOnClickListener(v -> startActivity(new Intent(this, TunerActivity.class)));
+        tvRow.addView(tuner);
+        for (int i = 0; i < channels.size(); i++) {
+            Channel ch = channels.get(i);
+            FrameLayout t = Tiles.channel(this, ch.number, ch.name, ch.color);
+            t.setTag("tv:" + ch.number);
+            final int pos = i;
+            t.setOnClickListener(v -> PlayerActivity.start(this, pos));
+            tvRow.addView(t);
+        }
+
+        // Nova Filme: free films and series from official YouTube channels
+        LinearLayout filmRow = addRow(getString(R.string.nova_filme));
+        FrameLayout filme = Tiles.action(this, R.drawable.ic_play, R.string.tile_nova_filme, true);
+        filme.setTag("act:filme");
+        filme.setOnClickListener(v -> NovaFilmeActivity.start(this, null));
+        filmRow.addView(filme);
+        for (Catalog.Category c : Catalog.Category.values()) {
+            FrameLayout t = Tiles.action(this, NovaFilmeActivity.icon(c), NovaFilmeActivity.label(c), false);
+            t.setTag("filme:" + c.name());
+            t.setOnClickListener(v -> NovaFilmeActivity.start(this, c));
+            filmRow.addView(t);
+        }
+
         // All apps (first tile: search)
         LinearLayout appRow = addRow(apps.isEmpty() ? getString(R.string.row_apps)
                 : getString(R.string.row_apps) + "  ·  " + apps.size());
@@ -142,76 +168,14 @@ public class MainActivity extends Activity {
         about.setOnClickListener(v -> startActivity(new Intent(this, AboutActivity.class)));
         setRow.addView(about);
 
-        lockRowEdges();
+        Rows.lockEdges(rows);
         View target = focusTag != null ? rows.findViewWithTag(focusTag) : null;
-        if (target == null) target = firstTile();
+        if (target == null) target = Rows.firstTile(rows);
         if (target != null) target.requestFocus();
     }
 
-    /** Rows of tiles (the LinearLayouts inside the HorizontalScrollViews). */
-    private List<LinearLayout> tileRows() {
-        List<LinearLayout> out = new ArrayList<>();
-        for (int i = 0; i < rows.getChildCount(); i++) {
-            View v = rows.getChildAt(i);
-            if (v instanceof HorizontalScrollView) out.add((LinearLayout) ((HorizontalScrollView) v).getChildAt(0));
-        }
-        return out;
-    }
-
-    private View firstTile() {
-        for (LinearLayout row : tileRows()) {
-            for (int i = 0; i < row.getChildCount(); i++) {
-                if (row.getChildAt(i).isFocusable()) return row.getChildAt(i);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Left/right stays inside a row (like on every TV launcher): without this,
-     * "right" on the last tile of a short row jumped diagonally into the next
-     * row (found in the Android test).
-     */
-    private void lockRowEdges() {
-        for (LinearLayout row : tileRows()) {
-            View first = null, last = null;
-            for (int i = 0; i < row.getChildCount(); i++) {
-                View t = row.getChildAt(i);
-                if (!t.isFocusable()) continue;
-                if (t.getId() == View.NO_ID) t.setId(View.generateViewId());
-                if (first == null) first = t;
-                last = t;
-            }
-            if (first != null) {
-                first.setNextFocusLeftId(first.getId());
-                last.setNextFocusRightId(last.getId());
-            }
-        }
-    }
-
     private LinearLayout addRow(String title) {
-        int side = getResources().getDimensionPixelSize(R.dimen.margin_side);
-        TextView t = new TextView(this);
-        t.setText(title);
-        t.setTextColor(getColor(R.color.text));
-        t.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.row_title));
-        t.setTypeface(t.getTypeface(), android.graphics.Typeface.BOLD);
-        t.setPadding(side, Tiles.dp(this, 14), side, 0);
-        rows.addView(t);
-
-        HorizontalScrollView hs = new HorizontalScrollView(this);
-        hs.setHorizontalScrollBarEnabled(false);
-        hs.setClipToPadding(false);
-        hs.setClipChildren(false);
-        hs.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        hs.setPadding(side, Tiles.dp(this, 10), side, Tiles.dp(this, 10));
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setClipChildren(false);
-        hs.addView(row, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT));
-        rows.addView(hs);
-        return row;
+        return Rows.add(this, rows, title);
     }
 
     private FrameLayout appTile(AppEntry e, String prefix) {

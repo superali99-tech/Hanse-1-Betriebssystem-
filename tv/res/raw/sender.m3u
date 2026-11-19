@@ -1,0 +1,69 @@
+#EXTM3U
+# NovaOS TV: TV channels as internet live streams.
+# Only official, free streams that the broadcasters themselves publish (public
+# broadcasters ARD/ZDF and a few free private channels). Most of them are only
+# available in Germany (geo-blocking). Private channels such as RTL, ProSieben,
+# Sat.1 or VOX have no free internet stream - they are watched through the TV's
+# own tuner (antenna/cable/satellite) or their official apps.
+# Attributes: tvg-chno = channel number, group-title, nova-color = tile colour.
+# Checked against the curated list https://github.com/Free-TV/IPTV (Germany).
+#EXTINF:-1 tvg-chno="1" group-title="Hauptsender" nova-color="#0A3A8C",Das Erste
+https://daserste-live.ard-mcdn.de/daserste/live/hls/de/master.m3u8
+#EXTINF:-1 tvg-chno="2" group-title="Hauptsender" nova-color="#E8691A",ZDF
+https://zdf-hls-15.akamaized.net/hls/live/2016498/de/veryhigh/master.m3u8
+#EXTINF:-1 tvg-chno="3" group-title="Hauptsender" nova-color="#B8263B",3sat
+https://zdf-hls-18.akamaized.net/hls/live/2016501/dach/veryhigh/master.m3u8
+#EXTINF:-1 tvg-chno="4" group-title="Hauptsender" nova-color="#D4401C",ARTE
+https://artesimulcast.akamaized.net/hls/live/2030993/artelive_de/index.m3u8
+#EXTINF:-1 tvg-chno="5" group-title="Hauptsender" nova-color="#0C86C2",phoenix
+https://zdf-hls-19.akamaized.net/hls/live/2016502/de/veryhigh/master.m3u8
+#EXTINF:-1 tvg-chno="6" group-title="Nachrichten" nova-color="#143A75",tagesschau24
+https://tagesschau.akamaized.net/hls/live/2020115/tagesschau/tagesschau_1/master.m3u8
+#EXTINF:-1 tvg-chno="7" group-title="Spartensender" nova-color="#C2177A",ONE
+https://mcdn-one.ard.de/ardone/hls/master.m3u8
+#EXTINF:-1 tvg-chno="8" group-title="Spartensender" nova-color="#078A80",ARD alpha
+https://mcdn.br.de/br/fs/ard_alpha/hls/de/master.m3u8
+#EXTINF:-1 tvg-chno="9" group-title="Spartensender" nova-color="#2C6FB8",ZDFneo
+https://zdf-hls-16.akamaized.net/hls/live/2016499/de/veryhigh/master.m3u8
+#EXTINF:-1 tvg-chno="10" group-title="Spartensender" nova-color="#3E5A9E",ZDFinfo
+https://zdf-hls-17.akamaized.net/hls/live/2016500/de/veryhigh/master.m3u8
+#EXTINF:-1 tvg-chno="11" group-title="Kinder" nova-color="#5C9E1E",KiKA
+https://kikageohls.akamaized.net/hls/live/2022693/livetvkika_de/master.m3u8
+#EXTINF:-1 tvg-chno="12" group-title="Dritte" nova-color="#1B4F9C",NDR Hamburg
+https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_hh/master.m3u8
+#EXTINF:-1 tvg-chno="13" group-title="Dritte" nova-color="#1B4F9C",NDR Niedersachsen
+https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_nds/master.m3u8
+#EXTINF:-1 tvg-chno="14" group-title="Dritte" nova-color="#1B4F9C",NDR Schleswig-Holstein
+https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_sh/master.m3u8
+#EXTINF:-1 tvg-chno="15" group-title="Dritte" nova-color="#1B4F9C",NDR Mecklenburg-Vorpommern
+https://mcdn.ndr.de/ndr/hls/ndr_fs/ndr_mv/master.m3u8
+#EXTINF:-1 tvg-chno="16" group-title="Dritte" nova-color="#0F5A9E",WDR
+https://wdrfs247.akamaized.net/hls/live/681509/wdr_msl4_fs247/index.m3u8
+#EXTINF:-1 tvg-chno="17" group-title="Dritte" nova-color="#1F6FB2",BR Süd
+https://mcdn.br.de/br/fs/bfs_sued/hls/de/master.m3u8
+#EXTINF:-1 tvg-chno="18" group-title="Dritte" nova-color="#1F6FB2",BR Nord
+https://mcdn.br.de/br/fs/bfs_nord/hls/de/master.m3u8
+#EXTINF:-1 tvg-chno="19" group-title="Dritte" nova-color="#1E5FA8",hr
+https://hrhlsde.akamaized.net/hls/live/2024526/hrhlsde/master.m3u8
+#EXTINF:-1 tvg-chno="20" group-title="Dritte" nova-color="#1F5C99",MDR Sachsen
+https://mdrtvsnhls.akamaized.net/hls/live/2016928/mdrtvsn/master.m3u8
+#EXTINF:-1 tvg-chno="21" group-title="Dritte" nova-color="#1F5C99",MDR Sachsen-Anhalt
+https://mdrtvsahls.akamaized.net/hls/live/2016879/mdrtvsa/master.m3u8
+#EXTINF:-1 tvg-chno="22" group-title="Dritte" nova-color="#1F5C99",MDR Thüringen
+https://mdrtvthhls.akamaized.net/hls/live/2016880/mdrtvth/master.m3u8
+#EXTINF:-1 tvg-chno="23" group-title="Dritte" nova-color="#B5123E",rbb Berlin
+https://rbb-hls-berlin.akamaized.net/hls/live/2017824/rbb_berlin/master.m3u8
+#EXTINF:-1 tvg-chno="24" group-title="Dritte" nova-color="#B5123E",rbb Brandenburg
+https://rbb-hls-brandenburg.akamaized.net/hls/live/2017825/rbb_brandenburg/master.m3u8
+#EXTINF:-1 tvg-chno="25" group-title="Dritte" nova-color="#1A3D7C",SWR Baden-Württemberg
+https://swrbwd-hls.akamaized.net/hls/live/2018672/swrbwd/master.m3u8
+#EXTINF:-1 tvg-chno="26" group-title="Dritte" nova-color="#1A3D7C",SWR Rheinland-Pfalz
+https://swrrpd-hls.akamaized.net/hls/live/2018676/swrrpd/master.m3u8
+#EXTINF:-1 tvg-chno="27" group-title="Dritte" nova-color="#0E6E9C",SR
+https://srfs.akamaized.net/hls/live/689649/srfsgeo/index.m3u8
+#EXTINF:-1 tvg-chno="28" group-title="Dritte" nova-color="#2B7A3D",Radio Bremen
+https://rbhlslive.akamaized.net/hls/live/2020435/rbfs/master.m3u8
+#EXTINF:-1 tvg-chno="29" group-title="Nachrichten" nova-color="#11284F",WELT
+https://w-live2weltcms.akamaized.net/hls/live/2041019/Welt-LivePGM/index.m3u8
+#EXTINF:-1 tvg-chno="30" group-title="Musik" nova-color="#6B2C91",DELUXE MUSIC
+https://sdn-global-live-streaming-packager-cache.3qsdn.com/13456/13456_264_live.m3u8

@@ -6,4 +6,7 @@
     <dimen name="tile_h">99dp</dimen>
     <dimen name="tile_gap">14dp</dimen>
     <dimen name="row_title">18sp</dimen>
+    <!-- Nova Filme: larger 16:9 tiles with preview picture -->
+    <dimen name="video_w">232dp</dimen>
+    <dimen name="video_h">130dp</dimen>
 </resources>

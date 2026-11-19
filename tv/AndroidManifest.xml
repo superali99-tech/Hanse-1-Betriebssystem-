@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- NovaOS TV: the NovaOS home screen as an app for Google TV / Android TV.
-     No INTERNET permission: the app never sends or loads anything itself. -->
+     Internet is used only for the TV channels (streams of the broadcasters) and
+     Nova Filme (public YouTube feeds and preview pictures); no tracking, no ads. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.novaos.tv">
 
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <!-- TV tuner (antenna/cable/satellite) is used if present -->
+    <uses-feature android:name="android.software.live_tv" android:required="false" />
 
     <!-- network status in the header (connected / not connected) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- "Uninstall" in the app menu opens the system uninstall dialog -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+    <!-- TV channel streams (ARD, ZDF, ...) and Nova Filme lists/pictures -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- channel list of the TV's own tuner (asked only when "Channels of this TV" is opened) -->
+    <uses-permission android:name="com.android.providers.tv.permission.READ_EPG_DATA" />
 
     <!-- Android 11+: which installed apps the app may list and start -->
     <queries>
@@ -22,6 +29,24 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- YouTube app (Nova Filme) and live TV apps of TV manufacturers -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" android:host="www.youtube.com" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="content" android:host="android.media.tv" />
+        </intent>
+        <package android:name="com.google.android.youtube.tv" />
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.mediatek.wwtv.tvcenter" />
+        <package android:name="com.google.android.tv" />
+        <package android:name="com.sony.dtv.tvx" />
+        <package android:name="org.droidtv.playtv" />
+        <package android:name="com.tcl.tv" />
+        <package android:name="com.android.tv" />
+        <provider android:authorities="android.media.tv" />
     </queries>
 
     <application
@@ -30,7 +55,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NovaTV">
+        android:theme="@style/Theme.NovaTV"
+        android:usesCleartextTraffic="false">
 
         <activity
             android:name=".MainActivity"
@@ -53,6 +79,21 @@
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".AboutActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".PlayerActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.NovaTV.Player" />
+        <activity
+            android:name=".TunerActivity"
+            android:exported="false"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".NovaFilmeActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
     </application>

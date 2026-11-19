@@ -1,0 +1,80 @@
+package org.novaos.tv;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.LruCache;
+import android.widget.ImageView;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/** Loads preview pictures in the background; memory + file cache. */
+final class ImageLoader {
+    private ImageLoader() {}
+
+    private static final int MAX_FILES = 400;
+    private static final Handler UI = new Handler(Looper.getMainLooper());
+    private static final ExecutorService POOL = Executors.newFixedThreadPool(3);
+    private static final LruCache<String, Bitmap> MEMORY =
+            new LruCache<String, Bitmap>((int) Math.min(Runtime.getRuntime().maxMemory() / 8, 48L << 20)) {
+                @Override
+                protected int sizeOf(String key, Bitmap value) {
+                    return value.getByteCount();
+                }
+            };
+    private static boolean pruned = false;
+
+    static void load(ImageView view, String url) {
+        view.setTag(R.id.tag_image, url);
+        Bitmap cached = MEMORY.get(url);
+        if (cached != null) {
+            view.setImageBitmap(cached);
+            return;
+        }
+        view.setImageDrawable(null);
+        Context app = view.getContext().getApplicationContext();
+        POOL.execute(() -> {
+            Bitmap bmp = fetch(app, url);
+            if (bmp == null) return;
+            MEMORY.put(url, bmp);
+            UI.post(() -> {
+                if (url.equals(view.getTag(R.id.tag_image))) view.setImageBitmap(bmp);
+            });
+        });
+    }
+
+    private static Bitmap fetch(Context c, String url) {
+        File f = Net.cacheFile(c, "thumbs", Integer.toHexString(url.hashCode()) + ".jpg");
+        byte[] data = Net.read(f);
+        if (data == null) {
+            try {
+                data = Net.get(url);
+            } catch (IOException | RuntimeException e) {
+                return null;
+            }
+            Net.write(f, data);
+            prune(f.getParentFile());
+        }
+        return BitmapFactory.decodeByteArray(data, 0, data.length);
+    }
+
+    /** Keeps the picture cache small: deletes the oldest files above MAX_FILES (once per start). */
+    private static synchronized void prune(File dir) {
+        if (pruned || dir == null) return;
+        pruned = true;
+        File[] files = dir.listFiles();
+        if (files == null || files.length <= MAX_FILES) return;
+        Arrays.sort(files, Comparator.comparingLong(File::lastModified));
+        for (int i = 0; i < files.length - MAX_FILES; i++) {
+            //noinspection ResultOfMethodCallIgnored
+            files[i].delete();
+        }
+    }
+}

@@ -8,4 +8,8 @@
         <item name="android:alertDialogTheme">@android:style/Theme.Material.Dialog.Alert</item>
         <item name="android:windowOverscan">false</item>
     </style>
+
+    <style name="Theme.NovaTV.Player">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
 </resources>

@@ -26,6 +26,30 @@ OUT="$ROOT/build/tv"
 rm -rf "$OUT/gen" "$OUT/classes" "$OUT/test-classes" "$OUT/dex" "$OUT"/*.apk
 mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/test-classes" "$OUT/dex"
 
+# Libraries (Media3 ExoPlayer for the TV streams): pinned in tv/libs.lock, checked by
+# SHA-256, cached in build/tv-libs/ (kept between builds).
+LIBS="$ROOT/build/tv-libs"
+mkdir -p "$LIBS"
+JARS=()
+while read -r sum url; do
+	case "$sum" in ''|'#'*) continue ;; esac
+	f="$LIBS/$(basename "$url")"
+	if [ ! -f "$f" ] || ! echo "$sum  $f" | sha256sum -c --status; then
+		echo "download $(basename "$url")"
+		curl -fsSL --retry 3 -o "$f.part" "$url"
+		echo "$sum  $f.part" | sha256sum -c --status || { echo "checksum mismatch: $url" >&2; exit 1; }
+		mv "$f.part" "$f"
+	fi
+	case "$f" in
+	*.aar)
+		jar="${f%.aar}.jar"
+		[ "$jar" -nt "$f" ] || unzip -p "$f" classes.jar > "$jar"
+		JARS+=("$jar") ;;
+	*) JARS+=("$f") ;;
+	esac
+done < "$HERE/libs.lock"
+LIBCP="$(IFS=:; echo "${JARS[*]}")"
+
 IFS=. read -r MA MI PA <<<"$NOVAOS_VERSION"
 CODE=$(( (MA * 10000 + MI * 100 + PA) * 1000 + ${NOVAOS_TV_BUILD:-0} % 1000 ))
 echo "NovaOS TV $NOVAOS_VERSION (versionCode $CODE), $(basename "$BT"), $(basename "$(dirname "$PLATFORM")")"
@@ -37,17 +61,18 @@ echo "== resources"
 	--version-code "$CODE" --version-name "$NOVAOS_VERSION" "$OUT/res.zip"
 
 echo "== java"
-javac -nowarn --release 11 -encoding UTF-8 -classpath "$PLATFORM" -d "$OUT/classes" \
+javac -nowarn --release 11 -encoding UTF-8 -classpath "$PLATFORM:$LIBCP" -d "$OUT/classes" \
 	$(find "$HERE/src" "$OUT/gen" -name '*.java')
 
 echo "== tests"
 javac --release 11 -encoding UTF-8 -classpath "$OUT/classes" -d "$OUT/test-classes" $(find "$HERE/test" -name '*.java')
-java -cp "$OUT/classes:$OUT/test-classes" org.novaos.tv.LogicTest
+java -cp "$OUT/classes:$OUT/test-classes" org.novaos.tv.LogicTest "$HERE/res/raw/sender.m3u"
 
 echo "== dex"
-"$BT/d8" --release --min-api 24 --lib "$PLATFORM" --output "$OUT/dex" $(find "$OUT/classes" -name '*.class')
+"$BT/d8" --release --min-api 24 --lib "$PLATFORM" --output "$OUT/dex" \
+	$(find "$OUT/classes" -name '*.class') "${JARS[@]}"
 cp "$OUT/base.apk" "$OUT/unsigned.apk"
-( cd "$OUT/dex" && zip -q -X "$OUT/unsigned.apk" classes.dex )
+( cd "$OUT/dex" && zip -q -X "$OUT/unsigned.apk" classes*.dex )
 "$BT/zipalign" -f -p 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
 
 echo "== sign"
