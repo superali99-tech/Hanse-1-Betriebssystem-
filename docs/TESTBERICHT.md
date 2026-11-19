@@ -222,8 +222,23 @@ Website erzeugt. Bilder 08–16 in [docs/screenshots/mobile/](screenshots/mobile
 | **Nova Kamera**: Berechtigung, „Keine Kamera gefunden“ (VM hat keine), letztes Foto als Knopf | ✅ | Auslöser teils unter der Navigationsleiste ❌ → behoben. **Fotografieren selbst nicht getestet** (keine Kamera in der VM) |
 
 **Nicht getestet:** Fotografieren und Blitz auf einem echten Handy, Android 11+ („Zugriff auf alle
-Dateien“, Löschabfrage von Android, Hintergrund-Start nach dem Update), Update über die echte
-Website (erst wenn GitHub Pages und der feste Signierschlüssel eingerichtet sind).
+Dateien“, Löschabfrage von Android, Hintergrund-Start nach dem Update).
+
+#### Update-Kanal ohne GitHub Pages (ghcr.io), 19.11.2026
+
+Auf einem Samsung-Tablet zeigte 0.1.1.38 „Update-Server nicht erreichbar“: Das Repository ist
+privat, GitHub Pages dafür kostenpflichtig. Neu: Update als öffentliches Paket in ghcr.io.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 141 bestanden (neu: JSON, Token, Manifest-Digests, Registry-Adressen) |
+| GitHub Actions: Schlüssel, Build, Release, Upload nach ghcr.io (Lauf 4) | ✅ | Schlüssel einmal erzeugt (Entwurfs-Release), 0.1.1.39 als `mobile-build-4` und `ghcr.io/superali99-tech/novaos-mobile:latest`; anonym noch 401, bis das Paket öffentlich ist |
+| `publish_update.sh` gegen `tests/update/fake_registry.py` | ✅ | zweiter Lauf lädt vorhandene Dateien nicht erneut hoch |
+| App, Paket privat → „Der Update-Kanal ist noch nicht freigegeben“ | ✅ | |
+| App, Paket öffentlich → Update 0.1.1.910 → 911 gefunden, geladen, installiert | ✅ | Token → Manifest → Datei über Weiterleitung zum Speicher; der Login-Token geht nicht mit (der Ersatz-Speicher lehnt ihn ab wie GitHub) |
+| Nach der Installation: NovaOS startet selbst, „Update wird abgeschlossen“ → „Neu in NovaOS 0.1.1.911“ | ✅ | |
+
+**Nicht getestet:** das echte öffentliche ghcr.io-Paket am Handy (erst nachdem es öffentlich ist).
 
 ## NovaOS TV (App für Google TV / Android TV)
 

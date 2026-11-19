@@ -46,16 +46,15 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
 **Datenschutz:** keine Datensammlung, keine eigene Werbung. Internet nur für die Sender (Stream
 direkt vom Sender), Nova Filme (Listen, Bilder und Videos von YouTube im erweiterten
 Datenschutzmodus, mit YouTubes Werbung), den Nova Store (App-Liste und APKs von f-droid.org) und
-das Software-Update (NovaOS-Website auf GitHub Pages). Favoriten, Notizen, Fotos und Dateien
+das Software-Update (Paket `novaos-mobile` bei GitHub, ghcr.io). Favoriten, Notizen, Fotos und Dateien
 bleiben auf dem Handy.
 
 ## Installieren (z. B. Samsung Galaxy)
 
-1. Auf dem Handy **https://superali99-tech.github.io/Hanse-1-Betriebssystem-/mobile/** öffnen
-   (sobald GitHub Pages eingeschaltet ist) und **„APK herunterladen“** tippen – oder die neueste
-   Version unter **Releases** („NovaOS Mobile …“) laden: **`novaos-mobile-<version>.apk`**. (Das
-   Repository ist privat: dazu im Browser des Handys bei GitHub angemeldet sein – oder die Datei
-   am PC laden und per USB-Kabel aufs Handy kopieren.)
+1. Auf dem Handy die neueste Version unter **Releases** öffnen („NovaOS Mobile …“) und
+   **`novaos-mobile-<version>.apk`** herunterladen. (Das Repository ist privat: dazu im Browser
+   des Handys bei GitHub angemeldet sein – oder die Datei am PC laden und per USB-Kabel aufs
+   Handy kopieren.) Nur die erste Installation geht so; danach kommen Updates in NovaOS selbst.
 2. **Nur Samsung (One UI 6 und neuer):** *Einstellungen → Sicherheit und Datenschutz →
    Auto Blocker* vorübergehend **ausschalten** – sonst blockiert Samsung jede App, die nicht aus
    einem Store kommt.
@@ -74,32 +73,40 @@ NovaOS → Deinstallieren*.
 ## Software-Update
 
 NovaOS sucht alle 6 Stunden (und beim Öffnen von *Einstellungen → Software-Update*) nach einer
-neuen Version. Die Beschreibung liegt auf der NovaOS-Website unter `mobile/update.properties`
-(Versionsnummer, SHA-256, Größe, „Was ist neu“), die APK daneben als `mobile/novaos-mobile.apk`.
-Beides baut der Workflow *NovaOS website (GitHub Pages)* bei jeder Änderung an `mobile/` neu.
+neuen Version. Ohne Website und ohne GitHub Pages: Der Workflow *Build NovaOS Mobile app* legt bei
+jeder Änderung an NovaOS Mobile das Update als **Paket `novaos-mobile` in GitHubs
+Container-Registry** ab (`ghcr.io/superali99-tech/novaos-mobile`, Tags `latest` und die Version):
+`update.properties` (Versionsnummer, SHA-256, Größe, „Was ist neu“) und `novaos-mobile.apk`.
+Das Repository bleibt privat – öffentlich ist nur dieses Paket.
 
-Vor der Installation prüft NovaOS die **SHA-256-Prüfsumme** und ob das Update mit **demselben
-Schlüssel** signiert ist wie das installierte NovaOS; Android fragt dann noch einmal nach
-(„Aktualisieren?“). Danach startet NovaOS mit Animation neu und zeigt, was neu ist.
+Vor der Installation prüft NovaOS, dass die APK genau die im Paket beschriebene ist
+(**SHA-256**) und mit **demselben Schlüssel** signiert ist wie das installierte NovaOS; Android
+fragt dann noch einmal nach („Aktualisieren?“). Danach startet NovaOS von selbst mit Animation
+neu und zeigt, was neu ist.
 
-**Einmalig nötig, damit Updates funktionieren** (sonst signiert GitHub jeden Build mit einem
-anderen Schlüssel und NovaOS meldet „mit einem anderen Schlüssel signiert“):
+**Einmalig nötig: das Paket öffentlich machen** (GitHub erlaubt das nur dem Kontoinhaber im
+Browser, nicht per Programm). Solange es privat ist, zeigt NovaOS „Der Update-Kanal ist noch nicht
+freigegeben“:
 
-1. **GitHub Pages einschalten:** *Repository → Settings → Pages → Source: „GitHub Actions“*.
-2. **Signierschlüssel hinterlegen:** einen Schlüssel erzeugen (am PC, Java nötig):
-   ```bash
-   keytool -genkeypair -keystore novaos-mobile.keystore -storetype PKCS12 -alias novaos \
-       -keyalg RSA -keysize 3072 -validity 10000 -dname "CN=NovaOS Mobile"
-   base64 -w0 novaos-mobile.keystore > keystore.b64
-   ```
-   Dann unter *Settings → Secrets and variables → Actions* zwei **Repository secrets** anlegen:
-   `NOVAOS_MOBILE_KEYSTORE_B64` = Inhalt von `keystore.b64`, `NOVAOS_MOBILE_KS_PASS` = das
-   Passwort. Den Schlüssel gut aufbewahren – ohne ihn sind keine Updates mehr möglich.
-3. Die erste Version mit diesem Schlüssel **einmal von Hand** installieren (vorher die alte
-   deinstallieren). Ab dann kommen alle Updates über *Einstellungen → Software-Update*.
+1. https://github.com/users/superali99-tech/packages/container/novaos-mobile/settings öffnen
+   (am Handy evtl. im Browser-Menü „Desktop-Version“ wählen).
+2. Ganz unten bei **Danger Zone** → **Change visibility** → **Public** → zur Bestätigung
+   `novaos-mobile` eintippen → **I understand, change package visibility**.
 
-Die Versionsnummer ist `<NovaOS-Version>.<Build>` (z. B. 0.1.1.34), der Build ist die Zahl der
-Commits – in jedem Workflow gleich, so erkennt das Handy, welche Version neuer ist.
+**Signierschlüssel:** Android installiert ein Update nur, wenn es mit demselben Schlüssel signiert
+ist. Der Workflow erzeugt den Schlüssel einmal selbst (`tools/signing_key.sh`) und bewahrt ihn im
+**Entwurfs-Release „NovaOS Mobile signing key“** auf – Entwürfe sieht nur, wer Schreibrechte hat.
+Diesen Entwurf **nicht veröffentlichen und nicht löschen**. (Alternativ werden die Repository
+secrets `NOVAOS_MOBILE_KEYSTORE_B64` / `NOVAOS_MOBILE_KS_PASS` benutzt, falls angelegt – das würde
+den Schlüssel aber wechseln.) Versionen bis 0.1.1.38 hatten noch wechselnde Schlüssel: diese
+einmal deinstallieren und die aktuelle Version von Hand installieren.
+
+Die Versionsnummer ist `<NovaOS-Version>.<Build>` (z. B. 0.1.1.39), der Build ist die Zahl der
+Commits – so erkennt das Handy, welche Version neuer ist.
+
+**Testen ohne GitHub:** `tests/update/fake_registry.py` spielt ghcr.io nach (Token, Manifest,
+Dateien mit Weiterleitung); `tools/publish_update.sh` lädt ein Build dorthin hoch (siehe
+docs/TESTBERICHT.md).
 
 ## Bauen
 
@@ -107,8 +114,9 @@ Commits – in jedem Workflow gleich, so erkennt das Handy, welche Version neuer
 ANDROID_HOME=/pfad/zum/sdk ./mobile/build.sh     # -> build/mobile/novaos-mobile-<version>.apk
 ```
 
-Wie NovaOS TV ohne Gradle (`aapt2`, `javac`, `d8`, `apksigner`); in GitHub Actions: *Actions →
-Build NovaOS Mobile app → Run workflow* (veröffentlicht ein Release mit der APK).
+Wie NovaOS TV ohne Gradle (`aapt2`, `javac`, `d8`, `apksigner`); in GitHub Actions baut *Build
+NovaOS Mobile app* bei jeder Änderung (oder per *Run workflow*) die APK, veröffentlicht ein Release
+und das Software-Update.
 
 NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und Player-Logik
 (`Channel`, `res/raw/sender.m3u`, Media3 ExoPlayer aus `tv/libs.lock`), Nova Filme (`Catalog`,
@@ -130,6 +138,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |
 | `FilesActivity.java`, `FileNames.java`, `NovaFileProvider.java` | Nova Dateien, Öffnen/Teilen mit anderen Apps |
 | `NotesActivity.java`, `NoteEditActivity.java`, `NotesDb.java` | Nova Notizen (SQLite auf dem Handy) |
-| `web/index.html` | Download-Seite `…/mobile/` auf der NovaOS-Website |
+| `Registry.java`, `MiniJson.java` | Update-Kanal: anonymes Lesen aus ghcr.io (Token, Manifest, Dateien) |
+| `tools/publish_update.sh`, `tools/signing_key.sh` | Workflow: Update nach ghcr.io hochladen, fester Signierschlüssel |
 | `tools/make_icons.py` | erzeugt die Symbole der Nova-Apps |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |
