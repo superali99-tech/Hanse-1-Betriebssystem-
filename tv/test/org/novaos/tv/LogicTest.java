@@ -116,6 +116,9 @@ public final class LogicTest {
         check(Video.parseFeed(null, FILM).isEmpty() && Video.parseFeed("<html>", FILM).isEmpty(), "feed: no data");
         check(Video.unescape("a &unknown; b & c").equals("a &unknown; b & c"), "unknown entity kept");
         check(FILM.feedUrl().endsWith("playlist_id=UULFGkHFrwE8KEuOHPVsIOskAg"), "feed url without Shorts");
+        check(v.get(0).oembedUrl().endsWith("watch%3Fv%3Dabcdefghijk"), "oEmbed url");
+        check(Video.formatTime(75).equals("1:15") && Video.formatTime(5530).equals("1:32:10")
+                && Video.formatTime(-1).equals("0:00") && Video.formatTime(Double.NaN).equals("0:00"), "time format");
         Set<String> ids = new HashSet<>();
         for (Catalog.Source s : Catalog.SOURCES) {
             check(s.channelId.matches("UC[0-9A-Za-z_-]{22}"), "channel id " + s.name);

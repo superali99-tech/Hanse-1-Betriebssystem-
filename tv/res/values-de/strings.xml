@@ -35,7 +35,7 @@
     <string name="about_device">%1$s %2$s · Android %3$s</string>
     <string name="about_text">NovaOS TV bringt das NovaOS-Design auf Google TV und Android TV: Fernsehsender, Nova Filme (kostenlose Filme und Serien), deine Apps als große Kacheln, Favoriten und schneller Zugriff auf die TV-Einstellungen. Freie Software (GPL-3.0-or-later), Teil von NovaOS.</string>
     <string name="about_privacy_title">Datenschutz</string>
-    <string name="about_privacy">NovaOS TV sammelt keine Daten und zeigt keine eigene Werbung. Das Internet wird nur genutzt, wenn du einen Sender startest (der Stream kommt direkt vom Sender, z. B. ARD oder ZDF) oder Nova Filme öffnest (Listen und Vorschaubilder von YouTube; die Videos laufen in der YouTube-App). Favoriten werden nur auf diesem Fernseher gespeichert.</string>
+    <string name="about_privacy">NovaOS TV sammelt keine Daten und zeigt keine eigene Werbung. Das Internet wird nur genutzt, wenn du einen Sender startest (der Stream kommt direkt vom Sender, z. B. ARD oder ZDF) oder Nova Filme öffnest (Listen, Vorschaubilder und die Videos kommen von YouTube im erweiterten Datenschutzmodus, mit der Werbung von YouTube). Favoriten werden nur auf diesem Fernseher gespeichert.</string>
     <string name="reset_favorites">Favoriten zurücksetzen</string>
     <string name="done">Erledigt</string>
     <string name="back">Zurück</string>
@@ -49,14 +49,13 @@
     <string name="cat_dokus">Dokus</string>
     <string name="cat_kinder">Kinder &amp; Familie</string>
     <string name="loading">Wird geladen …</string>
-    <string name="filme_subtitle">Kostenlose Filme, Serien und Dokus von offiziellen YouTube-Kanälen</string>
-    <string name="filme_hint">OK: in der YouTube-App abspielen  ·  Zurück: schließen</string>
+    <string name="filme_subtitle">Kostenlose Filme, Serien und Dokus von offiziellen YouTube-Kanälen – direkt in NovaOS TV</string>
+    <string name="filme_hint">OK: abspielen  ·  Zurück: schließen</string>
     <string name="filme_loading">Die neuesten Filme werden geladen …</string>
     <string name="filme_count">%1$d Videos</string>
     <string name="filme_offline">Keine Internetverbindung – gespeicherte Liste</string>
     <string name="filme_failed">Die Liste konnte nicht geladen werden. Bitte die Internetverbindung prüfen.</string>
     <string name="filme_retry">Erneut versuchen</string>
-    <string name="filme_more">Mehr von %1$s auf YouTube</string>
     <string name="youtube_missing">Die YouTube-App wurde nicht gefunden. Bitte im Play Store installieren.</string>
     <string name="player_hint">▲▼ Sender wechseln  ·  OK: Senderliste  ·  Zurück: beenden</string>
     <string name="player_list_title">Sender</string>
@@ -75,4 +74,10 @@
     <string name="tuner_denied">Ohne Erlaubnis kann die Senderliste nicht angezeigt werden – Live-TV funktioniert trotzdem.</string>
     <string name="tuner_no_tv">Dieses Gerät hat keinen TV-Empfang (Antenne, Kabel, Satellit). Die Internet-Sender sind auf der Startseite.</string>
     <string name="player_no_sound">ohne Ton</string>
+    <string name="video_hint">OK: Pause / Weiter  ·  ◀ ▶ 10 Sekunden  ·  ▲ ▼ Info  ·  Zurück: beenden</string>
+    <string name="video_paused">Pausiert</string>
+    <string name="video_ended">Zu Ende – Zurück: schließen</string>
+    <string name="video_blocked">Dieses Video darf nur auf YouTube laufen. OK: in der YouTube-App öffnen</string>
+    <string name="video_error">Das Video kann nicht abgespielt werden (Fehler %1$d). OK: in der YouTube-App öffnen</string>
+    <string name="video_no_webview">Auf diesem Fernseher fehlt der Web-Player (Android System WebView) – das Video öffnet sich in der YouTube-App.</string>
 </resources>

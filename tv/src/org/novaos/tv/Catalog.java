@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 /**
  * Nova Filme: which YouTube channels are shown and how their videos are sorted
- * into rows. Only official channels of the rights holders (film distributors
+ * into rows. Videos play in the official embedded YouTube player inside the app. Only official channels of the rights holders (film distributors
  * that publish complete films for free, broadcasters, studios) - no uploads by
  * third parties. Android-independent (tested by LogicTest).
  */
@@ -38,13 +38,13 @@ final class Catalog {
         String feedUrl() {
             return "https://www.youtube.com/feeds/videos.xml?playlist_id=UULF" + channelId.substring(2);
         }
-
-        String channelUrl() {
-            return "https://www.youtube.com/channel/" + channelId;
-        }
     }
 
-    /** Checked 19.11.2026: channel IDs belong to the official channels named here. */
+    /**
+     * Checked 19.11.2026: channel IDs belong to the official channels named here, and the
+     * channels allow their videos in embedded players (Nova Filme plays inside the app).
+     * Not included because they forbid embedding: Die Biene Maja, ZDFtivi, KiKA.
+     */
     static final List<Source> SOURCES = Collections.unmodifiableList(Arrays.asList(
             // complete feature films, free with ads, licensed by the distributors
             new Source("UCGkHFrwE8KEuOHPVsIOskAg", "Netzkino", Category.FILME),
@@ -60,10 +60,7 @@ final class Catalog {
             // children and family
             new Source("UC4gENfIXqpg-CCVN7felClg", "TOGGO", Category.KINDER),
             new Source("UCSGswD7ZPf5MTU1e-AG7EZg", "PAW Patrol & Dino Ranch", Category.KINDER),
-            new Source("UCQ421ZNQ1yJt4be4VdCKOwQ", "Die Biene Maja", Category.KINDER),
             new Source("UCrPvUBpoqPcocrlbKE31Wlw", "Shaun das Schaf", Category.KINDER),
-            new Source("UCrb6U1FuOP5EZ7n7LfOJMMQ", "ZDFtivi", Category.KINDER),
-            new Source("UCxFvLj7FDoMChztQTSRDAbw", "KiKA", Category.KINDER),
             new Source("UCRWSxXBnz9IRS4SgRhG2wpQ", "Die Maus", Category.KINDER),
             new Source("UCQtsd17U8NOM1VRI8oxdwiQ", "Checker Welt", Category.KINDER)));
 

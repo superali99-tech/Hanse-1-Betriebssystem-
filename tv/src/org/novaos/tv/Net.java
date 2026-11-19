@@ -80,6 +80,68 @@ final class Net {
         tmp.renameTo(f);
     }
 
+    // ------------------------------------------------------------ embedding allowed?
+    private static final int MAX_EMBED_ENTRIES = 3000;
+    private static java.util.LinkedHashMap<String, Boolean> embed;
+
+    /**
+     * Whether a video may be played in the embedded player (Nova Filme plays inside the app).
+     * Asked once per video via YouTube's oEmbed (200 = allowed, 401/403/404 = not) and
+     * remembered in a small file; if the check fails (no internet), the video is shown.
+     */
+    static boolean embeddable(Context c, Video v) {
+        synchronized (Net.class) {
+            loadEmbed(c);
+            Boolean known = embed.get(v.id);
+            if (known != null) return known;
+        }
+        int code;
+        try {
+            HttpURLConnection con = (HttpURLConnection) new URL(v.oembedUrl()).openConnection();
+            con.setConnectTimeout(TIMEOUT_MS);
+            con.setReadTimeout(TIMEOUT_MS);
+            con.setRequestProperty("User-Agent", "NovaOS-TV");
+            try {
+                code = con.getResponseCode();
+            } finally {
+                con.disconnect();
+            }
+        } catch (IOException | RuntimeException e) {
+            return true;
+        }
+        boolean ok;
+        if (code == HttpURLConnection.HTTP_OK) ok = true;
+        else if (code == 401 || code == 403 || code == 404) ok = false;
+        else return true;  // unknown answer: do not hide the video
+        synchronized (Net.class) {
+            embed.put(v.id, ok);
+        }
+        return ok;
+    }
+
+    private static void loadEmbed(Context c) {
+        if (embed != null) return;
+        embed = new java.util.LinkedHashMap<>();
+        byte[] b = read(cacheFile(c, "feeds", "embeddable.txt"));
+        if (b == null) return;
+        for (String line : new String(b, StandardCharsets.UTF_8).split("\n")) {
+            String[] p = line.trim().split(" ");
+            if (p.length == 2 && Video.VIDEO_ID.matcher(p[0]).matches()) embed.put(p[0], "1".equals(p[1]));
+        }
+    }
+
+    /** Saves the remembered answers (the newest MAX_EMBED_ENTRIES). */
+    static synchronized void saveEmbed(Context c) {
+        if (embed == null) return;
+        StringBuilder sb = new StringBuilder();
+        int skip = Math.max(0, embed.size() - MAX_EMBED_ENTRIES);
+        for (java.util.Map.Entry<String, Boolean> e : embed.entrySet()) {
+            if (skip-- > 0) continue;
+            sb.append(e.getKey()).append(e.getValue() ? " 1\n" : " 0\n");
+        }
+        write(cacheFile(c, "feeds", "embeddable.txt"), sb.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
     /** Result of loading a feed: the text and whether it came fresh from the internet. */
     static final class Feed {
         final String xml;

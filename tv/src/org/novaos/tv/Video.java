@@ -31,7 +31,20 @@ final class Video {
         return "https://i.ytimg.com/vi/" + id + "/mqdefault.jpg";
     }
 
-    private static final Pattern VIDEO_ID = Pattern.compile("[A-Za-z0-9_-]{11}");
+    static final Pattern VIDEO_ID = Pattern.compile("[A-Za-z0-9_-]{11}");
+
+    /** oEmbed answers 200 if the video may be shown in an embedded player, 401 if not. */
+    String oembedUrl() {
+        return "https://www.youtube.com/oembed?format=json&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" + id;
+    }
+
+    /** Playing time for the info bar: 75 -> "1:15", 5530 -> "1:32:10". */
+    static String formatTime(double seconds) {
+        long s = seconds > 0 && !Double.isInfinite(seconds) ? (long) seconds : 0;
+        long h = s / 3600, m = (s / 60) % 60, sec = s % 60;
+        return h > 0 ? String.format(java.util.Locale.ROOT, "%d:%02d:%02d", h, m, sec)
+                : String.format(java.util.Locale.ROOT, "%d:%02d", m, sec);
+    }
 
     /** Reads the entries of a YouTube Atom feed (no XML library needed for this simple format). */
     static List<Video> parseFeed(String xml, Catalog.Source source) {

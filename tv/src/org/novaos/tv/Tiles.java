@@ -194,16 +194,6 @@ final class Tiles {
         return f;
     }
 
-    /** "More on YouTube" tile at the end of a Nova Filme row (same size as the video tiles). */
-    static FrameLayout more(Context c, String label) {
-        Resources r = c.getResources();
-        FrameLayout f = frame(c, false, r.getDimensionPixelSize(R.dimen.video_w),
-                r.getDimensionPixelSize(R.dimen.video_h));
-        f.addView(iconAndLabel(c, c.getDrawable(R.drawable.ic_more), label, 34, 2));
-        f.setContentDescription(label);
-        return f;
-    }
-
     /** Text-only tile (e.g. "no favorites yet"): not selectable with the remote. */
     static FrameLayout info(Context c, int textRes) {
         FrameLayout f = frame(c, false);

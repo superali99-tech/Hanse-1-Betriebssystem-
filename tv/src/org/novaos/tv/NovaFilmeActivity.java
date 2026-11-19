@@ -19,8 +19,8 @@ import java.util.concurrent.Future;
 /**
  * Nova Filme: free complete films, series, documentaries and children's
  * programmes from official YouTube channels. The lists come from the channels'
- * public feeds; a video plays in the TV's YouTube app (with YouTube's ads, so
- * the rights holders are paid).
+ * public feeds; a video plays inside the app in the official embedded YouTube
+ * player (VideoActivity, with YouTube's ads, so the rights holders are paid).
  */
 public class NovaFilmeActivity extends Activity {
     static final String EXTRA_CATEGORY = "category";
@@ -105,12 +105,35 @@ public class NovaFilmeActivity extends Activity {
                 feeds.add(Video.parseFeed(f.xml, Catalog.SOURCES.get(i)));
             }
             Map<Catalog.Category, List<Video>> rows = Catalog.rows(feeds);
+            keepEmbeddable(rows);
             final int fresh = ok, old = stale;
             runOnUiThread(() -> {
                 if (isDestroyed()) return;
                 show(rows, fresh, old);
             });
         }, "nova-filme").start();
+    }
+
+    /** Removes videos whose owners do not allow the embedded player (checked in parallel). */
+    private void keepEmbeddable(Map<Catalog.Category, List<Video>> rows) {
+        List<Video> all = new ArrayList<>();
+        for (List<Video> l : rows.values()) all.addAll(l);
+        List<Future<Boolean>> checks = new ArrayList<>();
+        for (Video v : all) checks.add(worker.submit(() -> Net.embeddable(getApplicationContext(), v)));
+        java.util.Set<String> blocked = new java.util.HashSet<>();
+        for (int i = 0; i < all.size(); i++) {
+            try {
+                if (!checks.get(i).get()) blocked.add(all.get(i).id);
+            } catch (Exception ignored) {
+                // keep the video
+            }
+        }
+        for (List<Video> l : rows.values()) {
+            for (java.util.Iterator<Video> it = l.iterator(); it.hasNext(); ) {
+                if (blocked.contains(it.next().id)) it.remove();
+            }
+        }
+        Net.saveEmbed(getApplicationContext());
     }
 
     private void show(Map<Catalog.Category, List<Video>> rows, int fresh, int stale) {
@@ -124,15 +147,8 @@ public class NovaFilmeActivity extends Activity {
             LinearLayout row = Rows.add(this, content, getString(label(c)) + "  ·  " + videos.size());
             for (Video v : videos) {
                 FrameLayout t = Tiles.video(this, v);
-                t.setOnClickListener(x -> Actions.youtube(this, v.watchUrl()));
+                t.setOnClickListener(x -> VideoActivity.start(this, v));  // plays inside NovaOS TV
                 row.addView(t);
-            }
-            // "more on YouTube": one tile per channel of this row
-            for (Catalog.Source s : Catalog.SOURCES) {
-                if (s.category != c) continue;
-                FrameLayout more = Tiles.more(this, getString(R.string.filme_more, s.name));
-                more.setOnClickListener(x -> Actions.youtube(this, s.channelUrl()));
-                row.addView(more);
             }
             if (focus == null || c == focusCategory) focus = Rows.firstFocusable(row);
         }

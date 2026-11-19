@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<!-- Nova Filme: the official embedded YouTube player (IFrame Player API), full size.
+     Loaded with the base URL https://org.novaos.tv/ so YouTube gets the app ID as
+     HTTP Referer (required for embedded players in apps). Nothing is drawn over the
+     player; the app calls only documented API functions (play/pause/seek) when a key
+     of the remote is pressed. -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style>
+  html, body { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+  #player { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: 0; }
+</style>
+</head>
+<body>
+<div id="player"></div>
+<script>
+  var nova = { state: -2, error: 0, ready: false };
+  var player = null;
+  var tag = document.createElement('script');
+  tag.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(tag);
+
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      width: '100%', height: '100%',
+      videoId: '{{VIDEO_ID}}',
+      host: 'https://www.youtube-nocookie.com',
+      playerVars: {
+        autoplay: 1, controls: 1, rel: 0, fs: 0, playsinline: 1, iv_load_policy: 3,
+        hl: '{{LANG}}', origin: 'https://org.novaos.tv', widget_referrer: 'https://org.novaos.tv'
+      },
+      events: {
+        onReady: function (e) { nova.ready = true; e.target.playVideo(); },
+        onStateChange: function (e) { nova.state = e.data; },
+        onError: function (e) { nova.error = e.data; }
+      }
+    });
+  }
+
+  /* polled by the app: state, error, position and length in seconds */
+  function novaStatus() {
+    var s = { state: nova.state, error: nova.error, ready: nova.ready, t: 0, d: 0 };
+    if (player && player.getCurrentTime) {
+      s.t = player.getCurrentTime() || 0;
+      s.d = player.getDuration() || 0;
+    }
+    return JSON.stringify(s);
+  }
+  function novaToggle() {
+    if (!player || !player.getPlayerState) return;
+    if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo();
+  }
+  function novaPause() { if (player && player.pauseVideo) player.pauseVideo(); }
+  function novaSeek(delta) {
+    if (!player || !player.getCurrentTime) return;
+    player.seekTo(Math.max(0, player.getCurrentTime() + delta), true);
+  }
+</script>
+</body>
+</html>

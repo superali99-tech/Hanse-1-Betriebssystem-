@@ -35,7 +35,7 @@
     <string name="about_device">%1$s %2$s · Android %3$s</string>
     <string name="about_text">NovaOS TV brings the NovaOS look to Google TV and Android TV: TV channels, Nova Filme (free movies and series), your apps as large tiles, favorites and quick access to the TV settings. It is free software (GPL-3.0-or-later) and part of NovaOS.</string>
     <string name="about_privacy_title">Privacy</string>
-    <string name="about_privacy">NovaOS TV collects no data and shows no ads of its own. It only uses the internet when you start a channel (the stream comes directly from the broadcaster, e.g. ARD or ZDF) or open Nova Filme (lists and preview pictures from YouTube; the videos play in the YouTube app). Favorites are stored only on this TV.</string>
+    <string name="about_privacy">NovaOS TV collects no data and shows no ads of its own. It only uses the internet when you start a channel (the stream comes directly from the broadcaster, e.g. ARD or ZDF) or open Nova Filme (lists, preview pictures and the videos come from YouTube in privacy-enhanced mode, with YouTube\'s ads). Favorites are stored only on this TV.</string>
     <string name="reset_favorites">Reset favorites</string>
     <string name="done">Done</string>
     <string name="back">Back</string>
@@ -49,14 +49,13 @@
     <string name="cat_dokus">Documentaries</string>
     <string name="cat_kinder">Kids &amp; family</string>
     <string name="loading">Loading …</string>
-    <string name="filme_subtitle">Free movies, series and documentaries from official YouTube channels</string>
-    <string name="filme_hint">OK: play in the YouTube app  ·  Back: close</string>
+    <string name="filme_subtitle">Free movies, series and documentaries from official YouTube channels – right here in NovaOS TV</string>
+    <string name="filme_hint">OK: play  ·  Back: close</string>
     <string name="filme_loading">Loading the latest movies …</string>
     <string name="filme_count">%1$d videos</string>
     <string name="filme_offline">No internet connection – saved list</string>
     <string name="filme_failed">The list could not be loaded. Please check the internet connection.</string>
     <string name="filme_retry">Try again</string>
-    <string name="filme_more">More from %1$s on YouTube</string>
     <string name="youtube_missing">The YouTube app was not found. Please install it from the Play Store.</string>
     <string name="player_hint">▲▼ change channel  ·  OK: channel list  ·  Back: exit</string>
     <string name="player_list_title">Channels</string>
@@ -75,4 +74,10 @@
     <string name="tuner_denied">Without permission the channel list cannot be shown – live TV still works.</string>
     <string name="tuner_no_tv">This device has no TV tuner (antenna, cable, satellite). The internet channels are on the start page.</string>
     <string name="player_no_sound">without sound</string>
+    <string name="video_hint">OK: pause / continue  ·  ◀ ▶ 10 seconds  ·  ▲ ▼ info  ·  Back: end</string>
+    <string name="video_paused">Paused</string>
+    <string name="video_ended">Finished – Back: close</string>
+    <string name="video_blocked">This video may only be played on YouTube. OK: open in the YouTube app</string>
+    <string name="video_error">The video cannot be played (error %1$d). OK: open in the YouTube app</string>
+    <string name="video_no_webview">The web player (Android System WebView) is missing on this TV – the video opens in the YouTube app.</string>
 </resources>

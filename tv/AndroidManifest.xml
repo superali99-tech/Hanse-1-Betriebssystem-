@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- NovaOS TV: the NovaOS home screen as an app for Google TV / Android TV.
      Internet is used only for the TV channels (streams of the broadcasters) and
-     Nova Filme (public YouTube feeds and preview pictures); no tracking, no ads. -->
+     Nova Filme (public YouTube feeds, preview pictures and the embedded YouTube
+     player); no tracking, no ads of its own. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.novaos.tv">
 
@@ -96,5 +97,11 @@
             android:name=".NovaFilmeActivity"
             android:exported="false"
             android:screenOrientation="landscape" />
+        <activity
+            android:name=".VideoActivity"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.NovaTV.Player" />
     </application>
 </manifest>
