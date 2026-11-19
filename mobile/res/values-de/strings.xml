@@ -40,8 +40,8 @@
     <string name="done">Erledigt</string>
     <string name="about_title">Über NovaOS Mobile</string>
     <string name="about_version">Version %1$s · %2$s %3$s · Android %4$s</string>
-    <string name="about_text">NovaOS Mobile ist der NovaOS-Startbildschirm für Android-Handys und -Tablets: Uhr, Favoriten, alle Apps, Schnelleinstellungen, Fernsehen und Nova Filme. Android darunter bleibt unverändert (Updates, Sicherheit); in den Android-Einstellungen kannst du jederzeit zum bisherigen Startbildschirm zurück. Freie Software (GPL-3.0-or-later), Teil von NovaOS.</string>
-    <string name="about_privacy">NovaOS Mobile sammelt keine Daten und zeigt keine eigene Werbung. Das Internet wird nur genutzt, wenn du einen Sender startest (der Stream kommt direkt vom Sender) oder Nova Filme öffnest (Listen, Vorschaubilder und Videos kommen von YouTube im erweiterten Datenschutzmodus, mit der Werbung von YouTube). Favoriten werden nur auf diesem Gerät gespeichert.</string>
+    <string name="about_text">NovaOS Mobile ist der NovaOS-Startbildschirm für Android-Handys und -Tablets: Uhr, Favoriten, alle Apps, Schnelleinstellungen, Fernsehen und Nova Filme, dazu Nova Store, Nova Kamera, Nova Galerie, Nova Dateien, Nova Notizen und das NovaOS-Software-Update. Android darunter bleibt unverändert (Updates, Sicherheit); in den Android-Einstellungen kannst du jederzeit zum bisherigen Startbildschirm zurück. Freie Software (GPL-3.0-or-later), Teil von NovaOS.</string>
+    <string name="about_privacy">NovaOS Mobile sammelt keine Daten und zeigt keine eigene Werbung. Das Internet wird nur genutzt für Sender (der Stream kommt direkt vom Sender), Nova Filme (Listen, Vorschaubilder und Videos von YouTube im erweiterten Datenschutzmodus, mit der Werbung von YouTube), den Nova Store (App-Liste und Apps von f-droid.org) und die Suche nach NovaOS-Updates (NovaOS-Website). Favoriten, Notizen, Fotos und Dateien bleiben auf diesem Gerät.</string>
     <string name="tv_title">Fernsehen</string>
     <string name="tv_sub">Offizielle, kostenlose Livestreams · die meisten nur in Deutschland</string>
     <string name="player_list_title">Sender</string>

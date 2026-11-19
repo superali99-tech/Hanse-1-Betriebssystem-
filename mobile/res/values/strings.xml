@@ -40,8 +40,8 @@
     <string name="done">Done</string>
     <string name="about_title">About NovaOS Mobile</string>
     <string name="about_version">Version %1$s · %2$s %3$s · Android %4$s</string>
-    <string name="about_text">NovaOS Mobile is the NovaOS home screen for Android phones and tablets: clock, favorites, all apps, quick settings, TV channels and Nova Filme. Android underneath stays unchanged (updates, security); in the Android settings you can switch back to the previous home screen at any time. Free software (GPL-3.0-or-later), part of NovaOS.</string>
-    <string name="about_privacy">NovaOS Mobile collects no data and shows no ads of its own. It only uses the internet when you start a channel (the stream comes directly from the broadcaster) or open Nova Filme (lists, preview pictures and videos come from YouTube in privacy-enhanced mode, with YouTube\'s ads). Favorites are stored only on this device.</string>
+    <string name="about_text">NovaOS Mobile is the NovaOS home screen for Android phones and tablets: clock, favorites, all apps, quick settings, TV channels and Nova Filme, plus Nova Store, Nova Camera, Nova Gallery, Nova Files, Nova Notes and the NovaOS software update. Android underneath stays unchanged (updates, security); in the Android settings you can switch back to the previous home screen at any time. Free software (GPL-3.0-or-later), part of NovaOS.</string>
+    <string name="about_privacy">NovaOS Mobile collects no data and shows no ads of its own. It only uses the internet for TV channels (the stream comes directly from the broadcaster), Nova Filme (lists, preview pictures and videos from YouTube in privacy-enhanced mode, with YouTube\'s ads), the Nova Store (app list and apps from f-droid.org) and the search for NovaOS updates (NovaOS website). Favorites, notes, photos and files stay on this device.</string>
     <string name="tv_title">TV</string>
     <string name="tv_sub">Official free live streams · most of them only in Germany</string>
     <string name="player_list_title">Channels</string>
