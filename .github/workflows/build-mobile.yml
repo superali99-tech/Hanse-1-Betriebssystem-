@@ -1,0 +1,76 @@
+# Build NovaOS Mobile (home screen app for Android phones, APK) and publish it as a
+# GitHub release ("Releases" page -> novaos-mobile-<version>.apk).
+#
+# Triggers:
+#   * manually: Actions -> "Build NovaOS Mobile app" -> "Run workflow"
+#   * pushing a tag "mobile-v*" (e.g. mobile-v0.1.1)
+#
+# Signing: with the repository secrets NOVAOS_MOBILE_KEYSTORE_B64 (base64 of a
+# PKCS12 keystore with alias "novaos") and NOVAOS_MOBILE_KS_PASS the APK is signed
+# with that fixed key, so later versions install as updates. Without them a
+# new key is created for every build (then uninstall the old version first).
+name: Build NovaOS Mobile app
+
+on:
+  push:
+    tags: ["mobile-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Android SDK on the runner
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME/build-tools" "$ANDROID_HOME/platforms"
+          java -version
+
+      - name: Signing key (optional repository secret)
+        env:
+          KS_B64: ${{ secrets.NOVAOS_MOBILE_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/novaos-mobile.keystore"
+            echo "NOVAOS_MOBILE_KEYSTORE=$RUNNER_TEMP/novaos-mobile.keystore" >> "$GITHUB_ENV"
+            echo "SIGNING=release key" >> "$GITHUB_ENV"
+          else
+            echo "SIGNING=temporary key (no NOVAOS_MOBILE_KEYSTORE_B64 secret)" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build APK (includes the logic tests)
+        env:
+          NOVAOS_MOBILE_BUILD: ${{ github.run_number }}
+          NOVAOS_MOBILE_KS_PASS: ${{ secrets.NOVAOS_MOBILE_KS_PASS }}
+        run: ./mobile/build.sh
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          . ./VERSION.sh
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="mobile-build-$GITHUB_RUN_NUMBER"; fi
+          APK=build/mobile/novaos-mobile-${NOVAOS_VERSION}.apk
+          SHA=$(cut -d' ' -f1 "$APK.sha256")
+          cat > notes.md <<EOF
+          **NovaOS Mobile ${NOVAOS_VERSION}** – der NovaOS-Startbildschirm für **Android-Handys und -Tablets** (z. B. Samsung Galaxy, Pixel, Xiaomi) ab Android 7.
+
+          Startbildschirm mit Uhr, Suche, Favoriten, Schnelleinstellungen und App-Übersicht, dazu **Fernsehen** (30 Sender live) und **Nova Filme** (kostenlose Filme und Serien, direkt in der App). Android bleibt darunter unverändert.
+
+          **Download:** \`novaos-mobile-${NOVAOS_VERSION}.apk\` (unten unter *Assets*)
+          **SHA256:** \`${SHA}\` · Signatur: ${SIGNING}
+
+          Installation auf dem Handy:
+          1. Diese Seite auf dem Handy öffnen und die APK herunterladen.
+          2. Die Datei antippen → beim ersten Mal „Unbekannte Apps installieren“ für den Browser bzw. „Eigene Dateien“ erlauben → **Installieren**.
+          3. NovaOS öffnen → beim Drücken der Home-Taste „NovaOS“ und „Immer“ wählen (oder in NovaOS: Einstellungen → „NovaOS als Startbildschirm verwenden“).
+
+          Zurück zum alten Startbildschirm: Android-Einstellungen → Apps → Standard-Apps → Startbildschirm. Ausführliche Anleitung: mobile/README.md · Gebaut aus Commit ${GITHUB_SHA}.
+          EOF
+          gh release create "$TAG" "$APK" "$APK.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --prerelease --title "NovaOS Mobile ${NOVAOS_VERSION} (Startbildschirm für Android-Handys) – ${TAG}" --notes-file notes.md

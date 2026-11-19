@@ -30,6 +30,7 @@ Design, eigenem App Store, eigenen System-Apps und einem grafischen Installer.
 | Installation | Live-System + Calamares 3.3 (Sprache, Tastatur, Zeitzone, Partitionierung inkl. Dual-Boot/Verschlüsselung, Benutzer, Fortschritt), BIOS + UEFI |
 | **NovaOS TV** | App für Fernseher mit Google TV / Android TV (z. B. Metz): NovaOS-Design, **Fernsehen** (30 Internet-Sender + alle Sender des Fernsehers), **Nova Filme** (kostenlose Filme und Serien von offiziellen YouTube-Kanälen, direkt in der App), App-Kacheln, Favoriten, Suche, TV-Einstellungen, Bedienung per Fernbedienung – siehe [tv/README.md](tv/README.md) |
 | **NovaOS TV Web** | Fernsehen und Nova Filme im Browser von Samsung-, LG- und Philips-Fernsehern ohne Android – siehe [tv/web/README.md](tv/web/README.md) |
+| **NovaOS Mobile** | NovaOS-Startbildschirm für Android-Handys und -Tablets (z. B. Samsung Galaxy): Uhr, Suche, Favoriten, Schnelleinstellungen, App-Übersicht, Fernsehen und Nova Filme – siehe [mobile/README.md](mobile/README.md) |
 
 ## Schnellstart
 
@@ -77,6 +78,7 @@ src/data/            .desktop-Dateien, polkit, systemd-Units, Hilfe, APT-Helfer
 artwork/             Generator für Logo, Icons, Wallpaper, Boot-Splash, Installer-Folien
 tools/               Build-Skripte (build-iso.sh, build-debs.sh, check-host.sh), trailer/
 tv/                  NovaOS TV – App für Google TV / Android TV (APK, ohne Gradle gebaut)
+mobile/              NovaOS Mobile – Startbildschirm-App für Android-Handys (APK, ohne Gradle gebaut)
 tests/               Unit-, UI- und QEMU-Tests
 docs/                Dokumentation
 ```
