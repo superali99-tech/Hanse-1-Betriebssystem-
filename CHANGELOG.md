@@ -30,6 +30,14 @@
 * NovaOS TV: Fernsehen und Nova Filme in Android-x86 9 mit Internet getestet (Das Erste, NDR
   Hamburg, tagesschau24 live; Nova Filme mit 94 echten Videos); gefundene Fehler behoben (Fokus,
   Bild ohne Ton weiter, schwarzes Umschalten, Live-TV-Erkennung)
+* **NovaOS Mobile – Software-Update:** „Neues Update verfügbar“ in den NovaOS-Einstellungen und
+  auf dem Startbildschirm; Download von der NovaOS-Website mit SHA-256- und Signaturprüfung,
+  Installation über Android, danach Neustart von NovaOS mit **Start-Animation** und „Was ist neu“;
+  „NovaOS neu starten“ in den Einstellungen. Versionsnummer = Version + Zahl der Commits
+* **NovaOS Mobile – Nova Store** mit echten Apps (freie Apps direkt aus F-Droid installieren und
+  aktualisieren, bekannte Apps über den Play Store) und eigene Apps **Nova Kamera**, **Nova Galerie**,
+  **Nova Dateien** und **Nova Notizen** mit eigenen Symbolen
+* NovaOS-Website: `/mobile/` mit Download-Seite, APK und Update-Beschreibung
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

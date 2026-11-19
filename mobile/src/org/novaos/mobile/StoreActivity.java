@@ -250,7 +250,7 @@ public class StoreActivity extends Activity {
             return;
         }
         if (latest == null) {
-            Toast.makeText(this, R.string.update_unreachable, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.store_offline, Toast.LENGTH_LONG).show();
             return;
         }
         if (!Installer.allowedOrAsk(this)) {

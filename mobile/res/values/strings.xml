@@ -115,6 +115,7 @@
     <string name="store_source_play">Google Play</string>
     <string name="store_progress">%1$d %%</string>
     <string name="store_failed">Error: %1$s</string>
+    <string name="store_offline">F-Droid cannot be reached right now. Please check the internet connection.</string>
     <string name="store_wrong_app">The download is not the expected app.</string>
     <string name="app_camera">Nova Camera</string>
     <string name="app_gallery">Nova Gallery</string>
