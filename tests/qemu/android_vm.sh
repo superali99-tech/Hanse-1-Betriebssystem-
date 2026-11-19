@@ -28,7 +28,9 @@ i = pycdlib.PyCdlib(); i.open(sys.argv[1])
 for n in ("kernel", "initrd.img"): i.get_file_from_iso(sys.argv[2] + "/" + n, rr_path="/" + n)' "$iso" "$work/kernel"
 		fi
 	fi
-	accel="tcg,thread=multi"; cpu="max,avx=off,avx2=off,fma=off,f16c=off,avx512f=off"
+	# conservative CPU model for TCG: with "max" (even without AVX) surfaceflinger crashed and the
+	# kernel panicked in ttm_bo_vm_open while forking crash_dump
+	accel="tcg,thread=multi"; cpu="Nehalem"
 	if [ -w /dev/kvm ]; then accel=kvm; cpu=host; fi
 	qemu-system-x86_64 -accel "$accel" -cpu "$cpu" -m 3072 -smp 4 -machine q35 \
 		-kernel "$work/kernel/kernel" -initrd "$work/kernel/initrd.img" \
@@ -53,7 +55,7 @@ EXTRACT = (b"for p in first-boot boot install bg-dexopt inactive shared; do setp
            b" setprop dalvik.vm.dex2oat-filter extract\n")
 deadline = time.time() + 2400
 while time.time() < deadline:
-    s.sendall(b"\n" + EXTRACT + b"getprop sys.boot_completed\n")
+    s.sendall(b"\n" + EXTRACT + b"echo BC=$(getprop sys.boot_completed)\n")
     buf = b""
     end = time.time() + 5
     while time.time() < end:
@@ -61,7 +63,7 @@ while time.time() < deadline:
             buf += s.recv(65536)
         except socket.timeout:
             pass
-    if b"\n1\r" in buf or b"\n1\n" in buf:
+    if b"BC=1" in buf:
         break
     time.sleep(10)
 else:
