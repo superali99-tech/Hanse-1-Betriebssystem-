@@ -8,12 +8,12 @@ import java.util.regex.Pattern;
  * A YouTube video in Nova Filme, read from a channel's public RSS feed
  * (https://www.youtube.com/feeds/videos.xml). Android-independent.
  */
-final class Video {
-    final String id;
-    final String title;
+public final class Video {
+    public final String id;
+    public final String title;
     /** ISO-8601, e.g. 2026-11-18T17:00:12+00:00 (sorts as text) */
-    final String published;
-    final Catalog.Source source;
+    public final String published;
+    public final Catalog.Source source;
 
     Video(String id, String title, String published, Catalog.Source source) {
         this.id = id;
@@ -22,24 +22,24 @@ final class Video {
         this.source = source;
     }
 
-    String watchUrl() {
+    public String watchUrl() {
         return "https://www.youtube.com/watch?v=" + id;
     }
 
     /** 320x180 preview picture (16:9, small enough for rows of 30 tiles in memory). */
-    String thumbnailUrl() {
+    public String thumbnailUrl() {
         return "https://i.ytimg.com/vi/" + id + "/mqdefault.jpg";
     }
 
-    static final Pattern VIDEO_ID = Pattern.compile("[A-Za-z0-9_-]{11}");
+    public static final Pattern VIDEO_ID = Pattern.compile("[A-Za-z0-9_-]{11}");
 
     /** oEmbed answers 200 if the video may be shown in an embedded player, 401 if not. */
-    String oembedUrl() {
+    public String oembedUrl() {
         return "https://www.youtube.com/oembed?format=json&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D" + id;
     }
 
     /** Playing time for the info bar: 75 -> "1:15", 5530 -> "1:32:10". */
-    static String formatTime(double seconds) {
+    public static String formatTime(double seconds) {
         long s = seconds > 0 && !Double.isInfinite(seconds) ? (long) seconds : 0;
         long h = s / 3600, m = (s / 60) % 60, sec = s % 60;
         return h > 0 ? String.format(java.util.Locale.ROOT, "%d:%02d:%02d", h, m, sec)
@@ -47,7 +47,7 @@ final class Video {
     }
 
     /** Reads the entries of a YouTube Atom feed (no XML library needed for this simple format). */
-    static List<Video> parseFeed(String xml, Catalog.Source source) {
+    public static List<Video> parseFeed(String xml, Catalog.Source source) {
         List<Video> out = new ArrayList<>();
         if (xml == null) return out;
         int pos = 0;
@@ -74,7 +74,7 @@ final class Video {
         return b < 0 ? null : s.substring(a, b);
     }
 
-    static String unescape(String s) {
+    public static String unescape(String s) {
         if (s.indexOf('&') < 0) return s;
         StringBuilder out = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); i++) {

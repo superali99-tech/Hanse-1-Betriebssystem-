@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- dark NovaOS look, drawn behind transparent status and navigation bars -->
+    <style name="Theme.NovaMobile" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorAccent">@color/nova_violet</item>
+        <item name="android:colorPrimary">@color/nova_violet</item>
+        <item name="android:textColorPrimary">@color/text</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:alertDialogTheme">@android:style/Theme.Material.Dialog.Alert</item>
+    </style>
+
+    <!-- app overview slides up over the home screen -->
+    <style name="Theme.NovaMobile.Drawer">
+        <item name="android:windowAnimationStyle">@style/DrawerAnimation</item>
+    </style>
+
+    <style name="DrawerAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@anim/slide_up</item>
+        <item name="android:activityCloseExitAnimation">@anim/slide_down</item>
+    </style>
+
+    <style name="Theme.NovaMobile.Player">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+</resources>

@@ -7,7 +7,7 @@ import java.util.List;
 
 /** Ordered list of app keys (favorites), stored as one string. Plain Java, unit-tested. */
 public final class KeyList {
-    static final String SEP = "\n";
+    public static final String SEP = "\n";
 
     private KeyList() {}
 

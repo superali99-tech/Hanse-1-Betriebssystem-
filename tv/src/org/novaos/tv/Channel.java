@@ -11,13 +11,13 @@ import java.util.regex.Pattern;
  * A TV channel with an internet live stream (list: res/raw/sender.m3u).
  * Android-independent, so the parser is covered by the logic tests.
  */
-final class Channel {
-    final int number;
-    final String name;
-    final String group;
-    final String url;
+public final class Channel {
+    public final int number;
+    public final String name;
+    public final String group;
+    public final String url;
     /** tile colour, ARGB */
-    final int color;
+    public final int color;
 
     Channel(int number, String name, String group, String url, int color) {
         this.number = number;
@@ -28,10 +28,10 @@ final class Channel {
     }
 
     private static final Pattern ATTR = Pattern.compile("([A-Za-z0-9-]+)=\"([^\"]*)\"");
-    static final int DEFAULT_COLOR = 0xFF2A3157;
+    public static final int DEFAULT_COLOR = 0xFF2A3157;
 
     /** Parses an M3U playlist (#EXTINF lines with tvg-chno, group-title, nova-color). */
-    static List<Channel> parse(String m3u) {
+    public static List<Channel> parse(String m3u) {
         List<Channel> out = new ArrayList<>();
         if (m3u == null) return out;
         String info = null;
@@ -74,19 +74,19 @@ final class Channel {
     }
 
     /** "#RRGGBB" -> opaque ARGB; anything else -> default tile colour. */
-    static int parseColor(String s) {
+    public static int parseColor(String s) {
         if (s == null || !s.matches("#[0-9A-Fa-f]{6}")) return DEFAULT_COLOR;
         return 0xFF000000 | Integer.parseInt(s.substring(1), 16);
     }
 
     /** Next index when zapping (wraps around at both ends). */
-    static int step(int size, int index, int delta) {
+    public static int step(int size, int index, int delta) {
         if (size <= 0) return 0;
         return ((index + delta) % size + size) % size;
     }
 
     /** Index of the channel with this number, or -1. */
-    static int indexOfNumber(List<Channel> list, int number) {
+    public static int indexOfNumber(List<Channel> list, int number) {
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).number == number) return i;
         }

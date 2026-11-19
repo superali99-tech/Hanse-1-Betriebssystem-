@@ -16,13 +16,13 @@ import java.nio.charset.StandardCharsets;
  * file cache, so the lists also appear without internet. No cookies, no IDs:
  * only the public feed/picture address is requested.
  */
-final class Net {
+public final class Net {
     private Net() {}
 
-    static final int TIMEOUT_MS = 12000;
+    public static final int TIMEOUT_MS = 12000;
     private static final int MAX_BYTES = 4 * 1024 * 1024;
 
-    static byte[] get(String url) throws IOException {
+    public static byte[] get(String url) throws IOException {
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         con.setConnectTimeout(TIMEOUT_MS);
         con.setReadTimeout(TIMEOUT_MS);
@@ -47,14 +47,14 @@ final class Net {
         }
     }
 
-    static File cacheFile(Context c, String dir, String name) {
+    public static File cacheFile(Context c, String dir, String name) {
         File d = new File(c.getCacheDir(), dir);
         //noinspection ResultOfMethodCallIgnored
         d.mkdirs();
         return new File(d, name);
     }
 
-    static byte[] read(File f) {
+    public static byte[] read(File f) {
         if (!f.isFile()) return null;
         try (InputStream in = new java.io.FileInputStream(f)) {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -67,7 +67,7 @@ final class Net {
         }
     }
 
-    static void write(File f, byte[] data) {
+    public static void write(File f, byte[] data) {
         File tmp = new File(f.getPath() + ".tmp");
         try (FileOutputStream out = new FileOutputStream(tmp)) {
             out.write(data);
@@ -89,7 +89,7 @@ final class Net {
      * Asked once per video via YouTube's oEmbed (200 = allowed, 401/403/404 = not) and
      * remembered in a small file; if the check fails (no internet), the video is shown.
      */
-    static boolean embeddable(Context c, Video v) {
+    public static boolean embeddable(Context c, Video v) {
         synchronized (Net.class) {
             loadEmbed(c);
             Boolean known = embed.get(v.id);
@@ -131,7 +131,7 @@ final class Net {
     }
 
     /** Saves the remembered answers (the newest MAX_EMBED_ENTRIES). */
-    static synchronized void saveEmbed(Context c) {
+    public static synchronized void saveEmbed(Context c) {
         if (embed == null) return;
         StringBuilder sb = new StringBuilder();
         int skip = Math.max(0, embed.size() - MAX_EMBED_ENTRIES);
@@ -143,9 +143,9 @@ final class Net {
     }
 
     /** Result of loading a feed: the text and whether it came fresh from the internet. */
-    static final class Feed {
-        final String xml;
-        final boolean fresh;
+    public static final class Feed {
+        public final String xml;
+        public final boolean fresh;
 
         Feed(String xml, boolean fresh) {
             this.xml = xml;
@@ -157,7 +157,7 @@ final class Net {
      * Feed text: from the cache if it is younger than maxAgeMs, otherwise from
      * the internet; if that fails, the older cached copy (or null).
      */
-    static Feed feed(Context c, Catalog.Source s, long maxAgeMs) {
+    public static Feed feed(Context c, Catalog.Source s, long maxAgeMs) {
         File f = cacheFile(c, "feeds", s.channelId + ".xml");
         long age = System.currentTimeMillis() - f.lastModified();
         if (f.isFile() && age >= 0 && age < maxAgeMs) {

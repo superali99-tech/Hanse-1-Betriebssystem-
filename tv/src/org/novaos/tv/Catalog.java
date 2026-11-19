@@ -18,15 +18,15 @@ import java.util.regex.Pattern;
  * that publish complete films for free, broadcasters, studios) - no uploads by
  * third parties. Android-independent (tested by LogicTest).
  */
-final class Catalog {
+public final class Catalog {
     private Catalog() {}
 
-    enum Category { FILME, SERIEN, DOKUS, KINDER }
+    public enum Category { FILME, SERIEN, DOKUS, KINDER }
 
-    static final class Source {
-        final String channelId;
-        final String name;
-        final Category category;
+    public static final class Source {
+        public final String channelId;
+        public final String name;
+        public final Category category;
 
         Source(String channelId, String name, Category category) {
             this.channelId = channelId;
@@ -35,7 +35,7 @@ final class Catalog {
         }
 
         /** Public feed of the channel's videos without Shorts and live streams ("UULF" list). */
-        String feedUrl() {
+        public String feedUrl() {
             return "https://www.youtube.com/feeds/videos.xml?playlist_id=UULF" + channelId.substring(2);
         }
     }
@@ -45,7 +45,7 @@ final class Catalog {
      * channels allow their videos in embedded players (Nova Filme plays inside the app).
      * Not included because they forbid embedding: Die Biene Maja, ZDFtivi, KiKA.
      */
-    static final List<Source> SOURCES = Collections.unmodifiableList(Arrays.asList(
+    public static final List<Source> SOURCES = Collections.unmodifiableList(Arrays.asList(
             // complete feature films, free with ads, licensed by the distributors
             new Source("UCGkHFrwE8KEuOHPVsIOskAg", "Netzkino", Category.FILME),
             new Source("UCh4JH8axA_jUjB8YoRnm0cg", "Moviedome", Category.FILME),
@@ -64,18 +64,18 @@ final class Catalog {
             new Source("UCRWSxXBnz9IRS4SgRhG2wpQ", "Die Maus", Category.KINDER),
             new Source("UCQtsd17U8NOM1VRI8oxdwiQ", "Checker Welt", Category.KINDER)));
 
-    static final int MAX_PER_ROW = 30;
+    public static final int MAX_PER_ROW = 30;
 
     private static final Pattern EPISODE = Pattern.compile(
             "(?iu)\\b(folge|folgen|episode|staffel)\\b|\\bS\\d{1,2} ?E\\d{1,3}\\b");
     private static final Pattern SKIP = Pattern.compile("(?iu)trailer|teaser|#shorts|\\bpreview\\b");
 
-    static boolean isEpisode(String title) {
+    public static boolean isEpisode(String title) {
         return EPISODE.matcher(title).find();
     }
 
     /** Row a video belongs to, or null if it is not shown (trailers, clips of series channels). */
-    static Category categoryOf(Video v) {
+    public static Category categoryOf(Video v) {
         if (SKIP.matcher(v.title).find()) return null;
         switch (v.source.category) {
             case FILME:
@@ -91,7 +91,7 @@ final class Catalog {
      * Builds the rows: videos of the sources of a row take turns (newest first),
      * so one busy channel does not fill the whole row. Duplicates are dropped.
      */
-    static Map<Category, List<Video>> rows(List<List<Video>> feeds) {
+    public static Map<Category, List<Video>> rows(List<List<Video>> feeds) {
         Map<Category, List<List<Video>>> perCat = new EnumMap<>(Category.class);
         for (Category c : Category.values()) perCat.put(c, new ArrayList<>());
         for (List<Video> feed : feeds) {
@@ -145,7 +145,7 @@ final class Catalog {
     private static final String SPACE = "[\\s\\u00A0\\u2007\\u202F]+";
 
     /** Short title for a tile: without channel names, "Ganzer Film", genre lists and emojis. */
-    static String cleanTitle(String title, String sourceName) {
+    public static String cleanTitle(String title, String sourceName) {
         String t = HASHTAG.matcher(stripEmoji(title)).replaceAll("").replaceAll(SPACE, " ");
         Matcher m = FILM_NAME.matcher(t);
         if (m.find()) return tidy(m.group(1));
@@ -184,7 +184,7 @@ final class Catalog {
     }
 
     /** Emojis are often missing in TV fonts and make titles noisy. */
-    static String stripEmoji(String s) {
+    public static String stripEmoji(String s) {
         StringBuilder out = new StringBuilder(s.length());
         for (int i = 0; i < s.length(); ) {
             int cp = s.codePointAt(i);

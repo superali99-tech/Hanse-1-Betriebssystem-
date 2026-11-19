@@ -1,0 +1,103 @@
+#!/bin/bash
+# Build NovaOS Mobile (home screen / launcher app for Android phones, APK) - no Gradle.
+#
+# Usage: mobile/build.sh         -> build/mobile/novaos-mobile-<version>.apk (+ .sha256)
+#
+# Shares code and resources with NovaOS TV (tv/): channel list and player logic, Nova Filme
+# (Catalog, Video, Net, ImageLoader), app search and favorites (AppFilter, KeyList), icons,
+# res/raw/sender.m3u and the YouTube player page. Libraries: tv/libs.lock (Media3).
+# Environment: ANDROID_HOME, NOVAOS_MOBILE_BUILD (CI run number),
+#              NOVAOS_MOBILE_KEYSTORE / NOVAOS_MOBILE_KS_PASS (release key, alias "novaos").
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(dirname "$HERE")"
+TV="$ROOT/tv"
+. "$ROOT/VERSION.sh"
+
+SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/opt/android-sdk}}"
+BT="$(ls -d "$SDK"/build-tools/*/ 2>/dev/null | sort -V | tail -n1)"; BT="${BT%/}"
+PLATFORM=""
+for p in $(ls -d "$SDK"/platforms/android-* 2>/dev/null | sed 's/.*android-//' | grep -E '^[0-9]+$' | sort -n); do
+	[ "$p" -ge 34 ] && PLATFORM="$SDK/platforms/android-$p/android.jar"
+done
+[ -x "$BT/aapt2" ] || { echo "Android build-tools not found in $SDK" >&2; exit 1; }
+[ -f "$PLATFORM" ] || { echo "Android platform >= 34 not found in $SDK" >&2; exit 1; }
+
+OUT="$ROOT/build/mobile"
+rm -rf "$OUT/gen" "$OUT/classes" "$OUT/test-classes" "$OUT/dex" "$OUT/flat" "$OUT"/*.apk
+mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/test-classes" "$OUT/dex" "$OUT/flat"
+
+# libraries: same pinned list as NovaOS TV
+LIBS="$ROOT/build/tv-libs"
+mkdir -p "$LIBS"
+JARS=()
+while read -r sum url; do
+	case "$sum" in ''|'#'*) continue ;; esac
+	f="$LIBS/$(basename "$url")"
+	if [ ! -f "$f" ] || ! echo "$sum  $f" | sha256sum -c --status; then
+		echo "download $(basename "$url")"
+		curl -fsSL --retry 3 -o "$f.part" "$url"
+		echo "$sum  $f.part" | sha256sum -c --status || { echo "checksum mismatch: $url" >&2; exit 1; }
+		mv "$f.part" "$f"
+	fi
+	case "$f" in
+	*.aar)
+		jar="${f%.aar}.jar"
+		[ "$jar" -nt "$f" ] || unzip -p "$f" classes.jar > "$jar"
+		JARS+=("$jar") ;;
+	*) JARS+=("$f") ;;
+	esac
+done < "$TV/libs.lock"
+LIBCP="$(IFS=:; echo "${JARS[*]}")"
+
+IFS=. read -r MA MI PA <<<"$NOVAOS_VERSION"
+CODE=$(( (MA * 10000 + MI * 100 + PA) * 1000 + ${NOVAOS_MOBILE_BUILD:-0} % 1000 ))
+echo "NovaOS Mobile $NOVAOS_VERSION (versionCode $CODE), $(basename "$BT"), $(basename "$(dirname "$PLATFORM")")"
+
+echo "== resources"
+# shared from NovaOS TV: icons, logo, launcher icon, colours, channel list, YouTube player page
+for f in "$TV"/res/drawable/ic_*.xml "$TV"/res/drawable/list_item_bg.xml "$TV"/res/drawable/panel_bg.xml \
+	"$TV"/res/drawable-nodpi/nova_logo.png "$TV"/res/mipmap-*/* "$TV"/res/raw/* "$TV"/res/values/colors.xml; do
+	"$BT/aapt2" compile "$f" -o "$OUT/flat/"
+done
+"$BT/aapt2" compile --dir "$HERE/res" -o "$OUT/res.zip"
+"$BT/aapt2" link -o "$OUT/base.apk" -I "$PLATFORM" --manifest "$HERE/AndroidManifest.xml" \
+	--java "$OUT/gen" --min-sdk-version 24 --target-sdk-version 34 \
+	--version-code "$CODE" --version-name "$NOVAOS_VERSION" "$OUT"/flat/*.flat "$OUT/res.zip"
+
+echo "== java"
+SHARED=(Channel Catalog Video Net ImageLoader KeyList AppFilter)
+javac -nowarn --release 11 -encoding UTF-8 -classpath "$PLATFORM:$LIBCP" -d "$OUT/classes" \
+	$(for c in "${SHARED[@]}"; do echo "$TV/src/org/novaos/tv/$c.java"; done) \
+	$(find "$HERE/src" "$OUT/gen" -name '*.java')
+
+echo "== tests"
+javac --release 11 -encoding UTF-8 -classpath "$OUT/classes" -d "$OUT/test-classes" $(find "$HERE/test" -name '*.java')
+java -cp "$OUT/classes:$OUT/test-classes" org.novaos.mobile.MobileTest
+
+echo "== dex"
+"$BT/d8" --release --min-api 24 --lib "$PLATFORM" --output "$OUT/dex" \
+	$(find "$OUT/classes" -name '*.class') "${JARS[@]}"
+cp "$OUT/base.apk" "$OUT/unsigned.apk"
+( cd "$OUT/dex" && zip -q -X "$OUT/unsigned.apk" classes*.dex )
+"$BT/zipalign" -f -p 4 "$OUT/unsigned.apk" "$OUT/aligned.apk"
+
+echo "== sign"
+KS="${NOVAOS_MOBILE_KEYSTORE:-}"
+PASS="${NOVAOS_MOBILE_KS_PASS:-}"
+if [ -z "$KS" ]; then
+	KS="$OUT/novaos-mobile-dev.keystore"
+	PASS="novaos-dev"
+	if [ ! -f "$KS" ]; then
+		keytool -genkeypair -keystore "$KS" -storetype PKCS12 -storepass "$PASS" -keypass "$PASS" \
+			-alias novaos -keyalg RSA -keysize 3072 -validity 10000 \
+			-dname "CN=NovaOS Mobile (development key)" >/dev/null 2>&1
+		echo "created development signing key $KS"
+	fi
+fi
+APK="$OUT/novaos-mobile-$NOVAOS_VERSION.apk"
+"$BT/apksigner" sign --ks "$KS" --ks-pass "pass:$PASS" --ks-key-alias novaos --out "$APK" "$OUT/aligned.apk"
+"$BT/apksigner" verify "$APK"
+rm -f "$OUT/unsigned.apk" "$OUT/aligned.apk" "$OUT/base.apk" "$APK.idsig"
+( cd "$OUT" && sha256sum "$(basename "$APK")" > "$(basename "$APK").sha256" )
+echo "== done: $APK ($(du -h "$APK" | cut -f1))"

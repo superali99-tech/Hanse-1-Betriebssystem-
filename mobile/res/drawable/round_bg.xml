@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- quick setting button; state_activated = switched on (torch) -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android" android:color="#40FFFFFF">
+    <item>
+        <selector>
+            <item android:state_activated="true">
+                <shape android:shape="oval"><solid android:color="@color/nova_violet" /></shape>
+            </item>
+            <item>
+                <shape android:shape="oval"><solid android:color="#33FFFFFF" /></shape>
+            </item>
+        </selector>
+    </item>
+</ripple>

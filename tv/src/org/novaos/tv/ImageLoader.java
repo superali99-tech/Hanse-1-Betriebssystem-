@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /** Loads preview pictures in the background; memory + file cache. */
-final class ImageLoader {
+public final class ImageLoader {
     private ImageLoader() {}
 
     private static final int MAX_FILES = 400;
@@ -31,8 +31,8 @@ final class ImageLoader {
             };
     private static boolean pruned = false;
 
-    static void load(ImageView view, String url) {
-        view.setTag(R.id.tag_image, url);
+    public static void load(ImageView view, String url) {
+        view.setTag(url);  // plain tag: this class is shared with NovaOS Mobile
         Bitmap cached = MEMORY.get(url);
         if (cached != null) {
             view.setImageBitmap(cached);
@@ -45,7 +45,7 @@ final class ImageLoader {
             if (bmp == null) return;
             MEMORY.put(url, bmp);
             UI.post(() -> {
-                if (url.equals(view.getTag(R.id.tag_image))) view.setImageBitmap(bmp);
+                if (url.equals(view.getTag())) view.setImageBitmap(bmp);
             });
         });
     }

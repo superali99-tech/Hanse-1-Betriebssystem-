@@ -134,6 +134,7 @@ public class VideoActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         String html = page().replace("{{VIDEO_ID}}", videoId)
+                .replace("{{ORIGIN}}", BASE_URL.substring(0, BASE_URL.length() - 1))
                 .replace("{{LANG}}", Locale.getDefault().getLanguage().replaceAll("[^a-z]", ""));
         web.loadDataWithBaseURL(BASE_URL, html, "text/html", "UTF-8", null);
         showBar();

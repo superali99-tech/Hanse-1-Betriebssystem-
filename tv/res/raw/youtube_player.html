@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- Nova Filme: the official embedded YouTube player (IFrame Player API), full size.
-     Loaded with the base URL https://org.novaos.tv/ so YouTube gets the app ID as
-     HTTP Referer (required for embedded players in apps). Nothing is drawn over the
+     Loaded with the base URL https://<app ID>/ (e.g. https://org.novaos.tv/) so YouTube
+     gets the app ID as HTTP Referer (required for embedded players in apps). Nothing is drawn over the
      player; the app calls only documented API functions (play/pause/seek) when a key
      of the remote is pressed. -->
 <html>
@@ -30,7 +30,7 @@
       host: 'https://www.youtube-nocookie.com',
       playerVars: {
         autoplay: 1, controls: 1, rel: 0, fs: 0, playsinline: 1, iv_load_policy: 3,
-        hl: '{{LANG}}', origin: 'https://org.novaos.tv', widget_referrer: 'https://org.novaos.tv'
+        hl: '{{LANG}}', origin: '{{ORIGIN}}', widget_referrer: '{{ORIGIN}}'
       },
       events: {
         onReady: function (e) { nova.ready = true; e.target.playVideo(); },
