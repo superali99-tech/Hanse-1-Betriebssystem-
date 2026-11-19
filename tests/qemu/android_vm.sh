@@ -39,6 +39,7 @@ for n in ("kernel", "initrd.img"): i.get_file_from_iso(sys.argv[2] + "/" + n, rr
 		-drive "file=$iso,media=cdrom,readonly=on,if=none,id=cd0" -device ide-cd,drive=cd0 \
 		-device VGA,edid=on,xres=1280,yres=720,vgamem_mb=64 -display none \
 		-netdev user,id=n0,hostfwd=tcp:127.0.0.1:5555-:5555 -device e1000,netdev=n0 \
+		-audiodev none,id=snd0 -device intel-hda -device hda-duplex,audiodev=snd0 \
 		-monitor "unix:$work/monitor.sock,server,nowait" \
 		-serial "unix:$work/serial.sock,server,nowait" \
 		-daemonize -pidfile "$work/qemu.pid"

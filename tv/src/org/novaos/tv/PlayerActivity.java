@@ -30,6 +30,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.hls.HlsMediaSource;
 
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Live TV over the internet (HLS streams of the broadcasters), operated like a TV:
@@ -38,7 +39,8 @@ import java.util.List;
  */
 public class PlayerActivity extends Activity implements Player.Listener {
     static final String EXTRA_INDEX = "index";
-    private static final long BADGE_MS = 4500, DIGITS_MS = 1600;
+    /** how long the channel badge stays; how long to wait for a second digit */
+    private static final long BADGE_MS = 4500, DIGITS_MS = 2500;
 
     private final Handler ui = new Handler(Looper.getMainLooper());
     private final StringBuilder digits = new StringBuilder();
@@ -46,12 +48,12 @@ public class PlayerActivity extends Activity implements Player.Listener {
     private int index, previous = -1;
     private ExoPlayer player;
     private SurfaceView surface;
-    private View videoBox, badge, messageBox, listPanel;
+    private View videoBox, shutter, badge, messageBox, listPanel;
     private TextView badgeNumber, badgeName, message;
     private ProgressBar spinner;
     private LinearLayout list;
     private ScrollView listScroll;
-    private boolean error;
+    private boolean error, audioOff;
     private int videoW, videoH;
     private float pixelRatio = 1f;
 
@@ -77,6 +79,7 @@ public class PlayerActivity extends Activity implements Player.Listener {
         index = Channel.step(channels.size(), start, 0);
         videoBox = findViewById(R.id.video_box);
         surface = findViewById(R.id.surface);
+        shutter = findViewById(R.id.shutter);
         badge = findViewById(R.id.badge);
         badgeNumber = findViewById(R.id.badge_number);
         badgeName = findViewById(R.id.badge_name);
@@ -118,6 +121,7 @@ public class PlayerActivity extends Activity implements Player.Listener {
                 .build());
         player.setVideoSurfaceView(surface);
         player.addListener(this);
+        audioOff = false;
         tune(index);
     }
 
@@ -137,6 +141,7 @@ public class PlayerActivity extends Activity implements Player.Listener {
         index = i;
         Channel ch = channels.get(i);
         error = false;
+        shutter.setVisibility(View.VISIBLE);
         messageBox.setVisibility(View.GONE);
         spinner.setVisibility(View.VISIBLE);
         showBadge(String.valueOf(ch.number), ch.name);
@@ -177,6 +182,18 @@ public class PlayerActivity extends Activity implements Player.Listener {
             player.prepare();
             return;
         }
+        if (player != null && !audioOff && (e.errorCode == PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED
+                || e.errorCode == PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED)) {
+            // the TV's sound output refused the stream: keep the picture, without sound
+            audioOff = true;
+            player.setTrackSelectionParameters(player.getTrackSelectionParameters().buildUpon()
+                    .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, true).build());
+            player.prepare();
+            player.play();
+            Channel ch = channels.get(index);
+            showBadge(String.valueOf(ch.number), ch.name + "  ·  " + getString(R.string.player_no_sound));
+            return;
+        }
         error = true;
         spinner.setVisibility(View.GONE);
         String name = channels.get(index).name;
@@ -201,6 +218,11 @@ public class PlayerActivity extends Activity implements Player.Listener {
             }
         }
         return 0;
+    }
+
+    @Override
+    public void onRenderedFirstFrame() {
+        shutter.setVisibility(View.GONE);
     }
 
     @Override
@@ -235,7 +257,8 @@ public class PlayerActivity extends Activity implements Player.Listener {
         for (int i = 0; i < channels.size(); i++) {
             Channel ch = channels.get(i);
             TextView t = new TextView(this);
-            t.setText(ch.number + "   " + ch.name);
+            // numbers right-aligned with figure spaces, so the names line up
+            t.setText(String.format(Locale.ROOT, "%2d", ch.number).replace(' ', '\u2007') + "   " + ch.name);
             t.setTextColor(getColor(R.color.text));
             t.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             t.setSingleLine(true);
@@ -296,7 +319,7 @@ public class PlayerActivity extends Activity implements Player.Listener {
             if (digits.length() < 3) digits.append((char) ('0' + keyCode - KeyEvent.KEYCODE_0));
             showBadge(digits.toString(), "");
             ui.removeCallbacks(applyDigits);
-            ui.postDelayed(applyDigits, digits.length() >= 2 ? DIGITS_MS / 2 : DIGITS_MS);
+            ui.postDelayed(applyDigits, digits.length() >= 2 ? DIGITS_MS / 3 : DIGITS_MS);
             return true;
         }
         if (listShown()) {

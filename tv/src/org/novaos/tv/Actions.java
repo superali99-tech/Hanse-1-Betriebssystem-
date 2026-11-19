@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.media.tv.TvContract;
 import android.net.Uri;
 import android.provider.Settings;
@@ -79,8 +80,14 @@ final class Actions {
             if (i == null) i = pm.getLaunchIntentForPackage(pkg);
             if (i != null) return i;
         }
+        // other manufacturers: an app that opens the TV channel database and is a TV app
+        // (generic viewers such as the Google app also claim content:// links)
         Intent view = new Intent(Intent.ACTION_VIEW, TvContract.Channels.CONTENT_URI);
-        return view.resolveActivity(pm) != null ? view : null;
+        for (ResolveInfo r : pm.queryIntentActivities(view, 0)) {
+            String p = r.activityInfo.packageName;
+            if (p.contains(".tv") || p.contains("tvcenter") || p.contains("livetv")) return view.setPackage(p);
+        }
+        return null;
     }
 
     /** Opens the TV's own live TV (tuner) app; false if this device has none. */

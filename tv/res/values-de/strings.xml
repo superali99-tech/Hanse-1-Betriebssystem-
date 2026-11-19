@@ -74,4 +74,5 @@
     <string name="tuner_none">Keine Senderliste gefunden. Bitte den Sendersuchlauf in den TV-Einstellungen starten oder Live-TV öffnen.</string>
     <string name="tuner_denied">Ohne Erlaubnis kann die Senderliste nicht angezeigt werden – Live-TV funktioniert trotzdem.</string>
     <string name="tuner_no_tv">Dieses Gerät hat keinen TV-Empfang (Antenne, Kabel, Satellit). Die Internet-Sender sind auf der Startseite.</string>
+    <string name="player_no_sound">ohne Ton</string>
 </resources>

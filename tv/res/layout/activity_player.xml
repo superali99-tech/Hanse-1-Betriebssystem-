@@ -18,6 +18,13 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
+    <!-- black until the first picture of the new channel (no frozen frame of the old one) -->
+    <View
+        android:id="@+id/shutter"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FF000000" />
+
     <ProgressBar
         android:id="@+id/spinner"
         style="@android:style/Widget.Material.ProgressBar.Large"

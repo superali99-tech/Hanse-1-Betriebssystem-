@@ -74,4 +74,5 @@
     <string name="tuner_none">No channel list found. Run the channel search in the TV settings or open live TV.</string>
     <string name="tuner_denied">Without permission the channel list cannot be shown – live TV still works.</string>
     <string name="tuner_no_tv">This device has no TV tuner (antenna, cable, satellite). The internet channels are on the start page.</string>
+    <string name="player_no_sound">without sound</string>
 </resources>

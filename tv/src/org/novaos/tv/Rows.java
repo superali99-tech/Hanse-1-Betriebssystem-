@@ -32,6 +32,8 @@ final class Rows {
         hs.setClipToPadding(false);
         hs.setClipChildren(false);
         hs.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        // only the tiles take the focus (an empty row, e.g. no favorites, must not catch it)
+        hs.setFocusable(false);
         hs.setPadding(side, Tiles.dp(c, 10), side, Tiles.dp(c, 10));
         LinearLayout row = new LinearLayout(c);
         row.setOrientation(LinearLayout.HORIZONTAL);

@@ -58,7 +58,15 @@ public class TunerActivity extends Activity {
         grid.addView(openTile);
         openTile.requestFocus();
 
-        if (checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED) {
+        boolean database = true;
+        try {
+            getPackageManager().getPermissionInfo(PERMISSION, 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            database = false;  // no Android TV channel database (no tuner, e.g. streaming box)
+        }
+        if (!database) {
+            status.setText(Actions.liveTvIntent(this) == null ? R.string.tuner_no_tv : R.string.tuner_none);
+        } else if (checkSelfPermission(PERMISSION) == PackageManager.PERMISSION_GRANTED) {
             load();
         } else {
             status.setText(R.string.tuner_asking);
