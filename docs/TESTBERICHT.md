@@ -172,6 +172,29 @@ erschien erneut, wenn er per X geschlossen wurde → Schließen zählt ab Build 
 | Nova Store: echte App-Installation (Tux Paint) mit Fortschritt, danach „Öffnen“ startet die App | ✅ |
 | Hell → dunkel im laufenden Betrieb | ⚠️ → behoben: bereits geöffnete Nova-Apps behielten die hellen Farben (dunkle Schrift auf dunklem Grund). Die Apps berechnen ihr Stylesheet jetzt bei `ApplicationPaletteChange` neu (Unit-Test `test_style.py`). Im ISO `build-2` ist dieser Fehler noch enthalten. |
 
+## NovaOS Mobile (Startbildschirm für Android-Handys)
+
+Getestet am 19.11.2026 mit **Android-x86 9.0-r2** in QEMU als Handy (Bildschirm per `wm size
+720x1280`, 280 dpi = 411 × 731 dp wie ein Galaxy-Handy), mit Internet über den Proxy der
+Testumgebung (Ausgang USA). Bedient mit Touch-Ereignissen (`input tap/swipe`). Bilder:
+[docs/screenshots/mobile/](screenshots/mobile/).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Build ohne Gradle (`mobile/build.sh`), Logik-Tests | ✅ | APK 2,4 MB; teilt Code mit NovaOS TV, deren 234 Tests weiter bestehen |
+| Als Startbildschirm setzen (`HOME`), Home-Taste | ✅ | Begrüßung, Uhr, Datum, Suche, Nova-Karten, Schnelleinstellungen, Dock |
+| Inhalte unsichtbar: leere Dock-Plätze nahmen die ganze Höhe ein | ❌ → behoben | leere Plätze 1 px hoch |
+| Seitenabstand fehlte (`fitsSystemWindows` ersetzt das Padding) | ❌ → behoben | Rahmen-Layout |
+| Nach oben wischen → App-Übersicht, Suche „chr“ → Chrome | ✅ | „1 apps“ → Pluralform korrigiert |
+| App gedrückt halten → Menü → „Zu Favoriten hinzufügen“ → erscheint unter Favoriten | ✅ | |
+| Fernsehen → Senderkacheln → tagesschau24 / Das Erste live im Querformat | ✅ | |
+| Antippen blendete die Bedienknöpfe nicht ein | ❌ → behoben | Touch-Geste wird jetzt ganz verarbeitet; Wischen wechselt den Sender |
+| Nova Filme: Reihen mit Vorschaubildern, Film antippen → Filmseite | ✅ | Wiedergabe aus den USA gesperrt (Fehler 150, nur Deutschland) – Hinweis + „In der YouTube-App öffnen“ |
+| Einstellungen: als Startbildschirm, Favoriten zurücksetzen, Über/Datenschutz | ✅ | |
+
+**Nicht getestet:** echtes Samsung-Handy (One UI, Auto Blocker), Taschenlampe (VM ohne Blitz),
+Benachrichtigungen per Wischen, Filmwiedergabe aus Deutschland, Ton.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

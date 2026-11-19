@@ -330,7 +330,9 @@ public class HomeActivity extends Activity {
             } else if (slots[i] != null) {
                 v = appView(slots[i], false);
             } else {
-                v = new View(this);
+                // empty slot (phone without this app): 1 px high, or it would take all the height
+                dock.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1));
+                continue;
             }
             dock.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         }

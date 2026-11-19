@@ -22,7 +22,6 @@
     <string name="favorites">Favoriten</string>
     <string name="fav_empty">Eine App in der App-Übersicht gedrückt halten, um sie hier abzulegen.</string>
     <string name="all_apps">Alle Apps</string>
-    <string name="apps_count">%1$d Apps</string>
     <string name="no_results">Keine App gefunden</string>
     <string name="menu_pin">Zu Favoriten hinzufügen</string>
     <string name="menu_unpin">Aus Favoriten entfernen</string>
@@ -66,4 +65,8 @@
     <string name="video_no_webview">Der Web-Player (Android System WebView) fehlt – das Video öffnet sich in der YouTube-App.</string>
     <string name="youtube_missing">Es wurde keine App für YouTube-Links gefunden.</string>
     <string name="back">Zurück</string>
+    <plurals name="apps_count">
+        <item quantity="one">%1$d App</item>
+        <item quantity="other">%1$d Apps</item>
+    </plurals>
 </resources>

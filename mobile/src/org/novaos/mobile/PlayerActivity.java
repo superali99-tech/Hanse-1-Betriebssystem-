@@ -109,8 +109,13 @@ public class PlayerActivity extends Activity implements Player.Listener {
                 return true;
             }
         });
-        videoBox.setOnTouchListener((v, ev) -> gestures.onTouchEvent(ev));
-        shutter.setOnTouchListener((v, ev) -> gestures.onTouchEvent(ev));
+        // consume the whole gesture (also ACTION_DOWN), or taps and swipes never arrive
+        View.OnTouchListener touch = (v, ev) -> {
+            gestures.onTouchEvent(ev);
+            return true;
+        };
+        videoBox.setOnTouchListener(touch);
+        shutter.setOnTouchListener(touch);
         buildList();
     }
 

@@ -140,6 +140,6 @@ public class AppsActivity extends Activity {
     private void filter() {
         shown = AppFilter.filter(all, a -> a.label, query.getText().toString());
         adapter.notifyDataSetChanged();
-        count.setText(shown.isEmpty() ? getString(R.string.no_results) : getString(R.string.apps_count, shown.size()));
+        count.setText(shown.isEmpty() ? getString(R.string.no_results) : getResources().getQuantityString(R.plurals.apps_count, shown.size(), shown.size()));
     }
 }
