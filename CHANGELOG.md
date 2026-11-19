@@ -10,8 +10,15 @@
 * Boot-Bildschirm: Meldungen werden jetzt angezeigt (falscher Plymouth-Funktionsname korrigiert)
 * Status: Unit-Tests bestanden; Test im installierten System **noch nicht abgeschlossen**
 * **NovaOS TV:** App für Google TV / Android TV (Startseite mit Favoriten, allen Apps, Suche,
-  TV-Einstellungen, Bedienung per Fernbedienung, Deutsch/Englisch, keine Internet-Berechtigung);
+  TV-Einstellungen, Bedienung per Fernbedienung, Deutsch/Englisch);
   in Android-x86 9 getestet, gefundene Bedien- und Layoutfehler behoben
+* **NovaOS TV – Fernsehen:** 30 Sender als Livestream (Das Erste, ZDF, 3sat, ARTE, phoenix,
+  tagesschau24, KiKA, alle Dritten, WELT, DELUXE MUSIC) im eigenen Vollbild-Player
+  (▲▼/P+/P− zappen, Zifferntasten, Senderliste mit OK); dazu „Sender vom Fernseher“ mit allen
+  Sendern des eingebauten Empfängers (Antenne/Kabel/Satellit, auch Privatsender)
+* **NovaOS TV – Nova Filme:** kostenlose Spielfilme, Serien, Dokus und Kinderprogramm von
+  offiziellen YouTube-Kanälen (Netzkino, Moviedome, ZDFneo, funk, Terra X, ARTE, TOGGO, KiKA …),
+  Wiedergabe in der YouTube-App. NovaOS TV nutzt dafür jetzt das Internet (Datenschutztext angepasst)
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 
