@@ -195,6 +195,36 @@ Testumgebung (Ausgang USA). Bedient mit Touch-Ereignissen (`input tap/swipe`). B
 **Nicht getestet:** echtes Samsung-Handy (One UI, Auto Blocker), Taschenlampe (VM ohne Blitz),
 Benachrichtigungen per Wischen, Filmwiedergabe aus Deutschland, Ton.
 
+### Software-Update, Nova Store und Nova-Apps (19.11.2026)
+
+Gleiche Umgebung (Android-x86 9 als Handy, Systemsprache Englisch). Für den kompletten
+Update-Weg lief ein **lokaler HTTPS-Server** mit eigenem Test-Zertifikat als Ersatz für die
+NovaOS-Website (GitHub Pages ist noch nicht eingeschaltet): Testversionen 0.1.1.900–903 mit
+derselben Signatur, `update.properties` und APK genau so, wie `mobile/build.sh` sie für die
+Website erzeugt. Bilder 08–16 in [docs/screenshots/mobile/](screenshots/mobile/).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests (`MobileTest`) | ✅ | 122 bestanden: Update-Beschreibung, Store-Katalog (echte `store.txt`), Dateinamen, Pfadschutz |
+| Erster Start → Start-Animation „Willkommen bei NovaOS“ → Startbildschirm | ✅ | Texte standen links statt mittig ❌ → behoben |
+| Startbildschirm fragt den Update-Server, Hinweis **„Systemsoftware-Update verfügbar“** | ✅ | Karte über den Nova-Karten, antippen → Software-Update |
+| Software-Update: Version, Größe, „Was ist neu“ → *Herunterladen und installieren* | ✅ | Download, SHA-256 und Signatur geprüft, dann Androids Dialog „Update installieren?“ |
+| Nach der Installation startet NovaOS **von selbst** neu | ❌ → behoben | zuerst erschien die zuletzt offene App; jetzt startet NovaOS nach dem Update selbst (`MY_PACKAGE_REPLACED`) |
+| Update-Animation „Update wird abgeschlossen“ → „Neu in NovaOS 0.1.1.903“ | ✅ | Karte war zu durchsichtig ❌ → deckend |
+| Ohne Website (GitHub Pages aus): „Update-Server nicht erreichbar“ | ✅ | |
+| Einstellungen → **NovaOS neu starten** | ✅ | Animation, NovaOS-Prozess wirklich neu gestartet (neue Prozess-ID), danach Startbildschirm |
+| **Nova Store**: Katalog mit echten F-Droid-Versionen und -Symbolen | ✅ | z. B. Organic Maps 2026.11.11, Thunderbird 25.0 |
+| Nova Store → Breezy Weather **installieren** | ✅ | „Unbekannte Apps erlauben“ → echter Download von f-droid.org → Androids Installationsdialog → installiert, Knopf zeigt „Öffnen“ |
+| Nova-Apps mit eigenen Symbolen in der App-Übersicht; Nova Kamera im Dock (VM ohne Kamera-App) | ✅ | |
+| **Nova Notizen**: neue Notiz, automatisch gespeichert, Liste | ✅ | Enter im Titel machte einen Zeilenumbruch ❌ → springt jetzt zum Text; „0 minutes ago“ → „Gerade eben“; „+“ halb unter der Navigationsleiste ❌ → behoben |
+| **Nova Galerie**: Berechtigung, Raster, Vollbild, Wischen, Teilen/Löschen | ✅ | Löschen scheiterte unter Android 9 ❌ → Schreibrecht wird mit angefragt (gleiche Frage), jetzt gelöscht |
+| **Nova Dateien**: Abkürzungen, Ordner, Datei öffnen (in Androids Galerie über den NovaOS-Dateianbieter), Umbenennen, neuer Ordner | ✅ | |
+| **Nova Kamera**: Berechtigung, „Keine Kamera gefunden“ (VM hat keine), letztes Foto als Knopf | ✅ | Auslöser teils unter der Navigationsleiste ❌ → behoben. **Fotografieren selbst nicht getestet** (keine Kamera in der VM) |
+
+**Nicht getestet:** Fotografieren und Blitz auf einem echten Handy, Android 11+ („Zugriff auf alle
+Dateien“, Löschabfrage von Android, Hintergrund-Start nach dem Update), Update über die echte
+Website (erst wenn GitHub Pages und der feste Signierschlüssel eingerichtet sind).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm
