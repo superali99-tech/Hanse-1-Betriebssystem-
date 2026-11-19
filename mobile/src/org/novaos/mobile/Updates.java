@@ -10,8 +10,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * Checks for a newer NovaOS Mobile (system software update). The update is a public
- * package in GitHub's container registry (see {@link Registry}); no website is needed.
+ * Checks for a newer NovaOS Mobile (system software update): the GitHub release
+ * "mobile-update" of the (public) repository, or the public package in GitHub's container
+ * registry (see {@link Registry}). No website is needed.
  * The last answer is remembered, so the home screen can show "update available"
  * without asking the server every time (at most every 6 hours).
  */
@@ -58,39 +59,72 @@ final class Updates {
         }
     }
 
-    /** Asks the registry (blocking; call in the background). See {@link #status(Context)}. */
+    static String releaseAsset(Context c, String file) {
+        return Registry.releaseAsset(c.getString(R.string.update_repo), c.getString(R.string.update_release), file);
+    }
+
+    /**
+     * Asks for the newest version (blocking; call in the background): first the GitHub
+     * release "mobile-update" (public repository), then the ghcr.io package. The result
+     * is remembered; see {@link #status(Context)}.
+     */
     static UpdateInfo check(Context c) {
         int status;
+        String source = "";
         UpdateInfo u = null;
         String text = "";
+        int releaseStatus;
+        try {
+            text = Download.text(releaseAsset(c, "update.properties"));
+            u = UpdateInfo.parse(text);
+            releaseStatus = u != null ? OK : INVALID;
+        } catch (Download.HttpException e) {
+            releaseStatus = e.code == 401 || e.code == 403 || e.code == 404 ? NOT_PUBLIC : UNREACHABLE;
+        } catch (IOException | RuntimeException e) {
+            releaseStatus = UNREACHABLE;
+        }
+        if (releaseStatus == OK) {
+            status = OK;
+            source = "release";
+        } else {
+            status = checkRegistry(c);
+            if (status == OK) {
+                source = "registry";
+                text = prefs(c).getString("registry_text", "");
+                u = UpdateInfo.parse(text);
+            } else {
+                u = null;
+                text = "";
+                // "not public" only if neither channel answered at all
+                if (status == NOT_PUBLIC && releaseStatus == UNREACHABLE) status = UNREACHABLE;
+            }
+        }
+        SharedPreferences.Editor ed = prefs(c).edit().putInt("status", status).putString("source", source);
+        if (status != UNREACHABLE) ed.putLong("checked", System.currentTimeMillis()).putString("last", text);
+        ed.apply();
+        return u;
+    }
+
+    /** The ghcr.io package: OK (description in "registry_text"), NOT_PUBLIC, UNREACHABLE or INVALID. */
+    private static int checkRegistry(Context c) {
         try {
             Registry r = registry(c);
             String auth = auth(r);
             String manifest = Download.text(r.manifestUrl(TAG), auth, Registry.MANIFEST_TYPE);
             String props = Registry.digest(manifest, "update.properties");
-            if (props == null) throw new IOException("no update.properties");
-            text = Download.text(r.blobUrl(props), auth, null);
-            u = UpdateInfo.parse(text);
+            if (props == null) return INVALID;
+            String text = Download.text(r.blobUrl(props), auth, null);
+            UpdateInfo u = UpdateInfo.parse(text);
             String apk = u != null ? Registry.digest(manifest, u.apk) : null;
             // the file in the package must be exactly the described APK
-            if (u == null || apk == null || !Registry.hex(apk).equals(u.sha256)) {
-                u = null;
-                text = "";
-                status = INVALID;
-            } else {
-                status = OK;
-            }
+            if (u == null || apk == null || !Registry.hex(apk).equals(u.sha256)) return INVALID;
+            prefs(c).edit().putString("registry_text", text).apply();
+            return OK;
         } catch (Download.HttpException e) {
-            status = e.code == 401 || e.code == 403 || e.code == 404 ? NOT_PUBLIC : UNREACHABLE;
+            return e.code == 401 || e.code == 403 || e.code == 404 ? NOT_PUBLIC : UNREACHABLE;
         } catch (IOException | RuntimeException e) {
-            status = UNREACHABLE;
+            return UNREACHABLE;
         }
-        SharedPreferences.Editor ed = prefs(c).edit().putInt("status", status);
-        if (status == OK || status == NOT_PUBLIC || status == INVALID) {
-            ed.putLong("checked", System.currentTimeMillis()).putString("last", text);
-        }
-        ed.apply();
-        return u;
     }
 
     /** Result of the last check: OK, NOT_PUBLIC, UNREACHABLE or INVALID. */
@@ -98,8 +132,11 @@ final class Updates {
         return prefs(c).getInt("status", UNREACHABLE);
     }
 
-    /** Downloads the APK of the update (blocking) and returns its SHA-256 (hex). */
+    /** Downloads the APK of the update (blocking) and returns its SHA-256 (hex); the caller compares it. */
     static String download(Context c, UpdateInfo u, File target, Download.Progress progress) throws IOException {
+        if ("release".equals(prefs(c).getString("source", ""))) {
+            return Download.file(releaseAsset(c, u.apk), target, progress);
+        }
         Registry r = registry(c);
         String auth = auth(r);
         String apk = Registry.digest(Download.text(r.manifestUrl(TAG), auth, Registry.MANIFEST_TYPE), u.apk);

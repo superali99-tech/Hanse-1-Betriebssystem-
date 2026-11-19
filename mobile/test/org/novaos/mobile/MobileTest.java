@@ -161,6 +161,19 @@ public final class MobileTest {
                 && r.manifestUrl("latest").equals("https://ghcr.io/v2/superali99-tech/novaos-mobile/manifests/latest")
                 && r.blobUrl(apk).equals("https://ghcr.io/v2/superali99-tech/novaos-mobile/blobs/" + apk), "registry urls");
         check(new Registry("10.0.2.2:8443", "a/b").tokenUrl().endsWith("&service=10.0.2.2"), "registry with port");
+        check(Registry.releaseAsset("superali99-tech/Hanse-1-Betriebssystem-", "mobile-update", "update.properties").equals(
+                "https://github.com/superali99-tech/Hanse-1-Betriebssystem-/releases/download/mobile-update/update.properties"),
+                "release asset url");
+        for (String[] bad : new String[][] {{"nobody", "t", "f"}, {"a/b", "t", "../x"}, {"a/b", "t", ".."}, {"a/b/c", "t", "f"},
+                {"a/b", "t/x", "f"}, {"a/b", "t", "f?x"}}) {
+            boolean failed = false;
+            try {
+                Registry.releaseAsset(bad[0], bad[1], bad[2]);
+            } catch (IllegalArgumentException e) {
+                failed = true;
+            }
+            check(failed, "release asset rejects " + String.join(" ", bad));
+        }
         for (String[] bad : new String[][] {{"ghcr.io/x", "a/b"}, {"ghcr.io", "nobody"}, {"ghcr.io", "A/B"}, {"ghcr.io", "a/b?x"}}) {
             boolean failed = false;
             try {

@@ -52,6 +52,7 @@ public class StoreActivity extends Activity {
     private final Map<String, List<Button>> buttons = new HashMap<>();
     private final Map<String, StoreApp> apps = new HashMap<>();
     private final Map<String, Integer> progress = new HashMap<>();
+    private final Map<String, Runnable> iconRetry = new HashMap<>();  // older F-Droid icon path
     private BroadcastReceiver packages;
 
     @Override
@@ -95,6 +96,8 @@ public class StoreActivity extends Activity {
                             fdroidCode.put(a.pkg, code);
                             fdroidName.put(a.pkg, name);
                             refresh(a.pkg);
+                            Runnable retry = iconRetry.get(a.pkg);
+                            if (retry != null) retry.run();
                         });
                     }
                 } catch (IOException ignored) {
@@ -151,7 +154,15 @@ public class StoreActivity extends Activity {
             ImageView iv = new ImageView(this);
             iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
             icon.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            ImageLoader.load(iv, a.fdroidIcon(), null, () -> letter.setVisibility(View.GONE));
+            Runnable hide = () -> letter.setVisibility(View.GONE);
+            ImageLoader.load(iv, a.fdroidIcon(), null, hide);
+            // some apps (e.g. Öffi) have their icon only under the older, versioned path
+            iconRetry.put(a.pkg, () -> {
+                Long code = fdroidCode.get(a.pkg);
+                if (code != null && letter.getVisibility() == View.VISIBLE) {
+                    ImageLoader.load(iv, a.fdroidIcon(), a.fdroidIconOld(code), hide);
+                }
+            });
         }
         r.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
 

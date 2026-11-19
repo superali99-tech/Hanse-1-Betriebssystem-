@@ -72,6 +72,21 @@ public final class Registry {
         return null;
     }
 
+    private static final Pattern REPO = Pattern.compile("[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+");
+    private static final Pattern FILE = Pattern.compile("[A-Za-z0-9._-]+");
+
+    /**
+     * Second channel: a file of the GitHub release with this tag (readable without a login
+     * when the repository is public), e.g. .../releases/download/mobile-update/update.properties
+     */
+    public static String releaseAsset(String repo, String tag, String file) {
+        if (repo == null || !REPO.matcher(repo).matches() || tag == null || !FILE.matcher(tag).matches()
+                || file == null || !FILE.matcher(file).matches() || file.startsWith(".") || tag.startsWith(".")) {
+            throw new IllegalArgumentException("release " + repo + " " + tag + " " + file);
+        }
+        return "https://github.com/" + repo + "/releases/download/" + tag + "/" + file;
+    }
+
     /** "sha256:abc..." -> "abc..." */
     public static String hex(String digest) {
         return digest.substring("sha256:".length());

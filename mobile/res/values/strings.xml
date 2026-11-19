@@ -81,7 +81,7 @@
     <string name="update_verifying">Checking the download …</string>
     <string name="update_installing">Installing – please confirm in the Android window. NovaOS then restarts.</string>
     <string name="update_unreachable">The update server cannot be reached. Please check the internet connection.</string>
-    <string name="update_not_public">The update channel is not open yet. (Once on GitHub: package “novaos-mobile” → Package settings → Change visibility → Public.)</string>
+    <string name="update_not_public">The update channel is not open yet. (Once on GitHub: make the repository or the package “novaos-mobile” public.)</string>
     <string name="update_invalid">The update on the server is incomplete. Please try again later.</string>
     <string name="update_bad_hash">The downloaded file is damaged. Please try again.</string>
     <string name="update_other_key">This update is signed with a different key than the installed NovaOS. Once: uninstall NovaOS and install the new version by hand.</string>
@@ -166,7 +166,10 @@
     <string name="notes_just_now">Just now</string>
     <string name="notes_untitled">Untitled</string>
     <!-- NovaOS website (GitHub Pages): update.properties + APK under mobile/ -->
-    <!-- software update: public package in GitHub's container registry (ghcr.io) -->
+    <!-- software update: public package in GitHub's container registry (ghcr.io) ... -->
     <string name="update_registry" translatable="false">ghcr.io</string>
     <string name="update_package" translatable="false">superali99-tech/novaos-mobile</string>
+    <!-- second channel: files of this GitHub release (public repository) -->
+    <string name="update_repo" translatable="false">superali99-tech/Hanse-1-Betriebssystem-</string>
+    <string name="update_release" translatable="false">mobile-update</string>
 </resources>

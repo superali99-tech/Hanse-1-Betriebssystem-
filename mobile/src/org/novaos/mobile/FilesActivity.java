@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -166,7 +167,8 @@ public class FilesActivity extends Activity {
         r.setPadding(p, p, p, p);
         ImageView iv = new ImageView(this);
         iv.setImageResource(f.isDirectory() ? R.drawable.ic_folder : R.drawable.ic_file);
-        r.addView(iv, new LinearLayout.LayoutParams(Ui.dp(this, 34), Ui.dp(this, 34)));
+        r.addView(iv, new LinearLayout.LayoutParams(Ui.dp(this, 40), Ui.dp(this, 40)));
+        if (f.isFile()) preview(iv, f);
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
         TextView n = Ui.text(this, f.getName(), 15, Color.WHITE, true);
@@ -203,6 +205,70 @@ public class FilesActivity extends Activity {
         lp.topMargin = Ui.dp(this, 6);
         r.setLayoutParams(lp);
         return r;
+    }
+
+    private static final java.util.Set<String> PICTURES = new java.util.HashSet<>(java.util.Arrays.asList(
+            "jpg", "jpeg", "png", "webp", "gif", "bmp", "heic", "heif"));
+    private static final java.util.Set<String> VIDEOS = new java.util.HashSet<>(java.util.Arrays.asList(
+            "mp4", "mkv", "webm", "3gp", "mov", "avi"));
+    private static final java.util.concurrent.ExecutorService PREVIEWS = java.util.concurrent.Executors.newFixedThreadPool(2);
+    private static final android.util.LruCache<String, android.graphics.Bitmap> CACHE =
+            new android.util.LruCache<String, android.graphics.Bitmap>(8 << 20) {
+                @Override
+                protected int sizeOf(String k, android.graphics.Bitmap b) {
+                    return b.getByteCount();
+                }
+            };
+
+    /** Small preview instead of the file symbol for photos and videos. */
+    @SuppressWarnings("deprecation")
+    private void preview(ImageView iv, File f) {
+        String ext = FileNames.extension(f.getName());
+        boolean picture = PICTURES.contains(ext), video = VIDEOS.contains(ext);
+        if (!picture && !video) return;
+        String key = f.getPath() + ":" + f.lastModified();
+        iv.setTag(key);
+        android.graphics.Bitmap cached = CACHE.get(key);
+        if (cached != null) {
+            showPreview(iv, cached);
+            return;
+        }
+        int size = Ui.dp(this, 40);
+        PREVIEWS.execute(() -> {
+            android.graphics.Bitmap b = null;
+            try {
+                if (picture) {
+                    android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+                    o.inJustDecodeBounds = true;
+                    android.graphics.BitmapFactory.decodeFile(f.getPath(), o);
+                    int sample = 1;
+                    while (o.outWidth / (sample * 2) >= size * 2 && o.outHeight / (sample * 2) >= size * 2) sample *= 2;
+                    android.graphics.BitmapFactory.Options d = new android.graphics.BitmapFactory.Options();
+                    d.inSampleSize = sample;
+                    b = android.graphics.BitmapFactory.decodeFile(f.getPath(), d);
+                } else {
+                    b = android.media.ThumbnailUtils.createVideoThumbnail(f.getPath(), MediaStore.Video.Thumbnails.MINI_KIND);
+                }
+            } catch (RuntimeException | OutOfMemoryError ignored) {
+                // no preview: the file symbol stays
+            }
+            if (b == null) return;
+            CACHE.put(key, b);
+            android.graphics.Bitmap shown = b;
+            runOnUiThread(() -> {
+                if (key.equals(iv.getTag())) showPreview(iv, shown);
+            });
+        });
+    }
+
+    private void showPreview(ImageView iv, android.graphics.Bitmap b) {
+        android.graphics.drawable.GradientDrawable round = new android.graphics.drawable.GradientDrawable();
+        round.setCornerRadius(Ui.dp(this, 9));
+        round.setColor(0x33FFFFFF);
+        iv.setBackground(round);
+        iv.setClipToOutline(true);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        iv.setImageBitmap(b);
     }
 
     private void open(File f) {

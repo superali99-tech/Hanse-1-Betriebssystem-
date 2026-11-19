@@ -1,15 +1,16 @@
-# Build NovaOS Mobile (home screen app for Android phones, APK), publish it as a GitHub
-# release (first installation) and as the software update the phones install by themselves.
+# Build NovaOS Mobile (home screen app for Android phones, APK) and publish it as the
+# software update the phones install by themselves - and for the first installation.
 #
 # Triggers:
 #   * every change of NovaOS Mobile on the default branch
 #   * manually: Actions -> "Build NovaOS Mobile app" -> "Run workflow"
 #   * pushing a tag "mobile-v*" (e.g. mobile-v0.1.1)
 #
-# Software update: the APK and update.properties go to the package "novaos-mobile" in
-# GitHub's container registry (ghcr.io/<owner>/novaos-mobile). The phones read it without a
-# login once the package is public (one time: package page -> Package settings -> Change
-# visibility -> Public). The repository itself can stay private; no GitHub Pages needed.
+# Software update (no GitHub Pages needed): the APK and update.properties go to
+#   * the GitHub release "mobile-update" (always the newest version; phones read it without a
+#     login when the repository is public; stable download link .../mobile-update/novaos-mobile.apk)
+#   * the package "novaos-mobile" in GitHub's container registry (ghcr.io/<owner>/novaos-mobile),
+#     for a private repository: readable once the package is made public in its settings.
 #
 # Signing: every build must have the same key, or Android refuses the update. Repository
 # secrets NOVAOS_MOBILE_KEYSTORE_B64 (base64 PKCS12, alias "novaos") + NOVAOS_MOBILE_KS_PASS
@@ -73,36 +74,67 @@ jobs:
       - name: Build APK (includes the logic tests)
         run: ./mobile/build.sh
 
-      - name: Publish release
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Release notes
         run: |
           . ./VERSION.sh
           VERSION_NAME=$(sed -n 's/^versionName=//p' build/mobile/update.properties)
-          if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="mobile-build-$GITHUB_RUN_NUMBER"; fi
           APK=build/mobile/novaos-mobile-${NOVAOS_VERSION}.apk
           SHA=$(cut -d' ' -f1 "$APK.sha256")
           CERT=$(keytool -printcert -jarfile "$APK" | sed -n 's/.*SHA256: //p' | head -n1)
+          LINK="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/mobile-update/novaos-mobile.apk"
+          NEWS=$(grep -v '^#' mobile/res/raw/whatsnew.txt | sed -n 's/^\([^|]*\)|.*/* \1/p')
           cat > notes.md <<NOTES
           **NovaOS Mobile ${VERSION_NAME}** – der NovaOS-Startbildschirm für **Android-Handys und -Tablets** (z. B. Samsung Galaxy, Pixel, Xiaomi) ab Android 7.
 
-          Startbildschirm mit Uhr, Suche, Favoriten, Schnelleinstellungen und App-Übersicht, dazu **Fernsehen** (30 Sender live), **Nova Filme** (kostenlose Filme und Serien, direkt in der App), **Nova Store** (echte Apps aus F-Droid und dem Play Store), **Nova Kamera**, **Nova Galerie**, **Nova Dateien**, **Nova Notizen** und das **Software-Update** in den NovaOS-Einstellungen. Android bleibt darunter unverändert.
+          **Neu in dieser Version:**
+          ${NEWS}
 
-          **Download:** \`novaos-mobile-${NOVAOS_VERSION}.apk\` (unten unter *Assets*)
-          **SHA256:** \`${SHA}\`
-          **Signatur (fester NovaOS-Schlüssel):** \`${CERT}\`
+          Startbildschirm mit Uhr, Suche, Favoriten, Schnelleinstellungen und App-Übersicht, dazu **Fernsehen** (30 Sender live), **Nova Filme**, **Nova Store** (echte Apps aus F-Droid und dem Play Store), **Nova Kamera**, **Nova Galerie**, **Nova Dateien**, **Nova Notizen** und das **Software-Update** in den NovaOS-Einstellungen. Android bleibt darunter unverändert.
+
+          **Download (immer die neueste Version):** ${LINK}
+          **SHA256:** \`${SHA}\` · **Signatur (fester NovaOS-Schlüssel):** \`${CERT}\`
 
           Installation auf dem Handy:
-          1. Diese Seite auf dem Handy öffnen und die APK herunterladen.
+          1. Den Download-Link auf dem Handy öffnen.
           2. Die Datei antippen → beim ersten Mal „Unbekannte Apps installieren“ für den Browser bzw. „Eigene Dateien“ erlauben → **Installieren**.
           3. NovaOS öffnen → beim Drücken der Home-Taste „NovaOS“ und „Immer“ wählen (oder in NovaOS: Einstellungen → „NovaOS als Startbildschirm verwenden“).
 
-          Weitere Versionen kommen als **Software-Update** direkt in NovaOS (Einstellungen → Software-Update). War vorher eine Version mit anderem Schlüssel installiert (bis 0.1.1.38): diese einmal deinstallieren.
+          Weitere Versionen kommen als **Software-Update** direkt in NovaOS (Einstellungen → Software-Update). Versionen bis 0.1.1.38 hatten noch einen anderen Schlüssel: diese einmal deinstallieren.
 
           Zurück zum alten Startbildschirm: Android-Einstellungen → Apps → Standard-Apps → Startbildschirm. Ausführliche Anleitung: mobile/README.md · Gebaut aus Commit ${GITHUB_SHA}.
           NOTES
-          gh release create "$TAG" "$APK" "$APK.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --prerelease --title "NovaOS Mobile ${VERSION_NAME} (Startbildschirm für Android-Handys) – ${TAG}" --notes-file notes.md
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "APK=$APK" >> "$GITHUB_ENV"
+
+      - name: Publish software update (GitHub release "mobile-update")
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # one fixed release that always holds the newest version: the phones read
+          # update.properties and novaos-mobile.apk from it (public repository, no login)
+          if ! gh release view mobile-update --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create mobile-update --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "NovaOS Mobile ${VERSION_NAME}" --notes-file notes.md --latest
+          fi
+          cp "$APK" "$RUNNER_TEMP/novaos-mobile.apk"
+          # APK first, then the description that points to it
+          gh release upload mobile-update "$RUNNER_TEMP/novaos-mobile.apk" --clobber --repo "$GITHUB_REPOSITORY"
+          gh release upload mobile-update build/mobile/update.properties --clobber --repo "$GITHUB_REPOSITORY"
+          gh release edit mobile-update --repo "$GITHUB_REPOSITORY" --title "NovaOS Mobile ${VERSION_NAME}" --notes-file notes.md
+          code=$(curl -s -o /dev/null -w '%{http_code}' -L "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/mobile-update/update.properties")
+          if [ "$code" = 200 ]; then
+            echo "Phones get NovaOS ${VERSION_NAME} (release mobile-update is public)."
+          else
+            echo "::warning::release mobile-update not readable without login ($code): the repository is private - phones use the ghcr.io package instead."
+          fi
+
+      - name: Release for the tag
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$APK" "$APK.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "NovaOS Mobile ${VERSION_NAME}" --notes-file notes.md
 
       - name: Publish software update (ghcr.io)
         env:
