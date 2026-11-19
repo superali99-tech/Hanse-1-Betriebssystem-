@@ -255,6 +255,19 @@ Update-Kanal über das feste Release `mobile-update` (0.1.1.42, Lauf 5).
 
 **Nicht getestet:** das ghcr.io-Paket öffentlich (ist privat), Play Protect auf dem Samsung-Tablet.
 
+#### Updates von selbst (Hintergrundsuche, Benachrichtigung), 19.11.2026
+
+Wunsch: Ein neues Update soll erscheinen, ohne in den Einstellungen zu suchen. Test mit dem
+Ersatz-Server (Testversionen 0.1.1.950 → 951 → 952):
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Erster Start → Startbildschirm sucht selbst, lädt im WLAN, Benachrichtigung „bereit – tippen zum Installieren“ | ✅ | |
+| Die Start-Animation räumte das gerade geladene Update mit weg | ❌ → behoben | Aufräumen behält die APK eines ausstehenden Updates |
+| Hinweis auf dem Startbildschirm zeigte noch „tippen zum Installieren“ statt „bereit“ | ❌ → behoben | Startbildschirm aktualisiert sich sofort, wenn die Hintergrundsuche etwas findet |
+| Hintergrundsuche (JobScheduler) bei offenem Startbildschirm, ohne Bedienung: 952 gefunden, geladen, Hinweis + Benachrichtigung | ✅ | Job geplant (alle 3 Stunden, übersteht Neustarts) |
+| Benachrichtigung antippen → „Update bereit zur Installation“ → „Jetzt installieren“ | ✅ | kein zweiter Download; Androids Dialog → installiert → „Neu in NovaOS 0.1.1.952“; Benachrichtigung verschwindet |
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

@@ -145,8 +145,11 @@ public class BootActivity extends Activity {
         Channels.get(this);
         pause(900);
         step(65, getString(R.string.boot_cleanup));
-        int removed = cleanCache(new File(getCacheDir(), "apk"), 0)
-                + cleanCache(new File(getCacheDir(), "thumbs"), 14L * 24 * 3600 * 1000);
+        // installed APKs go away; the one of a pending update (downloaded in the background) stays
+        UpdateInfo pending = Updates.pending(this);
+        File keep = pending != null ? Updates.apkFile(this, pending) : null;
+        int removed = cleanCache(new File(getCacheDir(), "apk"), 0, keep)
+                + cleanCache(new File(getCacheDir(), "thumbs"), 14L * 24 * 3600 * 1000, null);
         pause(900);
         step(100, getString(R.string.boot_ready));
         long rest = MIN_MS - (System.currentTimeMillis() - started);
@@ -169,14 +172,14 @@ public class BootActivity extends Activity {
         }
     }
 
-    /** Deletes files older than maxAge (0 = all) - downloaded APKs, old preview pictures. */
-    private static int cleanCache(File dir, long maxAgeMs) {
+    /** Deletes files older than maxAge (0 = all) except "keep" - downloaded APKs, old preview pictures. */
+    private static int cleanCache(File dir, long maxAgeMs, File keep) {
         File[] files = dir.listFiles();
         if (files == null) return 0;
         int n = 0;
         long now = System.currentTimeMillis();
         for (File f : files) {
-            if (f.isFile() && (maxAgeMs == 0 || now - f.lastModified() > maxAgeMs) && f.delete()) n++;
+            if (f.isFile() && !f.equals(keep) && (maxAgeMs == 0 || now - f.lastModified() > maxAgeMs) && f.delete()) n++;
         }
         return n;
     }

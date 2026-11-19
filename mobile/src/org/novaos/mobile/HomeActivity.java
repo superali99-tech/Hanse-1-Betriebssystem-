@@ -45,6 +45,17 @@ import java.util.concurrent.Executors;
  */
 public class HomeActivity extends Activity {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    // the background update check (UpdateJob) found or downloaded an update: show it at once
+    private final android.content.SharedPreferences.OnSharedPreferenceChangeListener updateListener = (p, key) -> {
+        if ("last".equals(key) || "ready_sha".equals(key)) {
+            runOnUiThread(() -> {
+                if (!isDestroyed()) {
+                    shown = null;
+                    loadApps();
+                }
+            });
+        }
+    };
     private LinearLayout rows, dock;
     private ScrollView scroll;
     private TextView greeting;
@@ -110,6 +121,7 @@ public class HomeActivity extends Activity {
         setupTorch();
         rebuild();
         UpdateJob.schedule(this);  // looks for updates in the background every few hours
+        Updates.prefs(this).registerOnSharedPreferenceChangeListener(updateListener);
     }
 
     @Override
@@ -151,6 +163,7 @@ public class HomeActivity extends Activity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(packageReceiver);
+        Updates.prefs(this).unregisterOnSharedPreferenceChangeListener(updateListener);
         if (torchCallback != null) getSystemService(CameraManager.class).unregisterTorchCallback(torchCallback);
         worker.shutdownNow();
         super.onDestroy();

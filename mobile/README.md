@@ -72,8 +72,13 @@ NovaOS → Deinstallieren*.
 
 ## Software-Update
 
-NovaOS sucht alle 6 Stunden (und beim Öffnen von *Einstellungen → Software-Update*) nach einer
-neuen Version – ohne Website und ohne GitHub Pages. Der Workflow *Build NovaOS Mobile app* legt
+NovaOS sucht **von selbst** nach Updates: im Hintergrund alle 3 Stunden (auch wenn NovaOS nicht
+offen ist, auch nach einem Neustart des Handys) und beim Anzeigen des Startbildschirms höchstens
+stündlich. Im WLAN wird das Update gleich heruntergeladen und geprüft; dann erscheint die
+Benachrichtigung **„Systemsoftware-Update verfügbar – NovaOS … ist bereit, tippen zum
+Installieren“** und der Hinweis auf dem Startbildschirm. Ein Tipp auf **„Jetzt installieren“**,
+Android fragt einmal nach, NovaOS startet neu. (Android 13+: NovaOS fragt einmal, ob es
+Benachrichtigungen zeigen darf.) Ohne Website und ohne GitHub Pages: Der Workflow *Build NovaOS Mobile app* legt
 bei jeder Änderung an NovaOS Mobile das Update an zwei Stellen ab:
 
 1. im festen Release **`mobile-update`** (immer die neueste Version: `update.properties` und
