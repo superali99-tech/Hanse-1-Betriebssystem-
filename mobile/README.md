@@ -73,25 +73,25 @@ NovaOS → Deinstallieren*.
 ## Software-Update
 
 NovaOS sucht alle 6 Stunden (und beim Öffnen von *Einstellungen → Software-Update*) nach einer
-neuen Version. Ohne Website und ohne GitHub Pages: Der Workflow *Build NovaOS Mobile app* legt bei
-jeder Änderung an NovaOS Mobile das Update als **Paket `novaos-mobile` in GitHubs
-Container-Registry** ab (`ghcr.io/superali99-tech/novaos-mobile`, Tags `latest` und die Version):
-`update.properties` (Versionsnummer, SHA-256, Größe, „Was ist neu“) und `novaos-mobile.apk`.
-Das Repository bleibt privat – öffentlich ist nur dieses Paket.
+neuen Version – ohne Website und ohne GitHub Pages. Der Workflow *Build NovaOS Mobile app* legt
+bei jeder Änderung an NovaOS Mobile das Update an zwei Stellen ab:
 
-Vor der Installation prüft NovaOS, dass die APK genau die im Paket beschriebene ist
-(**SHA-256**) und mit **demselben Schlüssel** signiert ist wie das installierte NovaOS; Android
-fragt dann noch einmal nach („Aktualisieren?“). Danach startet NovaOS von selbst mit Animation
-neu und zeigt, was neu ist.
+1. im festen Release **`mobile-update`** (immer die neueste Version: `update.properties` und
+   `novaos-mobile.apk`). Seit das Repository öffentlich ist, lesen die Handys es ohne Anmeldung.
+   **Fester Download-Link für neue Geräte:**
+   https://github.com/superali99-tech/Hanse-1-Betriebssystem-/releases/download/mobile-update/novaos-mobile.apk
+2. im Paket **`novaos-mobile`** in GitHubs Container-Registry (ghcr.io) – für den Fall, dass das
+   Repository wieder privat wird; das Paket muss dann einmal öffentlich gestellt werden
+   (https://github.com/users/superali99-tech/packages/container/novaos-mobile/settings → Danger
+   Zone → Change visibility → Public). Version 0.1.1.39 kennt nur diesen Weg.
 
-**Einmalig nötig: das Paket öffentlich machen** (GitHub erlaubt das nur dem Kontoinhaber im
-Browser, nicht per Programm). Solange es privat ist, zeigt NovaOS „Der Update-Kanal ist noch nicht
-freigegeben“:
+Vor der Installation prüft NovaOS, dass die APK genau die beschriebene ist (**SHA-256**) und mit
+**demselben Schlüssel** signiert ist wie das installierte NovaOS; Android fragt dann noch einmal
+nach („Aktualisieren?“). Danach startet NovaOS von selbst mit Animation neu und zeigt, was neu ist.
 
-1. https://github.com/users/superali99-tech/packages/container/novaos-mobile/settings öffnen
-   (am Handy evtl. im Browser-Menü „Desktop-Version“ wählen).
-2. Ganz unten bei **Danger Zone** → **Change visibility** → **Public** → zur Bestätigung
-   `novaos-mobile` eintippen → **I understand, change package visibility**.
+**Google Play Protect** kann bei Apps außerhalb des Play Stores, die Apps installieren dürfen
+und auf alle Dateien zugreifen, warnen („Schädliche App blockiert“ / „App nicht geprüft“). Unter
+*Weitere Details* → **Trotzdem installieren**.
 
 **Signierschlüssel:** Android installiert ein Update nur, wenn es mit demselben Schlüssel signiert
 ist. Der Workflow erzeugt den Schlüssel einmal selbst (`tools/signing_key.sh`) und bewahrt ihn im

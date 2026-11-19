@@ -238,7 +238,22 @@ privat, GitHub Pages dafür kostenpflichtig. Neu: Update als öffentliches Paket
 | App, Paket öffentlich → Update 0.1.1.910 → 911 gefunden, geladen, installiert | ✅ | Token → Manifest → Datei über Weiterleitung zum Speicher; der Login-Token geht nicht mit (der Ersatz-Speicher lehnt ihn ab wie GitHub) |
 | Nach der Installation: NovaOS startet selbst, „Update wird abgeschlossen“ → „Neu in NovaOS 0.1.1.911“ | ✅ | |
 
-**Nicht getestet:** das echte öffentliche ghcr.io-Paket am Handy (erst nachdem es öffentlich ist).
+Danach wurde das **Repository** öffentlich gemacht (nicht das Paket). Neu deshalb: zweiter
+Update-Kanal über das feste Release `mobile-update` (0.1.1.42, Lauf 5).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 148 bestanden (neu: Release-Adressen) |
+| Release `mobile-update` ohne Anmeldung lesbar, APK passt zur SHA-256, gleiches Zertifikat wie 0.1.1.39 | ✅ | Zertifikat SHA-256 `24:be:02:5d…` |
+| Nova Dateien: Vorschaubilder für Fotos | ✅ | |
+| Nova Store: Öffi-Symbol | ❌ → behoben | App steht zweimal in der Liste (empfohlen + Kategorie), nur eine Zeile bekam das Ersatz-Symbol |
+| Testversion (Entwicklerschlüssel) findet 0.1.1.42 über das Release, lädt es, SHA-256 stimmt, stoppt bei „anderer Schlüssel“ | ✅ | wie vorgesehen |
+| Echte 0.1.1.39 aus dem Release installiert | ✅ | **Google Play Protect: „Schädliche App blockiert“** → *Weitere Details → Trotzdem installieren* |
+| 0.1.1.39: Update-Seite | ✅ | „Update-Kanal noch nicht freigegeben“ (kennt nur das Paket, das privat ist) |
+| 0.1.1.42 über 0.1.1.39 installiert (wie über den festen Link) | ✅ | ohne Deinstallieren, Daten bleiben; NovaOS startet selbst mit „Neu in NovaOS 0.1.1.42“ |
+| 0.1.1.42: Update-Seite | ✅ | „NovaOS ist auf dem neuesten Stand“ (über das Release) |
+
+**Nicht getestet:** das ghcr.io-Paket öffentlich (ist privat), Play Protect auf dem Samsung-Tablet.
 
 ## NovaOS TV (App für Google TV / Android TV)
 
