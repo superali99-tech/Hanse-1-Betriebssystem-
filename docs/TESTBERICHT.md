@@ -205,7 +205,41 @@ VM mehrfach zurück, während Android Apps übersetzte (dex2oat); umgangen mit d
 Fernsehers (Leanback-Banner) konnte daher nur über die APK-Daten geprüft werden.
 
 **Nicht getestet:** echter Fernseher (Metz/Google TV), echte Fernbedienung, Spracheingabe,
-„Deinstallieren“ einer Nutzer-App, WLAN/LAN-Anzeige mit Verbindung, 4K-Fernseher.
+„Deinstallieren“ einer Nutzer-App, 4K-Fernseher.
+
+### Fernsehen und Nova Filme (19.11.2026)
+
+Getestet mit **Android-x86 9.0-r2** in QEMU (TCG, CPU-Modell Nehalem, VESA-Grafik
+1280×720 bei 213 dpi, Sprache Deutsch), diesmal **mit Internet**: Die VM ging über den
+HTTPS-Proxy der Testumgebung ins Netz (`tests/qemu/android_vm.sh`). Der Ausgang dieses
+Proxys liegt in den **USA** – deshalb waren nur die Sender ohne Geoblocking empfangbar.
+Bedient wurde wieder nur mit Tasten der Fernbedienung (`DPAD_*`, OK, Zurück, Zifferntasten).
+Bilder: [docs/screenshots/tv/](screenshots/tv/) (07–13).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Build mit Media3 ExoPlayer (Prüfsummen aus `tv/libs.lock`), 238 Logik-Tests | ✅ | APK 2,4 MB; Senderliste, Feed-Parser, Titel und Reihen werden mit getestet |
+| Startseite: Reihen „Fernsehen · 30 Sender im Internet“ und „Nova Filme“ | ✅ | farbige Sender-Kacheln mit Nummer, Kategorie-Kacheln |
+| Erster Tastendruck landete auf der leeren Favoriten-Reihe | ❌ → behoben | Reihen nehmen den Fokus nicht mehr selbst an |
+| **Das Erste** im Player (HLS, 16:9 eingepasst) | ✅ | Livestream lief; ebenso **NDR Hamburg** und **tagesschau24** |
+| Wiedergabe brach ab: VM ohne Soundkarte (`AUDIO_TRACK_INIT_FAILED`) | ⚠️ → abgefangen | Bild läuft weiter, Hinweis „ohne Ton“; auf dem Fernseher gibt es eine Tonausgabe |
+| ▲/▼ zappen, Einblendung Nummer + Name | ✅ | |
+| Zifferntasten (1 2 → NDR Hamburg, 6 → tagesschau24) | ✅ | Wartezeit auf die 2. Ziffer auf 2,5 s verlängert |
+| Senderliste (OK): springt zum laufenden Sender, Auswahl startet Sender | ✅ | Nummern jetzt bündig |
+| **ZDF** (Geoblocking, aus den USA) | ✅ | Meldung „… nur innerhalb Deutschlands“; vorher blieb das letzte Bild des alten Senders stehen → jetzt schwarz |
+| **Nova Filme**: echte Feeds der 16 Kanäle | ✅ | 94 Videos mit Vorschaubildern: 28 Spielfilme, 6 Serienfolgen, 30 Dokus, 30 Kinder |
+| Kategorie-Kachel öffnet die richtige Reihe, „Mehr von … auf YouTube“ am Reihenende | ✅ | |
+| Video mit OK öffnen | ✅ (Ersatzweg) | keine YouTube-App in Android-x86 → Link öffnete sich in Chrome, wie vorgesehen |
+| „Sender vom Fernseher“ ohne TV-Empfänger | ❌ → behoben | zeigte „ohne Erlaubnis …“, weil der Google-Viewer TV-Links annahm → strengere Erkennung, jetzt „Dieses Gerät hat keinen TV-Empfang“ |
+
+Hinweise zur Testumgebung: Mit dem bochs-DRM-Grafiktreiber stürzte der Kernel der VM beim
+Booten ab (`ttm_bo_vm_open`), mit VESA-Grafik lief sie stabil. Nach einem Neustart der
+Android-Oberfläche (Sprachwechsel) musste das WLAN-HAL neu gestartet werden.
+
+**Nicht getestet:** echter Fernseher mit Tuner (Senderliste aus Antenne/Kabel/Satellit,
+Erlaubnisdialog, Umschalten ins Live-TV der Hersteller-App), Abspielen in der YouTube-App,
+Sender mit Geoblocking aus Deutschland (ZDF, 3sat, ARTE, phoenix, ONE, MDR, rbb, SWR, Radio
+Bremen, WELT – aus den USA alle mit HTTP 403, also erreichbar, aber gesperrt), Ton.
 
 ### Nicht getestet
 
