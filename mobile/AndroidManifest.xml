@@ -21,6 +21,10 @@
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <!-- software update and Nova Store: Android asks the user before every installation -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- "System software update available" notification (Android 13+ asks the user) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- the background update check keeps running after the phone restarts -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Nova Kamera -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Nova Galerie (Android 13+: photos and videos; before: storage) -->
@@ -212,6 +216,11 @@
                 <action android:name="org.novaos.mobile.INSTALL_STATUS" />
             </intent-filter>
         </receiver>
+        <!-- looks for updates in the background every few hours -->
+        <service
+            android:name=".UpdateJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <!-- after a software update: NovaOS starts again with the start animation -->
         <receiver
             android:name=".UpdatedReceiver"

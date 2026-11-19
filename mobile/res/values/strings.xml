@@ -90,6 +90,12 @@
     <string name="update_notes">What is new</string>
     <string name="home_update_banner">System software update available</string>
     <string name="home_update_sub">NovaOS %1$s · tap to install</string>
+    <string name="notify_channel">System software update</string>
+    <string name="notify_available">NovaOS %1$s · tap to download and install</string>
+    <string name="notify_ready">NovaOS %1$s is ready – tap to install</string>
+    <string name="update_ready">Update ready to install</string>
+    <string name="update_install_now">Install now</string>
+    <string name="home_update_ready">NovaOS %1$s · ready – tap to install</string>
     <string name="restart">Restart NovaOS</string>
     <string name="restart_sub">Restarts the NovaOS interface (not the whole phone)</string>
     <string name="boot_restarting">NovaOS is restarting</string>

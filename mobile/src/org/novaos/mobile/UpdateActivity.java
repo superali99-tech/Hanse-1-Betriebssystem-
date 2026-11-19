@@ -87,14 +87,15 @@ public class UpdateActivity extends Activity {
 
     private void show(UpdateInfo u) {
         update = u;
-        StringBuilder sb = new StringBuilder(getString(R.string.update_available)).append('\n')
+        boolean ready = Updates.readyApk(this, u) != null;  // downloaded in the background
+        StringBuilder sb = new StringBuilder(getString(ready ? R.string.update_ready : R.string.update_available)).append('\n')
                 .append(getString(R.string.update_version, u.versionName, UpdateInfo.size(u.size, german)));
         if (!u.notes(german).isEmpty()) {
             sb.append("\n\n").append(getString(R.string.update_notes)).append(':');
             for (String n : u.notes(german)) sb.append("\n•  ").append(n);
         }
         status.setText(sb);
-        button(R.string.update_install, v -> install());
+        button(ready ? R.string.update_install_now : R.string.update_install, v -> install());
     }
 
     private void button(int text, View.OnClickListener click) {
@@ -118,9 +119,11 @@ public class UpdateActivity extends Activity {
             File dir = new File(getCacheDir(), "apk");
             //noinspection ResultOfMethodCallIgnored
             dir.mkdirs();
-            File apk = new File(dir, "novaos-update.apk");
+            File apk = Updates.apkFile(this, u);
             try {
-                String sha = Updates.download(this, u, apk, (done, total) -> runOnUiThread(() -> {
+                File ready = Updates.readyApk(this, u);
+                // already downloaded in the background (Wi-Fi): install right away
+                String sha = ready != null ? Download.sha256(ready) : Updates.download(this, u, apk, (done, total) -> runOnUiThread(() -> {
                     int pct = total > 0 ? (int) (done * 100 / total) : 0;
                     progress.setProgress(pct);
                     status.setText(getString(R.string.update_downloading, pct));

@@ -90,6 +90,12 @@
     <string name="update_notes">Was ist neu</string>
     <string name="home_update_banner">Systemsoftware-Update verfügbar</string>
     <string name="home_update_sub">NovaOS %1$s · zum Installieren tippen</string>
+    <string name="notify_channel">Systemsoftware-Update</string>
+    <string name="notify_available">NovaOS %1$s · tippen zum Herunterladen und Installieren</string>
+    <string name="notify_ready">NovaOS %1$s ist bereit – tippen zum Installieren</string>
+    <string name="update_ready">Update bereit zur Installation</string>
+    <string name="update_install_now">Jetzt installieren</string>
+    <string name="home_update_ready">NovaOS %1$s · bereit – tippen zum Installieren</string>
     <string name="restart">NovaOS neu starten</string>
     <string name="restart_sub">Startet die NovaOS-Oberfläche neu (nicht das ganze Handy)</string>
     <string name="boot_restarting">NovaOS wird neu gestartet</string>

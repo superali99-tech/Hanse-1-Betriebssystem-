@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 final class Updates {
     private static final String PREFS = "novaos_update";
-    private static final long INTERVAL_MS = 6 * 60 * 60 * 1000L;
+    private static final long INTERVAL_MS = 60 * 60 * 1000L;  // home screen: at most hourly
     static final String TAG = "latest";
 
     /** Result of a check. */
@@ -125,6 +125,51 @@ final class Updates {
         } catch (IOException | RuntimeException e) {
             return UNREACHABLE;
         }
+    }
+
+    /**
+     * Background check (UpdateJob, home screen): looks for a newer version, downloads and
+     * checks it when the phone is not on mobile data, and shows the notification.
+     */
+    static UpdateInfo checkAndPrepare(Context c) {
+        UpdateInfo u = check(c);
+        if (u == null || !u.newerThan(installedCode(c))) return null;
+        boolean ready = prepare(c, u) != null;
+        UpdateNotice.show(c, u, ready);
+        return u;
+    }
+
+    static File apkFile(Context c, UpdateInfo u) {
+        return new File(new File(c.getCacheDir(), "apk"), "novaos-update-" + u.versionCode + ".apk");
+    }
+
+    /** The already downloaded and checked APK of this update, or null. */
+    static File readyApk(Context c, UpdateInfo u) {
+        File apk = apkFile(c, u);
+        return apk.isFile() && u.sha256.equals(prefs(c).getString("ready_sha", "")) ? apk : null;
+    }
+
+    /** Downloads and checks the update (only without mobile data). The checked APK, or null. */
+    static File prepare(Context c, UpdateInfo u) {
+        File ready = readyApk(c, u);
+        if (ready != null) return ready;
+        android.net.ConnectivityManager cm = c.getSystemService(android.net.ConnectivityManager.class);
+        if (cm == null || cm.isActiveNetworkMetered()) return null;
+        File apk = apkFile(c, u);
+        //noinspection ResultOfMethodCallIgnored
+        apk.getParentFile().mkdirs();
+        try {
+            String sha = download(c, u, apk, null);
+            if (sha.equals(u.sha256) && Installer.sameSigner(c, apk)) {
+                prefs(c).edit().putString("ready_sha", u.sha256).apply();
+                return apk;
+            }
+        } catch (IOException | RuntimeException ignored) {
+            // the update page downloads it again
+        }
+        //noinspection ResultOfMethodCallIgnored
+        apk.delete();
+        return null;
     }
 
     /** Result of the last check: OK, NOT_PUBLIC, UNREACHABLE or INVALID. */

@@ -109,6 +109,7 @@ public class HomeActivity extends Activity {
         registerReceiver(packageReceiver, f);
         setupTorch();
         rebuild();
+        UpdateJob.schedule(this);  // looks for updates in the background every few hours
     }
 
     @Override
@@ -119,11 +120,13 @@ public class HomeActivity extends Activity {
             bootShown = true;  // start animation after an update or on the first start
             startActivity(new Intent(this, BootActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        } else {
+            UpdateNotice.askPermission(this);  // Android 13+: allow the update notification
         }
         loadApps();
         if (Updates.due(this)) {
             worker.execute(() -> {
-                Updates.check(getApplicationContext());
+                Updates.checkAndPrepare(getApplicationContext());
                 runOnUiThread(() -> {
                     if (!isDestroyed()) {
                         shown = null;
@@ -182,7 +185,7 @@ public class HomeActivity extends Activity {
                 apps = list;
                 StringBuilder sig = new StringBuilder(Favorites.raw(this));
                 UpdateInfo u = Updates.pending(this);
-                if (u != null) sig.append("|update").append(u.versionCode);
+                if (u != null) sig.append("|update").append(u.versionCode).append(Updates.readyApk(this, u) != null);
                 for (App a : list) sig.append('|').append(a.key()).append(a.label);
                 if (!sig.toString().equals(shown)) {
                     shown = sig.toString();
@@ -200,8 +203,9 @@ public class HomeActivity extends Activity {
         // "system software update available" (from the NovaOS website)
         UpdateInfo update = Updates.pending(this);
         if (update != null) {
+            boolean ready = Updates.readyApk(this, update) != null;
             View banner = novaCard(R.drawable.ic_refresh, getString(R.string.home_update_banner),
-                    getString(R.string.home_update_sub, update.versionName), true,
+                    getString(ready ? R.string.home_update_ready : R.string.home_update_sub, update.versionName), true,
                     v -> startActivity(new Intent(this, UpdateActivity.class)));
             LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     Ui.dp(this, 112));

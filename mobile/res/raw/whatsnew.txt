@@ -1,5 +1,4 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Software-Updates kommen jetzt direkt von GitHub – ohne Website, für alle NovaOS-Handys|Software updates now come directly from GitHub – no website needed, for every NovaOS phone
-Feste NovaOS-Signatur: künftige Updates installieren sich ohne Neuinstallation|Fixed NovaOS signature: future updates install without reinstalling
-Nova Dateien: Vorschaubilder für Fotos und Videos|Nova Files: previews for photos and videos
-Nova Store: Symbole jetzt auch für Apps wie Öffi|Nova Store: icons now also for apps like Öffi
+Updates kommen jetzt von selbst: NovaOS sucht im Hintergrund und meldet sich mit „Systemsoftware-Update verfügbar“|Updates now come by themselves: NovaOS checks in the background and shows "System software update available"
+Im WLAN wird das Update schon vorher geladen – ein Tipp auf „Jetzt installieren“ genügt|On Wi-Fi the update is downloaded beforehand – one tap on "Install now" is enough
+Nova Dateien: Vorschaubilder für Fotos und Videos · Nova Store: Symbole auch für Apps wie Öffi|Nova Files: previews for photos and videos · Nova Store: icons also for apps like Öffi

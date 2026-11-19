@@ -88,6 +88,21 @@ final class Download {
         }
     }
 
+    /** SHA-256 (hex) of a file. */
+    static String sha256(File f) throws IOException {
+        try (InputStream in = new java.io.FileInputStream(f)) {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+            byte[] buf = new byte[65536];
+            int n;
+            while ((n = in.read(buf)) > 0) sha.update(buf, 0, n);
+            StringBuilder hex = new StringBuilder();
+            for (byte b : sha.digest()) hex.append(String.format("%02x", b));
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IOException(e);
+        }
+    }
+
     /**
      * Opens the URL and follows redirects itself: only https, and the Authorization value is
      * sent only to the first server (host and port: the registry), never to the storage
