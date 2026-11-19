@@ -2,14 +2,15 @@
 # Android-x86 9 in QEMU for testing NovaOS TV (TV-sized screen, remote-control keys, adb).
 #
 #   tests/qemu/android_vm.sh start  ISO WORKDIR    boot the live system (TCG works, slowly)
-#   tests/qemu/android_vm.sh setup  WORKDIR        wait for Android, enable adb over TCP
+#   tests/qemu/android_vm.sh setup  WORKDIR        wait for Android, enable adb over TCP and Wi-Fi
+#   tests/qemu/android_vm.sh wifi   WORKDIR        connect to the QEMU network ("VirtWifi")
 #   tests/qemu/android_vm.sh proxy  WORKDIR PORT CA.pem
 #                                                  route the guest's HTTPS through a proxy on
 #                                                  the host (10.0.2.2:PORT) that re-terminates
 #                                                  TLS with CA.pem (only for such sandboxes)
 #   tests/qemu/android_vm.sh stop   WORKDIR
 #
-# Afterwards: adb -s localhost:5555 install/shell/exec-out screencap -p ...
+# Afterwards: adb connect 127.0.0.1:5555; adb -s 127.0.0.1:5555 install/shell/exec-out screencap -p ...
 # The screen is 1280x720 at 213 dpi = 960x540 dp, the layout size of every Android TV.
 # QEMU's screendump of Android-x86 swaps red and blue - use "adb exec-out screencap -p".
 set -euo pipefail
@@ -68,14 +69,15 @@ while time.time() < deadline:
     time.sleep(10)
 else:
     sys.exit("Android did not finish booting")
-s.sendall(b"setprop service.adb.tcp.port 5555; stop adbd; start adbd; settings put global stay_on_while_plugged_in 7\n")
+s.sendall(b"setprop service.adb.tcp.port 5555; stop adbd; start adbd; settings put global stay_on_while_plugged_in 7;"
+          b" svc wifi enable\n")
 time.sleep(3)
 print("boot completed, adb on port 5555")
 EOF
 	;;
 proxy)
 	work="$2"; port="$3"; ca="$4"
-	adb=(adb -s localhost:5555)
+	adb=("${ADB:-adb}" -s 127.0.0.1:5555)
 	# Android looks up system CAs as <subject_hash_old>.0; the system partition of the live
 	# image is read-only, so the CA directory is copied into a tmpfs with the extra CA.
 	name="$(openssl x509 -in "$ca" -noout -subject_hash_old).0"
@@ -86,6 +88,16 @@ proxy)
 		&& chcon u:object_r:system_file:s0 /system/etc/security/cacerts/*'" || true
 	"${adb[@]}" shell settings put global http_proxy "10.0.2.2:$port"
 	echo "proxy 10.0.2.2:$port, CA $name"
+	;;
+wifi)
+	# The QEMU network appears as Wi-Fi "VirtWifi"; the framework only connects (and runs
+	# DHCP) when the network is chosen in the settings - adb over TCP needs this, too.
+	work="$2"
+	python3 -c 'import socket, sys, time
+s = socket.socket(socket.AF_UNIX); s.connect(sys.argv[1])
+s.sendall(b"\nam start -a android.settings.WIFI_SETTINGS\n"); time.sleep(15)
+s.sendall(b"input tap 130 200\n"); time.sleep(30)  # first entry of the list: VirtWifi
+' "$work/serial.sock"
 	;;
 stop)
 	work="$2"
