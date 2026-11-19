@@ -11,7 +11,7 @@ NovaOS-Design auf dem Fernseher:
   **alle Sender, die der Fernseher selbst empfängt** (Antenne, Kabel, Satellit – auch
   RTL, ProSieben, Sat.1, VOX …)
 * **Nova Filme** – kostenlose Spielfilme, Serien, Dokus und Kinderprogramm von
-  offiziellen YouTube-Kanälen, abgespielt in der YouTube-App
+  offiziellen YouTube-Kanälen, abgespielt **direkt in NovaOS TV**
 * **Alle Apps** als große Kacheln (mit den TV-Bannern der Apps), mit **App-Suche**
 * **Einstellungen**: Netzwerk & WLAN, Bluetooth & Fernbedienungen, Bild, Ton,
   Datum & Uhrzeit, Speicher, alle Einstellungen
@@ -20,9 +20,9 @@ NovaOS-Design auf dem Fernseher:
 
 **Datenschutz:** Die App sammelt keine Daten und zeigt keine eigene Werbung. Internet
 wird nur genutzt, wenn du einen Sender startest (der Stream kommt direkt vom Sender, z. B.
-ARD oder ZDF) oder Nova Filme öffnest (Listen und Vorschaubilder von YouTube; die Videos
-laufen in der YouTube-App, mit der Werbung von YouTube). Favoriten werden nur auf dem
-Fernseher gespeichert. Es gibt keinen eigenen Server und kein Konto.
+ARD oder ZDF) oder Nova Filme öffnest (Listen, Vorschaubilder und Videos kommen von YouTube,
+im erweiterten Datenschutzmodus `youtube-nocookie.com` und mit der Werbung von YouTube).
+Favoriten werden nur auf dem Fernseher gespeichert. Es gibt keinen eigenen Server und kein Konto.
 
 > Ehrlicher Hinweis: NovaOS TV ist eine App, kein eigenes Fernseh-Betriebssystem.
 > Das System des Fernsehers (Google TV / Android TV) bleibt unverändert; NovaOS TV
@@ -75,23 +75,38 @@ an Android weitergeben, öffnen sich stattdessen über „Live-TV öffnen“.
 
 ## Nova Filme
 
-Kostenlose **Spielfilme, Serien, Dokus und Kinderprogramm** von offiziellen YouTube-Kanälen.
-Die Reihen werden bei jedem Öffnen aus den öffentlichen Kanal-Feeds aktualisiert (höchstens
-alle 3 Stunden, sonst aus dem Zwischenspeicher – so erscheinen sie auch ohne Internet). Mit
-**OK** startet das Video in der **YouTube-App** des Fernsehers; dort laufen auch die Werbung
-und damit die Bezahlung der Rechteinhaber. Am Ende jeder Reihe öffnet „Mehr von … auf
-YouTube“ den ganzen Kanal.
+Kostenlose **Spielfilme, Serien, Dokus und Kinderprogramm** von offiziellen YouTube-Kanälen –
+abgespielt **direkt in NovaOS TV**, ohne in die YouTube-App zu wechseln. Die Reihen werden bei
+jedem Öffnen aus den öffentlichen Kanal-Feeds aktualisiert (höchstens alle 3 Stunden, sonst aus
+dem Zwischenspeicher – so erscheinen sie auch ohne Internet).
+
+| Taste beim Film | Funktion |
+|---|---|
+| **OK** (oder Play/Pause) | Pause / weiter |
+| **◀ / ▶** (oder Spulen) | 10 Sekunden zurück / vor |
+| **▲ / ▼** (oder Info) | Infoleiste: Titel, Kanal, Zeit, Fortschritt |
+| **Zurück** | Film beenden |
+
+So ist das geregelt: Gespielt wird mit dem **offiziellen eingebetteten YouTube-Player**
+(IFrame Player API), wie YouTube es für Apps erlaubt – mit YouTubes Werbung, damit die
+Rechteinhaber bezahlt werden. Nach den YouTube-Regeln liegt nichts über dem Bild: Die
+NovaOS-Infoleiste erscheint **unter** dem Film (das Bild wird dafür kurz etwas kleiner), die App
+weist sich gegenüber YouTube mit `https://org.novaos.tv` aus, und beim Verlassen der App pausiert
+der Film. Videos werden **nicht** an YouTube vorbei heruntergeladen.
 
 | Reihe | Offizielle Kanäle |
 |---|---|
 | Spielfilme | Netzkino, Moviedome (lizenzierte Filme in voller Länge) |
 | Serien | ganze Folgen von Netzkino, Moviedome, ZDFneo, funk |
 | Dokus | Terra X History, ARTE, WDR Doku, NDR Doku |
-| Kinder & Familie | TOGGO, PAW Patrol & Dino Ranch (TOGGO), Die Biene Maja, Shaun das Schaf, ZDFtivi, KiKA, Die Maus, Checker Welt |
+| Kinder & Familie | TOGGO, PAW Patrol & Dino Ranch (TOGGO), Shaun das Schaf, Die Maus, Checker Welt |
 
-Es werden bewusst **nur Kanäle der Rechteinhaber** gezeigt (Filmverleiher, Sender, Studios),
-keine Uploads von Dritten. Die Kanalliste steht in `src/org/novaos/tv/Catalog.java`. Ohne
-YouTube-App (bei Google TV immer vorinstalliert) erscheint ein Hinweis.
+Es werden **nur Kanäle der Rechteinhaber** gezeigt (Filmverleiher, Sender, Studios), keine Uploads
+von Dritten, und nur Videos, deren Besitzer das Abspielen außerhalb von YouTube erlauben (die App
+fragt das pro Video bei YouTube ab und merkt es sich). Die Biene Maja, ZDFtivi und KiKA erlauben
+das nicht und fehlen deshalb. Sollte ein Video trotzdem gesperrt sein, bietet die App an, es in der
+YouTube-App zu öffnen. Voraussetzung ist „Android System WebView“ (auf Google TV vorhanden). Die
+Kanalliste steht in `src/org/novaos/tv/Catalog.java`.
 
 ## Installation auf dem Fernseher (z. B. Metz mit Google TV / Android TV)
 
@@ -185,6 +200,7 @@ stehen in `tv/libs.lock`, das Skript lädt sie beim ersten Bau nach `build/tv-li
 | `PlayerActivity.java`, `Channel.java`, `Channels.java`, `res/raw/sender.m3u` | Internet-Sender: Liste und Vollbild-Player (ExoPlayer, HLS) |
 | `TunerActivity.java`, `TunerChannel.java` | Sender vom Fernseher (Android-Senderdatenbank, Live-TV-App) |
 | `NovaFilmeActivity.java`, `Catalog.java`, `Video.java` | Nova Filme: Kanäle, Feeds, Reihen, kurze Titel |
+| `VideoActivity.java`, `res/raw/youtube_player.html` | Nova Filme: eingebetteter YouTube-Player, Infoleiste, Fernbedienung |
 | `Net.java`, `ImageLoader.java` | Laden von Feeds und Vorschaubildern mit Zwischenspeicher |
 | `Rows.java` | Kachelreihen (Startseite, Nova Filme) |
 | `res/` | Layouts, Texte (de/en), Symbole, Banner, Hintergrund (aus `tools/make_assets.py`) |

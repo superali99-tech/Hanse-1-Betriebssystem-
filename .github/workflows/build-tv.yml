@@ -60,7 +60,7 @@ jobs:
           cat > notes.md <<EOF
           **NovaOS TV ${NOVAOS_VERSION}** – die NovaOS-Oberfläche als App für Fernseher mit **Google TV / Android TV** (z. B. Metz, Sony, Philips, TCL) ab Android 7.
 
-          Mit **Fernsehen** (30 Sender als Livestream: Das Erste, ZDF, ARTE, KiKA, alle Dritten … – plus alle Sender, die der Fernseher über Antenne/Kabel/Satellit empfängt) und **Nova Filme** (kostenlose Spielfilme, Serien, Dokus und Kinderprogramm von offiziellen YouTube-Kanälen).
+          Mit **Fernsehen** (30 Sender als Livestream: Das Erste, ZDF, ARTE, KiKA, alle Dritten … – plus alle Sender, die der Fernseher über Antenne/Kabel/Satellit empfängt) und **Nova Filme** (kostenlose Spielfilme, Serien, Dokus und Kinderprogramm von offiziellen YouTube-Kanälen, direkt in der App abgespielt).
 
           **Download:** \`novaos-tv-${NOVAOS_VERSION}.apk\` (unten unter *Assets*)
           **SHA256:** \`${SHA}\` · Signatur: ${SIGNING}
