@@ -19,6 +19,8 @@ public final class MobileTest {
         check(Greeting.columns(400, 160, 2, 6) == 2 && Greeting.columns(1000, 160, 2, 6) == 6, "channel columns");
         store();
         update();
+        files();
+        if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
     }
@@ -57,5 +59,66 @@ public final class MobileTest {
         check(UpdateInfo.parse("<html>404</html>") == null && UpdateInfo.parse(null) == null, "not an update file");
         check(UpdateInfo.whatsNew("# x\nA|B\nnur de\n", false).equals(java.util.Arrays.asList("B", "nur de")), "whats new");
         check(UpdateInfo.size(2413216, true).equals("2,3 MB") && UpdateInfo.size(2048, false).equals("2 KB"), "size");
+    }
+
+    private static void files() {
+        check(FileNames.valid("Urlaub 2026") && FileNames.valid("a.txt") && FileNames.valid("  x  "), "valid names");
+        check(!FileNames.valid("") && !FileNames.valid("   ") && !FileNames.valid(null), "empty name");
+        check(!FileNames.valid(".") && !FileNames.valid("..") && !FileNames.valid("a/b") && !FileNames.valid("a\0b"),
+                "no paths");
+        check(!FileNames.valid(new String(new char[256]).replace('\0', 'x')), "max 255 characters");
+        check(FileNames.inside("/storage/emulated/0", "/storage/emulated/0/DCIM/a.jpg"), "inside");
+        check(FileNames.inside("/storage/emulated/0", "/storage/emulated/0"), "root itself");
+        check(!FileNames.inside("/storage/emulated/0", "/storage/emulated/01/x")
+                && !FileNames.inside("/storage/emulated/0", "/data/data/x"), "outside");
+        check(FileNames.extension("Foto.JPG").equals("jpg") && FileNames.extension(".bashrc").equals("")
+                && FileNames.extension("a.") .equals("") && FileNames.extension("x.tar.gz").equals("gz"), "extension");
+        java.io.File tmp = new java.io.File(System.getProperty("java.io.tmpdir"), "novaos-files-test-" + System.nanoTime());
+        java.io.File dir = new java.io.File(tmp, "zeta");
+        java.io.File a = new java.io.File(tmp, "Alpha.txt");
+        java.io.File b = new java.io.File(tmp, "beta.txt");
+        try {
+            check(dir.mkdirs() && a.createNewFile() && b.createNewFile(), "test files");
+            java.util.List<java.io.File> l = new java.util.ArrayList<>(java.util.Arrays.asList(b, a, dir));
+            l.sort(FileNames.ORDER);
+            check(l.get(0).equals(dir) && l.get(1).equals(a) && l.get(2).equals(b), "folders first, then by name");
+        } catch (java.io.IOException e) {
+            check(false, "test files: " + e);
+        } finally {
+            a.delete();
+            b.delete();
+            dir.delete();
+            tmp.delete();
+        }
+    }
+
+    /** The real Nova Store catalogue and "what's new" file. */
+    private static void resources(String res) {
+        try {
+            String store = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(res, "raw", "store.txt")),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            int lines = 0;
+            for (String line : store.split("\n")) if (!line.trim().isEmpty() && !line.startsWith("#")) lines++;
+            java.util.List<StoreApp> apps = StoreApp.parse(store);
+            check(apps.size() == lines && lines >= 20, "store.txt: every line valid (" + apps.size() + "/" + lines + ")");
+            java.util.Set<String> pkgs = new java.util.HashSet<>();
+            java.util.Set<String> cats = new java.util.HashSet<>(java.util.Arrays.asList("kommunikation", "unterwegs",
+                    "multimedia", "sicherheit", "werkzeuge", "unterhaltung"));
+            int fdroid = 0;
+            for (StoreApp app : apps) {
+                check(pkgs.add(app.pkg), "store.txt: " + app.pkg + " only once");
+                check(cats.contains(app.category), "store.txt: category of " + app.pkg);
+                check(!app.textDe.isEmpty() && !app.textEn.isEmpty(), "store.txt: texts of " + app.pkg);
+                if (app.fromFdroid()) fdroid++;
+            }
+            check(fdroid >= 10, "store.txt: F-Droid apps " + fdroid);
+            check(StoreApp.sections(apps).keySet().iterator().next().equals("empfohlen"), "store.txt: recommended first");
+            String news = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(res, "raw", "whatsnew.txt")),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            java.util.List<String> de = UpdateInfo.whatsNew(news, true), en = UpdateInfo.whatsNew(news, false);
+            check(!de.isEmpty() && de.size() == en.size() && de.size() <= 8, "whatsnew.txt: " + de.size() + " points");
+        } catch (java.io.IOException e) {
+            check(false, "resources: " + e);
+        }
     }
 }

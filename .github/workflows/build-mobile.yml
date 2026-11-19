@@ -24,6 +24,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # build number = number of commits (same as on the website)
 
       - name: Android SDK on the runner
         run: |
@@ -45,7 +47,6 @@ jobs:
 
       - name: Build APK (includes the logic tests)
         env:
-          NOVAOS_MOBILE_BUILD: ${{ github.run_number }}
           NOVAOS_MOBILE_KS_PASS: ${{ secrets.NOVAOS_MOBILE_KS_PASS }}
         run: ./mobile/build.sh
 
@@ -54,13 +55,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           . ./VERSION.sh
+          VERSION_NAME=$(sed -n 's/^versionName=//p' build/mobile/update.properties)
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then TAG="$GITHUB_REF_NAME"; else TAG="mobile-build-$GITHUB_RUN_NUMBER"; fi
           APK=build/mobile/novaos-mobile-${NOVAOS_VERSION}.apk
           SHA=$(cut -d' ' -f1 "$APK.sha256")
           cat > notes.md <<EOF
-          **NovaOS Mobile ${NOVAOS_VERSION}** – der NovaOS-Startbildschirm für **Android-Handys und -Tablets** (z. B. Samsung Galaxy, Pixel, Xiaomi) ab Android 7.
+          **NovaOS Mobile ${VERSION_NAME}** – der NovaOS-Startbildschirm für **Android-Handys und -Tablets** (z. B. Samsung Galaxy, Pixel, Xiaomi) ab Android 7.
 
-          Startbildschirm mit Uhr, Suche, Favoriten, Schnelleinstellungen und App-Übersicht, dazu **Fernsehen** (30 Sender live) und **Nova Filme** (kostenlose Filme und Serien, direkt in der App). Android bleibt darunter unverändert.
+          Startbildschirm mit Uhr, Suche, Favoriten, Schnelleinstellungen und App-Übersicht, dazu **Fernsehen** (30 Sender live), **Nova Filme** (kostenlose Filme und Serien, direkt in der App), **Nova Store** (echte Apps aus F-Droid und dem Play Store), **Nova Kamera**, **Nova Galerie**, **Nova Dateien**, **Nova Notizen** und das **Software-Update** in den NovaOS-Einstellungen. Android bleibt darunter unverändert.
 
           **Download:** \`novaos-mobile-${NOVAOS_VERSION}.apk\` (unten unter *Assets*)
           **SHA256:** \`${SHA}\` · Signatur: ${SIGNING}
@@ -73,4 +75,4 @@ jobs:
           Zurück zum alten Startbildschirm: Android-Einstellungen → Apps → Standard-Apps → Startbildschirm. Ausführliche Anleitung: mobile/README.md · Gebaut aus Commit ${GITHUB_SHA}.
           EOF
           gh release create "$TAG" "$APK" "$APK.sha256" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --prerelease --title "NovaOS Mobile ${NOVAOS_VERSION} (Startbildschirm für Android-Handys) – ${TAG}" --notes-file notes.md
+            --prerelease --title "NovaOS Mobile ${VERSION_NAME} (Startbildschirm für Android-Handys) – ${TAG}" --notes-file notes.md

@@ -1,11 +1,17 @@
-# NovaOS TV Web: builds the website (TV channels + Nova Filme for the browser of
-# Samsung, Philips, LG ... TVs) and publishes it on GitHub Pages. Runs every 3 hours
-# so the Nova Filme rows stay current (the TV browsers may not read YouTube's feeds
-# themselves; the data is built here with the logic of the Android app).
+# NovaOS website on GitHub Pages:
+#   /         NovaOS TV Web (TV channels + Nova Filme for the browser of Samsung,
+#             Philips, LG ... TVs). Runs every 3 hours so the Nova Filme rows stay
+#             current (the data is built here with the logic of the Android app).
+#   /mobile/  NovaOS Mobile: download page, novaos-mobile.apk and update.properties,
+#             which the phones read for the software update (NovaOS settings).
+#
+# Signing: the repository secrets NOVAOS_MOBILE_KEYSTORE_B64 and NOVAOS_MOBILE_KS_PASS
+# (see build-mobile.yml) must be set, otherwise every build has another key and the
+# phones cannot install the update (NovaOS then says so).
 #
 # One-time setup in the repository: Settings -> Pages -> Source: "GitHub Actions".
 # (GitHub Pages for private repositories needs a paid GitHub plan.)
-name: NovaOS TV Web (GitHub Pages)
+name: NovaOS website (GitHub Pages)
 
 on:
   push:
@@ -16,6 +22,8 @@ on:
       - "tv/src/org/novaos/tv/Channel.java"
       - "tv/src/org/novaos/tv/Video.java"
       - ".github/workflows/tv-web.yml"
+      - "mobile/**"
+      - "VERSION.sh"
   schedule:
     - cron: "23 */3 * * *"
   workflow_dispatch:
@@ -36,8 +44,30 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # NovaOS Mobile build number = number of commits
       - name: Build website and data
         run: ./tv/web/build.sh
+      - name: Signing key for NovaOS Mobile (repository secret)
+        env:
+          KS_B64: ${{ secrets.NOVAOS_MOBILE_KEYSTORE_B64 }}
+        run: |
+          if [ -n "$KS_B64" ]; then
+            echo "$KS_B64" | base64 -d > "$RUNNER_TEMP/novaos-mobile.keystore"
+            echo "NOVAOS_MOBILE_KEYSTORE=$RUNNER_TEMP/novaos-mobile.keystore" >> "$GITHUB_ENV"
+          else
+            echo "::warning::No NOVAOS_MOBILE_KEYSTORE_B64 secret: the software update cannot be installed on the phones (different key every build)."
+          fi
+      - name: NovaOS Mobile for the software update
+        env:
+          NOVAOS_MOBILE_KS_PASS: ${{ secrets.NOVAOS_MOBILE_KS_PASS }}
+        run: |
+          ./mobile/build.sh
+          . ./VERSION.sh
+          mkdir -p build/tv-web/mobile
+          cp "build/mobile/novaos-mobile-$NOVAOS_VERSION.apk" build/tv-web/mobile/novaos-mobile.apk
+          cp build/mobile/update.properties mobile/web/index.html build/tv-web/mobile/
+          cat build/tv-web/mobile/update.properties
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build/tv-web

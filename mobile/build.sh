@@ -51,8 +51,12 @@ done < "$TV/libs.lock"
 LIBCP="$(IFS=:; echo "${JARS[*]}")"
 
 IFS=. read -r MA MI PA <<<"$NOVAOS_VERSION"
-CODE=$(( (MA * 10000 + MI * 100 + PA) * 1000 + ${NOVAOS_MOBILE_BUILD:-0} % 1000 ))
-echo "NovaOS Mobile $NOVAOS_VERSION (versionCode $CODE), $(basename "$BT"), $(basename "$(dirname "$PLATFORM")")"
+# build number = number of commits, the same in every workflow (checkout with full history),
+# so the software update can tell which build is newer
+BUILD="${NOVAOS_MOBILE_BUILD:-$(git -C "$ROOT" rev-list --count HEAD 2>/dev/null || echo 0)}"
+CODE=$(( (MA * 10000 + MI * 100 + PA) * 100000 + BUILD % 100000 ))
+NAME="$NOVAOS_VERSION.$BUILD"
+echo "NovaOS Mobile $NAME (versionCode $CODE), $(basename "$BT"), $(basename "$(dirname "$PLATFORM")")"
 
 echo "== resources"
 # shared from NovaOS TV: icons, logo, launcher icon, colours, channel list, YouTube player page
@@ -63,7 +67,7 @@ done
 "$BT/aapt2" compile --dir "$HERE/res" -o "$OUT/res.zip"
 "$BT/aapt2" link -o "$OUT/base.apk" -I "$PLATFORM" --manifest "$HERE/AndroidManifest.xml" \
 	--java "$OUT/gen" --min-sdk-version 24 --target-sdk-version 34 \
-	--version-code "$CODE" --version-name "$NOVAOS_VERSION" "$OUT"/flat/*.flat "$OUT/res.zip"
+	--version-code "$CODE" --version-name "$NAME" "$OUT"/flat/*.flat "$OUT/res.zip"
 
 echo "== java"
 SHARED=(Channel Catalog Video Net ImageLoader KeyList AppFilter)
@@ -73,7 +77,7 @@ javac -nowarn --release 11 -encoding UTF-8 -classpath "$PLATFORM:$LIBCP" -d "$OU
 
 echo "== tests"
 javac --release 11 -encoding UTF-8 -classpath "$OUT/classes" -d "$OUT/test-classes" $(find "$HERE/test" -name '*.java')
-java -cp "$OUT/classes:$OUT/test-classes" org.novaos.mobile.MobileTest
+java -cp "$OUT/classes:$OUT/test-classes" org.novaos.mobile.MobileTest "$HERE/res"
 
 echo "== dex"
 "$BT/d8" --release --min-api 24 --lib "$PLATFORM" --output "$OUT/dex" \
@@ -100,4 +104,22 @@ APK="$OUT/novaos-mobile-$NOVAOS_VERSION.apk"
 "$BT/apksigner" verify "$APK"
 rm -f "$OUT/unsigned.apk" "$OUT/aligned.apk" "$OUT/base.apk" "$APK.idsig"
 ( cd "$OUT" && sha256sum "$(basename "$APK")" > "$(basename "$APK").sha256" )
-echo "== done: $APK ($(du -h "$APK" | cut -f1))"
+
+# description for the software update (published with the APK as novaos-mobile.apk on the website)
+python3 - "$HERE/res/raw/whatsnew.txt" "$CODE" "$NAME" "$(cut -d' ' -f1 "$APK.sha256")" "$(stat -c %s "$APK")" \
+	> "$OUT/update.properties" <<'PY'
+import sys
+news, code, name, sha, size = sys.argv[1:]
+def esc(t):  # Java properties: ASCII with \\uXXXX (UTF-16 units)
+	b = t.encode("utf-16-be")
+	units = [int.from_bytes(b[i:i + 2], "big") for i in range(0, len(b), 2)]
+	return "".join(chr(u) if 32 <= u < 127 else "\\u%04x" % u for u in units)
+print("# NovaOS Mobile software update")
+print(f"versionCode={code}\nversionName={name}\napk=novaos-mobile.apk\nsha256={sha}\nsize={size}")
+lines = [l.strip() for l in open(news, encoding="utf-8") if l.strip() and not l.startswith("#")]
+for i, line in enumerate(lines[:20], 1):
+	de, _, en = line.partition("|")
+	print(f"note.de.{i}={esc(de.strip())}")
+	print(f"note.en.{i}={esc((en or de).strip())}")
+PY
+echo "== done: $APK ($(du -h "$APK" | cut -f1)), versionCode $CODE"
