@@ -28,13 +28,13 @@ i = pycdlib.PyCdlib(); i.open(sys.argv[1])
 for n in ("kernel", "initrd.img"): i.get_file_from_iso(sys.argv[2] + "/" + n, rr_path="/" + n)' "$iso" "$work/kernel"
 		fi
 	fi
-	# conservative CPU model for TCG: with "max" (even without AVX) surfaceflinger crashed and the
-	# kernel panicked in ttm_bo_vm_open while forking crash_dump
+	# Conservative CPU model for TCG. The graphics run in VESA mode (nomodeset): with the
+	# bochs DRM driver the 4.19 kernel panicked in ttm_bo_vm_open whenever surfaceflinger forked.
 	accel="tcg,thread=multi"; cpu="Nehalem"
 	if [ -w /dev/kvm ]; then accel=kvm; cpu=host; fi
 	qemu-system-x86_64 -accel "$accel" -cpu "$cpu" -m 3072 -smp 4 -machine q35 \
 		-kernel "$work/kernel/kernel" -initrd "$work/kernel/initrd.img" \
-		-append "root=/dev/ram0 androidboot.selinux=permissive console=ttyS0 SRC= DATA= SETUPWIZARD=0 video=1280x720 DPI=213" \
+		-append "root=/dev/ram0 androidboot.selinux=permissive console=ttyS0 SRC= DATA= SETUPWIZARD=0 nomodeset UVESA_MODE=1280x720 DPI=213" \
 		-drive "file=$iso,media=cdrom,readonly=on,if=none,id=cd0" -device ide-cd,drive=cd0 \
 		-device VGA,edid=on,xres=1280,yres=720,vgamem_mb=64 -display none \
 		-netdev user,id=n0,hostfwd=tcp:127.0.0.1:5555-:5555 -device e1000,netdev=n0 \
