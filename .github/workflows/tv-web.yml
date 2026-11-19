@@ -1,0 +1,53 @@
+# NovaOS TV Web: builds the website (TV channels + Nova Filme for the browser of
+# Samsung, Philips, LG ... TVs) and publishes it on GitHub Pages. Runs every 3 hours
+# so the Nova Filme rows stay current (the TV browsers may not read YouTube's feeds
+# themselves; the data is built here with the logic of the Android app).
+#
+# One-time setup in the repository: Settings -> Pages -> Source: "GitHub Actions".
+# (GitHub Pages for private repositories needs a paid GitHub plan.)
+name: NovaOS TV Web (GitHub Pages)
+
+on:
+  push:
+    paths:
+      - "tv/web/**"
+      - "tv/res/raw/sender.m3u"
+      - "tv/src/org/novaos/tv/Catalog.java"
+      - "tv/src/org/novaos/tv/Channel.java"
+      - "tv/src/org/novaos/tv/Video.java"
+      - ".github/workflows/tv-web.yml"
+  schedule:
+    - cron: "23 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    # pushes publish only from the default branch (schedule always runs there)
+    if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build website and data
+        run: ./tv/web/build.sh
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/tv-web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

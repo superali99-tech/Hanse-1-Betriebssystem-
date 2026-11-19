@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- NovaOS TV Web: TV channels and Nova Filme in the web browser of any smart TV
+     (Samsung Tizen, Philips Saphi/Titan OS, LG webOS, ...) and on the PC.
+     Operated with the arrow keys / OK of the remote or with the pointer. -->
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="theme-color" content="#0B0E1F">
+<title>NovaOS TV</title>
+<link rel="icon" type="image/png" href="img/nova_logo.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="bg"></div>
+
+<!-- start page -->
+<main id="home" class="view">
+  <header class="top">
+    <img class="logo" src="img/nova_logo.png" alt="">
+    <h1>NovaOS TV</h1>
+    <span class="spacer"></span>
+    <div class="clock"><div id="time"></div><div id="date"></div></div>
+  </header>
+
+  <section>
+    <h2 id="tv-title"></h2>
+    <div id="channels" class="grid"></div>
+  </section>
+
+  <section>
+    <h2 id="films-title"></h2>
+    <p id="films-sub" class="sub"></p>
+    <div id="films"></div>
+  </section>
+
+  <footer id="hint" class="hint"></footer>
+</main>
+
+<!-- TV player (internet live streams) -->
+<div id="tv" class="view player hidden">
+  <video id="video" playsinline></video>
+  <div id="badge" class="panel badge hidden"><span id="badge-no"></span><span><b id="badge-name"></b><small id="badge-hint"></small></span></div>
+  <div id="tv-msg" class="panel msg hidden"><p id="tv-msg-text"></p></div>
+  <div id="spinner" class="spinner hidden"></div>
+  <div id="tv-list" class="list hidden"><h3 id="list-title"></h3><div id="tv-list-items"></div></div>
+  <div id="tv-bar" class="tv-bar hidden">
+    <button class="focusable" data-act="prev">▼</button>
+    <button class="focusable" data-act="next">▲</button>
+    <button class="focusable" data-act="list" id="btn-list"></button>
+    <button class="focusable" data-act="full" id="btn-full"></button>
+    <button class="focusable" data-act="close" id="btn-close-tv"></button>
+  </div>
+</div>
+
+<!-- Nova Filme player: YouTube player on top, NovaOS bar BELOW it (never over the player) -->
+<div id="film" class="view filmview hidden">
+  <div id="yt-box"><div id="yt"></div></div>
+  <div class="film-bar">
+    <div class="film-info">
+      <img class="logo small" src="img/nova_logo.png" alt="">
+      <div><b id="film-title"></b><small id="film-meta"></small></div>
+      <span class="spacer"></span>
+      <span id="film-state"></span>
+    </div>
+    <div class="progress"><div id="film-progress"></div></div>
+    <div class="film-buttons">
+      <button class="focusable" data-act="toggle" id="btn-toggle"></button>
+      <button class="focusable" data-act="back10">−10 s</button>
+      <button class="focusable" data-act="fwd10">+10 s</button>
+      <button class="focusable" data-act="close" id="btn-close-film"></button>
+      <span id="film-hint" class="hint"></span>
+    </div>
+  </div>
+</div>
+
+<noscript>NovaOS TV braucht JavaScript.</noscript>
+<script src="hls.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

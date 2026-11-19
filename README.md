@@ -29,6 +29,7 @@ Design, eigenem App Store, eigenen System-Apps und einem grafischen Installer.
 | Datenschutz | keine Telemetrie, keine GeoIP-Abfragen, siehe [docs/DATENSCHUTZ.md](docs/DATENSCHUTZ.md) |
 | Installation | Live-System + Calamares 3.3 (Sprache, Tastatur, Zeitzone, Partitionierung inkl. Dual-Boot/Verschlüsselung, Benutzer, Fortschritt), BIOS + UEFI |
 | **NovaOS TV** | App für Fernseher mit Google TV / Android TV (z. B. Metz): NovaOS-Design, **Fernsehen** (30 Internet-Sender + alle Sender des Fernsehers), **Nova Filme** (kostenlose Filme und Serien von offiziellen YouTube-Kanälen, direkt in der App), App-Kacheln, Favoriten, Suche, TV-Einstellungen, Bedienung per Fernbedienung – siehe [tv/README.md](tv/README.md) |
+| **NovaOS TV Web** | Fernsehen und Nova Filme im Browser von Samsung-, LG- und Philips-Fernsehern ohne Android – siehe [tv/web/README.md](tv/web/README.md) |
 
 ## Schnellstart
 

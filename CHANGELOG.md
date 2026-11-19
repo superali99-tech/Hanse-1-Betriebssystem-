@@ -18,6 +18,9 @@
   Sendern des eingebauten Empfängers (Antenne/Kabel/Satellit, auch Privatsender)
 * **NovaOS TV – Nova Filme:** kostenlose Spielfilme, Serien, Dokus und Kinderprogramm von
   offiziellen YouTube-Kanälen (Netzkino, Moviedome, ZDFneo, funk, Terra X, ARTE, TOGGO …). NovaOS TV nutzt dafür jetzt das Internet (Datenschutztext angepasst)
+* **NovaOS TV Web** für Fernseher ohne Android (Samsung/Tizen, LG/webOS, Philips mit Saphi/Titan OS):
+  Fernsehen und Nova Filme als Webseite im TV-Browser, Bedienung mit Pfeiltasten/OK oder Zeiger;
+  Daten mit derselben Logik wie die App, alle 3 Stunden neu gebaut und auf GitHub Pages veröffentlicht
 * **NovaOS TV – Nova Filme spielt jetzt direkt in der App** (offizieller eingebetteter
   YouTube-Player, NovaOS-Infoleiste unter dem Bild, OK = Pause, ◀▶ = 10 s); nur Videos, die das
   Einbetten erlauben (Biene Maja, ZDFtivi und KiKA entfernt)

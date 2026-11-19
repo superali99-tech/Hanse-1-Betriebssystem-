@@ -247,6 +247,20 @@ Android-Oberfläche (Sprachwechsel) musste das WLAN-HAL neu gestartet werden.
 | Android-x86: Player öffnet sich mit NovaOS-Infoleiste **unter** dem Bild, Titel und Länge (43:40) | ✅ | Bild: `14-nova-filme-player.png` |
 | Android-x86: Wiedergabe | ❌ (Testumgebung) | WebView 75 (2019) scheitert am TLS-Proxy der Testumgebung (`SSL error … net_error -213`); auf Google TV ist WebView aktuell |
 
+#### NovaOS TV Web (Browser-Version für Samsung, Philips, LG)
+
+Getestet mit Chromium (Playwright, 1280×720, Sprache Deutsch, Tastatur wie Fernbedienung),
+Seite unter einer GitHub-Pages-Adresse simuliert. Bilder: `15-web-startseite.png`, `16-web-filme.jpg`.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Daten bauen (`tv/web/build.sh`) | ✅ | 30 Sender, 92 Videos (2 nicht einbettbar aussortiert), gleiche Logik wie die App |
+| Startseite, Pfeiltasten-Navigation | ✅ | Fokus startet auf „Das Erste“, Rechts/Runter wie erwartet |
+| Das Erste im Browser (hls.js) | ✅ | lief (Zeit lief weiter); die Sender-Streams erlauben das Abspielen auf fremden Seiten (CORS `*`) |
+| Zifferntasten 1 2 → NDR Hamburg, OK → Senderliste, Zurück → Startseite mit Fokus auf dem Sender | ✅ | |
+| Film (weltweit freigegebenes Testvideo): Start, 2 × ▶ = +20 s, OK = Pause, Zurück | ✅ | 2 × ▶ zählte zuerst nur einmal → behoben (auch in der Android-App) |
+| Samsung-/Philips-/LG-Fernseher selbst | – | nicht getestet (kein Gerät); sehr alte TV-Browser können evtl. kein HLS |
+
 **Nicht getestet:** echter Fernseher mit Tuner (Senderliste aus Antenne/Kabel/Satellit,
 Erlaubnisdialog, Umschalten ins Live-TV der Hersteller-App), Nova-Filme-Wiedergabe aus Deutschland,
 Sender mit Geoblocking aus Deutschland (ZDF, 3sat, ARTE, phoenix, ONE, MDR, rbb, SWR, Radio

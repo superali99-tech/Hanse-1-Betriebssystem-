@@ -24,6 +24,10 @@ ARD oder ZDF) oder Nova Filme öffnest (Listen, Vorschaubilder und Videos kommen
 im erweiterten Datenschutzmodus `youtube-nocookie.com` und mit der Werbung von YouTube).
 Favoriten werden nur auf dem Fernseher gespeichert. Es gibt keinen eigenen Server und kein Konto.
 
+> **Samsung, LG oder Philips ohne Android?** Die APK ist eine Android-App und wird dort
+> ausgeblendet. Für diese Fernseher gibt es **NovaOS TV Web** im Browser des Fernsehers –
+> siehe [tv/web/README.md](web/README.md).
+
 > Ehrlicher Hinweis: NovaOS TV ist eine App, kein eigenes Fernseh-Betriebssystem.
 > Das System des Fernsehers (Google TV / Android TV) bleibt unverändert; NovaOS TV
 > lässt sich jederzeit wieder deinstallieren.

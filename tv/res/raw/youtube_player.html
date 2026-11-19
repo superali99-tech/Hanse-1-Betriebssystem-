@@ -54,9 +54,14 @@
     if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo();
   }
   function novaPause() { if (player && player.pauseVideo) player.pauseVideo(); }
+  var seekTarget = 0, seekAt = 0;
   function novaSeek(delta) {
     if (!player || !player.getCurrentTime) return;
-    player.seekTo(Math.max(0, player.getCurrentTime() + delta), true);
+    /* pressed again quickly: continue from the last target (the player is still seeking) */
+    var base = Date.now() - seekAt < 1500 ? seekTarget : player.getCurrentTime();
+    seekTarget = Math.max(0, base + delta);
+    seekAt = Date.now();
+    player.seekTo(seekTarget, true);
   }
 </script>
 </body>
