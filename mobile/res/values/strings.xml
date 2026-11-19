@@ -91,7 +91,7 @@
     <string name="restart">Restart NovaOS</string>
     <string name="restart_sub">Restarts the NovaOS interface (not the whole phone)</string>
     <string name="boot_restarting">NovaOS is restarting</string>
-    <string name="boot_updating">NovaOS is being updated</string>
+    <string name="boot_updating">Finishing the update</string>
     <string name="boot_welcome">Welcome to NovaOS</string>
     <string name="boot_apps">Preparing apps (%1$d)</string>
     <string name="boot_cleanup">Cleaning up temporary files</string>
@@ -121,7 +121,7 @@
     <string name="app_gallery">Nova Gallery</string>
     <string name="app_files">Nova Files</string>
     <string name="app_notes">Nova Notes</string>
-    <string name="app_settings">NovaOS settings</string>
+    <string name="app_settings">Nova Settings</string>
     <string name="camera_permission">The camera needs permission to use the camera.</string>
     <string name="camera_none">No camera found.</string>
     <string name="camera_saved">Photo saved</string>
@@ -161,6 +161,7 @@
     <string name="notes_search">Search notes</string>
     <string name="notes_title_hint">Title</string>
     <string name="notes_text_hint">Note</string>
+    <string name="notes_just_now">Just now</string>
     <string name="notes_untitled">Untitled</string>
     <!-- NovaOS website (GitHub Pages): update.properties + APK under mobile/ -->
     <string name="update_url" translatable="false">https://superali99-tech.github.io/Hanse-1-Betriebssystem-/mobile/</string>

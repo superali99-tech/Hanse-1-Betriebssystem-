@@ -48,6 +48,55 @@ final class Ui {
         a.getWindow().getDecorView().setSystemUiVisibility(flags);
     }
 
+    /** Round "+" style button at the bottom right, above the navigation bar. */
+    static android.widget.ImageButton fab(Activity a, int icon, int label, View.OnClickListener click) {
+        android.widget.ImageButton b = new android.widget.ImageButton(a);
+        b.setImageResource(icon);
+        b.setBackgroundResource(R.drawable.accent_round_bg);
+        b.setContentDescription(a.getString(label));
+        int p = dp(a, 16);
+        b.setPadding(p, p, p, p);
+        b.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        b.setElevation(dp(a, 6));
+        b.setOnClickListener(click);
+        android.widget.FrameLayout.LayoutParams fl = new android.widget.FrameLayout.LayoutParams(dp(a, 60), dp(a, 60),
+                Gravity.BOTTOM | Gravity.END);
+        int margin = dp(a, 22);
+        fl.rightMargin = margin;
+        fl.bottomMargin = margin;
+        android.widget.FrameLayout content = a.findViewById(android.R.id.content);
+        content.addView(b, fl);
+        View list = a.findViewById(R.id.content);  // the page's list: room for the button at its end
+        if (list != null) {
+            list.setPadding(list.getPaddingLeft(), list.getPaddingTop(), list.getPaddingRight(),
+                    list.getPaddingBottom() + dp(a, 84));
+        }
+        // the page is drawn behind the navigation bar: keep the button above it (the insets are
+        // read here because the page itself consumes them before they reach the button)
+        content.setOnApplyWindowInsetsListener((v, insets) -> {
+            android.widget.FrameLayout.LayoutParams lp = (android.widget.FrameLayout.LayoutParams) b.getLayoutParams();
+            lp.bottomMargin = margin + insets.getSystemWindowInsetBottom();
+            lp.rightMargin = margin + insets.getSystemWindowInsetRight();
+            b.setLayoutParams(lp);
+            return v.onApplyWindowInsets(insets);
+        });
+        content.requestApplyInsets();
+        return b;
+    }
+
+    /** Coloured NovaOS button (e.g. "Allow access"). */
+    static android.widget.Button button(Context c, int text, View.OnClickListener click) {
+        android.widget.Button b = new android.widget.Button(c);
+        b.setText(text);
+        b.setAllCaps(false);
+        b.setTextColor(Color.WHITE);
+        b.setBackgroundResource(R.drawable.accent_card_bg);
+        b.setPadding(dp(c, 24), 0, dp(c, 24), 0);
+        b.setMinHeight(dp(c, 48));
+        b.setOnClickListener(click);
+        return b;
+    }
+
     static TextView text(Context c, CharSequence s, float sp, int color, boolean bold) {
         TextView t = new TextView(c);
         t.setText(s);

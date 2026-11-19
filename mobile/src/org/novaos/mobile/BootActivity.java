@@ -87,10 +87,12 @@ public class BootActivity extends Activity {
         texts.setOrientation(LinearLayout.VERTICAL);
         texts.setGravity(Gravity.CENTER_HORIZONTAL);
         TextView name = Ui.text(this, "NovaOS", 34, Color.WHITE, true);
+        name.setGravity(Gravity.CENTER_HORIZONTAL);
         texts.addView(name);
         boolean first = Updates.firstStart(this);
         TextView title = Ui.text(this, getString(restart ? R.string.boot_restarting
                 : first ? R.string.boot_welcome : R.string.boot_updating), 16, 0xFFC9D2FF, false);
+        title.setGravity(Gravity.CENTER_HORIZONTAL);
         texts.addView(title);
         bar = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         bar.setMax(100);
@@ -98,6 +100,7 @@ public class BootActivity extends Activity {
         bl.topMargin = Ui.dp(this, 22);
         texts.addView(bar, bl);
         status = Ui.text(this, "", 13, 0xFFB8BEDD, false);
+        status.setGravity(Gravity.CENTER_HORIZONTAL);
         status.setPadding(0, Ui.dp(this, 10), 0, 0);
         texts.addView(status);
         FrameLayout.LayoutParams tl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -197,7 +200,12 @@ public class BootActivity extends Activity {
         boolean german = Locale.getDefault().getLanguage().equals("de");
         LinearLayout panel = new LinearLayout(this);
         panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setBackgroundResource(R.drawable.card_bg);
+        GradientDrawable card = new GradientDrawable();
+        card.setColor(0xF2161A33);
+        card.setCornerRadius(Ui.dp(this, 26));
+        card.setStroke(Ui.dp(this, 1), 0x33FFFFFF);
+        panel.setBackground(card);
+        panel.setElevation(Ui.dp(this, 12));
         int p = Ui.dp(this, 22);
         panel.setPadding(p, p, p, p);
         panel.addView(Ui.text(this, getString(R.string.whatsnew_title, Updates.installedName(this)), 20, Color.WHITE, true));

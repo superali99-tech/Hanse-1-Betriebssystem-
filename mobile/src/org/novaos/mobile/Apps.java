@@ -54,6 +54,12 @@ final class Apps {
         return null;
     }
 
+    /** One of NovaOS's own apps (Nova Kamera, ...), if listed. */
+    static App own(List<App> apps, Class<?> activity) {
+        for (App a : apps) if (a.component.getClassName().equals(activity.getName())) return a;
+        return null;
+    }
+
     /** The app that handles an intent by default (dialer, messages, camera, browser). */
     static App defaultFor(Context c, List<App> apps, Intent intent) {
         PackageManager pm = c.getPackageManager();

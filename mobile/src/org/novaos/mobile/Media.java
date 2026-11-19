@@ -59,7 +59,9 @@ final class Media {
         if (Build.VERSION.SDK_INT >= 33) {
             return new String[] {"android.permission.READ_MEDIA_IMAGES", "android.permission.READ_MEDIA_VIDEO"};
         }
-        return new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+        if (Build.VERSION.SDK_INT >= 30) return new String[] {Manifest.permission.READ_EXTERNAL_STORAGE};
+        // Android 7 - 10: deleting a photo needs the write permission (same question for the user)
+        return new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     }
 
     static boolean allowed(Context c) {
@@ -82,7 +84,7 @@ final class Media {
         String sel = MediaStore.Files.FileColumns.MEDIA_TYPE + " IN ("
                 + MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE + "," + MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO + ")";
         try (Cursor cur = c.getContentResolver().query(files, cols, sel, null,
-                MediaStore.Files.FileColumns.DATE_ADDED + " DESC")) {
+                MediaStore.Files.FileColumns.DATE_ADDED + " DESC, " + MediaStore.Files.FileColumns._ID + " DESC")) {
             while (cur != null && cur.moveToNext()) {
                 out.add(new Item(cur.getLong(0), cur.getInt(1) == MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO,
                         cur.getString(2), cur.getLong(3)));

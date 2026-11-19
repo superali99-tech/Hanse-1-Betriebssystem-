@@ -334,14 +334,15 @@ public class HomeActivity extends Activity {
         return cell;
     }
 
-    /** Dock: phone, messages, all apps, camera, browser (the phone's default apps). */
+    /** Dock: phone, messages, all apps, camera, browser (the phone's default apps; Nova Kamera without one). */
     private void buildDock() {
         dock.removeAllViews();
+        App camera = Apps.defaultFor(this, apps, new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA));
         App[] slots = {
             Apps.defaultFor(this, apps, new Intent(Intent.ACTION_DIAL)),
             Apps.defaultFor(this, apps, new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:"))),
             null,
-            Apps.defaultFor(this, apps, new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA)),
+            camera != null ? camera : Apps.own(apps, CameraActivity.class),
             Apps.defaultFor(this, apps, new Intent(Intent.ACTION_VIEW, Uri.parse("https://"))),
         };
         for (int i = 0; i < slots.length; i++) {

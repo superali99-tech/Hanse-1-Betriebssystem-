@@ -118,7 +118,7 @@ public class CameraActivity extends Activity {
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
         int p = Ui.dp(this, 14);
-        top.setPadding(p, Ui.dp(this, 22), p, p);
+        top.setPadding(p, Ui.dp(this, 8), p, p);
         top.addView(round(R.drawable.ic_back, R.string.back, 46, v -> finish()));
         top.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1));
         flashButton = round(R.drawable.ic_flash_auto, R.string.camera_flash, 46, v -> {
@@ -133,7 +133,7 @@ public class CameraActivity extends Activity {
         LinearLayout bottom = new LinearLayout(this);
         bottom.setGravity(Gravity.CENTER_VERTICAL);
         bottom.setBackgroundColor(0x66000000);
-        bottom.setPadding(Ui.dp(this, 30), Ui.dp(this, 22), Ui.dp(this, 30), Ui.dp(this, 44));
+        bottom.setPadding(Ui.dp(this, 30), Ui.dp(this, 22), Ui.dp(this, 30), Ui.dp(this, 26));
         last = new ImageView(this);
         last.setBackgroundResource(R.drawable.thumb_bg);
         last.setClipToOutline(true);
@@ -165,12 +165,7 @@ public class CameraActivity extends Activity {
         message = Ui.text(this, "", 16, Color.WHITE, false);
         message.setGravity(Gravity.CENTER);
         info.addView(message);
-        grant = new Button(this);
-        grant.setText(R.string.grant);
-        grant.setAllCaps(false);
-        grant.setTextColor(Color.WHITE);
-        grant.setBackgroundResource(R.drawable.accent_card_bg);
-        grant.setOnClickListener(v -> requestPermissions(new String[] {Manifest.permission.CAMERA}, PERMISSION));
+        grant = Ui.button(this, R.string.grant, v -> requestPermissions(new String[] {Manifest.permission.CAMERA}, PERMISSION));
         LinearLayout.LayoutParams gl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         gl.topMargin = Ui.dp(this, 14);
@@ -182,6 +177,15 @@ public class CameraActivity extends Activity {
         setContentView(root);
         rotating.add(flashButton);
         rotating.add(switchButton);
+        // controls stay clear of the status and navigation bar (also when they appear)
+        int topPad = top.getPaddingTop(), bottomPad = bottom.getPaddingBottom();
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            top.setPadding(top.getPaddingLeft(), topPad + insets.getSystemWindowInsetTop(), top.getPaddingRight(),
+                    top.getPaddingBottom());
+            bottom.setPadding(bottom.getPaddingLeft(), bottom.getPaddingTop(), bottom.getPaddingRight(),
+                    bottomPad + insets.getSystemWindowInsetBottom());
+            return insets.consumeSystemWindowInsets();
+        });
         root.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
             if (r - l != or - ol || b - t != ob - ot) v.post(this::layoutPreview);
         });
@@ -232,6 +236,12 @@ public class CameraActivity extends Activity {
         b.setOnClickListener(click);
         b.setLayoutParams(new LinearLayout.LayoutParams(Ui.dp(this, sizeDp), Ui.dp(this, sizeDp)));
         return b;
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean focus) {
+        super.onWindowFocusChanged(focus);
+        if (focus) Ui.immersive(this, true);  // full screen again after dialogs
     }
 
     @Override

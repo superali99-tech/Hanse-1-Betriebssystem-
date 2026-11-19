@@ -53,20 +53,7 @@ public class NotesActivity extends Activity {
             }
         });
         // floating "+" button
-        ImageButton add = new ImageButton(this);
-        add.setImageResource(R.drawable.ic_plus);
-        add.setBackgroundResource(R.drawable.accent_round_bg);
-        add.setContentDescription(getString(R.string.notes_new));
-        int p = Ui.dp(this, 16);
-        add.setPadding(p, p, p, p);
-        add.setScaleType(android.widget.ImageView.ScaleType.FIT_CENTER);
-        add.setElevation(Ui.dp(this, 6));
-        add.setOnClickListener(v -> startActivity(new Intent(this, NoteEditActivity.class)));
-        FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(Ui.dp(this, 60), Ui.dp(this, 60),
-                Gravity.BOTTOM | Gravity.END);
-        fl.rightMargin = Ui.dp(this, 22);
-        fl.bottomMargin = Ui.dp(this, 40);
-        ((FrameLayout) findViewById(android.R.id.content)).addView(add, fl);
+        Ui.fab(this, R.drawable.ic_plus, R.string.notes_new, v -> startActivity(new Intent(this, NoteEditActivity.class)));
     }
 
     @Override
@@ -106,7 +93,8 @@ public class NotesActivity extends Activity {
             t.setPadding(0, Ui.dp(this, 4), 0, 0);
             c.addView(t);
         }
-        TextView d = Ui.text(this, DateUtils.getRelativeTimeSpanString(n.changed), 12, getColor(R.color.text_muted), false);
+        TextView d = Ui.text(this, System.currentTimeMillis() - n.changed < DateUtils.MINUTE_IN_MILLIS
+                ? getString(R.string.notes_just_now) : DateUtils.getRelativeTimeSpanString(n.changed), 12, getColor(R.color.text_muted), false);
         d.setPadding(0, Ui.dp(this, 6), 0, 0);
         c.addView(d);
         c.setClickable(true);

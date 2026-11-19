@@ -25,6 +25,8 @@ public class NoteEditActivity extends Activity {
         note = id > 0 ? db.get(id) : null;
         if (note == null) note = new NotesDb.Note();
         title = field(R.string.notes_title_hint, 22, true);
+        title.setSingleLine(true);  // Enter jumps to the text
+        title.setImeOptions(android.view.inputmethod.EditorInfo.IME_ACTION_NEXT);
         title.setText(note.title);
         text = field(R.string.notes_text_hint, 17, false);
         text.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE

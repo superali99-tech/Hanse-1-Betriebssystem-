@@ -120,13 +120,8 @@ public class GalleryActivity extends Activity {
     private void showNoAccess() {
         Page.status(this, getString(R.string.gallery_permission));
         if (findViewById(R.id.grant) != null) return;
-        Button b = new Button(this);
+        Button b = Ui.button(this, R.string.grant, v -> Media.ask(this, PERMISSION));
         b.setId(R.id.grant);
-        b.setText(R.string.grant);
-        b.setAllCaps(false);
-        b.setTextColor(Color.WHITE);
-        b.setBackgroundResource(R.drawable.accent_card_bg);
-        b.setOnClickListener(v -> Media.ask(this, PERMISSION));
         ViewGroup parent = (ViewGroup) grid.getParent();
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);

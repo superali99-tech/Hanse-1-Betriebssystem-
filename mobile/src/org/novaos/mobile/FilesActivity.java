@@ -51,20 +51,7 @@ public class FilesActivity extends Activity {
         root = Environment.getExternalStorageDirectory();
         String saved = state != null ? state.getString("dir") : null;
         dir = saved != null ? new File(saved) : root;
-        ImageButton add = new ImageButton(this);
-        add.setImageResource(R.drawable.ic_plus);
-        add.setBackgroundResource(R.drawable.accent_round_bg);
-        add.setContentDescription(getString(R.string.files_new_folder));
-        int p = Ui.dp(this, 16);
-        add.setPadding(p, p, p, p);
-        add.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        add.setElevation(Ui.dp(this, 6));
-        add.setOnClickListener(v -> newFolder());
-        FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(Ui.dp(this, 60), Ui.dp(this, 60),
-                Gravity.BOTTOM | Gravity.END);
-        fl.rightMargin = Ui.dp(this, 22);
-        fl.bottomMargin = Ui.dp(this, 40);
-        ((FrameLayout) findViewById(android.R.id.content)).addView(add, fl);
+        Ui.fab(this, R.drawable.ic_plus, R.string.files_new_folder, v -> newFolder());
         findViewById(R.id.back).setOnClickListener(v -> onBackPressed());
     }
 
@@ -118,12 +105,7 @@ public class FilesActivity extends Activity {
         content.removeAllViews();
         if (!allowed()) {
             Page.status(this, getString(R.string.files_permission));
-            Button b = new Button(this);
-            b.setText(R.string.grant);
-            b.setAllCaps(false);
-            b.setTextColor(Color.WHITE);
-            b.setBackgroundResource(R.drawable.accent_card_bg);
-            b.setOnClickListener(v -> ask());
+            Button b = Ui.button(this, R.string.grant, v -> ask());
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.topMargin = Ui.dp(this, 12);

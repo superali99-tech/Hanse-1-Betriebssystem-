@@ -212,6 +212,14 @@
                 <action android:name="org.novaos.mobile.INSTALL_STATUS" />
             </intent-filter>
         </receiver>
+        <!-- after a software update: NovaOS starts again with the start animation -->
+        <receiver
+            android:name=".UpdatedReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
         <!-- Nova Dateien: opens and shares files with other apps (read-only, per file) -->
         <provider
             android:name=".NovaFileProvider"
