@@ -9,10 +9,20 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/** Downloads a file (APK of an update or of a store app) with progress and SHA-256. */
+/** Downloads over https (update, store apps) with progress and SHA-256. */
 final class Download {
     interface Progress {
         void onProgress(long done, long total);
+    }
+
+    /** The server answered, but not with 200 OK (e.g. 403 = package not public). */
+    static final class HttpException extends IOException {
+        final int code;
+
+        HttpException(int code) {
+            super("HTTP " + code);
+            this.code = code;
+        }
     }
 
     private Download() {}
@@ -22,19 +32,21 @@ final class Download {
 
     /** Small text answer (update description, F-Droid API). */
     static String text(String url) throws IOException {
-        HttpURLConnection con = open(url);
-        try {
-            if (con.getResponseCode() != 200) throw new IOException("HTTP " + con.getResponseCode());
-            try (InputStream in = con.getInputStream()) {
-                java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
-                byte[] buf = new byte[8192];
-                int n;
-                while ((n = in.read(buf)) > 0) {
-                    b.write(buf, 0, n);
-                    if (b.size() > 2 * 1024 * 1024) throw new IOException("too large");
-                }
-                return new String(b.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
+        return text(url, null, null);
+    }
+
+    /** Small text answer with an "Authorization" value and an "Accept" type (both may be null). */
+    static String text(String url, String auth, String accept) throws IOException {
+        HttpURLConnection con = connect(url, auth, accept);
+        try (InputStream in = con.getInputStream()) {
+            java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                b.write(buf, 0, n);
+                if (b.size() > 2 * 1024 * 1024) throw new IOException("too large");
             }
+            return new String(b.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
         } finally {
             con.disconnect();
         }
@@ -42,10 +54,13 @@ final class Download {
 
     /** Saves the file and returns its SHA-256 (hex). */
     static String file(String url, File target, Progress progress) throws IOException {
-        HttpURLConnection con = open(url);
+        return file(url, null, target, progress);
+    }
+
+    static String file(String url, String auth, File target, Progress progress) throws IOException {
+        HttpURLConnection con = connect(url, auth, null);
         File part = new File(target.getPath() + ".part");
         try {
-            if (con.getResponseCode() != 200) throw new IOException("HTTP " + con.getResponseCode());
             long total = con.getContentLengthLong();
             MessageDigest sha = MessageDigest.getInstance("SHA-256");
             try (InputStream in = con.getInputStream(); FileOutputStream out = new FileOutputStream(part)) {
@@ -73,12 +88,38 @@ final class Download {
         }
     }
 
-    private static HttpURLConnection open(String url) throws IOException {
-        if (!url.startsWith("https://")) throw new IOException("only https");
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        con.setConnectTimeout(TIMEOUT_MS);
-        con.setReadTimeout(TIMEOUT_MS);
-        con.setRequestProperty("User-Agent", "NovaOS-Mobile");
-        return con;
+    /**
+     * Opens the URL and follows redirects itself: only https, and the Authorization value is
+     * sent only to the first server (host and port: the registry), never to the storage
+     * server it redirects to.
+     */
+    private static HttpURLConnection connect(String url, String auth, String accept) throws IOException {
+        String first = null;
+        for (int hops = 0; hops < 6; hops++) {
+            if (!url.startsWith("https://")) throw new IOException("only https");
+            URL u = new URL(url);
+            if (first == null) first = u.getAuthority();
+            HttpURLConnection con = (HttpURLConnection) u.openConnection();
+            con.setInstanceFollowRedirects(false);
+            con.setConnectTimeout(TIMEOUT_MS);
+            con.setReadTimeout(TIMEOUT_MS);
+            con.setRequestProperty("User-Agent", "NovaOS-Mobile");
+            if (auth != null && u.getAuthority().equals(first)) con.setRequestProperty("Authorization", auth);
+            if (accept != null) con.setRequestProperty("Accept", accept);
+            int code = con.getResponseCode();
+            if (code >= 300 && code < 400) {
+                String location = con.getHeaderField("Location");
+                con.disconnect();
+                if (location == null) throw new IOException("redirect without target");
+                url = new URL(u, location).toString();
+                continue;
+            }
+            if (code != 200) {
+                con.disconnect();
+                throw new HttpException(code);
+            }
+            return con;
+        }
+        throw new IOException("too many redirects");
     }
 }

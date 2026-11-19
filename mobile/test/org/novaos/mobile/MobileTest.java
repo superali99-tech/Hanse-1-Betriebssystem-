@@ -20,6 +20,7 @@ public final class MobileTest {
         store();
         update();
         files();
+        registry();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -119,6 +120,55 @@ public final class MobileTest {
             check(!de.isEmpty() && de.size() == en.size() && de.size() <= 8, "whatsnew.txt: " + de.size() + " points");
         } catch (java.io.IOException e) {
             check(false, "resources: " + e);
+        }
+    }
+
+    /** Software update from the container registry: JSON, token, manifest, URLs. */
+    private static void registry() {
+        Object j = MiniJson.parse("{\"a\": [1, 2.5, -3e2, true, false, null, \"x\\\"y\\u00e4\\n\"], \"b\": {\"c\": {}}, \"d\": []}");
+        java.util.List<?> a = (java.util.List<?>) MiniJson.get(j, "a");
+        check(a.size() == 7 && a.get(1).equals(2.5) && a.get(2).equals(-300.0) && a.get(3).equals(true)
+                && a.get(5) == null && a.get(6).equals("x\"yä\n"), "json values");
+        check(MiniJson.get(j, "b", "c") instanceof java.util.Map && MiniJson.get(j, "b", "x") == null
+                && MiniJson.get(j, "a", "x") == null, "json path");
+        for (String bad : new String[] {"", "{", "{\"a\" 1}", "[1,]x", "\"abc", "{\"a\":tru}", "{} {}"}) {
+            boolean failed = false;
+            try {
+                MiniJson.parse(bad);
+            } catch (IllegalArgumentException e) {
+                failed = true;
+            }
+            check(failed, "json rejects " + bad);
+        }
+        check("abc".equals(Registry.token("{\"token\":\"abc\"}")) && "x".equals(Registry.token("{\"access_token\":\"x\"}"))
+                && Registry.token("{\"errors\":[{\"code\":\"DENIED\"}]}") == null && Registry.token("<html>") == null,
+                "token");
+        String apk = "sha256:" + "a1".repeat(32), props = "sha256:" + "b2".repeat(32);
+        String manifest = "{\"schemaVersion\":2,\"mediaType\":\"application/vnd.oci.image.manifest.v1+json\","
+                + "\"config\":{\"mediaType\":\"application/vnd.oci.empty.v1+json\",\"digest\":\"sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a\",\"size\":2},"
+                + "\"layers\":[{\"mediaType\":\"application/vnd.android.package-archive\",\"digest\":\"" + apk + "\",\"size\":2511976,"
+                + "\"annotations\":{\"org.opencontainers.image.title\":\"novaos-mobile.apk\"}},"
+                + "{\"annotations\":{\"org.opencontainers.image.title\":\"update.properties\"},\"digest\":\"" + props + "\",\"size\":900}],"
+                + "\"annotations\":{\"org.opencontainers.image.source\":\"https://github.com/x/y\"}}";
+        check(apk.equals(Registry.digest(manifest, "novaos-mobile.apk")) && props.equals(Registry.digest(manifest, "update.properties")),
+                "manifest digests (any key order)");
+        check(Registry.digest(manifest, "other.apk") == null && Registry.digest("{}", "x") == null
+                && Registry.digest("nonsense", "x") == null
+                && Registry.digest(manifest.replace(apk, "sha256:1234"), "novaos-mobile.apk") == null, "manifest checks");
+        check(Registry.hex(apk).equals("a1".repeat(32)), "hex");
+        Registry r = new Registry("ghcr.io", "superali99-tech/novaos-mobile");
+        check(r.tokenUrl().equals("https://ghcr.io/token?scope=repository:superali99-tech/novaos-mobile:pull&service=ghcr.io")
+                && r.manifestUrl("latest").equals("https://ghcr.io/v2/superali99-tech/novaos-mobile/manifests/latest")
+                && r.blobUrl(apk).equals("https://ghcr.io/v2/superali99-tech/novaos-mobile/blobs/" + apk), "registry urls");
+        check(new Registry("10.0.2.2:8443", "a/b").tokenUrl().endsWith("&service=10.0.2.2"), "registry with port");
+        for (String[] bad : new String[][] {{"ghcr.io/x", "a/b"}, {"ghcr.io", "nobody"}, {"ghcr.io", "A/B"}, {"ghcr.io", "a/b?x"}}) {
+            boolean failed = false;
+            try {
+                new Registry(bad[0], bad[1]);
+            } catch (IllegalArgumentException e) {
+                failed = true;
+            }
+            check(failed, "registry rejects " + bad[0] + " " + bad[1]);
         }
     }
 }

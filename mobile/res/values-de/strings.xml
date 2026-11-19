@@ -80,7 +80,9 @@
     <string name="update_downloading">Wird heruntergeladen … %1$d %%</string>
     <string name="update_verifying">Download wird geprüft …</string>
     <string name="update_installing">Wird installiert – bitte im Android-Fenster bestätigen. Danach startet NovaOS neu.</string>
-    <string name="update_unreachable">Der Update-Server ist nicht erreichbar. (Die NovaOS-Webseite muss auf GitHub Pages eingeschaltet sein.)</string>
+    <string name="update_unreachable">Der Update-Server ist nicht erreichbar. Bitte die Internetverbindung prüfen.</string>
+    <string name="update_not_public">Der Update-Kanal ist noch nicht freigegeben. (Einmalig auf GitHub: Paket „novaos-mobile“ → Package settings → Change visibility → Public.)</string>
+    <string name="update_invalid">Das Update auf dem Server ist unvollständig. Bitte später noch einmal versuchen.</string>
     <string name="update_bad_hash">Die heruntergeladene Datei ist beschädigt. Bitte erneut versuchen.</string>
     <string name="update_other_key">Dieses Update ist mit einem anderen Schlüssel signiert als das installierte NovaOS. Einmalig: NovaOS deinstallieren und die neue Version von Hand installieren.</string>
     <string name="update_allow">Bitte „Unbekannte Apps installieren“ für NovaOS erlauben und dann erneut tippen.</string>

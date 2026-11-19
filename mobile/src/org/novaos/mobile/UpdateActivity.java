@@ -71,7 +71,9 @@ public class UpdateActivity extends Activity {
                 if (isDestroyed()) return;
                 busy = false;
                 if (u == null) {
-                    status.setText(R.string.update_unreachable);
+                    int st = Updates.status(this);
+                    status.setText(st == Updates.NOT_PUBLIC ? R.string.update_not_public
+                            : st == Updates.INVALID ? R.string.update_invalid : R.string.update_unreachable);
                     button(R.string.update_check, v -> check());
                 } else if (!u.newerThan(Updates.installedCode(this))) {
                     status.setText(R.string.update_none);
@@ -118,7 +120,7 @@ public class UpdateActivity extends Activity {
             dir.mkdirs();
             File apk = new File(dir, "novaos-update.apk");
             try {
-                String sha = Download.file(Updates.baseUrl(this) + u.apk, apk, (done, total) -> runOnUiThread(() -> {
+                String sha = Updates.download(this, u, apk, (done, total) -> runOnUiThread(() -> {
                     int pct = total > 0 ? (int) (done * 100 / total) : 0;
                     progress.setProgress(pct);
                     status.setText(getString(R.string.update_downloading, pct));
