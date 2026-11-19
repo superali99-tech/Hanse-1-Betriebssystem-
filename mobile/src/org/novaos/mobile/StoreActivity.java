@@ -52,7 +52,8 @@ public class StoreActivity extends Activity {
     private final Map<String, List<Button>> buttons = new HashMap<>();
     private final Map<String, StoreApp> apps = new HashMap<>();
     private final Map<String, Integer> progress = new HashMap<>();
-    private final Map<String, Runnable> iconRetry = new HashMap<>();  // older F-Droid icon path
+    // older F-Droid icon path; a list, because an app can be shown twice (recommended + its category)
+    private final Map<String, List<Runnable>> iconRetry = new HashMap<>();
     private BroadcastReceiver packages;
 
     @Override
@@ -96,8 +97,8 @@ public class StoreActivity extends Activity {
                             fdroidCode.put(a.pkg, code);
                             fdroidName.put(a.pkg, name);
                             refresh(a.pkg);
-                            Runnable retry = iconRetry.get(a.pkg);
-                            if (retry != null) retry.run();
+                            List<Runnable> retries = iconRetry.get(a.pkg);
+                            if (retries != null) for (Runnable r : retries) r.run();
                         });
                     }
                 } catch (IOException ignored) {
@@ -157,7 +158,9 @@ public class StoreActivity extends Activity {
             Runnable hide = () -> letter.setVisibility(View.GONE);
             ImageLoader.load(iv, a.fdroidIcon(), null, hide);
             // some apps (e.g. Öffi) have their icon only under the older, versioned path
-            iconRetry.put(a.pkg, () -> {
+            List<Runnable> retries = iconRetry.get(a.pkg);
+            if (retries == null) iconRetry.put(a.pkg, retries = new ArrayList<>());
+            retries.add(() -> {
                 Long code = fdroidCode.get(a.pkg);
                 if (code != null && letter.getVisibility() == View.VISIBLE) {
                     ImageLoader.load(iv, a.fdroidIcon(), a.fdroidIconOld(code), hide);
