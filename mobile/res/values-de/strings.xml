@@ -97,6 +97,15 @@
     <string name="update_install_now">Jetzt aktualisieren</string>
     <string name="home_update_ready">NovaOS %1$s · bereit – tippen zum Aktualisieren</string>
     <string name="notify_action">Aktualisieren</string>
+    <string name="update_stage_download">Update wird heruntergeladen …</string>
+    <string name="update_stage_verify">Update wird geprüft …</string>
+    <string name="update_stage_prepare">NovaOS wird vorbereitet und optimiert …</string>
+    <string name="update_stage_install">Wird installiert …</string>
+    <string name="update_step_download">Herunterladen</string>
+    <string name="update_step_verify">Prüfen</string>
+    <string name="update_step_prepare">Vorbereiten und optimieren</string>
+    <string name="update_step_install">Installieren und neu starten</string>
+    <string name="update_duration_hint">Das Update dauert etwa 2–3 Minuten. Bitte NovaOS geöffnet lassen – danach startet es von selbst neu.</string>
     <string name="restart">NovaOS neu starten</string>
     <string name="restart_sub">Startet die NovaOS-Oberfläche neu (nicht das ganze Handy)</string>
     <string name="boot_restarting">NovaOS wird neu gestartet</string>
