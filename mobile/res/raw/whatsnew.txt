@@ -1,6 +1,5 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Neu: Nova Mail – echte E-Mails mit deinem Konto von GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud und anderen|New: Nova Mail – real e-mail with your account from GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud and others
-Nova Mail: lesen, antworten, weiterleiten, Anhänge, Ordner, mehrere Konten – immer verschlüsselt|Nova Mail: read, reply, forward, attachments, folders, several accounts – always encrypted
-Nova liest E-Mails vor und schreibt sie für dich: „Lies meine E-Mails vor“, „Schreib eine E-Mail an Lisa: …“|Nova reads e-mails aloud and writes them for you: "Read my e-mails", "Write an e-mail to Lisa: …"
-Benachrichtigung bei neuen E-Mails und eine Nova-Mail-Karte auf dem Startbildschirm|Notifications for new e-mails and a Nova Mail card on the home screen
-Nova Chat: Sprachnachrichten, Emojis, Fotos und Schnellantworten|Nova Chat: voice messages, emojis, photos and quick answers
+Neu: NovaOS einrichten – anmelden mit Google, Microsoft oder E-Mail, Bildschirmsperre, Berechtigungen, Alter|New: set up NovaOS – sign in with Google, Microsoft or e-mail, screen lock, permissions, age
+Der Startbildschirm begrüßt dich jetzt mit deinem Namen|The home screen now greets you by name
+Nova Mail: echte E-Mails mit deinem Konto von GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud und anderen|Nova Mail: real e-mail with your account from GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud and others
+Nova liest E-Mails und Chat-Nachrichten vor und schreibt sie für dich|Nova reads e-mails and chat messages aloud and writes them for you

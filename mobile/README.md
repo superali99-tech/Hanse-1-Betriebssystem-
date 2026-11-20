@@ -46,6 +46,14 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Satzzeichen und Emojis wie „Punkt“, „Fragezeichen“, „Daumen hoch“). Chats aus Nova Chat sind per HTTPS geschützt,
   aber **nicht Ende-zu-Ende-verschlüsselt**; verschlüsselte Chats (z. B. aus Element) kann Nova Chat
   noch nicht lesen.
+* **Einrichtung beim ersten Start** (auch einmal nach dem Update, jeder Schritt überspringbar; später unter
+  Einstellungen → „Profil und Einrichtung“): **Anmelden** mit dem Google-Konto des Handys (Androids eigene
+  Kontoauswahl, dort auch „Konto hinzufügen“), mit einer Microsoft-Adresse (nur die Adresse – Microsoft lässt
+  fremde Apps das Passwort nicht prüfen) oder mit E-Mail und Passwort (wird beim Mailserver des Anbieters
+  geprüft und auf Wunsch gleich in Nova Mail eingerichtet); „Neues Konto erstellen“ (Google über Android,
+  Microsoft im Browser). Dann die **Bildschirmsperre** (Passwort, PIN oder Muster – Androids eigene Sperre),
+  **Berechtigungen** (Kamera, Benachrichtigungen, Standort, Mikrofon, Fotos, Kontakte) und das **Alter**
+  (Kinder: Hinweis auf Nova Family). Der Startbildschirm begrüßt danach mit Namen.
 * **Nova Mail**: **echte E-Mails** mit dem eigenen Konto (IMAP/SMTP, nur verschlüsselt mit TLS oder
   STARTTLS, Zertifikat und Servername werden geprüft). Anbieter zum Antippen: GMX, WEB.DE, Gmail, T-Online,
   Outlook/Hotmail, Yahoo, iCloud, freenet – und „Anderer Anbieter“ (Servereinstellungen aus Thunderbirds
@@ -193,6 +201,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `MailActivity.java`, `MailReadActivity.java`, `MailComposeActivity.java` | Nova Mail: Konto einrichten, Posteingang/Ordner, Lesen, Schreiben |
 | `Mime.java`, `Imap.java`, `ImapParser.java`, `Utf7.java`, `Smtp.java`, `MailServers.java` | E-Mail-Technik ohne Android: MIME lesen/bauen, IMAP, SMTP, Server finden (getestet, auch gegen Dovecot) |
 | `MailStore.java`, `MailSync.java`, `Secret.java` | Konten (Passwort im Android-Schlüsselspeicher), Kopie der Mail-Listen, Abgleich, Benachrichtigungen |
+| `SetupActivity.java`, `Profile.java` | Einrichtung beim ersten Start: Anmelden, Sperre, Berechtigungen, Alter; Profil |
 | `NovaWriter.java`, `Dictation.java`, `Ears.java`, `Speaker.java` | „Nova schreibt für dich“: Diktieren, Nachfragen, Vorlesen (Spracherkennung und Stimme von Android) |
 | `CallActivity.java`, `Calls.java`, `res/raw/call.html` | Anrufe (Matrix VoIP, WebRTC im WebView), Klingeln |
 | `NovaActivity.java`, `NovaBrain.java`, `HeyNova.java`, `Weather.java` | Nova: Bildschirm/Sprache, Befehle verstehen (getestet), „Hey Nova“, Wetter |

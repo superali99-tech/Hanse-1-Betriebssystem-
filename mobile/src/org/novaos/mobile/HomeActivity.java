@@ -142,6 +142,8 @@ public class HomeActivity extends Activity {
             bootShown = true;  // start animation after an update or on the first start
             startActivity(new Intent(this, BootActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        } else if (!SetupActivity.done(this)) {
+            startActivity(new Intent(this, SetupActivity.class));  // first start: set up NovaOS
         } else {
             UpdateNotice.askPermission(this);  // Android 13+: allow the update notification
             heyNova.start();
@@ -210,7 +212,9 @@ public class HomeActivity extends Activity {
 
     private void updateGreeting() {
         int[] res = {R.string.greeting_morning, R.string.greeting_day, R.string.greeting_evening, R.string.greeting_night};
-        greeting.setText(res[Greeting.of(Calendar.getInstance().get(Calendar.HOUR_OF_DAY))]);
+        String hello = getString(res[Greeting.of(Calendar.getInstance().get(Calendar.HOUR_OF_DAY))]);
+        String name = Profile.firstName(this);
+        greeting.setText(name.isEmpty() ? hello : getString(R.string.greeting_named, hello, name));
     }
 
     private void openApps(boolean search) {

@@ -308,6 +308,12 @@
         <activity
             android:name=".UpdateActivity"
             android:exported="false" />
+        <!-- setting up NovaOS on the first start -->
+        <activity
+            android:name=".SetupActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <!-- start animation (after updates and "Restart NovaOS") -->
         <activity
             android:name=".BootActivity"

@@ -55,6 +55,9 @@
 * **NovaOS Mobile – Nova Mail**: echte E-Mails mit dem eigenen Konto (GMX, WEB.DE, Gmail, T-Online,
   Yahoo, iCloud, freenet und andere über IMAP/SMTP, nur verschlüsselt), Ordner, Anhänge, Antworten,
   Weiterleiten, mehrere Konten, Benachrichtigungen; Nova liest E-Mails vor und schreibt sie
+* **NovaOS Mobile – Einrichtung beim ersten Start**: Anmelden (Google-Konto des Handys, Microsoft,
+  E-Mail mit Prüfung beim Anbieter), Bildschirmsperre (Passwort/PIN/Muster von Android),
+  Berechtigungen, Alter; Begrüßung mit Namen
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

@@ -26,6 +26,10 @@ public class SettingsActivity extends Activity {
         }
         LinearLayout content = Page.setup(this, R.string.settings_title,
                 getString(R.string.about_version, version, Build.MANUFACTURER, Build.MODEL, Build.VERSION.RELEASE));
+        String who = Profile.email(this);
+        content.addView(row(R.drawable.ic_account, R.string.settings_profile, who.isEmpty() ? getString(R.string.settings_profile_none)
+                        : (Profile.name(this).isEmpty() ? "" : Profile.name(this) + " · ") + who,
+                v -> startActivity(new android.content.Intent(this, SetupActivity.class))));
         UpdateInfo update = Updates.pending(this);
         content.addView(row(R.drawable.ic_refresh, R.string.update_title, update != null
                         ? getString(R.string.update_available) + " · NovaOS " + update.versionName

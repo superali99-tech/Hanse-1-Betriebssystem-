@@ -341,6 +341,20 @@ TLS 465-Art und STARTTLS 587-Art, liefert in die Dovecot-Postfächer). Bilder 30
 **Nicht getestet:** echte Anbieter (GMX, Gmail usw. – keine Testkonten), Outlook.com (geht absichtlich
 nicht, siehe README), sehr große Postfächer (Nova Mail lädt die neuesten 80 Mails je Ordner).
 
+### Einrichtung beim ersten Start (20.11.2026)
+
+Bilder 38–43.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Nach dem Update: Start-Animation → „Was ist neu“ → Einrichtung | ✅ | |
+| „Weiter mit Google“ | ✅ | Androids echte Google-Anmeldung öffnet sich (Google Play-Dienste); weiter ging es nicht, weil die VM kein Internet hat |
+| „Weiter mit E-Mail“ mit Adresse ohne auffindbaren Server | ✅ | „imap.nova.test ist nicht erreichbar“ und „Ohne Prüfung weiter“ |
+| Bildschirmsperre: „PIN“ öffnet Androids Auswahl, PIN 1234 eingerichtet | ✅ | zurück in NovaOS: „Bildschirmsperre ist eingerichtet ✓“ |
+| Berechtigungen: „Alle erlauben“ | ✅ | Androids Dialoge, danach alle mit ✓ |
+| Alter 11 | ✅ | Hinweis auf Nova Family erscheint unter 16 |
+| Fertig → Startbildschirm „Guten Abend, Alice“ | ✅ | |
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm
