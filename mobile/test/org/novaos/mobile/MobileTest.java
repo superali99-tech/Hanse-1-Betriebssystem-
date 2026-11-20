@@ -21,6 +21,9 @@ public final class MobileTest {
         update();
         files();
         registry();
+        nova();
+        chat();
+        weather();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -183,5 +186,152 @@ public final class MobileTest {
             }
             check(failed, "registry rejects " + bad[0] + " " + bad[1]);
         }
+    }
+
+    private static String nova(String spoken) {
+        return NovaBrain.understand(spoken, true, java.util.Arrays.asList("Das Erste", "ZDF", "ZDFneo", "NDR Hamburg", "arte", "phoenix"), 0).toString();
+    }
+
+    private static void expect(String spoken, String expected) {
+        String got = nova(spoken);
+        check(got.equals(expected), "nova: \"" + spoken + "\" -> " + got + " (expected " + expected + ")");
+    }
+
+    /** Nova assistant: phrases in German and English, without cloud AI. */
+    private static void nova() {
+        expect("Hey Nova, wie spät ist es?", "TIME()");
+        expect("Wie viel Uhr ist es", "TIME()");
+        expect("what time is it", "TIME()");
+        expect("Welches Datum haben wir heute", "DATE()");
+        expect("Stell einen Timer auf 5 Minuten", "TIMER( 300s)");
+        expect("Timer fünf Minuten", "TIMER( 300s)");
+        expect("Timer 1 Stunde 30 Minuten", "TIMER( 5400s)");
+        expect("Timer für eine halbe Stunde", "TIMER( 1800s)");
+        expect("set a timer for twenty five seconds", "TIMER( 25s)");
+        expect("Timer für eine Minute", "TIMER( 60s)");
+        expect("Stelle einen Wecker auf 7 Uhr", "ALARM( 7:0)");
+        expect("Weck mich um 6:45", "ALARM( 6:45)");
+        expect("Wecker um halb sieben", "ALARM( 6:30)");
+        expect("Wecker 7 Uhr 30", "ALARM( 7:30)");
+        expect("Stell den Wecker auf 8", "ALARM( 8:0)");
+        expect("wake me at 7 am", "ALARM( 7:0)");
+        expect("set an alarm for 6:30 pm", "ALARM( 18:30)");
+        expect("Wecker stellen", "ALARM()");
+        expect("Taschenlampe an", "TORCH()");
+        check(NovaBrain.understand("Taschenlampe an", true).level == 1, "torch on");
+        check(NovaBrain.understand("Mach das Licht aus", true).level == 0, "torch off");
+        check(NovaBrain.understand("turn off the flashlight", false).level == 0, "torch off en");
+        expect("Öffne Kamera", "OPEN_APP(kamera)");
+        expect("Hey Nova starte die Galerie", "OPEN_APP(galerie)");
+        expect("Nova Store öffnen", "OPEN_APP(nova store)");
+        expect("open spotify", "OPEN_APP(spotify)");
+        expect("Zeig mir meine Fotos", "OPEN_APP(fotos)");
+        expect("Öffne die WLAN Einstellungen", "SETTINGS(wifi)");
+        expect("Bluetooth öffnen", "SETTINGS(bluetooth)");
+        expect("Einstellungen", "SETTINGS(settings)");
+        expect("Ruf Mama an", "CALL(mama)");
+        expect("Rufe meinen Bruder an", "CALL(bruder)");
+        expect("call John", "CALL(john)");
+        expect("Papa anrufen", "CALL(papa)");
+        expect("Schreib Mama eine Nachricht dass ich später komme", "MESSAGE(mama|ich später komme)");
+        expect("Schreibe eine Nachricht an Lisa", "MESSAGE(lisa)");
+        expect("send a message to Tom saying hello", "MESSAGE(tom|hello)");
+        expect("Notiere Brot und Milch kaufen", "NOTE(brot und milch kaufen)");
+        expect("Merke dir: Auto steht in der Tiefgarage", "NOTE(auto steht in der tiefgarage)");
+        expect("Wie ist das Wetter?", "WEATHER()");
+        expect("Wie wird das Wetter in Hamburg", "WEATHER(hamburg)");
+        expect("Wetter in München heute", "WEATHER(münchen)");
+        expect("what's the weather in London", "WEATHER(london)");
+        expect("Spiele ZDF", "TV(ZDF)");
+        expect("Schalte auf ARD", "TV(Das Erste)");
+        expect("Spiel ZDFneo", "TV(ZDFneo)");
+        expect("Spiele NDR", "TV(NDR Hamburg)");
+        expect("Fernsehen", "TV()");
+        expect("Suche nach Pizza in der Nähe", "SEARCH(pizza in der nähe)");
+        expect("Wer ist Albert Einstein", "SEARCH(wer ist albert einstein)");
+        expect("Lauter", "VOLUME()");
+        check(NovaBrain.understand("Leiser bitte", true).level == -1, "volume down");
+        check(NovaBrain.understand("Ton aus", true).level == 0, "mute");
+        expect("Mach ein Foto", "PHOTO()");
+        expect("Was kannst du?", "HELP()");
+        expect("Danke", "TALK()");
+        expect("Erzähl mir einen Witz", "TALK()");
+        expect("Blablubb Quatsch", "UNKNOWN(blablubb quatsch)");
+        // calculator
+        String[][] sums = {{"Was ist 5 mal 7", "35"}, {"Rechne 12 plus 30", "42"}, {"wie viel ist 100 geteilt durch 8", "12,5"},
+                {"was ist zwanzig minus drei", "17"}, {"15 Prozent von 80", "12"}, {"Wurzel aus 144", "12"},
+                {"2 hoch 10", "1024"}, {"what is 6 times 7", "42"}, {"3 + 4 * 2", "11"}, {"(3 + 4) * 2", "14"},
+                {"was ist 3,5 plus 1,25", "4,75"}};
+        for (String[] t : sums) {
+            NovaBrain.Command r = NovaBrain.understand(t[0], true);
+            check(r.kind == NovaBrain.Kind.CALC && NovaBrain.format(r.value, true).equals(t[1]),
+                    "calc \"" + t[0] + "\" -> " + r + " = " + NovaBrain.format(r.value, true));
+        }
+        check(NovaBrain.understand("Ruf 0151-1234 an", true).kind == NovaBrain.Kind.CALL, "phone number is no sum");
+        check(NovaBrain.hasWakeWord("Hey Nova, wie spät ist es") && NovaBrain.hasWakeWord("hallo nova")
+                && !NovaBrain.hasWakeWord("Nova Store öffnen") && !NovaBrain.hasWakeWord("supernova"), "wake word");
+        check(NovaBrain.clean("Hey Nova, kannst du bitte die Taschenlampe einschalten?").equals("die taschenlampe einschalten"), "clean");
+        check(NovaBrain.understand("", true).kind == NovaBrain.Kind.TALK, "empty -> listening");
+    }
+
+    /** Nova Chat: Matrix /sync answers, contacts, Matrix IDs, JSON writing. */
+    private static void chat() {
+        String w = MiniJson.write(MiniJson.obj("a", "x\"y\\z\n", "n", 3, "d", 2.5, "l", new Object[] {1, true, null}, "o", MiniJson.obj()));
+        check(w.equals("{\"a\":\"x\\\"y\\\\z\\n\",\"n\":3,\"d\":2.5,\"l\":[1,true,null],\"o\":{}}"), "json write " + w);
+        check(MiniJson.get(MiniJson.parse(w), "a").equals("x\"y\\z\n"), "json round trip");
+        String sync = "{\"next_batch\":\"s72\",\"account_data\":{\"events\":["
+                + "{\"type\":\"m.direct\",\"content\":{\"@lisa:matrix.org\":[\"!dm:matrix.org\"]}},"
+                + "{\"type\":\"org.novaos.contacts\",\"content\":{\"contacts\":[{\"name\":\"Lisa\",\"id\":\"@lisa:matrix.org\"},{\"name\":\"bad\",\"id\":\"lisa\"}]}}]},"
+                + "\"rooms\":{\"join\":{\"!dm:matrix.org\":{\"unread_notifications\":{\"notification_count\":2},"
+                + "\"summary\":{\"m.heroes\":[\"@lisa:matrix.org\"]},"
+                + "\"state\":{\"events\":[{\"type\":\"m.room.member\",\"state_key\":\"@lisa:matrix.org\",\"content\":{\"membership\":\"join\",\"displayname\":\"Lisa M\"}}]},"
+                + "\"timeline\":{\"events\":["
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$1\",\"sender\":\"@lisa:matrix.org\",\"origin_server_ts\":1000,\"content\":{\"msgtype\":\"m.text\",\"body\":\"Hallo!\"}},"
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$2\",\"sender\":\"@me:matrix.org\",\"origin_server_ts\":2000,\"content\":{\"msgtype\":\"m.image\",\"body\":\"bild.jpg\"}},"
+                + "{\"type\":\"m.room.encrypted\",\"event_id\":\"$3\",\"sender\":\"@lisa:matrix.org\",\"origin_server_ts\":3000,\"content\":{}},"
+                + "{\"type\":\"m.call.invite\",\"event_id\":\"$4\",\"sender\":\"@lisa:matrix.org\",\"origin_server_ts\":4000,\"content\":{\"call_id\":\"c1\",\"offer\":{\"type\":\"offer\",\"sdp\":\"v=0\"}}},"
+                + "{\"type\":\"m.reaction\",\"event_id\":\"$5\",\"sender\":\"@lisa:matrix.org\",\"origin_server_ts\":5000,\"content\":{}}]}},"
+                + "\"!group:matrix.org\":{\"state\":{\"events\":[{\"type\":\"m.room.name\",\"content\":{\"name\":\"Familie\"}},{\"type\":\"m.room.encryption\",\"content\":{}}]},\"timeline\":{\"events\":[]}}},"
+                + "\"invite\":{\"!inv:matrix.org\":{\"invite_state\":{\"events\":["
+                + "{\"type\":\"m.room.member\",\"state_key\":\"@tom:matrix.org\",\"sender\":\"@tom:matrix.org\",\"content\":{\"membership\":\"join\",\"displayname\":\"Tom\"}},"
+                + "{\"type\":\"m.room.member\",\"state_key\":\"@me:matrix.org\",\"sender\":\"@tom:matrix.org\",\"content\":{\"membership\":\"invite\",\"is_direct\":true}}]}}},"
+                + "\"leave\":{\"!old:matrix.org\":{}}}}";
+        MatrixSync.Result r = MatrixSync.parse(sync, "@me:matrix.org");
+        check(r.nextBatch.equals("s72") && r.rooms.size() == 3 && r.left.equals(java.util.Collections.singletonList("!old:matrix.org")), "sync rooms");
+        MatrixSync.Room dm = r.rooms.get(0);
+        check(dm.id.equals("!dm:matrix.org") && dm.name.equals("Lisa M") && dm.unread == 2 && dm.directUser.equals("@lisa:matrix.org"), "dm room " + dm.name);
+        check(dm.messages.size() == 4 && dm.messages.get(0).body.equals("Hallo!") && dm.messages.get(0).senderName.equals("Lisa M")
+                && dm.messages.get(1).kind.equals("image") && dm.messages.get(2).kind.equals("encrypted") && dm.messages.get(3).kind.equals("call"),
+                "messages " + dm.messages.size());
+        check(r.calls.size() == 1 && r.calls.get(0).type.equals("m.call.invite") && "c1".equals(r.calls.get(0).content.get("call_id")), "call event");
+        MatrixSync.Room group = r.rooms.get(1);
+        check(group.name.equals("Familie") && group.encrypted && group.unread == -1, "group room");
+        MatrixSync.Room inv = r.rooms.get(2);
+        check(inv.invite && inv.inviter.equals("@tom:matrix.org") && inv.name.equals("Tom") && inv.directUser.equals("@tom:matrix.org"), "invite " + inv.name);
+        check(r.contacts != null && r.contacts.size() == 1 && r.contacts.get(0).name.equals("Lisa"), "contacts from account data");
+        check(MiniJson.write(MatrixSync.contactsContent(r.contacts)).equals("{\"contacts\":[{\"name\":\"Lisa\",\"id\":\"@lisa:matrix.org\"}]}"), "contacts content");
+        check(MatrixSync.parse("{\"next_batch\":\"x\"}", "@me:a.b").rooms.isEmpty(), "empty sync");
+        check("@lisa:matrix.org".equals(MatrixSync.userId("Lisa", "matrix.org")) && "@lisa:matrix.org".equals(MatrixSync.userId("@lisa", "matrix.org"))
+                && "@tom:example.com".equals(MatrixSync.userId("tom:example.com", "matrix.org")) && MatrixSync.userId("a b", "matrix.org") == null
+                && MatrixSync.userId("", "matrix.org") == null, "user ids");
+        check(MatrixSync.server("@lisa:matrix.org").equals("matrix.org") && MatrixSync.localpart("@lisa:matrix.org").equals("lisa"), "id parts");
+    }
+
+    /** Weather (Open-Meteo): answers and sentences. */
+    private static void weather() {
+        Weather.Place p = Weather.place("{\"results\":[{\"name\":\"Hamburg\",\"latitude\":53.55,\"longitude\":10.0}]}");
+        check(p != null && p.name.equals("Hamburg") && Math.abs(p.lat - 53.55) < 1e-9, "geocode");
+        check(Weather.place("{}") == null && Weather.place("{\"results\":[]}") == null && Weather.place("x") == null, "geocode empty");
+        Weather.Now n = Weather.now("{\"current\":{\"temperature_2m\":12.4,\"weather_code\":2,\"wind_speed_10m\":10.1},"
+                + "\"daily\":{\"temperature_2m_max\":[14.6],\"temperature_2m_min\":[7.8]}}");
+        check(n != null && n.code == 2, "forecast");
+        check(Weather.sentence("Hamburg", n, true).equals("In Hamburg sind es gerade 12 Grad, teilweise bewölkt. Heute 8 bis 15 Grad."),
+                "sentence " + Weather.sentence("Hamburg", n, true));
+        check(Weather.sentence("", n, false).startsWith("It's 12 degrees, partly cloudy."), "sentence en");
+        check(Weather.geocodeUrl("Bad Homburg", true).endsWith("&name=Bad%20Homburg") || Weather.geocodeUrl("Bad Homburg", true).endsWith("&name=Bad+Homburg"),
+                "geocode url");
+        check(Weather.forecastUrl(53.55, 10).contains("latitude=53.5500&longitude=10.0000"), "forecast url");
+        check(Weather.describe(0, true).equals("sonnig und klar") && Weather.describe(95, false).equals("thunderstorms")
+                && Weather.symbol(71).equals("❄"), "codes");
     }
 }

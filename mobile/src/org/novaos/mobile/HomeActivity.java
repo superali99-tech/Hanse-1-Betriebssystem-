@@ -45,6 +45,7 @@ import java.util.concurrent.Executors;
  */
 public class HomeActivity extends Activity {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
+    private final HeyNova heyNova = new HeyNova(this);  // "Hey Nova" while the home screen is visible
     // the background update check (UpdateJob) found or downloaded an update: show it at once
     private final android.content.SharedPreferences.OnSharedPreferenceChangeListener updateListener = (p, key) -> {
         if ("last".equals(key) || "ready_sha".equals(key)) {
@@ -83,6 +84,9 @@ public class HomeActivity extends Activity {
         date.setFormat12Hour(pattern);
         date.setFormat24Hour(pattern);
         findViewById(R.id.search).setOnClickListener(v -> openApps(true));
+        // microphone in the search bar: Nova, the assistant
+        findViewById(R.id.nova_mic).setOnClickListener(v ->
+                startActivity(new Intent(this, NovaActivity.class).putExtra(NovaActivity.EXTRA_LISTEN, true)));
         findViewById(R.id.settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
         findViewById(R.id.root).setOnLongClickListener(v -> {
             startActivity(new Intent(this, SettingsActivity.class));
@@ -134,6 +138,7 @@ public class HomeActivity extends Activity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         } else {
             UpdateNotice.askPermission(this);  // Android 13+: allow the update notification
+            heyNova.start();
         }
         loadApps();
         if (Updates.due(this)) {
@@ -147,6 +152,12 @@ public class HomeActivity extends Activity {
                 });
             });
         }
+    }
+
+    @Override
+    protected void onPause() {
+        heyNova.stop();
+        super.onPause();
     }
 
     @Override
