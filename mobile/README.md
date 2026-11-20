@@ -36,14 +36,22 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Einladungen, Benachrichtigungen für neue Nachrichten, eingehende Anrufe klingeln (auch auf dem
   Sperrbildschirm), **Kontakte werden im Matrix-Konto auf dem Server gespeichert** (auf jedem Handy
   nach der Anmeldung wieder da). Neue Konten gibt es auf matrix.org nur noch über die Website
-  (Knopf „Neues Konto auf matrix.org erstellen“). Chats aus Nova Chat sind per HTTPS geschützt,
+  (Knopf „Neues Konto auf matrix.org erstellen“). Dazu **Sprachnachrichten** (Mikrofon-Knopf antippen,
+  sprechen, ➤ = senden; AAC wie bei anderen Chat-Apps, Element-Sprachnachrichten werden abgespielt),
+  **Emoji-Tastatur** (über 900 Emojis, zuletzt benutzte zuerst; nur Emojis werden groß gezeigt),
+  **Fotos** senden (große Fotos werden auf 2048 px verkleinert und gedreht) und groß ansehen/speichern,
+  Dateien öffnen, **Schnellantworten** mit einem Tipp, Vorlesen/Kopieren/Löschen per langem Druck und
+  **„Nova schreibt für dich“** (✦-Knopf): sprechen statt tippen, Nova liest den Text vor und fragt
+  „Soll ich das senden?“ – „Ja“ sendet; Nova liest auch die neuen Nachrichten vor (gesprochene
+  Satzzeichen und Emojis wie „Punkt“, „Fragezeichen“, „Daumen hoch“). Chats aus Nova Chat sind per HTTPS geschützt,
   aber **nicht Ende-zu-Ende-verschlüsselt**; verschlüsselte Chats (z. B. aus Element) kann Nova Chat
   noch nicht lesen.
 * **Nova, der Assistent**: eigene App, Mikrofon in der Suchleiste und **„Hey Nova“**, solange der
   Startbildschirm offen ist (abschaltbar, erst nach Erlaubnis fürs Mikrofon). **Ohne Cloud-KI**:
   Spracherkennung und Stimme kommen von Android, die Befehle versteht NovaOS selbst – Uhrzeit,
   Datum, Wecker, Timer, Taschenlampe, Apps und Einstellungen öffnen, Kontakte anrufen oder
-  anschreiben, Notizen, Wetter (Open-Meteo, ohne Konto), TV-Sender, Websuche, Rechnen, kleine Gespräche
+  anschreiben, Notizen, Wetter (Open-Meteo, ohne Konto), TV-Sender, Websuche, Rechnen, kleine Gespräche;
+  „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“ (über Nova Chat, wenn Lisa dort ein Kontakt ist)
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
   Startbildschirm)
 * Deutsch und Englisch, dunkles NovaOS-Design
@@ -163,7 +171,10 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `Registry.java`, `MiniJson.java` | Update-Kanal: anonymes Lesen aus ghcr.io (Token, Manifest, Dateien) |
 | `tools/publish_update.sh`, `tools/signing_key.sh` | Workflow: Update nach ghcr.io hochladen, fester Signierschlüssel |
 | `ChatActivity.java`, `RoomActivity.java`, `ChatContactsActivity.java` | Nova Chat: Anmelden, Chats, Unterhaltung, Kontakte |
-| `MatrixApi.java`, `MatrixSync.java`, `ChatDb.java`, `ChatSync.java` | Matrix-Schnittstelle, Auswertung von /sync, Speicher, Aktualisierung + Benachrichtigungen |
+| `MatrixApi.java`, `MatrixSync.java`, `ChatDb.java`, `ChatSync.java` | Matrix-Schnittstelle (auch Medien hoch-/herunterladen), Auswertung von /sync, Speicher, Aktualisierung + Benachrichtigungen |
+| `ChatMedia.java`, `VoiceRecorder.java`, `WaveView.java`, `Waveform.java` | Fotos/Sprachnachrichten im Zwischenspeicher, Aufnahme, Wellenbild |
+| `EmojiPanel.java`, `Emoji.java`, `QuickReplies.java` | Emoji-Tastatur, Emoji-Liste, Schnellantworten (getestet) |
+| `NovaWriter.java`, `Dictation.java`, `Ears.java`, `Speaker.java` | „Nova schreibt für dich“: Diktieren, Nachfragen, Vorlesen (Spracherkennung und Stimme von Android) |
 | `CallActivity.java`, `Calls.java`, `res/raw/call.html` | Anrufe (Matrix VoIP, WebRTC im WebView), Klingeln |
 | `NovaActivity.java`, `NovaBrain.java`, `HeyNova.java`, `Weather.java` | Nova: Bildschirm/Sprache, Befehle verstehen (getestet), „Hey Nova“, Wetter |
 | `tools/make_icons.py` | erzeugt die Symbole der Nova-Apps |

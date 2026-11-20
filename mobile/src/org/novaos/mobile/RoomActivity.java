@@ -85,6 +85,7 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
     private final VoiceRecorder recorder = new VoiceRecorder();
     private String lastRead = "";
     private String shown = "";
+    private boolean atBottom = true;
     private final List<String> pending = new ArrayList<>();  // "sending …" bubbles
     private List<MatrixSync.Message> messages = new ArrayList<>();
     private Bitmap savePhoto;
@@ -129,6 +130,10 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
         content = Page.setup(this, R.string.app_chat, "");
         ((TextView) findViewById(R.id.page_title)).setText(name != null ? name : "");
         scroller = findViewById(R.id.scroller);
+        scroller.setOnScrollChangeListener((v, x, y, ox, oy) -> atBottom = !scroller.canScrollVertically(1));
+        scroller.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            if (b - t != ob - ot && atBottom) scroller.post(() -> scroller.fullScroll(View.FOCUS_DOWN));
+        });
         ViewGroup parent = (ViewGroup) scroller.getParent();
         int at = parent.indexOfChild(scroller) + 1;
         int side = getResources().getDimensionPixelSize(R.dimen.side);
@@ -369,8 +374,9 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
         }
         for (String p : pending) content.addView(pendingBubble(p));
         updateAudio();
-        scroller.post(() -> scroller.fullScroll(View.FOCUS_DOWN));
         showQuick();
+        atBottom = true;
+        scroller.post(() -> scroller.fullScroll(View.FOCUS_DOWN));
         if (!messages.isEmpty()) {
             MatrixSync.Message last = messages.get(messages.size() - 1);
             if (!last.eventId.equals(lastRead) && room.unread > 0 || !last.eventId.equals(lastRead) && !last.sender.equals(me)) {
@@ -413,10 +419,11 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
             b.addView(photo(m, maxW));
         } else if (media && "audio".equals(m.kind)) {
             b.setPadding(Ui.dp(this, 8), Ui.dp(this, 8), Ui.dp(this, 14), Ui.dp(this, 6));
-            b.addView(audio(m, mine, Math.min(maxW, Ui.dp(this, 260))));
+            b.addView(audio(m, mine, Math.min(maxW, Ui.dp(this, 260))),
+                    new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         } else if (media) {
             b.setPadding(Ui.dp(this, 12), Ui.dp(this, 10), Ui.dp(this, 14), Ui.dp(this, 6));
-            b.addView(file(m, maxW));
+            b.addView(file(m, maxW), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         } else {
             b.setPadding(Ui.dp(this, 14), Ui.dp(this, 9), Ui.dp(this, 14), Ui.dp(this, 7));
             String text = "encrypted".equals(m.kind) ? getString(R.string.chat_encrypted_message)

@@ -486,7 +486,15 @@ public final class NovaBrain {
             Pattern.compile("^(?:schreib|schreibe|sende|schick|schicke)\\s+(?:eine\\s+|ne\\s+)?(?:sms|nachricht)\\s+an\\s+(.+?)(?:\\s*(?::|dass)\\s*(.+))?$"),
             Pattern.compile("^(?:schreib|schreibe|sende|schick|schicke)\\s+(.+?)\\s+(?:eine\\s+|ne\\s+)?(?:sms|nachricht)(?:\\s*(?:dass|:)\\s*(.+))?$"),
             Pattern.compile("^(?:nachricht|sms)\\s+an\\s+(.+?)(?:\\s*(?::|dass)\\s*(.+))?$"),
-            Pattern.compile("^(?:send\\s+(?:a\\s+)?(?:message|text|sms)\\s+to|message|text)\\s+(.+?)(?:\\s+(?:saying|that)\\s+(.+))?$")};
+            Pattern.compile("^(?:send\\s+(?:a\\s+)?(?:message|text|sms)\\s+to|message|text)\\s+(.+?)(?:\\s+(?:saying|that)\\s+(.+))?$"),
+            // "Schreib Lisa (im Chat): ...", "Sag Mama: ...", "Tell Tom: ..."
+            Pattern.compile("^(?:schreib|schreibe|sag|sage|schick|schicke|antworte)\\s+(?:an\\s+)?"
+                    + "(?!auf\\b|mir\\b|eine?\\s+(?:notiz|e-?mail|mail)\\b|notiz\\b|e-?mail\\b|mail\\b)(.+?)\\s*:\\s*(.+)$"),
+            Pattern.compile("^(?:tell|write to|write)\\s+(?!a note\\b|an e-?mail\\b|down\\b|me\\b)(.+?)\\s*:\\s*(.+)$")};
+
+    // "Schreib Lisa im Chat, dass ich gleich komme" (without colon)
+    private static final Pattern MESSAGE_CHAT = Pattern.compile(
+            "^(?:schreib|schreibe|sag|sage|schick|schicke)\\s+(?:an\\s+)?(.+?)\\s+(?:im|in|über|per|via)\\s+(?:nova\\s+)?chat\\s*:?\\s*(?:dass\\s+)?(.+)$");
 
     private static Command message(String c) {
         for (Pattern p : MESSAGE) {
@@ -497,6 +505,13 @@ public final class NovaBrain {
                 r.body = m.group(2) != null ? m.group(2).trim() : "";
                 return r;
             }
+        }
+        Matcher mc = MESSAGE_CHAT.matcher(c);
+        if (mc.find()) {
+            Command r = new Command(Kind.MESSAGE);
+            r.text = stripPossessive(mc.group(1)) + " im chat";
+            r.body = mc.group(2).trim();
+            return r;
         }
         return null;
     }

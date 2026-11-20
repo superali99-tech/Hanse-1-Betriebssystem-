@@ -293,6 +293,29 @@ Chromium mit simulierter Kamera/Mikrofon, antwortet auf Nachrichten und Anrufe).
 echte Spracherkennung und „Hey Nova“ (kein Mikrofon in der VM), Wetter im Gerät (Open-Meteo-Antworten
 nur in den Logik-Tests), Android 11+.
 
+### Nova Chat: Sprachnachrichten, Emojis, Fotos, Nova schreibt für dich (20.11.2026)
+
+Gleicher Aufbau (Android-x86 9 als Handy, eigener Synapse-Server); „Bob“ sendet über die Matrix-API
+Text, Foto, Sprachnachricht (Ogg Opus wie Element) und Emojis. Bilder 25–29.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1284 bestanden (neu: Medien in /sync, bearbeitete/gelöschte Nachrichten, Antwort-Zitate, mxc-Adressen, 900+ Emojis, Schnellantworten, Diktat, Wellenbild, Nova-Sätze, alle Texte auf Deutsch und Englisch) |
+| Foto von Bob: Vorschau in der Sprechblase | ✅ | geladen über die angemeldete Medien-Schnittstelle (wie matrix.org sie verlangt) |
+| Sprachnachricht von Bob (Ogg Opus): Wellenbild, Abspielen mit Fortschritt | ✅ | Blase war zu schmal ❌ → behoben |
+| Nur Emojis (😂👍) werden groß gezeigt | ✅ | |
+| Emoji-Tastatur: Kategorien, Einfügen, Löschen (auch ❤️ mit Zusatzzeichen), Senden | ✅ | bei Bob angekommen |
+| Schnellantwort „Ja 👍“ auf „Kommst du heute Abend?“ | ✅ | ein Tipp, bei Bob angekommen |
+| Sprachnachricht aufnehmen und senden | ✅ | bei Bob: AAC, 44,1 kHz, mono, 8 s (Wellenbild leer, die VM hat kein Mikrofon) |
+| Foto aus der Galerie senden | ✅ | 1200×1600, bei Bob angekommen |
+| Benachrichtigung bei Sprachnachricht | ✅ | „Bob – 🎤 Sprachnachricht“ |
+| Nova-Hilfe im Chat öffnet sich, „Vorlesen“ | ✅ | Knöpfe waren auf schmalen Handys abgeschnitten ❌ → zwei Reihen |
+| Nova-App: „Lies meine Nachrichten vor“ | ✅ | „Du hast 2 neue Nachrichten. Bob schreibt: … Bob hat eine Sprachnachricht geschickt.“ |
+| Nova-App: „Schreib Bob im Chat: Alles klar komma bis gleich daumen hoch“ | ✅ | zuerst nicht verstanden ❌ → behoben; bei Bob: „Alles klar, bis gleich 👍“ |
+
+**Nicht getestet:** echte Spracheingabe (die VM hat keine funktionierende Spracherkennung und kein
+Mikrofon), Vorlesen mit hörbarer Stimme (kein Ton in der VM), Sprachnachrichten in Element selbst.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

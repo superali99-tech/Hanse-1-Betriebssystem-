@@ -403,6 +403,15 @@ public final class MobileTest {
         NovaBrain.Command chatMsg = NovaBrain.understand("Schreibe eine Nachricht an Lisa im Chat: Bin gleich da", true);
         check(chatMsg.kind == NovaBrain.Kind.MESSAGE && NovaBrain.viaChat(chatMsg.text)[0].equals("Lisa")
                 && NovaBrain.viaChat(chatMsg.text)[1].equals("chat") && chatMsg.body.equals("Bin gleich da"), "message via chat: " + chatMsg);
+        NovaBrain.Command colon = NovaBrain.understand("Schreib Bob im Chat: Alles klar, bis gleich", true);
+        check(colon.kind == NovaBrain.Kind.MESSAGE && NovaBrain.viaChat(colon.text)[0].equals("Bob")
+                && NovaBrain.viaChat(colon.text)[1].equals("chat") && colon.body.equals("Alles klar bis gleich"), "schreib X: " + colon);
+        NovaBrain.Command dass = NovaBrain.understand("Sag Mama im Chat dass ich später komme", true);
+        check(dass.kind == NovaBrain.Kind.MESSAGE && NovaBrain.viaChat(dass.text)[0].equals("Mama") && dass.body.equals("ich später komme"),
+                "sag X im chat dass: " + dass);
+        check(NovaBrain.understand("Sag Lisa: Ich komme", true).kind == NovaBrain.Kind.MESSAGE, "sag X:");
+        check(NovaBrain.understand("Schreib auf: Milch kaufen", true).kind == NovaBrain.Kind.NOTE, "schreib auf stays note");
+        check(NovaBrain.understand("tell Tom: see you", false).kind == NovaBrain.Kind.MESSAGE, "tell X:");
         check(NovaBrain.viaChat("Mama")[1].isEmpty() && NovaBrain.viaChat("Mama über Nova Chat")[0].equals("Mama"), "via chat");
     }
 

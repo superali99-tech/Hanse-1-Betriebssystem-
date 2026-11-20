@@ -44,6 +44,7 @@ final class NovaWriter extends LinearLayout implements Ears.Listener {
     private final TextView status, result;
     private final View orb;
     private final Button sendButton, editButton;
+    private final LinearLayout textButtons;
     private String pending;
     private int mode = IDLE;
 
@@ -99,27 +100,35 @@ final class NovaWriter extends LinearLayout implements Ears.Listener {
         rl.topMargin = Ui.dp(a, 6);
         addView(result, rl);
 
+        // row 1: speak + read aloud (always); row 2: send + change (when there is a text)
         LinearLayout buttons = new LinearLayout(a);
         buttons.setGravity(Gravity.CENTER_VERTICAL);
-        Button speak = chip(a, R.string.writer_speak, v -> listenMessage());
+        buttons.addView(chip(a, R.string.writer_speak, v -> listenMessage()), weighted(a));
+        buttons.addView(chip(a, R.string.writer_read, v -> readAloud()), weighted(a));
+        LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        bl.topMargin = Ui.dp(a, 10);
+        addView(buttons, bl);
+        textButtons = new LinearLayout(a);
+        textButtons.setGravity(Gravity.CENTER_VERTICAL);
         sendButton = chip(a, useLabel, v -> use());
+        sendButton.setBackgroundResource(R.drawable.accent_card_bg);
         editButton = chip(a, R.string.writer_edit, v -> {
             if (pending != null) target.edit(pending);
             close();
         });
-        Button read = chip(a, R.string.writer_read, v -> readAloud());
-        buttons.addView(speak);
-        buttons.addView(sendButton);
-        buttons.addView(editButton);
-        buttons.addView(read);
-        android.widget.HorizontalScrollView hs = new android.widget.HorizontalScrollView(a);
-        hs.setHorizontalScrollBarEnabled(false);
-        hs.addView(buttons);
-        LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        bl.topMargin = Ui.dp(a, 10);
-        addView(hs, bl);
+        textButtons.addView(sendButton, weighted(a));
+        textButtons.addView(editButton, weighted(a));
+        LinearLayout.LayoutParams tbl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        tbl.topMargin = Ui.dp(a, 8);
+        addView(textButtons, tbl);
         setVisibility(GONE);
         showPending();
+    }
+
+    private static LinearLayout.LayoutParams weighted(Activity a) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, Ui.dp(a, 44), 1);
+        lp.rightMargin = Ui.dp(a, 8);
+        return lp;
     }
 
     private Button chip(Activity a, int label, OnClickListener click) {
@@ -184,10 +193,7 @@ final class NovaWriter extends LinearLayout implements Ears.Listener {
     private void showPending() {
         result.setVisibility(pending == null ? GONE : VISIBLE);
         result.setText(pending == null ? "" : pending);
-        sendButton.setEnabled(pending != null);
-        sendButton.setAlpha(pending != null ? 1f : 0.45f);
-        editButton.setEnabled(pending != null);
-        editButton.setAlpha(pending != null ? 1f : 0.45f);
+        textButtons.setVisibility(pending == null ? GONE : VISIBLE);
     }
 
     private void ask() {

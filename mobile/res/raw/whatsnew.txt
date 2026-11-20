@@ -1,5 +1,6 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Nova Chat: chatten, Sprach- und Videoanrufe über Matrix – Kontakte werden in deinem Konto auf dem Server gespeichert|Nova Chat: chat, voice and video calls over Matrix – contacts are saved in your account on the server
-Nova, dein Assistent: „Hey Nova“ sagen oder aufs Mikrofon tippen – Uhrzeit, Wecker, Timer, Wetter, Apps, Anrufe, Notizen, Rechnen|Nova, your assistant: say "Hey Nova" or tap the microphone – time, alarms, timers, weather, apps, calls, notes, sums
-Software-Updates laufen jetzt wie bei Samsung: Herunterladen, Prüfen, Vorbereiten, Installieren|Software updates now run like on Samsung phones: download, verify, prepare, install
-Neue Karten auf dem Startbildschirm für Nova Chat und Nova|New cards on the home screen for Nova Chat and Nova
+Nova Chat: Sprachnachrichten aufnehmen und abspielen – Mikrofon-Knopf antippen, sprechen, senden|Nova Chat: record and play voice messages – tap the microphone, speak, send
+Nova Chat: Emoji-Tastatur mit über 900 Emojis, Fotos senden und groß ansehen|Nova Chat: emoji keyboard with more than 900 emojis, send photos and view them full screen
+Nova schreibt für dich: sprechen statt tippen, Nova liest Nachrichten vor und fragt „Soll ich das senden?“|Nova writes for you: speak instead of typing, Nova reads messages aloud and asks "Shall I send it?"
+Schnellantworten mit einem Tipp, z. B. „Ja 👍“ oder „Bin gleich da 🏃“|Quick answers with one tap, e.g. "Yes 👍" or "Almost there 🏃"
+Nova-Assistent: „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“|Nova assistant: "Read my messages" and "Tell Lisa in chat: …"

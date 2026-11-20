@@ -48,6 +48,10 @@
 * NovaOS Mobile: Updates erscheinen von selbst („Update verfügbar“, Benachrichtigung mit
   „Aktualisieren“) und laufen wie ein System-Update in Stufen (etwa 2–3 Minuten); neue Karten für
   Nova Chat und Nova auf dem Startbildschirm
+* **NovaOS Mobile – Nova Chat**: Sprachnachrichten, Emoji-Tastatur, Fotos senden/ansehen,
+  Schnellantworten, bearbeitete und gelöschte Nachrichten werden übernommen; **„Nova schreibt für
+  dich“** (diktieren, vorlesen, „Soll ich das senden?“); Nova-Assistent liest Chat-Nachrichten vor
+  und schreibt über Nova Chat
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 
