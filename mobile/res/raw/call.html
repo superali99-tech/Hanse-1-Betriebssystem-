@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!-- Nova Chat call (WebRTC). Loaded by CallActivity with the origin https://org.novaos.mobile/;
+     the signalling (offer, answer, ICE candidates, hang up) goes through Matrix via window.Nova. -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+  #remote { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; background: #000; }
+  #local { position: absolute; right: 14px; top: 90px; width: 28%; max-width: 170px; border-radius: 14px;
+           background: #222; object-fit: cover; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<video id="remote" autoplay playsinline></video>
+<video id="local" autoplay playsinline muted class="hidden"></video>
+<script>
+var pc = null, local = null, remoteSet = false, waiting = [], outgoing = [], timer = null;
+
+function log(m) { try { Nova.log(String(m)); } catch (e) {} }
+function send(type, obj) { Nova.send(type, JSON.stringify(obj)); }
+function fail(e) { log(e); Nova.state("failed:" + (e && e.message ? e.message : e)); }
+
+function setup(cfg) {
+  pc = new RTCPeerConnection({ iceServers: cfg.ice });
+  pc.onicecandidate = function (e) {
+    if (e.candidate) {
+      outgoing.push({ candidate: e.candidate.candidate, sdpMid: e.candidate.sdpMid, sdpMLineIndex: e.candidate.sdpMLineIndex });
+      flush(false);
+    } else {
+      flush(true);
+    }
+  };
+  pc.ontrack = function (e) {
+    var r = document.getElementById("remote");
+    if (e.streams && e.streams[0] && r.srcObject !== e.streams[0]) r.srcObject = e.streams[0];
+  };
+  pc.oniceconnectionstatechange = function () { Nova.state(pc.iceConnectionState); };
+  var constraints = { audio: true, video: cfg.video ? { facingMode: "user" } : false };
+  return navigator.mediaDevices.getUserMedia(constraints).then(function (s) {
+    local = s;
+    s.getTracks().forEach(function (t) { pc.addTrack(t, s); });
+    if (cfg.video) {
+      var l = document.getElementById("local");
+      l.srcObject = s;
+      l.classList.remove("hidden");
+    }
+  });
+}
+
+// ICE candidates are sent in small batches, as Matrix clients do
+function flush(now) {
+  if (timer) clearTimeout(timer);
+  timer = setTimeout(function () {
+    if (outgoing.length) { send("candidates", { candidates: outgoing }); outgoing = []; }
+  }, now ? 0 : 400);
+}
+
+function call(cfg) {
+  setup(cfg).then(function () { return pc.createOffer(); })
+    .then(function (o) { return pc.setLocalDescription(o); })
+    .then(function () { send("invite", { offer: { type: "offer", sdp: pc.localDescription.sdp } }); })
+    .catch(fail);
+}
+
+function answer(cfg, offerSdp) {
+  setup(cfg).then(function () { return pc.setRemoteDescription({ type: "offer", sdp: offerSdp }); })
+    .then(function () { remoteSet = true; drain(); return pc.createAnswer(); })
+    .then(function (a) { return pc.setLocalDescription(a); })
+    .then(function () { send("answer", { answer: { type: "answer", sdp: pc.localDescription.sdp } }); })
+    .catch(fail);
+}
+
+function remoteAnswer(sdp) {
+  if (!pc || remoteSet) return;
+  pc.setRemoteDescription({ type: "answer", sdp: sdp }).then(function () { remoteSet = true; drain(); }).catch(fail);
+}
+
+function remoteCandidates(list) {
+  for (var i = 0; i < list.length; i++) waiting.push(list[i]);
+  drain();
+}
+
+function drain() {
+  if (!pc || !remoteSet) return;
+  while (waiting.length) {
+    var c = waiting.shift();
+    if (!c || !c.candidate) continue;
+    pc.addIceCandidate(c).catch(function (e) { log("candidate: " + e); });
+  }
+}
+
+function mute(on) { if (local) local.getAudioTracks().forEach(function (t) { t.enabled = !on; }); }
+function camera(on) { if (local) local.getVideoTracks().forEach(function (t) { t.enabled = on; }); }
+function hangup() {
+  if (pc) { pc.close(); pc = null; }
+  if (local) { local.getTracks().forEach(function (t) { t.stop(); }); local = null; }
+}
+</script>
+</body>
+</html>

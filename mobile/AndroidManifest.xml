@@ -32,6 +32,8 @@
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <!-- Nova Chat calls -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Nova Kamera -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Nova Galerie (Android 13+: photos and videos; before: storage) -->
@@ -249,6 +251,15 @@
             android:taskAffinity="org.novaos.mobile.chat"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".CallActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:taskAffinity="org.novaos.mobile.call"
+            android:theme="@style/Theme.NovaMobile.Player" />
+        <activity
             android:name=".ChatContactsActivity"
             android:exported="false"
             android:taskAffinity="org.novaos.mobile.chat" />
@@ -285,6 +296,10 @@
             android:name=".UpdateJob"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- Nova Chat: "Ablehnen" in the call notification -->
+        <receiver
+            android:name=".Calls$Decline"
+            android:exported="false" />
         <!-- Nova Chat: looks for new messages every 15 minutes -->
         <service
             android:name=".ChatSync$ChatJob"
