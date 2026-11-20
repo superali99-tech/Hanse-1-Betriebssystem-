@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public final class NovaBrain {
     public enum Kind {
         TIME, DATE, ALARM, TIMER, TORCH, OPEN_APP, SETTINGS, CALL, MESSAGE, NOTE, WEATHER, TV,
-        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN
+        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES
     }
 
     /** What Nova understood. Unused fields stay at their defaults. */
@@ -134,6 +134,7 @@ public final class NovaBrain {
         if ((r = alarm(c)) != null) return r;
         if ((r = torch(c)) != null) return r;
         if ((r = call(c)) != null) return r;
+        if ((r = readMessages(c)) != null) return r;
         if ((r = message(c)) != null) return r;
         if ((r = note(c)) != null) return r;
         if ((r = calc(c, german)) != null) return r;
@@ -234,9 +235,9 @@ public final class NovaBrain {
         Command h = new Command(Kind.HELP);
         h.answer = german
                 ? "Ich kann zum Beispiel: die Uhrzeit sagen, einen Wecker oder Timer stellen, die Taschenlampe schalten, Apps öffnen, "
-                + "jemanden anrufen, eine Notiz schreiben, das Wetter sagen, einen Sender einschalten und rechnen."
+                + "jemanden anrufen, Nachrichten schreiben und vorlesen, eine Notiz schreiben, das Wetter sagen, einen Sender einschalten und rechnen."
                 : "For example I can tell the time, set an alarm or a timer, switch the torch, open apps, call someone, "
-                + "take a note, tell the weather, play a TV channel and do sums.";
+                + "write and read messages, take a note, tell the weather, play a TV channel and do sums.";
         return h;
     }
 
@@ -498,6 +499,25 @@ public final class NovaBrain {
             }
         }
         return null;
+    }
+
+    private static final Pattern READ_MESSAGES = Pattern.compile(
+            "^(?:lies|lese|lies mir|lies mal|vorlesen)\\b.*\\b(?:nachricht|nachrichten|chat|chats)\\b.*"
+            + "|.*\\bnachrichten\\s+vor(?:lesen)?$"
+            + "|^(?:habe ich|hab ich|gibt es|gibts|sind)\\s+(?:da\\s+)?(?:neue|ungelesene)?\\s*nachrichten.*"
+            + "|^neue nachrichten$"
+            + "|^(?:read|read me|read out)\\s+(?:my\\s+)?(?:new\\s+|unread\\s+)?(?:messages|chats)$"
+            + "|^(?:any|do i have|are there)\\s+(?:any\\s+)?(?:new\\s+|unread\\s+)?messages$");
+
+    private static Command readMessages(String c) {
+        return READ_MESSAGES.matcher(c).matches() ? new Command(Kind.READ_MESSAGES) : null;
+    }
+
+    /** "Lisa im Chat" -> "Lisa" (and true: send it over Nova Chat). */
+    public static String[] viaChat(String name) {
+        String n = name == null ? "" : name.trim();
+        String stripped = n.replaceAll("(?i)\\s+(?:im|in|über|ueber|per|bei|via|on|in the|over)\\s+(?:nova\\s+)?chat$", "").trim();
+        return new String[] {stripped, stripped.equals(n) ? "" : "chat"};
     }
 
     private static final Pattern NOTE = Pattern.compile(

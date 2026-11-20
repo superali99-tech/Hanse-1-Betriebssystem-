@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nova Chat: Emojis, Sprachnachrichten, Fotos, Nova schreibt und liest vor (Deutsch) -->
+<resources>
+    <string name="close">Schließen</string>
+    <string name="no_app_for_file">Auf diesem Gerät gibt es keine App, die diese Datei öffnen kann.</string>
+    <string name="emoji_delete">Löschen</string>
+    <string name="chat_emoji">Emojis</string>
+    <string name="chat_send_photo">Foto senden</string>
+    <string name="chat_voice">Sprachnachricht aufnehmen</string>
+    <string name="chat_voice_cancel">Sprachnachricht verwerfen</string>
+    <string name="chat_voice_recording">Aufnahme … tippe auf ➤ zum Senden</string>
+    <string name="chat_voice_failed">Das Mikrofon kann gerade nicht aufnehmen.</string>
+    <string name="chat_voice_short">Zu kurz – sprich etwas länger.</string>
+    <string name="chat_voice_sending">🎤 Sprachnachricht wird gesendet …</string>
+    <string name="chat_voice_body">Sprachnachricht</string>
+    <string name="chat_voice_need_mic">Nova Chat braucht das Mikrofon für Sprachnachrichten.</string>
+    <string name="chat_photo_sending">📷 Foto wird gesendet …</string>
+    <string name="chat_not_a_photo">Das ist kein Foto.</string>
+    <string name="chat_nova">Nova: Sprechen statt Schreiben</string>
+    <string name="chat_media_failed">Konnte nicht geladen werden. Bitte prüfe die Internetverbindung.</string>
+    <string name="chat_save_photo">In der Galerie speichern</string>
+    <string name="chat_photo_saved">In der Galerie gespeichert (Bilder/Nova Chat)</string>
+    <string name="chat_play">Abspielen</string>
+    <string name="chat_cannot_play">Diese Sprachnachricht kann auf diesem Gerät nicht abgespielt werden.</string>
+    <string name="chat_file_unnamed">Datei</string>
+    <string name="chat_tap_open">zum Öffnen tippen</string>
+    <string name="chat_audio">🎤 Sprachnachricht</string>
+    <string name="chat_video">🎬 Video</string>
+    <string name="chat_read_aloud">Vorlesen</string>
+    <string name="chat_copy">Kopieren</string>
+    <string name="chat_copied">Kopiert</string>
+    <string name="chat_delete_message">Für alle löschen</string>
+    <string name="chat_delete_confirm">Diese Nachricht für alle im Chat löschen?</string>
+    <string name="chat_spoken_you">Du</string>
+    <string name="chat_spoken_text">%1$s schreibt: %2$s.</string>
+    <string name="chat_spoken_photo">%1$s hat ein Foto geschickt.</string>
+    <string name="chat_spoken_voice">%1$s hat eine Sprachnachricht geschickt.</string>
+    <string name="chat_spoken_file">%1$s hat eine Datei geschickt: %2$s.</string>
+    <string name="chat_spoken_encrypted">%1$s hat eine verschlüsselte Nachricht geschickt, die Nova nicht lesen kann.</string>
+
+    <!-- Nova schreibt für dich (Chat und Mail) -->
+    <string name="writer_title">Nova schreibt für dich</string>
+    <string name="writer_speak">🎤 Sprechen</string>
+    <string name="writer_edit">✏️ Ändern</string>
+    <string name="writer_read">🔊 Vorlesen</string>
+    <string name="writer_listen">Sprich deine Nachricht … ich höre zu.</string>
+    <string name="writer_confirm">Soll ich das senden?</string>
+    <string name="writer_confirm_hint">Sag „Ja“ zum Senden, „Nein“ zum Verwerfen – oder sprich eine neue Nachricht.</string>
+    <string name="writer_sent">Gesendet.</string>
+    <string name="writer_inserted">Fertig, steht in der E-Mail.</string>
+    <string name="writer_not_sent">Okay, nicht gesendet.</string>
+    <string name="writer_tap_send">Tippe auf „Senden“ – oder auf „Sprechen“, um es nochmal zu sagen.</string>
+    <string name="writer_nothing_heard">Ich habe nichts gehört. Tippe auf „Sprechen“ und versuch es nochmal.</string>
+    <string name="writer_error">Die Spracherkennung klappt gerade nicht. Bitte versuch es nochmal.</string>
+    <string name="writer_no_speech">Dieses Gerät hat keine Spracherkennung. „Vorlesen“ geht trotzdem.</string>
+    <string name="writer_need_mic">Nova braucht das Mikrofon, um für dich zu schreiben.</string>
+    <string name="writer_nothing_new">Es gibt keine neuen Nachrichten.</string>
+    <string name="writer_reading">Ich lese vor …</string>
+    <string name="writer_after_read">Tippe auf „Sprechen“, um zu antworten.</string>
+    <!-- Nova-Assistent und Nova Chat -->
+    <string name="nova_try_read">Lies meine Nachrichten vor</string>
+    <string name="nova_chat_login">Bitte melde dich zuerst in Nova Chat an.</string>
+    <string name="nova_chat_unknown">Ich finde %1$s nicht in deinen Nova-Chat-Kontakten.</string>
+    <string name="nova_chat_opening">Ich öffne den Chat mit %1$s. Sprich deine Nachricht.</string>
+    <string name="nova_chat_sent">An %1$s gesendet.</string>
+    <string name="nova_chat_failed">Die Nachricht an %1$s konnte nicht gesendet werden.</string>
+    <string name="nova_chat_invite">%1$s möchte mit dir chatten.</string>
+    <string name="nova_chat_none">Du hast keine neuen Nachrichten.</string>
+    <plurals name="nova_chat_count">
+        <item quantity="one">Du hast eine neue Nachricht.</item>
+        <item quantity="other">Du hast %d neue Nachrichten.</item>
+    </plurals>
+</resources>

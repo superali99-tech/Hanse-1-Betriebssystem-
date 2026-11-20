@@ -28,7 +28,7 @@ final class ChatDb extends SQLiteOpenHelper {
     }
 
     private ChatDb(Context c) {
-        super(c, "chat.db", null, 1);
+        super(c, "chat.db", null, 2);
     }
 
     @Override
@@ -38,14 +38,16 @@ final class ChatDb extends SQLiteOpenHelper {
                 + "unread INTEGER NOT NULL DEFAULT 0, invite INTEGER NOT NULL DEFAULT 0, inviter TEXT NOT NULL DEFAULT '', "
                 + "encrypted INTEGER NOT NULL DEFAULT 0, direct_user TEXT NOT NULL DEFAULT '')");
         db.execSQL("CREATE TABLE messages (event_id TEXT PRIMARY KEY, room_id TEXT NOT NULL, sender TEXT NOT NULL, "
-                + "sender_name TEXT NOT NULL DEFAULT '', body TEXT NOT NULL DEFAULT '', kind TEXT NOT NULL, ts INTEGER NOT NULL)");
+                + "sender_name TEXT NOT NULL DEFAULT '', body TEXT NOT NULL DEFAULT '', kind TEXT NOT NULL, ts INTEGER NOT NULL, "
+                + "media TEXT NOT NULL DEFAULT '')");
         db.execSQL("CREATE INDEX messages_room ON messages (room_id, ts)");
         db.execSQL("CREATE TABLE kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-        // version 1 only
+        // 2: photos, voice messages and files (media details as JSON)
+        if (oldV < 2) db.execSQL("ALTER TABLE messages ADD COLUMN media TEXT NOT NULL DEFAULT ''");
     }
 
     // ------------------------------------------------------------ account (in the app's private preferences)
@@ -122,6 +124,7 @@ final class ChatDb extends SQLiteOpenHelper {
                 db.delete("messages", "room_id=?", new String[] {id});
             }
             for (MatrixSync.Room room : r.rooms) {
+                for (String gone : room.redacted) db.delete("messages", "event_id=?", new String[] {gone});
                 ContentValues cv = new ContentValues();
                 cv.put("id", room.id);
                 db.insertWithOnConflict("rooms", null, cv, SQLiteDatabase.CONFLICT_IGNORE);
@@ -133,6 +136,14 @@ final class ChatDb extends SQLiteOpenHelper {
                 if (room.encrypted) up.put("encrypted", 1);
                 if (!room.directUser.isEmpty()) up.put("direct_user", room.directUser);
                 for (MatrixSync.Message m : room.messages) {
+                    if (!m.replaces.isEmpty()) {  // edited message: new text, no new message
+                        ContentValues ev = new ContentValues();
+                        ev.put("body", m.body == null ? "" : m.body);
+                        ev.put("kind", m.kind);
+                        ev.put("media", MatrixSync.mediaJson(m));
+                        db.update("messages", ev, "event_id=?", new String[] {m.replaces});
+                        continue;
+                    }
                     ContentValues mv = new ContentValues();
                     mv.put("event_id", m.eventId);
                     mv.put("room_id", m.roomId);
@@ -141,6 +152,7 @@ final class ChatDb extends SQLiteOpenHelper {
                     mv.put("body", m.body == null ? "" : m.body);
                     mv.put("kind", m.kind);
                     mv.put("ts", m.ts);
+                    mv.put("media", MatrixSync.mediaJson(m));
                     long row = db.insertWithOnConflict("messages", null, mv, SQLiteDatabase.CONFLICT_IGNORE);
                     if (row != -1 && !m.sender.equals(me) && !"call".equals(m.kind)) fresh.add(m);
                     up.put("last_body", m.body == null ? "" : m.body);
@@ -185,6 +197,19 @@ final class ChatDb extends SQLiteOpenHelper {
         ContentValues cv = new ContentValues();
         cv.put("unread", unread);
         getWritableDatabase().update("rooms", cv, "id=?", new String[] {roomId});
+    }
+
+    void removeMessage(String eventId) {
+        getWritableDatabase().delete("messages", "event_id=?", new String[] {eventId});
+    }
+
+    /** Messages of others since the last one read (for "read aloud"), oldest first. */
+    List<MatrixSync.Message> unreadOf(String roomId, int unread, String me) {
+        List<MatrixSync.Message> all = messages(roomId), out = new ArrayList<>();
+        for (int i = all.size() - 1; i >= 0 && out.size() < Math.max(1, unread); i--) {
+            if (!all.get(i).sender.equals(me)) out.add(0, all.get(i));
+        }
+        return out;
     }
 
     void removeRoom(String roomId) {
@@ -260,6 +285,7 @@ final class ChatDb extends SQLiteOpenHelper {
                 m.body = c.getString(c.getColumnIndexOrThrow("body"));
                 m.kind = c.getString(c.getColumnIndexOrThrow("kind"));
                 m.ts = c.getLong(c.getColumnIndexOrThrow("ts"));
+                MatrixSync.readMedia(m, c.getString(c.getColumnIndexOrThrow("media")));
                 out.add(m);
             }
         }

@@ -221,6 +221,8 @@ final class ChatSync {
     static String preview(Context c, String kind, String body) {
         switch (kind == null ? "" : kind) {
             case "image": return c.getString(R.string.chat_photo);
+            case "audio": return c.getString(R.string.chat_audio);
+            case "video": return c.getString(R.string.chat_video);
             case "file": return c.getString(R.string.chat_file) + " " + body;
             case "encrypted": return c.getString(R.string.chat_encrypted_short);
             case "call": return c.getString("invite".equals(body) ? R.string.chat_call_started : R.string.chat_call_ended);

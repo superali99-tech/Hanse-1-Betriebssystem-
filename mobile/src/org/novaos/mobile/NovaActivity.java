@@ -103,7 +103,7 @@ public class NovaActivity extends Activity {
         hs.setHorizontalScrollBarEnabled(false);
         LinearLayout chips = new LinearLayout(this);
         for (int res : new int[] {R.string.nova_try_time, R.string.nova_try_weather, R.string.nova_try_timer,
-                R.string.nova_try_torch, R.string.nova_try_camera, R.string.nova_try_note, R.string.nova_try_tv,
+                R.string.nova_try_torch, R.string.nova_try_camera, R.string.nova_try_note, R.string.nova_try_read, R.string.nova_try_tv,
                 R.string.nova_try_calc, R.string.nova_try_joke}) {
             TextView chip = Ui.text(this, getString(res), 14, Color.WHITE, false);
             chip.setBackgroundResource(R.drawable.pill_bg);
@@ -368,8 +368,13 @@ public class NovaActivity extends Activity {
                 openSettings(c.text);
                 break;
             case CALL:
-            case MESSAGE:
                 contact(c);
+                break;
+            case MESSAGE:
+                if (!chatMessage(c)) contact(c);
+                break;
+            case READ_MESSAGES:
+                readMessages();
                 break;
             case NOTE:
                 NotesDb.Note n = new NotesDb.Note();
@@ -495,6 +500,109 @@ public class NovaActivity extends Activity {
             default: Launch.settings(this, Settings.ACTION_SETTINGS); break;
         }
         speak(getString(R.string.nova_settings));
+    }
+
+    /**
+     * "Schreib Lisa (im Chat): ..." - over Nova Chat if Lisa is a Nova Chat contact (or a direct
+     * chat has her name); with text it is sent at once, without the chat opens with Nova listening.
+     */
+    private boolean chatMessage(NovaBrain.Command c) {
+        String[] via = NovaBrain.viaChat(c.text);
+        boolean wanted = !via[1].isEmpty();
+        if (!ChatDb.loggedIn(this)) {
+            if (wanted) speak(getString(R.string.nova_chat_login));
+            return wanted;
+        }
+        String q = AppFilter.normalize(via[0]);
+        String roomId = null, name = null, user = null;
+        int best = 0;
+        for (MatrixSync.Contact ct : ChatDb.get(this).contacts()) {
+            int s = AppFilter.score(ct.name, q);
+            if (s > best) {
+                best = s;
+                user = ct.id;
+                name = ct.name;
+            }
+        }
+        for (ChatDb.RoomRow r : ChatDb.get(this).rooms()) {
+            if (r.invite) continue;
+            int s = AppFilter.score(r.name, q);
+            if (s > best) {
+                best = s;
+                roomId = r.id;
+                name = r.name;
+                user = null;
+            }
+        }
+        if (best == 0) {
+            if (wanted) speak(getString(R.string.nova_chat_unknown, via[0]));
+            return wanted;
+        }
+        if (user != null) {
+            ChatDb.RoomRow direct = ChatDb.get(this).directRoom(user);
+            if (direct != null) roomId = direct.id;
+        }
+        if (roomId == null) {  // contact without a chat yet: start it in Nova Chat
+            ChatActivity.startDirect(this, user, null);
+            speak(getString(R.string.nova_chat_opening, name));
+            return true;
+        }
+        if (c.body.isEmpty()) {
+            startActivity(new Intent(this, RoomActivity.class).putExtra(RoomActivity.EXTRA_ROOM, roomId)
+                    .putExtra(RoomActivity.EXTRA_NOVA, true));
+            speak(getString(R.string.nova_chat_opening, name));
+            return true;
+        }
+        String room = roomId, who = name, text = Dictation.clean(c.body, german);
+        MatrixApi api = ChatDb.api(this);
+        new Thread(() -> {
+            boolean ok;
+            try {
+                api.sendText(room, text);
+                ok = true;
+            } catch (java.io.IOException e) {
+                ok = false;
+            }
+            boolean sent = ok;
+            runOnUiThread(() -> {
+                if (!isDestroyed()) speak(getString(sent ? R.string.nova_chat_sent : R.string.nova_chat_failed, who));
+            });
+        }).start();
+        return true;
+    }
+
+    /** "Lies meine Nachrichten vor": new Nova Chat messages, chat by chat. */
+    private void readMessages() {
+        if (!ChatDb.loggedIn(this)) {
+            speak(getString(R.string.nova_chat_login));
+            return;
+        }
+        String me = ChatDb.me(this);
+        StringBuilder b = new StringBuilder();
+        int count = 0;
+        for (ChatDb.RoomRow r : ChatDb.get(this).rooms()) {
+            if (r.invite) {
+                b.append(getString(R.string.nova_chat_invite, r.name)).append(' ');
+                continue;
+            }
+            if (r.unread <= 0) continue;
+            for (MatrixSync.Message m : ChatDb.get(this).unreadOf(r.id, Math.min(r.unread, 5), me)) {
+                String who = r.directUser.isEmpty() ? m.senderName + " (" + r.name + ")" : r.name;
+                switch (m.kind) {
+                    case "image": b.append(getString(R.string.chat_spoken_photo, who)); break;
+                    case "audio": b.append(getString(R.string.chat_spoken_voice, who)); break;
+                    case "text": case "notice": b.append(getString(R.string.chat_spoken_text, who, m.body)); break;
+                    default: b.append(getString(R.string.chat_spoken_file, who, m.body)); break;
+                }
+                b.append(' ');
+                count++;
+            }
+        }
+        if (b.length() == 0) {
+            speak(getString(R.string.nova_chat_none));
+            return;
+        }
+        speak((count > 0 ? getResources().getQuantityString(R.plurals.nova_chat_count, count, count) + " " : "") + b.toString().trim());
     }
 
     /** Call or message someone from the phone's contacts (or a spoken number). */

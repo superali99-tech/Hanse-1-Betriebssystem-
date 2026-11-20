@@ -15,14 +15,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 /**
- * Hands files of Nova Dateien to other apps (open, share): content://org.novaos.mobile.files/<path>.
+ * Hands files of Nova Dateien to other apps (open, share): content://org.novaos.mobile.files/<path>;
+ * files of Nova Chat and Nova Mail (in NovaOS's cache): content://org.novaos.mobile.files/_cache/<folder>/<name>.
  * Only files inside the phone's storage, read-only, and only for the app that got
  * the permission with the intent (grantUriPermissions, not exported).
  */
 public class NovaFileProvider extends ContentProvider {
     static final String AUTHORITY = "org.novaos.mobile.files";
 
+    /** Cache folders other apps may read files from (one file per intent). */
+    static final String[] CACHE_FOLDERS = {"chat-media", "mail-files"};
+
     static Uri uri(File f) {
+        File parent = f.getParentFile();
+        if (parent != null && java.util.Arrays.asList(CACHE_FOLDERS).contains(parent.getName())
+                && parent.getParentFile() != null && parent.getParentFile().getName().equals("cache")) {
+            return new Uri.Builder().scheme("content").authority(AUTHORITY).path("/_cache/" + parent.getName() + "/" + f.getName()).build();
+        }
         String root = Environment.getExternalStorageDirectory().getAbsolutePath();
         String path = f.getAbsolutePath();
         String rel = path.startsWith(root) ? path.substring(root.length()) : path;
@@ -34,7 +43,23 @@ public class NovaFileProvider extends ContentProvider {
         return t != null ? t : "application/octet-stream";
     }
 
-    private static File file(Uri uri) throws FileNotFoundException {
+    private File file(Uri uri) throws FileNotFoundException {
+        String p = uri.getPath() == null ? "" : uri.getPath();
+        if (p.startsWith("/_cache/")) {
+            String[] parts = p.substring(8).split("/");
+            if (parts.length != 2 || !java.util.Arrays.asList(CACHE_FOLDERS).contains(parts[0]) || parts[1].startsWith(".")
+                    || getContext() == null) {
+                throw new FileNotFoundException(uri.toString());
+            }
+            try {
+                File dir = new File(getContext().getCacheDir(), parts[0]).getCanonicalFile();
+                File f = new File(dir, parts[1]).getCanonicalFile();
+                if (!FileNames.inside(dir.getPath(), f.getPath()) || !f.isFile()) throw new FileNotFoundException(uri.toString());
+                return f;
+            } catch (IOException e) {
+                throw new FileNotFoundException(uri.toString());
+            }
+        }
         try {
             File root = Environment.getExternalStorageDirectory().getCanonicalFile();
             File f = new File(root, uri.getPath() == null ? "" : uri.getPath()).getCanonicalFile();

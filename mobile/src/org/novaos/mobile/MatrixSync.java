@@ -14,8 +14,16 @@ public final class MatrixSync {
     public static final String CONTACTS_TYPE = "org.novaos.contacts";
 
     public static final class Message {
-        public String roomId, eventId, sender, senderName, body, kind;  // kind: text, image, file, encrypted, call, notice
+        // kind: text, image, audio, video, file, encrypted, call, notice
+        public String roomId, eventId, sender, senderName, body, kind;
         public long ts;
+        // media (image, audio, video, file): mxc:// address, type, size, length in ms, picture size
+        public String url = "", mime = "";
+        public long size, duration;
+        public int w, h;
+        public boolean voice;                                // audio recorded as voice message
+        public List<Integer> waveform = new ArrayList<>();   // voice message: levels 0..1024
+        public String replaces = "";                         // edit of an earlier message (its event id)
     }
 
     /** A call signal (m.call.invite/answer/candidates/hangup) for the call screen. */
@@ -30,6 +38,7 @@ public final class MatrixSync {
         public boolean invite, encrypted;
         public int unread = -1;  // -1 = unknown
         public final List<Message> messages = new ArrayList<>();
+        public final List<String> redacted = new ArrayList<>();  // deleted messages (event ids)
         public final Map<String, String> names = new LinkedHashMap<>();
         final List<String> heroes = new ArrayList<>();
     }
@@ -145,6 +154,61 @@ public final class MatrixSync {
         return o instanceof String ? (String) o : "";
     }
 
+    private static long num(Object o) {
+        return o instanceof Double ? ((Double) o).longValue() : 0;
+    }
+
+    /** "mxc://matrix.org/AbC123" -> {"matrix.org", "AbC123"}, or null. */
+    public static String[] mxc(String uri) {
+        if (uri == null || !uri.startsWith("mxc://")) return null;
+        String rest = uri.substring(6);
+        int i = rest.indexOf('/');
+        if (i <= 0) return null;
+        String server = rest.substring(0, i), id = rest.substring(i + 1);
+        if (!server.matches("[A-Za-z0-9.\\-]+(:[0-9]{1,5})?") || !id.matches("[A-Za-z0-9_\\-]+")) return null;
+        return new String[] {server, id};
+    }
+
+    /** Replies from Element start with the quoted message ("> <@lisa:x> hi" + empty line): only the answer. */
+    public static String stripReply(String body) {
+        if (body == null || !body.startsWith("> ")) return body == null ? "" : body;
+        int i = body.indexOf("\n\n");
+        if (i < 0) return body;
+        for (String line : body.substring(0, i).split("\n")) if (!line.startsWith(">")) return body;
+        return body.substring(i + 2);
+    }
+
+    /** Media details of a message as small JSON for the phone's database. */
+    public static String mediaJson(Message m) {
+        if (m.url.isEmpty() && m.mime.isEmpty() && m.duration == 0 && m.w == 0) return "";
+        Map<String, Object> o = MiniJson.obj("u", m.url, "m", m.mime);
+        if (m.size > 0) o.put("s", m.size);
+        if (m.duration > 0) o.put("d", m.duration);
+        if (m.w > 0) o.put("w", m.w);
+        if (m.h > 0) o.put("h", m.h);
+        if (m.voice) o.put("v", true);
+        if (!m.waveform.isEmpty()) o.put("wf", m.waveform);
+        return MiniJson.write(o);
+    }
+
+    public static void readMedia(Message m, String json) {
+        if (json == null || json.isEmpty()) return;
+        try {
+            Object o = MiniJson.parse(json);
+            m.url = str(MiniJson.get(o, "u"));
+            m.mime = str(MiniJson.get(o, "m"));
+            m.size = num(MiniJson.get(o, "s"));
+            m.duration = num(MiniJson.get(o, "d"));
+            m.w = (int) num(MiniJson.get(o, "w"));
+            m.h = (int) num(MiniJson.get(o, "h"));
+            m.voice = Boolean.TRUE.equals(MiniJson.get(o, "v"));
+            m.waveform = new ArrayList<>();
+            for (Object v : list(MiniJson.get(o, "wf"))) if (v instanceof Double) m.waveform.add(((Double) v).intValue());
+        } catch (IllegalArgumentException ignored) {
+            // broken: no media
+        }
+    }
+
     private static Room joined(String id, Object data, String me, Result r) {
         Room room = new Room();
         room.id = id;
@@ -165,6 +229,12 @@ public final class MatrixSync {
                 Object ts = MiniJson.get(e, "origin_server_ts");
                 c.ts = ts instanceof Double ? ((Double) ts).longValue() : 0;
                 r.calls.add(c);
+            }
+            if (type.equals("m.room.redaction")) {
+                String target = str(MiniJson.get(e, "redacts"));
+                if (target.isEmpty()) target = str(MiniJson.get(e, "content", "redacts"));
+                if (!target.isEmpty()) room.redacted.add(target);
+                continue;
             }
             Message m = message(id, e);
             if (m != null) room.messages.add(m);
@@ -204,17 +274,50 @@ public final class MatrixSync {
         Object ts = MiniJson.get(e, "origin_server_ts");
         m.ts = ts instanceof Double ? ((Double) ts).longValue() : 0;
         if (m.eventId.isEmpty()) return null;
-        if (type.equals("m.room.message")) {
-            String msgtype = str(MiniJson.get(e, "content", "msgtype"));
-            m.body = str(MiniJson.get(e, "content", "body"));
+        if (type.equals("m.room.message") || type.equals("m.sticker")) {
+            if (MiniJson.get(e, "unsigned", "redacted_because") != null) return null;
+            Object content = MiniJson.get(e, "content");
+            String rel = str(MiniJson.get(content, "m.relates_to", "rel_type"));
+            if (rel.equals("m.replace")) {  // edited: the new text replaces the old one
+                Object nc = MiniJson.get(content, "m.new_content");
+                m.replaces = str(MiniJson.get(content, "m.relates_to", "event_id"));
+                if (nc == null || m.replaces.isEmpty()) return null;
+                content = nc;
+            }
+            String msgtype = type.equals("m.sticker") ? "m.image" : str(MiniJson.get(content, "msgtype"));
+            m.body = str(MiniJson.get(content, "body"));
             switch (msgtype) {
                 case "m.image": m.kind = "image"; break;
-                case "m.video": case "m.audio": case "m.file": m.kind = "file"; break;
+                case "m.audio": m.kind = "audio"; break;
+                case "m.video": m.kind = "video"; break;
+                case "m.file": m.kind = "file"; break;
                 case "m.notice": m.kind = "notice"; break;
+                case "m.emote": m.kind = "text"; m.body = "* " + m.body; break;
                 default: m.kind = "text"; break;
             }
-            if (m.body.isEmpty() && MiniJson.get(e, "unsigned", "redacted_because") == null) return null;
-            if (m.body.isEmpty()) return null;
+            if (m.kind.equals("text") || m.kind.equals("notice")) {
+                m.body = stripReply(m.body);
+                if (m.body.isEmpty()) return null;
+            } else {
+                String url = str(MiniJson.get(content, "url"));
+                if (mxc(url) == null) {
+                    // encrypted media (only in end-to-end encrypted chats) or broken: show as text
+                    if (m.body.isEmpty()) return null;
+                } else {
+                    m.url = url;
+                }
+                m.mime = str(MiniJson.get(content, "info", "mimetype"));
+                m.size = num(MiniJson.get(content, "info", "size"));
+                m.duration = num(MiniJson.get(content, "info", "duration"));
+                m.w = (int) num(MiniJson.get(content, "info", "w"));
+                m.h = (int) num(MiniJson.get(content, "info", "h"));
+                Object audio = MiniJson.get(content, "org.matrix.msc1767.audio");
+                if (m.duration == 0) m.duration = num(MiniJson.get(audio, "duration"));
+                for (Object v : list(MiniJson.get(audio, "waveform"))) {
+                    if (v instanceof Double) m.waveform.add(Math.max(0, Math.min(1024, ((Double) v).intValue())));
+                }
+                m.voice = MiniJson.get(content, "org.matrix.msc3245.voice") != null;
+            }
             return m;
         }
         if (type.equals("m.room.encrypted")) {

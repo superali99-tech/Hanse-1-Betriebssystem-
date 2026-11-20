@@ -1,6 +1,8 @@
 package org.novaos.mobile;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -183,6 +185,76 @@ final class MatrixApi {
         putAccountData(me, "m.direct", content);
     }
 
+    /** Deletes a message (for everyone in the chat). */
+    void redact(String roomId, String eventId) throws IOException {
+        call("PUT", CLIENT + "/rooms/" + enc(roomId) + "/redact/" + enc(eventId) + "/" + nextTxn(), MiniJson.obj(), 20000);
+    }
+
+    // ---------------------------------------------------------------- media (photos, voice messages)
+
+    private static final String MEDIA_V1 = "/_matrix/client/v1/media", MEDIA_V3 = "/_matrix/media/v3";
+
+    /** Uploads a file (photo, voice message) and returns its mxc:// address. */
+    String upload(byte[] data, String mime, String fileName) throws IOException {
+        String text = send("POST", base + MEDIA_V3 + "/upload?filename=" + enc(fileName), data, mime, token, 180000);
+        Object uri = MiniJson.get(MiniJson.parse(text), "content_uri");
+        if (!(uri instanceof String) || MatrixSync.mxc((String) uri) == null) throw new IOException("upload failed");
+        return (String) uri;
+    }
+
+    /**
+     * Downloads a photo, voice message or file into target; thumbPx > 0 = small preview.
+     * With login (matrix.org requires it since 2024), older servers without.
+     */
+    void download(String mxc, File target, int thumbPx) throws IOException {
+        String[] m = MatrixSync.mxc(mxc);
+        if (m == null) throw new IOException("bad media address");
+        String path = (thumbPx > 0 ? "/thumbnail/" : "/download/") + m[0] + "/" + m[1]
+                + (thumbPx > 0 ? "?width=" + thumbPx + "&height=" + thumbPx + "&method=scale" : "");
+        try {
+            fetch(base + MEDIA_V1 + path, token, target);
+        } catch (MatrixException e) {
+            if (e.status != 404 && e.status != 400 && e.status != 405 && e.status != 501) throw e;
+            fetch(base + MEDIA_V3 + path, token, target);
+        }
+    }
+
+    private static void fetch(String url, String token, File target) throws IOException {
+        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+        File part = new File(target.getPath() + ".part");
+        try {
+            con.setConnectTimeout(15000);
+            con.setReadTimeout(60000);
+            con.setRequestProperty("User-Agent", "NovaOS-Chat");
+            if (token != null) con.setRequestProperty("Authorization", "Bearer " + token);
+            int status = con.getResponseCode();
+            if (status >= 400) {
+                String text = read(con.getErrorStream());
+                Object c = null;
+                try {
+                    c = MiniJson.get(MiniJson.parse(text), "errcode");
+                } catch (IllegalArgumentException ignored) {
+                    // not JSON
+                }
+                throw new MatrixException(status, c instanceof String ? (String) c : "HTTP", "");
+            }
+            long total = 0;
+            try (InputStream in = con.getInputStream(); OutputStream out = new FileOutputStream(part)) {
+                byte[] buf = new byte[32768];
+                int n;
+                while ((n = in.read(buf)) > 0) {
+                    out.write(buf, 0, n);
+                    total += n;
+                    if (total > 100L * 1024 * 1024) throw new IOException("too large");
+                }
+            }
+            if (!part.renameTo(target)) throw new IOException("cannot save");
+        } finally {
+            con.disconnect();
+            if (part.exists() && !part.delete()) part.deleteOnExit();
+        }
+    }
+
     /** TURN servers of the home server for calls ({uris, username, password}). */
     String turnServer() throws IOException {
         return call("GET", CLIENT + "/voip/turnServer", null, 10000);
@@ -195,6 +267,10 @@ final class MatrixApi {
     }
 
     private static String request(String method, String url, String json, String token, int timeoutMs) throws IOException {
+        return send(method, url, json == null ? null : json.getBytes(StandardCharsets.UTF_8), "application/json", token, timeoutMs);
+    }
+
+    private static String send(String method, String url, byte[] data, String type, String token, int timeoutMs) throws IOException {
         if (!url.startsWith("https://")) throw new IOException("only https");
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         try {
@@ -204,10 +280,9 @@ final class MatrixApi {
             con.setRequestProperty("User-Agent", "NovaOS-Chat");
             con.setRequestProperty("Accept", "application/json");
             if (token != null) con.setRequestProperty("Authorization", "Bearer " + token);
-            if (json != null) {
-                byte[] data = json.getBytes(StandardCharsets.UTF_8);
+            if (data != null) {
                 con.setDoOutput(true);
-                con.setRequestProperty("Content-Type", "application/json");
+                con.setRequestProperty("Content-Type", type);
                 con.setFixedLengthStreamingMode(data.length);
                 try (OutputStream out = con.getOutputStream()) {
                     out.write(data);

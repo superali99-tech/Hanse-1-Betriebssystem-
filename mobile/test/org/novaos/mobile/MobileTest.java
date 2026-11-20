@@ -23,6 +23,7 @@ public final class MobileTest {
         registry();
         nova();
         chat();
+        chatMedia();
         weather();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
@@ -97,7 +98,30 @@ public final class MobileTest {
     }
 
     /** The real Nova Store catalogue and "what's new" file. */
+    private static java.util.Set<String> names(java.io.File dir) throws java.io.IOException {
+        java.util.Set<String> out = new java.util.TreeSet<>();
+        java.io.File[] files = dir.listFiles((d, n) -> n.startsWith("strings") && n.endsWith(".xml"));
+        if (files == null) return out;
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile("<(string|plurals) name=\"([a-z0-9_]+)\"(?![^>]*translatable=\"false\")");
+        for (java.io.File f : files) {
+            java.util.regex.Matcher m = p.matcher(new String(java.nio.file.Files.readAllBytes(f.toPath()), java.nio.charset.StandardCharsets.UTF_8));
+            while (m.find()) out.add(m.group(2));
+        }
+        return out;
+    }
+
     private static void resources(String res) {
+        try {
+            java.util.Set<String> en = names(new java.io.File(res, "values")), de = names(new java.io.File(res, "values-de"));
+            java.util.Set<String> missingDe = new java.util.TreeSet<>(en), missingEn = new java.util.TreeSet<>(de);
+            missingDe.removeAll(de);
+            missingEn.removeAll(en);
+            check(missingDe.isEmpty(), "strings missing in German: " + missingDe);
+            check(missingEn.isEmpty(), "strings missing in English: " + missingEn);
+            check(en.size() > 300, "strings found: " + en.size());
+        } catch (java.io.IOException e) {
+            check(false, "strings: " + e);
+        }
         try {
             String store = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(res, "raw", "store.txt")),
                     java.nio.charset.StandardCharsets.UTF_8);
@@ -277,6 +301,111 @@ public final class MobileTest {
     }
 
     /** Nova Chat: Matrix /sync answers, contacts, Matrix IDs, JSON writing. */
+    private static void chatMedia() {
+        String sync = "{\"next_batch\":\"s9\",\"rooms\":{\"join\":{\"!r:x.org\":{\"timeline\":{\"events\":["
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$v\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":5,\"content\":"
+                + "{\"msgtype\":\"m.audio\",\"body\":\"Voice message\",\"url\":\"mxc://x.org/AbC_1-2\",\"info\":{\"mimetype\":\"audio/ogg\",\"size\":999,\"duration\":4200},"
+                + "\"org.matrix.msc1767.audio\":{\"duration\":4200,\"waveform\":[0,512,2000,-3]},\"org.matrix.msc3245.voice\":{}}},"
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$i\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":6,\"content\":"
+                + "{\"msgtype\":\"m.image\",\"body\":\"a.jpg\",\"url\":\"mxc://x.org/img\",\"info\":{\"mimetype\":\"image/jpeg\",\"w\":800,\"h\":600}}},"
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$e\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":7,\"content\":"
+                + "{\"msgtype\":\"m.text\",\"body\":\"* neu\",\"m.new_content\":{\"msgtype\":\"m.text\",\"body\":\"neu\"},"
+                + "\"m.relates_to\":{\"rel_type\":\"m.replace\",\"event_id\":\"$old\"}}},"
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$q\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":8,\"content\":"
+                + "{\"msgtype\":\"m.text\",\"body\":\"> <@me:x.org> Kommst du?\\n\\nJa, gleich!\"}},"
+                + "{\"type\":\"m.room.redaction\",\"event_id\":\"$red\",\"sender\":\"@lisa:x.org\",\"redacts\":\"$gone\",\"content\":{}},"
+                + "{\"type\":\"m.sticker\",\"event_id\":\"$s\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":9,\"content\":"
+                + "{\"body\":\"Sticker\",\"url\":\"mxc://x.org/st\",\"info\":{\"mimetype\":\"image/png\"}}},"
+                + "{\"type\":\"m.room.message\",\"event_id\":\"$bad\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":10,\"content\":"
+                + "{\"msgtype\":\"m.file\",\"body\":\"x.pdf\",\"url\":\"https://evil.example/x\"}}"
+                + "]}}}}}";
+        MatrixSync.Result r = MatrixSync.parse(sync, "@me:x.org");
+        java.util.List<MatrixSync.Message> ms = r.rooms.get(0).messages;
+        check(ms.size() == 6, "media messages: " + ms.size());
+        MatrixSync.Message v = ms.get(0);
+        check(v.kind.equals("audio") && v.voice && v.duration == 4200 && v.size == 999 && v.url.equals("mxc://x.org/AbC_1-2")
+                && v.mime.equals("audio/ogg"), "voice message");
+        check(v.waveform.equals(java.util.Arrays.asList(0, 512, 1024, 0)), "waveform clamped: " + v.waveform);
+        check(ms.get(1).kind.equals("image") && ms.get(1).w == 800 && ms.get(1).h == 600, "image size");
+        check(ms.get(2).replaces.equals("$old") && ms.get(2).body.equals("neu"), "edit replaces");
+        check(ms.get(3).body.equals("Ja, gleich!"), "reply fallback stripped: " + ms.get(3).body);
+        check(r.rooms.get(0).redacted.equals(java.util.Arrays.asList("$gone")), "redaction");
+        check(ms.get(4).kind.equals("image") && ms.get(4).url.equals("mxc://x.org/st"), "sticker as image");
+        check(ms.get(5).url.isEmpty() && ms.get(5).kind.equals("file"), "non-mxc url ignored");
+        MatrixSync.Message copy = new MatrixSync.Message();
+        MatrixSync.readMedia(copy, MatrixSync.mediaJson(v));
+        check(copy.url.equals(v.url) && copy.voice && copy.duration == 4200 && copy.waveform.equals(v.waveform)
+                && copy.mime.equals("audio/ogg") && copy.size == 999, "media json round trip");
+        check(MatrixSync.mediaJson(new MatrixSync.Message()).isEmpty(), "no media no json");
+        MatrixSync.readMedia(copy, "{broken");
+        check(MatrixSync.mxc("mxc://matrix.org/AbC123")[1].equals("AbC123") && MatrixSync.mxc("mxc://localhost:8448/x")[0].equals("localhost:8448"), "mxc");
+        check(MatrixSync.mxc("mxc://x.org/../etc") == null && MatrixSync.mxc("https://x.org/a") == null && MatrixSync.mxc("mxc://x.org/") == null
+                && MatrixSync.mxc(null) == null && MatrixSync.mxc("mxc://x.org/a?b") == null, "bad mxc");
+        check(MatrixSync.stripReply("> zitat\nohne leerzeile").equals("> zitat\nohne leerzeile")
+                && MatrixSync.stripReply("> a\nb\n\nc").equals("> a\nb\n\nc") && MatrixSync.stripReply("x").equals("x"), "reply fallback kept");
+
+        // emojis
+        check(Emoji.onlyEmoji("😀") && Emoji.onlyEmoji("👍🏽") && Emoji.onlyEmoji("❤️ 😂") && Emoji.onlyEmoji("🇩🇪")
+                && Emoji.onlyEmoji("👨‍👩‍👧") && Emoji.onlyEmoji("😀😀😀😀😀😀"), "only emoji");
+        check(!Emoji.onlyEmoji("hallo 😀") && !Emoji.onlyEmoji("") && !Emoji.onlyEmoji(null) && !Emoji.onlyEmoji("123")
+                && !Emoji.onlyEmoji("😀😀😀😀😀😀😀"), "not only emoji");
+        int count = 0;
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (String[] cat : Emoji.LIST) for (String e : cat) {
+            count++;
+            check(Emoji.onlyEmoji(e), "emoji in list is an emoji: " + e);
+            seen.add(e);
+        }
+        check(Emoji.LIST.length == Emoji.TABS.length && count > 700, "emoji list " + count);
+        check(Emoji.remember(java.util.Arrays.asList("a", "b", "c"), "b", 3).equals(java.util.Arrays.asList("b", "a", "c"))
+                && Emoji.remember(java.util.Arrays.asList("a", "b", "c"), "d", 3).equals(java.util.Arrays.asList("d", "a", "b")), "recent emojis");
+
+        // quick answers
+        check(QuickReplies.to("Wie geht's dir?", "text", true).get(0).startsWith("Gut, danke"), "quick: how are you");
+        check(QuickReplies.to("Kommst du morgen?", "text", true).get(0).startsWith("Ja"), "quick: question");
+        check(QuickReplies.to("Danke dir!", "text", true).get(0).startsWith("Gern"), "quick: thanks");
+        check(QuickReplies.to("Hallo Lisa", "text", true).get(0).startsWith("Hallo"), "quick: hello");
+        check(QuickReplies.to("Gute Nacht", "text", true).get(0).startsWith("Gute Nacht"), "quick: night");
+        check(QuickReplies.to("bild.jpg", "image", true).get(0).startsWith("Schön"), "quick: photo");
+        check(QuickReplies.to("Wo bist du", "text", true).get(0).startsWith("Bin gleich"), "quick: where");
+        check(QuickReplies.to("how are you?", "text", false).get(0).startsWith("Good"), "quick english");
+        check(QuickReplies.to(null, null, true).size() == 4 && QuickReplies.to("Okay", "text", true).get(0).equals("👍"), "quick default");
+
+        // Nova dictation
+        check(Dictation.clean("hallo lisa komma wie geht es dir fragezeichen", true).equals("Hallo lisa, wie geht es dir?"),
+                "dictation: " + Dictation.clean("hallo lisa komma wie geht es dir fragezeichen", true));
+        check(Dictation.clean("ich komme gleich punkt bis später daumen hoch", true).equals("Ich komme gleich. Bis später 👍"),
+                "dictation 2: " + Dictation.clean("ich komme gleich punkt bis später daumen hoch", true));
+        check(Dictation.clean("erste zeile neue zeile zweite zeile", true).equals("Erste zeile\nZweite zeile"), "dictation newline: "
+                + Dictation.clean("erste zeile neue zeile zweite zeile", true));
+        check(Dictation.clean("see you soon period thumbs up", false).equals("See you soon. 👍"), "dictation english: "
+                + Dictation.clean("see you soon period thumbs up", false));
+        check(Dictation.clean("  ", true).isEmpty() && Dictation.clean(null, true).isEmpty(), "dictation empty");
+        check(Dictation.isYes("Ja") && Dictation.isYes("ja bitte senden") && Dictation.isYes("Okay") && Dictation.isYes("yes"), "yes");
+        check(!Dictation.isYes("nein") && !Dictation.isYes("nicht senden") && Dictation.isNo("Nein danke") && Dictation.isNo("abbrechen")
+                && !Dictation.isNo("ja"), "no");
+        check(Dictation.isAgain("nochmal") && Dictation.isRead("lies vor") && Dictation.isRead("vorlesen") && !Dictation.isRead("hallo"), "again/read");
+
+        // voice message wave
+        java.util.List<Integer> amps = new java.util.ArrayList<>();
+        for (int i = 0; i < 300; i++) amps.add(i % 10 == 0 ? 32767 : 100);
+        java.util.List<Integer> wave = Waveform.of(amps, 64);
+        check(wave.size() == 64 && wave.get(0) == 1024, "wave size/peak " + wave.size());
+        check(Waveform.of(java.util.Arrays.asList(0, 32767), 64).equals(java.util.Arrays.asList(0, 1024)), "short wave");
+        check(Waveform.of(null, 64).isEmpty() && Waveform.at(wave, 0, 10) == wave.get(0) && Waveform.at(null, 3, 10) == 0, "wave edges");
+        check(Waveform.time(65000).equals("1:05") && Waveform.time(0).equals("0:00") && Waveform.time(-5).equals("0:00"), "wave time");
+
+        // Nova: read messages, write over Nova Chat
+        check(NovaBrain.understand("Lies meine Nachrichten vor", true).kind == NovaBrain.Kind.READ_MESSAGES, "read messages");
+        check(NovaBrain.understand("Hey Nova, habe ich neue Nachrichten?", true).kind == NovaBrain.Kind.READ_MESSAGES, "new messages?");
+        check(NovaBrain.understand("read my messages", false).kind == NovaBrain.Kind.READ_MESSAGES, "read messages en");
+        check(NovaBrain.understand("Schreib Lisa eine Nachricht: Ich komme später", true).kind == NovaBrain.Kind.MESSAGE, "message still message");
+        NovaBrain.Command chatMsg = NovaBrain.understand("Schreibe eine Nachricht an Lisa im Chat: Bin gleich da", true);
+        check(chatMsg.kind == NovaBrain.Kind.MESSAGE && NovaBrain.viaChat(chatMsg.text)[0].equals("Lisa")
+                && NovaBrain.viaChat(chatMsg.text)[1].equals("chat") && chatMsg.body.equals("Bin gleich da"), "message via chat: " + chatMsg);
+        check(NovaBrain.viaChat("Mama")[1].isEmpty() && NovaBrain.viaChat("Mama über Nova Chat")[0].equals("Mama"), "via chat");
+    }
+
     private static void chat() {
         String w = MiniJson.write(MiniJson.obj("a", "x\"y\\z\n", "n", 3, "d", 2.5, "l", new Object[] {1, true, null}, "o", MiniJson.obj()));
         check(w.equals("{\"a\":\"x\\\"y\\\\z\\n\",\"n\":3,\"d\":2.5,\"l\":[1,true,null],\"o\":{}}"), "json write " + w);
