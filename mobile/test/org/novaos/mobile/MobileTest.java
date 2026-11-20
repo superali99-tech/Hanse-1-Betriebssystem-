@@ -25,6 +25,7 @@ public final class MobileTest {
         chat();
         chatMedia();
         mail();
+        family();
         weather();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
@@ -302,6 +303,115 @@ public final class MobileTest {
     }
 
     /** Nova Chat: Matrix /sync answers, contacts, Matrix IDs, JSON writing. */
+    private static long at(int y, int mo, int d, int h, int mi) {
+        java.util.Calendar c = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Europe/Berlin"));
+        c.clear();
+        c.set(y, mo - 1, d, h, mi, 0);
+        return c.getTimeInMillis();
+    }
+
+    private static void family() {
+        java.util.TimeZone tz = java.util.TimeZone.getTimeZone("Europe/Berlin");
+        // the family code
+        String code = FamilyCrypto.newCode();
+        check(code.matches("[A-HJ-NP-Z2-9]{4}(-[A-HJ-NP-Z2-9]{4}){3}"), "code format " + code);
+        check(FamilyCrypto.normalize(code.toLowerCase().replace("-", " ")).equals(code), "code normalize");
+        check(FamilyCrypto.normalize("K7QM-2XRA-9PLD-W4E0") == null && FamilyCrypto.normalize("K7QM") == null
+                && FamilyCrypto.normalize(null) == null && FamilyCrypto.normalize("K7QM-2XRA-9PLD-W4EO") == null, "bad codes");
+        check(!FamilyCrypto.newCode().equals(FamilyCrypto.newCode()), "codes differ");
+        String topic = FamilyCrypto.topic("K7QM-2XRA-9PLD-W4EH");
+        check(topic.equals(FamilyCrypto.topic("K7QM-2XRA-9PLD-W4EH")) && topic.matches("novaos-[0-9a-f]{32}")
+                && !topic.equals(FamilyCrypto.topic("K7QM-2XRA-9PLD-W4EJ")), "topic " + topic);
+        byte[] key = FamilyCrypto.key("K7QM-2XRA-9PLD-W4EH");
+        check(key.length == 32 && java.util.Arrays.equals(key, FamilyCrypto.key("K7QM-2XRA-9PLD-W4EH")), "key");
+        String sealed = FamilyCrypto.seal(key, topic, "{\"type\":\"policy\",\"ä\":1}");
+        check(sealed.startsWith("n1.") && !sealed.contains("policy"), "sealed hides content");
+        check("{\"type\":\"policy\",\"ä\":1}".equals(FamilyCrypto.open(key, topic, sealed)), "open");
+        check(!sealed.equals(FamilyCrypto.seal(key, topic, "{\"type\":\"policy\",\"ä\":1}")), "random iv");
+        check(FamilyCrypto.open(FamilyCrypto.key("K7QM-2XRA-9PLD-W4EJ"), topic, sealed) == null, "other family cannot read");
+        check(FamilyCrypto.open(key, "novaos-other", sealed) == null, "other topic refused");
+        char[] t = sealed.toCharArray();
+        t[10] = t[10] == 'A' ? 'B' : 'A';
+        check(FamilyCrypto.open(key, topic, new String(t)) == null, "changed message refused");
+        check(FamilyCrypto.open(key, topic, "hallo") == null && FamilyCrypto.open(key, topic, null) == null, "garbage refused");
+        check(FamilyCrypto.pinHash("1234", "s1").equals(FamilyCrypto.pinHash("1234", "s1")) && !FamilyCrypto.pinHash("1234", "s1").equals(FamilyCrypto.pinHash("1234", "s2"))
+                && !FamilyCrypto.pinHash("1234", "s1").equals(FamilyCrypto.pinHash("1235", "s1")), "pin hash");
+
+        // locked now / until
+        FamilyPolicy p = new FamilyPolicy();
+        long now = at(2026, 11, 23, 16, 0);  // Monday 16:00
+        check(!p.evaluate(now, tz, 0, 0).locked, "free by default");
+        p.lockUntil = -1;
+        FamilyPolicy.State s = p.evaluate(now, tz, 0, 0);
+        check(s.locked && s.reason.equals("lock") && s.until == -1, "locked until parents");
+        p.lockUntil = at(2026, 11, 24, 7, 0);
+        s = p.evaluate(now, tz, 0, 0);
+        check(s.locked && s.until == at(2026, 11, 24, 7, 0), "locked until 7:00");
+        check(!p.evaluate(at(2026, 11, 24, 7, 0), tz, 0, 0).locked, "free at 7:00");
+        check(!p.evaluate(now, tz, 0, now + 1000).locked, "parents' PIN on the phone");
+        p.freeUntil = now + 60000;
+        check(!p.evaluate(now, tz, 0, 0).locked, "unlocked by parents");
+        p.freeUntil = 0;
+        p.lockUntil = 0;
+        // bedtime 21:00-07:00 every day
+        p.bedtime = true;
+        p.bedFrom = 21 * 60;
+        p.bedTo = 7 * 60;
+        s = p.evaluate(at(2026, 11, 23, 22, 30), tz, 0, 0);
+        check(s.locked && s.reason.equals("bedtime") && s.until == at(2026, 11, 24, 7, 0), "bedtime evening " + s);
+        check(p.evaluate(at(2026, 11, 24, 6, 59), tz, 0, 0).locked, "bedtime morning");
+        check(!p.evaluate(at(2026, 11, 24, 7, 0), tz, 0, 0).locked && !p.evaluate(at(2026, 11, 23, 20, 59), tz, 0, 0).locked, "bedtime edges");
+        p.freeUntil = at(2026, 11, 23, 23, 0);
+        check(!p.evaluate(at(2026, 11, 23, 22, 30), tz, 0, 0).locked, "free beats bedtime");
+        p.freeUntil = 0;
+        // school nights: Sunday to Thursday evenings
+        p.days = 0x4F;
+        check(!p.evaluate(at(2026, 11, 27, 22, 0), tz, 0, 0).locked, "Friday night free");
+        check(!p.evaluate(at(2026, 11, 28, 6, 0), tz, 0, 0).locked, "Saturday morning free");
+        check(p.evaluate(at(2026, 11, 29, 22, 0), tz, 0, 0).locked, "Sunday night locked");
+        check(p.evaluate(at(2026, 11, 30, 6, 0), tz, 0, 0).locked, "Monday morning locked");
+        check(p.evaluate(at(2026, 11, 26, 23, 0), tz, 0, 0).locked && !p.evaluate(at(2026, 11, 27, 23, 0), tz, 0, 0).locked, "Thursday vs Friday");
+        // midday bedtime on Mondays only
+        p.days = 0x01;
+        p.bedFrom = 13 * 60;
+        p.bedTo = 15 * 60;
+        check(p.evaluate(at(2026, 11, 23, 14, 0), tz, 0, 0).locked && !p.evaluate(at(2026, 11, 24, 14, 0), tz, 0, 0).locked, "midday Monday only");
+        p.bedtime = false;
+        // screen time
+        p.limitMinutes = 60;
+        check(!p.evaluate(now, tz, 59, 0).locked, "under the limit");
+        s = p.evaluate(now, tz, 60, 0);
+        check(s.locked && s.reason.equals("limit") && s.until == at(2026, 11, 24, 0, 0), "limit reached " + s);
+        p.bonusDay = FamilyPolicy.day(now, tz);
+        p.bonusMinutes = 30;
+        check(!p.evaluate(now, tz, 60, 0).locked && p.evaluate(now, tz, 90, 0).locked, "more time today");
+        check(p.evaluate(at(2026, 11, 24, 16, 0), tz, 60, 0).locked, "bonus only today");
+        // JSON
+        p.blocked.add("com.example.game");
+        p.callable.add(new String[] {"Mama", "+49 170 1234567"});
+        p.message = "Schlafenszeit 💤";
+        p.version = 42;
+        FamilyPolicy q = FamilyPolicy.fromJson(MiniJson.parse(MiniJson.write(p.toJson())));
+        check(q.version == 42 && q.limitMinutes == 60 && q.bonusMinutes == 30 && q.blocked.equals(p.blocked) && q.callable.get(0)[0].equals("Mama")
+                && q.message.equals("Schlafenszeit 💤") && q.days == 0x01 && q.bedFrom == 13 * 60, "policy json");
+        check(FamilyPolicy.fromJson("x").version == 0 && FamilyPolicy.fromJson(MiniJson.parse("{\"bedFrom\":99999,\"days\":255}")).bedFrom == 1439,
+                "policy json garbage");
+        check(FamilyPolicy.parseTime("21:30") == 21 * 60 + 30 && FamilyPolicy.parseTime("7 Uhr") == 420 && FamilyPolicy.parseTime("25:00") == -1
+                && FamilyPolicy.time(420).equals("7:00"), "times");
+        // relay
+        FamilyRelay.Message rm = FamilyRelay.parse("{\"id\":\"abc\",\"time\":1795197267,\"event\":\"message\",\"message\":\"n1.xyz\"}");
+        check(rm != null && rm.id.equals("abc") && rm.text.equals("n1.xyz") && rm.time == 1795197267L, "relay message");
+        check(FamilyRelay.parse("{\"event\":\"keepalive\"}") == null && FamilyRelay.parse("kaputt") == null, "relay other events");
+        check(FamilyRelay.url("https://ntfy.sh/", topic, "/json").equals("https://ntfy.sh/" + topic + "/json"), "relay url");
+        boolean refused = false;
+        try {
+            FamilyRelay.url("http://ntfy.sh", topic, "");
+        } catch (IllegalArgumentException e) {
+            refused = true;
+        }
+        check(refused, "relay only https");
+    }
+
     private static void mail() {
         // headers, encoded words, addresses, dates
         check(Mime.decodeWords("=?UTF-8?Q?Gr=C3=BC=C3=9Fe_aus?= =?UTF-8?B?SGFtYnVyZw==?=").equals("Grüße ausHamburg"), "encoded words join");

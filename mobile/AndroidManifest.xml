@@ -44,6 +44,14 @@
     <!-- Nova Dateien (Android 11+: "All files access", asked in the Android settings) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <!-- Nova Family on a child's phone: the protection runs all the time (foreground service),
+         the lock screen covers other apps, calls always work, blocked apps are noticed -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
 
     <!-- Android 11+: apps the home screen may list and start -->
     <queries>
@@ -279,6 +287,29 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".FamilyActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_family"
+            android:label="@string/app_family"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.family"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Nova Family: lock screen without the overlay permission -->
+        <activity
+            android:name=".LockActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:taskAffinity="org.novaos.mobile.lock"
+            android:theme="@style/Theme.NovaMobile.Player"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".RoomActivity"
             android:exported="false"
             android:taskAffinity="org.novaos.mobile.chat"
@@ -344,6 +375,41 @@
             android:name=".ChatSync$ChatJob"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- Nova Family: protection of a child's phone (always running) -->
+        <service
+            android:name=".FamilyService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Parental control: keeps the child's phone locked during bedtime and when the parents lock it" />
+        </service>
+        <service
+            android:name=".Family$FamilyJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <receiver
+            android:name=".Family$Answer"
+            android:exported="false" />
+        <!-- Nova Family: protection against uninstalling on a child's phone -->
+        <receiver
+            android:name=".FamilyAdmin"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN">
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/family_admin" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
         <!-- Nova Mail: looks for new mails every 15 minutes -->
         <service
             android:name=".MailSync$MailJob"

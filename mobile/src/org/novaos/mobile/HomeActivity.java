@@ -129,6 +129,8 @@ public class HomeActivity extends Activity {
         rebuild();
         UpdateJob.schedule(this);  // looks for updates in the background every few hours
         if (!MailStore.accounts(this).isEmpty()) MailSync.MailJob.schedule(this);  // new mails every 15 minutes
+        if (Family.child(this)) FamilyService.start(this);  // Nova Family protects this child's phone
+        Family.listen(this);  // parents: the children's requests arrive at once
         ChatSync.get(this).start();  // Nova Chat: messages and calls arrive while NovaOS runs
         ChatSync.get(this).addListener(chatListener);
         Updates.prefs(this).registerOnSharedPreferenceChangeListener(updateListener);
@@ -142,6 +144,9 @@ public class HomeActivity extends Activity {
             bootShown = true;  // start animation after an update or on the first start
             startActivity(new Intent(this, BootActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        } else if (Family.state(this).locked) {
+            // child's phone locked by the parents: no home screen (the overlay normally covers it)
+            startActivity(new Intent(this, LockActivity.class));
         } else if (!SetupActivity.done(this)) {
             startActivity(new Intent(this, SetupActivity.class));  // first start: set up NovaOS
         } else {
@@ -230,7 +235,8 @@ public class HomeActivity extends Activity {
                 StringBuilder sig = new StringBuilder(Favorites.raw(this));
                 UpdateInfo u = Updates.pending(this);
                 if (u != null) sig.append("|update").append(u.versionCode).append(Updates.readyApk(this, u) != null);
-                sig.append("|chat").append(ChatDb.loggedIn(this)).append(chatUnread()).append("|mail").append(mailUnread());
+                sig.append("|chat").append(ChatDb.loggedIn(this)).append(chatUnread()).append("|mail").append(mailUnread())
+                        .append("|family").append(Family.role(this)).append(Family.parent(this) ? Family.children(this).size() : 0);
                 for (App a : list) sig.append('|').append(a.key()).append(a.label);
                 if (!sig.toString().equals(shown)) {
                     shown = sig.toString();
@@ -299,7 +305,7 @@ public class HomeActivity extends Activity {
         LinearLayout.LayoutParams c2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         c2.topMargin = Ui.dp(this, 12);
         rows.addView(cards2, c2);
-        // Nova Mail (unread mails) and Nova Store
+        // Nova Mail (unread mails) and Nova Family
         LinearLayout cards3 = new LinearLayout(this);
         cards3.setOrientation(LinearLayout.HORIZONTAL);
         int mails = mailUnread();
@@ -307,8 +313,11 @@ public class HomeActivity extends Activity {
                 mails < 0 ? getString(R.string.card_mail_sub) : mails > 0
                         ? getResources().getQuantityString(R.plurals.card_mail_unread, mails, mails) : getString(R.string.card_mail_none),
                 mails > 0, v -> startActivity(new Intent(this, MailActivity.class))), weight(0, side));
-        cards3.addView(novaCard(R.drawable.ic_download_s, getString(R.string.app_store), getString(R.string.card_store_sub), false,
-                v -> startActivity(new Intent(this, StoreActivity.class))), weight(side, 0));
+        int kids = Family.parent(this) ? Family.children(this).size() : 0;
+        cards3.addView(novaCard(R.drawable.ic_family, getString(R.string.app_family),
+                Family.child(this) ? getString(R.string.card_family_child) : kids > 0
+                        ? getResources().getQuantityString(R.plurals.card_family_children, kids, kids) : getString(R.string.card_family_sub), false,
+                v -> startActivity(new Intent(this, FamilyActivity.class))), weight(side, 0));
         LinearLayout.LayoutParams c3 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         c3.topMargin = Ui.dp(this, 12);
         rows.addView(cards3, c3);

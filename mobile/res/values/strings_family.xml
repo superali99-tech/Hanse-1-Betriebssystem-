@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nova Family (English) -->
+<resources>
+    <string name="family_relay" translatable="false">https://ntfy.sh</string>
+    <string name="app_family">Nova Family</string>
+    <string name="family_sub">Parental controls for your family</string>
+    <string name="family_intro">With Nova Family parents lock their child\'s phone – right now, until a time or every night (bedtime) – and set a daily screen time. While the phone is locked the child only sees the lock screen: calling the parents and emergency numbers and the torch always work.</string>
+    <string name="family_parent">I am a parent</string>
+    <string name="family_parent_choose">Control your children\'s phones from this phone</string>
+    <string name="family_child">This is a child\'s phone</string>
+    <string name="family_child_choose">The parents set it up once with the family code</string>
+    <string name="family_how">How it works: the phones exchange encrypted messages over the free relay ntfy.sh – only your family\'s phones have the key, the relay sees no names and no rules. No account needed.</string>
+    <string name="family_parent_sub">Your children\'s phones</string>
+    <string name="family_child_sub">This phone is protected by your family</string>
+    <string name="family_parent_setup_text">Create your family. The PIN unlocks the child\'s phone on the spot and protects Nova Family there – your child must not know it.</string>
+    <string name="family_your_name">Your name (e.g. Mum)</string>
+    <string name="family_your_phone">Your phone number (your child can always call it)</string>
+    <string name="family_new_pin">Parents\' PIN (at least 4 digits)</string>
+    <string name="family_new_pin_again">Repeat the PIN</string>
+    <string name="family_create">Create family</string>
+    <string name="family_need_name">Please enter a name.</string>
+    <string name="family_pin_rules">The PIN needs at least 4 digits and both must be the same.</string>
+    <string name="family_have_code">Second parent? Enter the family code of the first parent:</string>
+    <string name="family_code_hint">Family code, e.g. K7QM-2XRA-9PLD-W4EH</string>
+    <string name="family_join_parent">Join as parent</string>
+    <string name="family_bad_code">This is not a family code. It has 16 letters and digits.</string>
+    <string name="family_code_title">YOUR FAMILY CODE</string>
+    <string name="family_code_how">On the child\'s phone: open Nova Family → “This is a child\'s phone” → enter this code. Keep it secret.</string>
+    <string name="family_no_children">No child\'s phone connected yet. Open Nova Family on the child\'s phone and enter the code above.</string>
+    <string name="family_refresh">Refresh</string>
+    <string name="family_refreshing">Asking the children\'s phones …</string>
+    <string name="family_leave">Leave family</string>
+    <string name="family_leave_parent_confirm">Remove Nova Family from this phone? The children\'s phones stay protected; you can join again with the family code.</string>
+    <string name="family_state_free">Free</string>
+    <string name="family_state_locked">Locked</string>
+    <string name="family_until">until %1$s</string>
+    <string name="family_seen">seen %1$s</string>
+    <string name="family_screen_today">Screen time today: %1$s</string>
+    <string name="family_bedtime_line">Bedtime %1$s – %2$s (%3$s)</string>
+    <plurals name="family_blocked_apps">
+        <item quantity="one">1 app blocked</item>
+        <item quantity="other">%d apps blocked</item>
+    </plurals>
+    <string name="family_prot_missing">Protection incomplete on the child\'s phone: %1$s</string>
+    <string name="family_lock_now">Lock now</string>
+    <string name="family_unlock">Unlock</string>
+    <string name="family_lock_until">Lock until …</string>
+    <string name="family_limit">Screen time</string>
+    <string name="family_more_time">More time</string>
+    <string name="family_apps">Apps</string>
+    <string name="family_message">Message</string>
+    <string name="family_remove">Remove</string>
+    <string name="family_sent_lock">%1$s\'s phone is being locked.</string>
+    <string name="family_sent_unlock">%1$s\'s phone is being unlocked.</string>
+    <string name="family_sent_lock_until">%1$s\'s phone stays locked until %2$s.</string>
+    <string name="family_saved">Saved – the child\'s phone gets it in a moment.</string>
+    <string name="family_unlock_title">Unlock %1$s\'s phone</string>
+    <string name="family_unlock_30">Free for 30 minutes</string>
+    <string name="family_unlock_60">Free for 1 hour</string>
+    <string name="family_unlock_120">Free for 2 hours</string>
+    <string name="family_unlock_rules">Only lift “Lock now” (bedtime and screen time stay)</string>
+    <string name="family_bed_off">No bedtime</string>
+    <string name="family_bed_preset">Every day %1$s – %2$s</string>
+    <string name="family_bed_school">School nights 21:00 – 6:30 (Sunday to Thursday)</string>
+    <string name="family_bed_custom">Own times …</string>
+    <string name="family_bed_from_to">Choose when the bedtime starts, then when it ends.</string>
+    <string name="family_bed_days">On which evenings?</string>
+    <string name="family_every_day">every day</string>
+    <string-array name="family_days">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+    <string name="family_limit_title">Screen time per day</string>
+    <string name="family_limit_off">No limit</string>
+    <string name="family_min">%1$d min</string>
+    <string name="family_hours">%1$d h</string>
+    <string name="family_hours_min">%1$d h %2$d min</string>
+    <string name="family_more_time_title">More time for %1$s today</string>
+    <string name="family_apps_loading">The app list of the child\'s phone is being loaded – try again in a moment.</string>
+    <string name="family_apps_title">Block apps</string>
+    <string name="family_message_title">Message on the lock screen</string>
+    <string name="family_message_hint">e.g. Time to sleep! Love, Mum</string>
+    <string name="family_remove_confirm">Release %1$s\'s phone? Nova Family is switched off there.</string>
+    <string name="family_child_setup_text">Ask your parents for the family code (in Nova Family on their phone) and enter it here.</string>
+    <string name="family_child_name">Your first name</string>
+    <string name="family_connect">Connect with the family</string>
+    <string name="family_protected">Protected by your family</string>
+    <string name="family_protected_sub">Your parents set when this phone can be used.</string>
+    <string name="family_waiting_parents">Connected – waiting for your parents\' phone.</string>
+    <string name="family_now_locked">🔒 The phone is locked right now.</string>
+    <string name="family_protection">Protection</string>
+    <string name="family_protection_text">So that Nova Family works reliably, switch on everything here (a parent should help).</string>
+    <string name="family_prot_on">On ✓</string>
+    <string name="family_prot_home">NovaOS as home screen</string>
+    <string name="family_prot_home_sub">So that the home button leads to NovaOS</string>
+    <string name="family_prot_overlay">Display over other apps</string>
+    <string name="family_prot_overlay_sub">So that the lock screen covers every app</string>
+    <string name="family_prot_admin">Protection against uninstalling</string>
+    <string name="family_prot_admin_sub">Device administrator: NovaOS cannot simply be removed</string>
+    <string name="family_admin_explain">Nova Family: protects this child\'s phone. The parents are told if this is switched off.</string>
+    <string name="family_admin_warning">Your parents will be told that the protection was switched off.</string>
+    <string name="family_prot_phone">Calls during the lock</string>
+    <string name="family_prot_phone_sub">So that calls always work while the phone is locked</string>
+    <string name="family_prot_notify_sub">For your parents\' answers</string>
+    <string name="family_prot_battery">No battery saving for NovaOS</string>
+    <string name="family_prot_battery_sub">So that Android does not stop the protection</string>
+    <string name="family_prot_usage">Usage access (for blocked apps)</string>
+    <string name="family_prot_usage_sub">So that apps the parents block are covered</string>
+    <string name="family_leave_child">Leave the family</string>
+    <string name="family_leave_child_text">Only the parents can do this: enter the parents\' PIN.</string>
+    <string name="family_leave_unpaired">The parents have not set any rules yet. Leave the family anyway?</string>
+    <string name="family_channel">Nova Family</string>
+    <string name="family_guard_channel">Protection of this phone</string>
+    <string name="family_guard_title">Protected by your family</string>
+    <string name="family_guard_text">Nova Family is active</string>
+    <string name="family_joined_title">Child\'s phone connected</string>
+    <string name="family_joined_text">%1$s\'s phone is now in your family.</string>
+    <string name="family_req_title">A request from your child</string>
+    <string name="family_req_unlock">%1$s asks you to unlock the phone.</string>
+    <string name="family_req_time">%1$s asks for %2$d more minutes.</string>
+    <string name="family_allow">Allow</string>
+    <string name="family_deny">Decline</string>
+    <string name="family_answer_yes">Your parents said yes 👍</string>
+    <string name="family_answer_no">Your parents said no.</string>
+    <string name="family_alert_title">Nova Family: %1$s</string>
+    <string name="family_alert_admin">The protection against uninstalling was switched off on %1$s\'s phone.</string>
+    <string name="family_alert_overlay">The lock screen permission was taken away on %1$s\'s phone.</string>
+    <string name="family_alert_pin">%1$s\'s phone was unlocked with the parents\' PIN for 30 minutes.</string>
+    <string name="family_alert_left">%1$s\'s phone left the family.</string>
+    <string name="family_alert_other">Something changed on %1$s\'s phone.</string>
+    <string name="lock_locked">Your phone was locked</string>
+    <string name="lock_bedtime">Bedtime</string>
+    <string name="lock_limit">Screen time used up</string>
+    <string name="lock_app">This app is blocked</string>
+    <string name="lock_app_text">Your parents blocked this app.</string>
+    <string name="lock_home">Back to the home screen</string>
+    <string name="lock_until_today">Back at %1$s</string>
+    <string name="lock_until_day">Back on %1$s at %2$s</string>
+    <string name="lock_until_parents">Until your parents unlock it</string>
+    <string name="lock_call">Call %1$s</string>
+    <string name="lock_emergency">Emergency call 112</string>
+    <string name="lock_torch">Torch</string>
+    <string name="lock_ask">Ask parents</string>
+    <string name="lock_ask_unlock">Please unlock</string>
+    <string name="lock_ask_time">30 minutes more</string>
+    <string name="lock_asked">Your parents got your request.</string>
+    <string name="lock_parents">For parents: unlock with PIN</string>
+    <string name="lock_pin_hint">Parents\' PIN</string>
+    <string name="lock_pin_ok">Unlocked for 30 minutes</string>
+    <string name="lock_pin_wrong">Wrong PIN</string>
+    <string name="lock_brand">Nova Family · NovaOS</string>
+    <string name="card_family_sub">Parental controls</string>
+    <plurals name="card_family_children">
+        <item quantity="one">1 child\'s phone</item>
+        <item quantity="other">%d children\'s phones</item>
+    </plurals>
+    <string name="card_family_child">Protected</string>
+</resources>

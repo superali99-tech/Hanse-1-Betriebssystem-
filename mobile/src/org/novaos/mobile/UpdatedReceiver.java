@@ -16,6 +16,7 @@ public class UpdatedReceiver extends BroadcastReceiver {
         if (!Intent.ACTION_MY_PACKAGE_REPLACED.equals(intent.getAction())) return;
         UpdateNotice.cancel(c);  // the update is installed
         UpdateJob.schedule(c);
+        if (Family.child(c)) FamilyService.start(c);  // the child's phone stays protected
         if (!Updates.justUpdated(c)) return;
         try {
             c.startActivity(new Intent(c, HomeActivity.class)
