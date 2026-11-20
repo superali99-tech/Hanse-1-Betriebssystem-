@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 final class Updates {
     private static final String PREFS = "novaos_update";
-    private static final long INTERVAL_MS = 60 * 60 * 1000L;  // home screen: at most hourly
+    private static final long INTERVAL_MS = 15 * 60 * 1000L;  // home screen: at most every 15 minutes
     static final String TAG = "latest";
 
     /** Result of a check. */
@@ -135,7 +135,11 @@ final class Updates {
         UpdateInfo u = check(c);
         if (u == null || !u.newerThan(installedCode(c))) return null;
         boolean ready = prepare(c, u) != null;
-        UpdateNotice.show(c, u, ready);
+        try {
+            UpdateNotice.show(c, u, ready);
+        } catch (RuntimeException ignored) {
+            // no notification: the home screen and the settings still show the update
+        }
         return u;
     }
 

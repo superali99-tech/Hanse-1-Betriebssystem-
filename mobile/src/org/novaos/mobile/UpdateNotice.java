@@ -32,6 +32,11 @@ final class UpdateNotice {
         PendingIntent open = PendingIntent.getActivity(c, 0,
                 new Intent(c, UpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        // button "Aktualisieren": opens the update page and starts the installation
+        PendingIntent update = PendingIntent.getActivity(c, 1,
+                new Intent(c, UpdateActivity.class).putExtra(UpdateActivity.EXTRA_INSTALL, true)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         @SuppressWarnings("deprecation")
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CHANNEL) : new Notification.Builder(c);
         String text = c.getString(ready ? R.string.notify_ready : R.string.notify_available, u.versionName);
@@ -41,6 +46,8 @@ final class UpdateNotice {
                 .setContentText(text)
                 .setStyle(new Notification.BigTextStyle().bigText(text))
                 .setContentIntent(open)
+                .addAction(new Notification.Action.Builder(android.graphics.drawable.Icon.createWithResource(c, R.drawable.ic_refresh),
+                        c.getString(R.string.notify_action), update).build())
                 .setAutoCancel(true)
                 .setShowWhen(true);
         nm.notify(ID, b.build());

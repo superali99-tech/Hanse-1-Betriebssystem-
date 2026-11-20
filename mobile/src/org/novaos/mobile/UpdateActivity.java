@@ -18,6 +18,7 @@ import java.util.Locale;
  * installation Android restarts NovaOS; the start animation then shows "what's new".
  */
 public class UpdateActivity extends Activity {
+    static final String EXTRA_INSTALL = "install";  // "Aktualisieren" in the notification
     private LinearLayout content;
     private TextView status;
     private Button action;
@@ -52,7 +53,12 @@ public class UpdateActivity extends Activity {
             if (!ok) status.setText(getString(R.string.update_failed, message == null ? "?" : message));
         }));
         UpdateInfo known = Updates.pending(this);
-        if (known != null) show(known); else check();
+        if (known != null) {
+            show(known);
+            if (getIntent().getBooleanExtra(EXTRA_INSTALL, false)) install();
+        } else {
+            check();
+        }
     }
 
     @Override
