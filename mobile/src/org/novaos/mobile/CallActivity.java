@@ -96,6 +96,7 @@ public class CallActivity extends Activity implements ChatSync.CallListener {
         buildUi(name);
         ChatSync.get(this).addCallListener(this);
         ChatSync.get(this).start();
+        for (MatrixSync.CallEvent e : ChatSync.get(this).recentCalls(callId)) onCallEvent(e);  // e.g. candidates sent while ringing
 
         if (incoming && getIntent().getBooleanExtra(EXTRA_ACCEPT, false)) {
             accept();

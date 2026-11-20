@@ -48,7 +48,8 @@ public class RoomActivity extends Activity implements ChatSync.Listener {
         ViewGroup parent = (ViewGroup) scroller.getParent();
         bar = new LinearLayout(this);
         bar.setGravity(Gravity.CENTER_VERTICAL);
-        bar.setPadding(0, Ui.dp(this, 8), 0, Ui.dp(this, 8));
+        int side = getResources().getDimensionPixelSize(R.dimen.side);
+        bar.setPadding(side, Ui.dp(this, 8), side, Ui.dp(this, 10));
         input = new EditText(this);
         input.setHint(R.string.chat_write);
         input.setTextColor(Color.WHITE);
@@ -175,7 +176,8 @@ public class RoomActivity extends Activity implements ChatSync.Listener {
         TextView t = Ui.text(this, text, 16, Color.WHITE, false);
         t.setTextIsSelectable(true);
         t.setMaxWidth((int) (getResources().getDisplayMetrics().widthPixels * 0.72f));
-        b.addView(t);
+        // natural width (a vertical LinearLayout would otherwise squeeze it to the time's width)
+        b.addView(t, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView time = Ui.text(this, DateFormat.getTimeFormat(this).format(new Date(m.ts)), 11, 0xB3FFFFFF, false);
         time.setGravity(Gravity.END);
         LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);

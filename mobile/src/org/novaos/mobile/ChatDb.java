@@ -198,13 +198,17 @@ final class ChatDb extends SQLiteOpenHelper {
         try (Cursor c = getReadableDatabase().query("rooms", null, null, null, null, null, "invite DESC, last_ts DESC")) {
             while (c.moveToNext()) out.add(row(c));
         }
+        for (RoomRow r : out) named(r);
         return out;
     }
 
     RoomRow room(String id) {
+        RoomRow r;
         try (Cursor c = getReadableDatabase().query("rooms", null, "id=?", new String[] {id}, null, null, null)) {
-            return c.moveToFirst() ? row(c) : null;
+            r = c.moveToFirst() ? row(c) : null;
         }
+        if (r != null) named(r);
+        return r;
     }
 
     RoomRow directRoom(String userId) {
@@ -229,6 +233,17 @@ final class ChatDb extends SQLiteOpenHelper {
         r.directUser = c.getString(c.getColumnIndexOrThrow("direct_user"));
         if (r.name.isEmpty()) r.name = r.directUser.isEmpty() ? r.id : MatrixSync.localpart(r.directUser);
         return r;
+    }
+
+    /** Direct chats are called like the saved contact. */
+    private void named(RoomRow r) {
+        if (r.directUser.isEmpty()) return;
+        for (MatrixSync.Contact c : contacts()) {
+            if (c.id.equals(r.directUser)) {
+                r.name = c.name;
+                return;
+            }
+        }
     }
 
     /** The last messages of a chat, oldest first. */

@@ -41,6 +41,8 @@ final class ChatSync {
     private final Handler ui = new Handler(Looper.getMainLooper());
     private volatile boolean running;
     private Thread loop;
+    // call signals of the last minutes: the call screen picks up what came before it opened
+    private final List<MatrixSync.CallEvent> recentCalls = new java.util.ArrayList<>();
 
     interface CallListener {
         void onCallEvent(MatrixSync.CallEvent e);
@@ -129,14 +131,29 @@ final class ChatSync {
                 notifyMessages(fresh);
                 for (MatrixSync.Room room : r.rooms) if (room.invite && !room.inviter.isEmpty()) notifyInvite(room);
                 long now = System.currentTimeMillis();
+                synchronized (recentCalls) {
+                    for (int i = recentCalls.size() - 1; i >= 0; i--) {
+                        if (now - recentCalls.get(i).ts > 180_000) recentCalls.remove(i);
+                    }
+                    for (MatrixSync.CallEvent c : r.calls) if (!c.sender.equals(me)) recentCalls.add(c);
+                }
                 for (MatrixSync.CallEvent c : r.calls) {
                     if (c.sender.equals(me)) continue;
                     if (c.type.equals("m.call.invite") && now - c.ts < 60_000 && callListeners.isEmpty()) Calls.incoming(app, c);
                     for (CallListener l : callListeners) ui.post(() -> l.onCallEvent(c));
                 }
             }
-            if (!r.rooms.isEmpty() || !r.left.isEmpty() || r.contacts != null) changed();
+            if (since == null || !r.rooms.isEmpty() || !r.left.isEmpty() || r.contacts != null) changed();
         }
+    }
+
+    /** Call signals of this call that arrived before the call screen was open. */
+    List<MatrixSync.CallEvent> recentCalls(String callId) {
+        List<MatrixSync.CallEvent> out = new java.util.ArrayList<>();
+        synchronized (recentCalls) {
+            for (MatrixSync.CallEvent c : recentCalls) if (callId.equals(c.content.get("call_id"))) out.add(c);
+        }
+        return out;
     }
 
     void changed() {

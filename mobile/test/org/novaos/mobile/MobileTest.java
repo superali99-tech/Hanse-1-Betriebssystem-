@@ -221,34 +221,34 @@ public final class MobileTest {
         check(NovaBrain.understand("Taschenlampe an", true).level == 1, "torch on");
         check(NovaBrain.understand("Mach das Licht aus", true).level == 0, "torch off");
         check(NovaBrain.understand("turn off the flashlight", false).level == 0, "torch off en");
-        expect("Öffne Kamera", "OPEN_APP(kamera)");
-        expect("Hey Nova starte die Galerie", "OPEN_APP(galerie)");
-        expect("Nova Store öffnen", "OPEN_APP(nova store)");
+        expect("Öffne Kamera", "OPEN_APP(Kamera)");
+        expect("Hey Nova starte die Galerie", "OPEN_APP(Galerie)");
+        expect("Nova Store öffnen", "OPEN_APP(Nova Store)");
         expect("open spotify", "OPEN_APP(spotify)");
-        expect("Zeig mir meine Fotos", "OPEN_APP(fotos)");
+        expect("Zeig mir meine Fotos", "OPEN_APP(Fotos)");
         expect("Öffne die WLAN Einstellungen", "SETTINGS(wifi)");
         expect("Bluetooth öffnen", "SETTINGS(bluetooth)");
         expect("Einstellungen", "SETTINGS(settings)");
-        expect("Ruf Mama an", "CALL(mama)");
-        expect("Rufe meinen Bruder an", "CALL(bruder)");
-        expect("call John", "CALL(john)");
-        expect("Papa anrufen", "CALL(papa)");
-        expect("Schreib Mama eine Nachricht dass ich später komme", "MESSAGE(mama|ich später komme)");
-        expect("Schreibe eine Nachricht an Lisa", "MESSAGE(lisa)");
-        expect("send a message to Tom saying hello", "MESSAGE(tom|hello)");
-        expect("Notiere Brot und Milch kaufen", "NOTE(brot und milch kaufen)");
-        expect("Merke dir: Auto steht in der Tiefgarage", "NOTE(auto steht in der tiefgarage)");
+        expect("Ruf Mama an", "CALL(Mama)");
+        expect("Rufe meinen Bruder an", "CALL(Bruder)");
+        expect("call John", "CALL(John)");
+        expect("Papa anrufen", "CALL(Papa)");
+        expect("Schreib Mama eine Nachricht dass ich später komme", "MESSAGE(Mama|ich später komme)");
+        expect("Schreibe eine Nachricht an Lisa", "MESSAGE(Lisa)");
+        expect("send a message to Tom saying hello", "MESSAGE(Tom|hello)");
+        expect("Notiere Brot und Milch kaufen", "NOTE(Brot und Milch kaufen)");
+        expect("Merke dir: Auto steht in der Tiefgarage", "NOTE(Auto steht in der Tiefgarage)");
         expect("Wie ist das Wetter?", "WEATHER()");
-        expect("Wie wird das Wetter in Hamburg", "WEATHER(hamburg)");
-        expect("Wetter in München heute", "WEATHER(münchen)");
-        expect("what's the weather in London", "WEATHER(london)");
+        expect("Wie wird das Wetter in Hamburg", "WEATHER(Hamburg)");
+        expect("Wetter in München heute", "WEATHER(München)");
+        expect("what's the weather in London", "WEATHER(London)");
         expect("Spiele ZDF", "TV(ZDF)");
         expect("Schalte auf ARD", "TV(Das Erste)");
         expect("Spiel ZDFneo", "TV(ZDFneo)");
         expect("Spiele NDR", "TV(NDR Hamburg)");
         expect("Fernsehen", "TV()");
-        expect("Suche nach Pizza in der Nähe", "SEARCH(pizza in der nähe)");
-        expect("Wer ist Albert Einstein", "SEARCH(wer ist albert einstein)");
+        expect("Suche nach Pizza in der Nähe", "SEARCH(Pizza in der Nähe)");
+        expect("Wer ist Albert Einstein", "SEARCH(Wer ist Albert Einstein)");
         expect("Lauter", "VOLUME()");
         check(NovaBrain.understand("Leiser bitte", true).level == -1, "volume down");
         check(NovaBrain.understand("Ton aus", true).level == 0, "mute");
@@ -256,7 +256,7 @@ public final class MobileTest {
         expect("Was kannst du?", "HELP()");
         expect("Danke", "TALK()");
         expect("Erzähl mir einen Witz", "TALK()");
-        expect("Blablubb Quatsch", "UNKNOWN(blablubb quatsch)");
+        expect("Blablubb Quatsch", "UNKNOWN(Blablubb Quatsch)");
         // calculator
         String[][] sums = {{"Was ist 5 mal 7", "35"}, {"Rechne 12 plus 30", "42"}, {"wie viel ist 100 geteilt durch 8", "12,5"},
                 {"was ist zwanzig minus drei", "17"}, {"15 Prozent von 80", "12"}, {"Wurzel aus 144", "12"},
@@ -272,6 +272,8 @@ public final class MobileTest {
                 && !NovaBrain.hasWakeWord("Nova Store öffnen") && !NovaBrain.hasWakeWord("supernova"), "wake word");
         check(NovaBrain.clean("Hey Nova, kannst du bitte die Taschenlampe einschalten?").equals("die taschenlampe einschalten"), "clean");
         check(NovaBrain.understand("", true).kind == NovaBrain.Kind.TALK, "empty -> listening");
+        check(NovaBrain.understand("Hey Nova, bitte notiere: Termin beim Zahnarzt am Montag", true).text.equals("Termin beim Zahnarzt am Montag"),
+                "note keeps spelling " + NovaBrain.understand("Hey Nova, bitte notiere: Termin beim Zahnarzt am Montag", true).text);
     }
 
     /** Nova Chat: Matrix /sync answers, contacts, Matrix IDs, JSON writing. */

@@ -50,22 +50,50 @@ public final class NovaBrain {
 
     /** Lower case, without wake word, punctuation and polite words. */
     public static String clean(String spoken) {
-        if (spoken == null) return "";
-        String s = spoken.toLowerCase(Locale.GERMAN).trim();
-        s = WAKE.matcher(s).replaceFirst("").trim();
-        s = s.replaceAll("(?<!\\d)[,.](?!\\d)|[?!;\"„“”]", " ").replaceAll("\\s+", " ").trim();
+        return cleanBoth(spoken)[0];
+    }
+
+    /**
+     * {lower case, original spelling} of the cleaned text: commands are matched in lower case,
+     * notes, names, cities and messages keep how they were said or typed.
+     */
+    static String[] cleanBoth(String spoken) {
+        if (spoken == null) return new String[] {"", ""};
+        String o = spoken.trim();
+        String s = o.toLowerCase(Locale.GERMAN);
+        if (s.length() != o.length()) o = s;  // rare letters change their length: no original spelling
+        Matcher w = WAKE.matcher(s);
+        if (w.find()) {
+            s = s.substring(w.end());
+            o = o.substring(w.end());
+        }
+        String punct = "(?<!\\d)[,.](?!\\d)|[?!;\"„“”]";
+        s = s.replaceAll(punct, " ").replaceAll("\\s+", " ").trim();
+        o = o.replaceAll(punct, " ").replaceAll("\\s+", " ").trim();
         boolean changed = true;
         while (changed) {
             changed = false;
             for (String p : POLITE) {
                 if (s.startsWith(p)) {
                     s = s.substring(p.length()).trim();
+                    o = o.substring(o.length() - s.length());
                     changed = true;
                 }
             }
         }
-        s = s.replaceAll("\\s+(bitte|please)$", "");
-        return s.trim();
+        Matcher end = Pattern.compile("\\s+(bitte|please)$").matcher(s);
+        if (end.find()) {
+            s = s.substring(0, end.start());
+            o = o.substring(0, s.length());
+        }
+        return new String[] {s.trim(), o.trim()};
+    }
+
+    /** The original spelling of a part of the cleaned lower-case text. */
+    private static String spelled(String part, String c, String o) {
+        if (part == null || part.isEmpty() || c.length() != o.length()) return part;
+        int i = c.indexOf(part);
+        return i < 0 ? part : o.substring(i, i + part.length());
     }
 
     /** True if the spoken text starts with the wake word ("Hey Nova ..."). */
@@ -84,7 +112,20 @@ public final class NovaBrain {
      * @param seed     picks a joke
      */
     public static Command understand(String spoken, boolean german, List<String> channels, int seed) {
-        String c = clean(spoken);
+        String[] both = cleanBoth(spoken);
+        Command r = understandClean(both[0], german, channels, seed);
+        switch (r.kind) {
+            case OPEN_APP: case CALL: case MESSAGE: case NOTE: case WEATHER: case SEARCH: case UNKNOWN:
+                r.text = spelled(r.text, both[0], both[1]);
+                r.body = spelled(r.body, both[0], both[1]);
+                break;
+            default:
+                break;
+        }
+        return r;
+    }
+
+    private static Command understandClean(String c, boolean german, List<String> channels, int seed) {
         if (c.isEmpty()) return talk(german ? "Ja? Ich höre." : "Yes? I'm listening.");
         Command r;
         if ((r = help(c, german)) != null) return r;

@@ -116,7 +116,7 @@
     <string name="nova_speech_error">Speech recognition is not available right now. You can also type.</string>
     <string name="nova_no_speech">Speech recognition is not available on this device – type your question below.</string>
     <string name="nova_type">Ask Nova something …</string>
-    <string name="nova_hey_switch">"Hey Nova" on the home screen</string>
+    <string name="nova_hey_switch">“Hey Nova” on the home screen</string>
     <string name="nova_hey_hint">Nova only listens while the NovaOS home screen is open. Speech recognition comes from Android; some devices play a short tone.</string>
     <string name="nova_try_time">What time is it?</string>
     <string name="nova_try_weather">What\'s the weather?</string>
@@ -135,14 +135,14 @@
     <string name="nova_torch_on">Torch on.</string>
     <string name="nova_torch_off">Torch off.</string>
     <string name="nova_opening">Opening %1$s.</string>
-    <string name="nova_no_such_app">I couldn\'t find an app "%1$s".</string>
+    <string name="nova_no_such_app">I couldn\'t find an app “%1$s”.</string>
     <string name="nova_settings">Opening the settings.</string>
     <string name="nova_need_contacts">For that I need access to your contacts.</string>
-    <string name="nova_no_contact">I can\'t find "%1$s" in your contacts.</string>
+    <string name="nova_no_contact">I can\'t find “%1$s” in your contacts.</string>
     <string name="nova_calling">Calling %1$s.</string>
     <string name="nova_message">Message to %1$s is ready.</string>
     <string name="nova_noted">Noted: %1$s</string>
-    <string name="nova_search">Searching for "%1$s".</string>
+    <string name="nova_search">Searching for “%1$s”.</string>
     <string name="nova_louder">Louder.</string>
     <string name="nova_quieter">Quieter.</string>
     <string name="nova_mute">Sound off.</string>
@@ -150,8 +150,8 @@
     <string name="nova_tv">Opening TV.</string>
     <string name="nova_channel">Switching to %1$s.</string>
     <string name="nova_no_app">There is no app for that on this device.</string>
-    <string name="nova_which_city">For which place? Say for example: "Weather in London".</string>
-    <string name="nova_no_city">I couldn\'t find the place "%1$s".</string>
+    <string name="nova_which_city">For which place? Say for example: “Weather in London”.</string>
+    <string name="nova_no_city">I couldn\'t find the place “%1$s”.</string>
     <string name="nova_weather_failed">I can\'t get the weather right now. Please check the internet connection.</string>
     <string name="chat_sub">Chat and call over Matrix – free and open</string>
     <string name="chat_intro">Log in with your Matrix account. Matrix is an open chat network: no phone number needed, and you can chat with everyone who uses Matrix (e.g. Element).</string>

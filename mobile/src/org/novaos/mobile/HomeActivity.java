@@ -125,6 +125,7 @@ public class HomeActivity extends Activity {
         setupTorch();
         rebuild();
         UpdateJob.schedule(this);  // looks for updates in the background every few hours
+        ChatSync.get(this).start();  // Nova Chat: messages and calls arrive while NovaOS runs
         Updates.prefs(this).registerOnSharedPreferenceChangeListener(updateListener);
     }
 
@@ -140,6 +141,7 @@ public class HomeActivity extends Activity {
             UpdateNotice.askPermission(this);  // Android 13+: allow the update notification
             heyNova.start();
         }
+        ChatSync.get(this).start();
         loadApps();
         if (Updates.due(this)) {
             worker.execute(() -> {
