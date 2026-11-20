@@ -32,6 +32,11 @@ final class Smtp {
 
     private Smtp() {}
 
+    /** Only checks that the login works (for setting up an account). */
+    static void check(String host, int port, String security, String user, String password, int timeoutMs) throws IOException {
+        send(host, port, security, user, password, null, null, null, timeoutMs);
+    }
+
     static void send(String host, int port, String security, String user, String password, String from,
                      List<String> recipients, byte[] message, int timeoutMs) throws IOException {
         Socket plain = new Socket();
@@ -60,6 +65,10 @@ final class Smtp {
                 cmd(in, out, "AUTH LOGIN", 334);
                 cmd(in, out, Mime.base64(user.getBytes(StandardCharsets.UTF_8), 0), 334);
                 cmd(in, out, Mime.base64(password.getBytes(StandardCharsets.UTF_8), 0), 235);
+            }
+            if (message == null) {
+                cmd(in, out, "QUIT", 221);
+                return;
             }
             cmd(in, out, "MAIL FROM:<" + from + ">", 250);
             for (String r : recipients) cmd(in, out, "RCPT TO:<" + r + ">", 250, 251);

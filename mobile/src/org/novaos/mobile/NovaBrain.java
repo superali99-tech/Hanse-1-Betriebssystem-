@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public final class NovaBrain {
     public enum Kind {
         TIME, DATE, ALARM, TIMER, TORCH, OPEN_APP, SETTINGS, CALL, MESSAGE, NOTE, WEATHER, TV,
-        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES
+        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL
     }
 
     /** What Nova understood. Unused fields stay at their defaults. */
@@ -68,8 +68,8 @@ public final class NovaBrain {
             o = o.substring(w.end());
         }
         String punct = "(?<!\\d)[,.](?!\\d)|[?!;\"„“”]";
-        s = s.replaceAll(punct, " ").replaceAll("\\s+", " ").trim();
-        o = o.replaceAll(punct, " ").replaceAll("\\s+", " ").trim();
+        s = protectEmails(s).replaceAll(punct, " ").replaceAll("\\s+", " ").trim().replace('\u0001', '.');
+        o = protectEmails(o).replaceAll(punct, " ").replaceAll("\\s+", " ").trim().replace('\u0001', '.');
         boolean changed = true;
         while (changed) {
             changed = false;
@@ -97,6 +97,17 @@ public final class NovaBrain {
     }
 
     /** True if the spoken text starts with the wake word ("Hey Nova ..."). */
+    private static final Pattern EMAIL = Pattern.compile("[\\w.+\\-]+@[\\w\\-]+(?:\\.[\\w\\-]+)+");
+
+    /** Dots inside e-mail addresses survive the punctuation cleanup. */
+    private static String protectEmails(String s) {
+        Matcher m = EMAIL.matcher(s);
+        StringBuffer b = new StringBuffer();
+        while (m.find()) m.appendReplacement(b, Matcher.quoteReplacement(m.group().replace('.', '\u0001')));
+        m.appendTail(b);
+        return b.toString();
+    }
+
     public static boolean hasWakeWord(String spoken) {
         if (spoken == null) return false;
         String s = spoken.toLowerCase(Locale.GERMAN).replaceAll("[,.!?]", " ").replaceAll("\\s+", " ").trim();
@@ -115,7 +126,7 @@ public final class NovaBrain {
         String[] both = cleanBoth(spoken);
         Command r = understandClean(both[0], german, channels, seed);
         switch (r.kind) {
-            case OPEN_APP: case CALL: case MESSAGE: case NOTE: case WEATHER: case SEARCH: case UNKNOWN:
+            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN:
                 r.text = spelled(r.text, both[0], both[1]);
                 r.body = spelled(r.body, both[0], both[1]);
                 break;
@@ -134,6 +145,8 @@ public final class NovaBrain {
         if ((r = alarm(c)) != null) return r;
         if ((r = torch(c)) != null) return r;
         if ((r = call(c)) != null) return r;
+        if ((r = readMail(c)) != null) return r;
+        if ((r = mail(c)) != null) return r;
         if ((r = readMessages(c)) != null) return r;
         if ((r = message(c)) != null) return r;
         if ((r = note(c)) != null) return r;
@@ -526,6 +539,52 @@ public final class NovaBrain {
 
     private static Command readMessages(String c) {
         return READ_MESSAGES.matcher(c).matches() ? new Command(Kind.READ_MESSAGES) : null;
+    }
+
+    private static final String MAILS = "(?:e-?mails?|e mails?|mails?|emails?)";
+    private static final Pattern READ_MAIL = Pattern.compile(
+            "^(?:lies|lese|lies mir|lies mal|vorlesen)\\b.*\\b" + MAILS + "\\b.*"
+            + "|.*\\b" + MAILS + "\\s+vor(?:lesen)?$"
+            + "|^(?:habe ich|hab ich|gibt es|gibts|sind)\\s+(?:da\\s+)?(?:neue|ungelesene)?\\s*" + MAILS + ".*"
+            + "|^neue (?:e-?mails|e mails|mails|emails)$"
+            + "|^(?:read|read me|check)\\s+(?:my\\s+)?(?:new\\s+|unread\\s+)?" + MAILS + "$"
+            + "|^(?:any|do i have|are there)\\s+(?:any\\s+)?(?:new\\s+|unread\\s+)?" + MAILS + "$");
+
+    private static Command readMail(String c) {
+        return READ_MAIL.matcher(c).matches() ? new Command(Kind.READ_MAIL) : null;
+    }
+
+    private static final Pattern[] MAIL = {
+            Pattern.compile("^(?:schreib|schreibe|sende|schick|schicke|verfasse)?\\s*(?:eine\\s+|ne\\s+|neue\\s+)?" + "(?:e-?mail|e mail|mail|email)"
+                    + "\\s+an\\s+(.+?)(?:\\s*(?::|dass|mit dem text|betreff)\\s*(.+))?$"),
+            Pattern.compile("^(?:schreib|schreibe|sende|schick|schicke)\\s+(.+?)\\s+(?:eine\\s+|ne\\s+)?(?:e-?mail|e mail|mail|email)(?:\\s*(?::|dass)\\s*(.+))?$"),
+            Pattern.compile("^(?:send|write)\\s+(?:an\\s+|a\\s+)?(?:e-?mail|mail)\\s+to\\s+(.+?)(?:\\s+(?:saying|that)\\s+(.+)|\\s*:\\s*(.+))?$"),
+            Pattern.compile("^(?:email|e-mail)\\s+(.+?)(?:\\s*:\\s*(.+))?$"),
+            Pattern.compile("^(?:schreib|schreibe|neue|write|new)\\s+(?:eine\\s+|an\\s+|a\\s+)?(?:e-?mail|e mail|mail|email)$")};
+
+    private static Command mail(String c) {
+        for (Pattern p : MAIL) {
+            Matcher m = p.matcher(c);
+            if (m.find()) {
+                Command r = new Command(Kind.MAIL);
+                r.text = m.groupCount() >= 1 && m.group(1) != null ? stripPossessive(m.group(1)) : "";
+                String body = null;
+                for (int g = 2; g <= m.groupCount(); g++) if (m.group(g) != null) body = m.group(g);
+                r.body = body != null ? body.trim() : "";
+                return r;
+            }
+        }
+        return null;
+    }
+
+    /** Spoken address: "lisa punkt meier at gmx punkt de" -> "lisa.meier@gmx.de" (null if it is no address). */
+    public static String spokenEmail(String s) {
+        if (s == null) return null;
+        String t = " " + s.trim().toLowerCase(Locale.GERMAN) + " ";
+        if (t.contains("@")) t = t.replace(" ", "").trim();
+        else t = t.replaceAll("\\s+(?:at|ät|et)\\s+", "@").replaceAll("\\s+(?:punkt|dot)\\s+", ".").replaceAll("\\s+(?:minus|bindestrich|dash)\\s+", "-")
+                .replaceAll("\\s+(?:unterstrich|underscore)\\s+", "_").replace(" ", "").trim();
+        return t.matches("[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,}") ? t : null;
     }
 
     /** "Lisa im Chat" -> "Lisa" (and true: send it over Nova Chat). */

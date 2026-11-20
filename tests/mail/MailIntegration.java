@@ -81,16 +81,18 @@ public final class MailIntegration {
             check(imap.search("UNSEEN").contains(h.uid), "still unseen after reading (PEEK)");
             imap.flag(h.uid, "\\Seen", true);
             check(!imap.search("UNSEEN").contains(h.uid), "seen flag");
+            long before = imap.select("Sent", true).exists;
             imap.append("Sent", raw, true);
             Imap.Selected sent = imap.select("Sent", true);
-            check(sent.exists == 1, "append to Sent " + sent.exists);
+            check(sent.exists == before + 1, "append to Sent " + sent.exists);
+            long trashBefore = imap.select("Trash", true).exists;
             imap.select("INBOX", false);
             imap.move(h.uid, "Trash");
             check(!imap.search("ALL").contains(h.uid), "moved out of inbox");
-            check(imap.select("Trash", false).exists == 1, "in Trash");
-            long t = imap.search("ALL").get(0);
-            imap.delete(t);
-            check(imap.select("Trash", true).exists == 0, "deleted for good");
+            check(imap.select("Trash", false).exists == trashBefore + 1, "in Trash");
+            List<Long> inTrash = imap.search("ALL");
+            imap.delete(inTrash.get(inTrash.size() - 1));
+            check(imap.select("Trash", true).exists == trashBefore, "deleted for good");
         }
         // 4. alice over STARTTLS
         try (Imap imap = Imap.connect(host, 3143, "starttls", 15000)) {

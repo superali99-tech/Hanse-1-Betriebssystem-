@@ -128,6 +128,7 @@ public class HomeActivity extends Activity {
         setupTorch();
         rebuild();
         UpdateJob.schedule(this);  // looks for updates in the background every few hours
+        if (!MailStore.accounts(this).isEmpty()) MailSync.MailJob.schedule(this);  // new mails every 15 minutes
         ChatSync.get(this).start();  // Nova Chat: messages and calls arrive while NovaOS runs
         ChatSync.get(this).addListener(chatListener);
         Updates.prefs(this).registerOnSharedPreferenceChangeListener(updateListener);
@@ -147,6 +148,14 @@ public class HomeActivity extends Activity {
         }
         ChatSync.get(this).start();
         loadApps();
+        if (MailSync.due(this)) {
+            worker.execute(() -> {
+                MailSync.checkNew(getApplicationContext());
+                runOnUiThread(() -> {
+                    if (!isDestroyed()) loadApps();
+                });
+            });
+        }
         if (Updates.due(this)) {
             worker.execute(() -> {
                 Updates.checkAndPrepare(getApplicationContext());
@@ -217,7 +226,7 @@ public class HomeActivity extends Activity {
                 StringBuilder sig = new StringBuilder(Favorites.raw(this));
                 UpdateInfo u = Updates.pending(this);
                 if (u != null) sig.append("|update").append(u.versionCode).append(Updates.readyApk(this, u) != null);
-                sig.append("|chat").append(ChatDb.loggedIn(this)).append(chatUnread());
+                sig.append("|chat").append(ChatDb.loggedIn(this)).append(chatUnread()).append("|mail").append(mailUnread());
                 for (App a : list) sig.append('|').append(a.key()).append(a.label);
                 if (!sig.toString().equals(shown)) {
                     shown = sig.toString();
@@ -232,6 +241,15 @@ public class HomeActivity extends Activity {
         if (!ChatDb.loggedIn(this)) return 0;
         int n = 0;
         for (ChatDb.RoomRow r : ChatDb.get(this).rooms()) n += Math.max(0, r.unread) + (r.invite ? 1 : 0);
+        return n;
+    }
+
+    /** Unread mails in the inboxes of all Nova Mail accounts (-1 = no account). */
+    private int mailUnread() {
+        List<MailStore.Account> accounts = MailStore.accounts(this);
+        if (accounts.isEmpty()) return -1;
+        int n = 0;
+        for (MailStore.Account a : accounts) n += MailStore.get(this).unreadCount(a.id, "INBOX");
         return n;
     }
 
@@ -277,6 +295,19 @@ public class HomeActivity extends Activity {
         LinearLayout.LayoutParams c2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         c2.topMargin = Ui.dp(this, 12);
         rows.addView(cards2, c2);
+        // Nova Mail (unread mails) and Nova Store
+        LinearLayout cards3 = new LinearLayout(this);
+        cards3.setOrientation(LinearLayout.HORIZONTAL);
+        int mails = mailUnread();
+        cards3.addView(novaCard(R.drawable.ic_mail, getString(R.string.app_mail),
+                mails < 0 ? getString(R.string.card_mail_sub) : mails > 0
+                        ? getResources().getQuantityString(R.plurals.card_mail_unread, mails, mails) : getString(R.string.card_mail_none),
+                mails > 0, v -> startActivity(new Intent(this, MailActivity.class))), weight(0, side));
+        cards3.addView(novaCard(R.drawable.ic_download_s, getString(R.string.app_store), getString(R.string.card_store_sub), false,
+                v -> startActivity(new Intent(this, StoreActivity.class))), weight(side, 0));
+        LinearLayout.LayoutParams c3 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        c3.topMargin = Ui.dp(this, 12);
+        rows.addView(cards3, c3);
 
         // quick settings
         rows.addView(Ui.section(this, R.string.quick));

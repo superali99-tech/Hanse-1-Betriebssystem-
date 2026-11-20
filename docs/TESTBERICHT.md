@@ -316,6 +316,31 @@ Text, Foto, Sprachnachricht (Ogg Opus wie Element) und Emojis. Bilder 25–29.
 **Nicht getestet:** echte Spracheingabe (die VM hat keine funktionierende Spracherkennung und kein
 Mikrofon), Vorlesen mit hörbarer Stimme (kein Ton in der VM), Sprachnachrichten in Element selbst.
 
+### Nova Mail (20.11.2026)
+
+**Echter Mailserver** in der Testumgebung: Dovecot 2.3 (IMAP mit TLS auf 3993 und STARTTLS auf 3143,
+Test-Zertifikat, Ordner mit Sonderrollen) und ein kleiner SMTP-Server (`tests/mail/smtp_server.py`,
+TLS 465-Art und STARTTLS 587-Art, liefert in die Dovecot-Postfächer). Bilder 30–37.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1327 bestanden (neu: MIME lesen/bauen mit Umlauten, Anhängen, RFC-2231-Namen, Quoted-Printable, Datumsformate, IMAP-Antworten, UTF-7-Ordnernamen, Server-Suche, Nova-Sätze zu E-Mails) |
+| `tests/mail/run.sh` gegen Dovecot | ✅ | 20 bestanden: Senden über TLS und STARTTLS, Ordner mit Rollen, Kopfzeilen, ganze Mail mit Umlauten/Anhang/Punkt-Zeile, ungelesen bleibt ungelesen beim Lesen, Gelesen-Markierung, „Gesendet“-Kopie, Papierkorb, endgültig löschen, falsches Passwort (IMAP und SMTP) wird erkannt, **Zertifikat für einen anderen Namen wird abgelehnt** |
+| Gerät: Anbieterauswahl, GMX-Hinweis mit Hilfeseite | ✅ | |
+| Gerät: Konto über „Anderer Anbieter“ mit eigenen Servereinstellungen | ✅ | Felder ohne Beschriftung waren nach dem Ausfüllen nicht zu unterscheiden ❌ → Beschriftungen |
+| Posteingang mit Vorschau, ungelesen-Punkt, 📎 | ✅ | 4 Mails |
+| HTML-Mail | ✅ | weiße Seite, Bild aus dem Internet blockiert, „Bilder laden“; Link fragt nach |
+| Anhang öffnen | ✅ | Foto öffnet sich in der Galerie |
+| Antworten | ✅ | bei Bob: „Re: Fotos vom Urlaub“, In-Reply-To/References richtig, Zitat; Kopie in „Gesendet“ |
+| Neue E-Mail mit Adressvorschlag und Foto-Anhang | ✅ | bei Bob: multipart/mixed mit image/jpeg |
+| Benachrichtigung bei neuer E-Mail | ✅ | „Bob Becker – Treffen am Samstag 🍰“ (Hintergrund-Job) |
+| Startbildschirm-Karte „Nova Mail“ | ✅ | |
+| Nova: „Lies meine E-Mails vor“ | ✅ | „Du hast 3 ungelesene E-Mails. Von Bob Becker: …“ |
+| Nova: „Schreib eine E-Mail an Bob: Hallo Bob komma bis morgen“ | ✅ | neue E-Mail an Bob Becker mit „Hallo Bob, bis morgen“ |
+
+**Nicht getestet:** echte Anbieter (GMX, Gmail usw. – keine Testkonten), Outlook.com (geht absichtlich
+nicht, siehe README), sehr große Postfächer (Nova Mail lädt die neuesten 80 Mails je Ordner).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

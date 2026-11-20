@@ -3,7 +3,8 @@
      like Samsung's One UI Home). Android underneath stays as it is (updates, security);
      NovaOS Mobile can be switched off again in the Android settings at any time.
      Internet for TV channels (broadcasters' streams), Nova Filme (YouTube), Nova Store
-     (F-Droid) and the NovaOS software update (GitHub Pages). -->
+     (F-Droid), the NovaOS software update (ghcr.io), Nova Chat (Matrix) and Nova Mail (the
+     user's own mail provider over IMAP/SMTP with TLS). -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.novaos.mobile">
 
@@ -246,6 +247,38 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".MailActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_mail"
+            android:label="@string/app_mail"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.mail"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MailReadActivity"
+            android:exported="false"
+            android:taskAffinity="org.novaos.mobile.mail" />
+        <!-- also for "mailto:" links of other apps -->
+        <activity
+            android:name=".MailComposeActivity"
+            android:exported="true"
+            android:label="@string/app_mail"
+            android:taskAffinity="org.novaos.mobile.mail"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="mailto" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".RoomActivity"
             android:exported="false"
             android:taskAffinity="org.novaos.mobile.chat"
@@ -303,6 +336,11 @@
         <!-- Nova Chat: looks for new messages every 15 minutes -->
         <service
             android:name=".ChatSync$ChatJob"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <!-- Nova Mail: looks for new mails every 15 minutes -->
+        <service
+            android:name=".MailSync$MailJob"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <!-- after a software update: NovaOS starts again with the start animation -->

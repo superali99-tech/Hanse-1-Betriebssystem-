@@ -103,7 +103,7 @@ public class NovaActivity extends Activity {
         hs.setHorizontalScrollBarEnabled(false);
         LinearLayout chips = new LinearLayout(this);
         for (int res : new int[] {R.string.nova_try_time, R.string.nova_try_weather, R.string.nova_try_timer,
-                R.string.nova_try_torch, R.string.nova_try_camera, R.string.nova_try_note, R.string.nova_try_read, R.string.nova_try_tv,
+                R.string.nova_try_torch, R.string.nova_try_camera, R.string.nova_try_note, R.string.nova_try_read, R.string.nova_try_mail, R.string.nova_try_tv,
                 R.string.nova_try_calc, R.string.nova_try_joke}) {
             TextView chip = Ui.text(this, getString(res), 14, Color.WHITE, false);
             chip.setBackgroundResource(R.drawable.pill_bg);
@@ -376,6 +376,12 @@ public class NovaActivity extends Activity {
             case READ_MESSAGES:
                 readMessages();
                 break;
+            case READ_MAIL:
+                readMail();
+                break;
+            case MAIL:
+                writeMail(c);
+                break;
             case NOTE:
                 NotesDb.Note n = new NotesDb.Note();
                 n.title = c.text.length() > 40 ? c.text.substring(0, 40) + " …" : c.text;
@@ -463,6 +469,7 @@ public class NovaActivity extends Activity {
         else if (n.matches("(nova )?(notizen|notes|notiz)")) own = NotesActivity.class;
         else if (n.matches("(nova )?(store|app store|play store nova)")) own = StoreActivity.class;
         else if (n.matches("(nova )?(chat|nachrichten chat)")) own = ChatActivity.class;
+        else if (n.matches("(nova )?(mail|e ?mail|email|e-mail|mails|e-mails|post)")) own = MailActivity.class;
         else if (n.matches("(tv|fernsehen|fernseher|sender)")) own = TvActivity.class;
         else if (n.matches("(nova )?(filme|films|movies)")) own = FilmeActivity.class;
         else if (n.matches("(software update|update|updates)")) own = UpdateActivity.class;
@@ -569,6 +576,83 @@ public class NovaActivity extends Activity {
             });
         }).start();
         return true;
+    }
+
+    /** "Lies meine E-Mails vor": the unread mails of the inbox (fetched first). */
+    private void readMail() {
+        MailStore.Account a = MailStore.current(this);
+        if (a == null) {
+            speak(getString(R.string.nova_mail_setup));
+            startActivity(new Intent(this, MailActivity.class));
+            return;
+        }
+        answer.setText(R.string.mail_loading);
+        new Thread(() -> {
+            try {
+                MailSync.refresh(getApplicationContext(), a, "INBOX");
+            } catch (java.io.IOException ignored) {
+                // read what is on the phone
+            }
+            List<MailStore.Mail> unread = MailStore.get(this).unread(a.id, "INBOX", 10);
+            StringBuilder b = new StringBuilder();
+            if (unread.isEmpty()) {
+                b.append(getString(R.string.mail_spoken_none));
+            } else {
+                b.append(getResources().getQuantityString(R.plurals.mail_spoken_count, unread.size(), unread.size()));
+                for (MailStore.Mail m : unread) {
+                    b.append(' ').append(getString(R.string.mail_spoken_one, m.sender(),
+                            m.subject.isEmpty() ? getString(R.string.mail_no_subject) : m.subject));
+                }
+            }
+            runOnUiThread(() -> {
+                if (!isDestroyed()) speak(b.toString());
+            });
+        }).start();
+    }
+
+    /** "Schreib eine E-Mail an Lisa: ..." - opens a new mail (to the address Nova finds for the name). */
+    private void writeMail(NovaBrain.Command c) {
+        if (MailStore.current(this) == null) {
+            speak(getString(R.string.nova_mail_setup));
+            startActivity(new Intent(this, MailActivity.class));
+            return;
+        }
+        String to = NovaBrain.spokenEmail(c.text);
+        String who = to;
+        if (to == null && !c.text.isEmpty()) {
+            String q = AppFilter.normalize(c.text);
+            int best = 0;
+            for (Mime.Address a : MailStore.get(this).addresses()) {
+                int sc = Math.max(AppFilter.score(a.name, q), AppFilter.score(a.email, q));
+                if (sc > best) {
+                    best = sc;
+                    to = a.toString();
+                    who = a.display();
+                }
+            }
+            if (to == null && checkSelfPermission(Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+                try (Cursor cur = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
+                        new String[] {ContactsContract.CommonDataKinds.Email.DISPLAY_NAME, ContactsContract.CommonDataKinds.Email.ADDRESS},
+                        null, null, null)) {
+                    while (cur != null && cur.moveToNext()) {
+                        String name = cur.getString(0) == null ? "" : cur.getString(0);
+                        int sc = AppFilter.score(name, q);
+                        if (sc > best && cur.getString(1) != null) {
+                            best = sc;
+                            to = new Mime.Address(name, cur.getString(1)).toString();
+                            who = name;
+                        }
+                    }
+                } catch (RuntimeException ignored) {
+                    // no contacts
+                }
+            }
+        }
+        Intent i = new Intent(this, MailComposeActivity.class).putExtra(MailComposeActivity.EXTRA_TO, to == null ? "" : to);
+        if (!c.body.isEmpty()) i.putExtra(MailComposeActivity.EXTRA_BODY, Dictation.clean(c.body, german));
+        else i.putExtra(MailComposeActivity.EXTRA_NOVA, true);
+        startActivity(i);
+        speak(who != null ? getString(R.string.nova_mail_writing, who) : getString(R.string.nova_mail_writing_nobody));
     }
 
     /** "Lies meine Nachrichten vor": new Nova Chat messages, chat by chat. */

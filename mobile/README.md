@@ -46,12 +46,27 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Satzzeichen und Emojis wie „Punkt“, „Fragezeichen“, „Daumen hoch“). Chats aus Nova Chat sind per HTTPS geschützt,
   aber **nicht Ende-zu-Ende-verschlüsselt**; verschlüsselte Chats (z. B. aus Element) kann Nova Chat
   noch nicht lesen.
+* **Nova Mail**: **echte E-Mails** mit dem eigenen Konto (IMAP/SMTP, nur verschlüsselt mit TLS oder
+  STARTTLS, Zertifikat und Servername werden geprüft). Anbieter zum Antippen: GMX, WEB.DE, Gmail, T-Online,
+  Outlook/Hotmail, Yahoo, iCloud, freenet – und „Anderer Anbieter“ (Servereinstellungen aus Thunderbirds
+  öffentlicher Liste, dabei geht nur die Domain hinaus, sonst selbst eingeben). Posteingang mit Vorschau,
+  Ordner (Gesendet, Entwürfe, Spam, Papierkorb, eigene Ordner), lesen (HTML-Mails ohne JavaScript, Bilder aus
+  dem Internet erst nach Tipp, Links nur nach Nachfrage), Anhänge öffnen, antworten/allen antworten/
+  weiterleiten (mit Anhängen), neue E-Mails mit Adressvorschlägen und Anhängen (bis 20 MB), mehrere Konten,
+  Benachrichtigung bei neuen E-Mails (alle 15 Minuten im Hintergrund), Karte auf dem Startbildschirm,
+  öffnet auch „mailto:“-Links anderer Apps. Das Passwort liegt verschlüsselt im Android-Schlüsselspeicher.
+  **Nova in Nova Mail**: E-Mails vorlesen, Antwort sprechen, Text diktieren. Hinweise zu den Anbietern:
+  Gmail, Yahoo, AOL und iCloud verlangen ein **App-Passwort**, bei GMX/WEB.DE muss „POP3/IMAP Abruf“ an
+  sein, T-Online braucht das „Passwort für E-Mail-Programme“. **Outlook.com/Hotmail geht nicht**: Microsoft
+  lässt dort seit 2024 keine Anmeldung mit Passwort in fremden Mail-Apps mehr zu (nur mit Microsofts eigener
+  Anmeldung, für die NovaOS bei Microsoft registriert sein müsste).
 * **Nova, der Assistent**: eigene App, Mikrofon in der Suchleiste und **„Hey Nova“**, solange der
   Startbildschirm offen ist (abschaltbar, erst nach Erlaubnis fürs Mikrofon). **Ohne Cloud-KI**:
   Spracherkennung und Stimme kommen von Android, die Befehle versteht NovaOS selbst – Uhrzeit,
   Datum, Wecker, Timer, Taschenlampe, Apps und Einstellungen öffnen, Kontakte anrufen oder
   anschreiben, Notizen, Wetter (Open-Meteo, ohne Konto), TV-Sender, Websuche, Rechnen, kleine Gespräche;
-  „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“ (über Nova Chat, wenn Lisa dort ein Kontakt ist)
+  „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“ (über Nova Chat, wenn Lisa dort ein Kontakt ist),
+  „Lies meine E-Mails vor“ und „Schreib eine E-Mail an Lisa: …“ (Adresse aus Nova Mail oder den Kontakten)
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
   Startbildschirm)
 * Deutsch und Englisch, dunkles NovaOS-Design
@@ -64,7 +79,8 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
 > Deshalb startet „NovaOS neu starten“ und das Software-Update **die NovaOS-Oberfläche** neu (mit
 > eigener Animation), nicht das ganze Handy – das darf nur Android selbst.
 
-**Datenschutz:** keine Datensammlung, keine eigene Werbung. Internet nur für die Sender (Stream
+**Datenschutz:** keine Datensammlung, keine eigene Werbung. Nova Mail spricht nur mit dem Mailserver
+deines Anbieters (für unbekannte Adressen einmal Thunderbirds Serverliste mit der Domain). Internet nur für die Sender (Stream
 direkt vom Sender), Nova Filme (Listen, Bilder und Videos von YouTube im erweiterten
 Datenschutzmodus, mit YouTubes Werbung), den Nova Store (App-Liste und APKs von f-droid.org) und
 das Software-Update (Paket `novaos-mobile` bei GitHub, ghcr.io). Favoriten, Notizen, Fotos und Dateien
@@ -174,6 +190,9 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `MatrixApi.java`, `MatrixSync.java`, `ChatDb.java`, `ChatSync.java` | Matrix-Schnittstelle (auch Medien hoch-/herunterladen), Auswertung von /sync, Speicher, Aktualisierung + Benachrichtigungen |
 | `ChatMedia.java`, `VoiceRecorder.java`, `WaveView.java`, `Waveform.java` | Fotos/Sprachnachrichten im Zwischenspeicher, Aufnahme, Wellenbild |
 | `EmojiPanel.java`, `Emoji.java`, `QuickReplies.java` | Emoji-Tastatur, Emoji-Liste, Schnellantworten (getestet) |
+| `MailActivity.java`, `MailReadActivity.java`, `MailComposeActivity.java` | Nova Mail: Konto einrichten, Posteingang/Ordner, Lesen, Schreiben |
+| `Mime.java`, `Imap.java`, `ImapParser.java`, `Utf7.java`, `Smtp.java`, `MailServers.java` | E-Mail-Technik ohne Android: MIME lesen/bauen, IMAP, SMTP, Server finden (getestet, auch gegen Dovecot) |
+| `MailStore.java`, `MailSync.java`, `Secret.java` | Konten (Passwort im Android-Schlüsselspeicher), Kopie der Mail-Listen, Abgleich, Benachrichtigungen |
 | `NovaWriter.java`, `Dictation.java`, `Ears.java`, `Speaker.java` | „Nova schreibt für dich“: Diktieren, Nachfragen, Vorlesen (Spracherkennung und Stimme von Android) |
 | `CallActivity.java`, `Calls.java`, `res/raw/call.html` | Anrufe (Matrix VoIP, WebRTC im WebView), Klingeln |
 | `NovaActivity.java`, `NovaBrain.java`, `HeyNova.java`, `Weather.java` | Nova: Bildschirm/Sprache, Befehle verstehen (getestet), „Hey Nova“, Wetter |

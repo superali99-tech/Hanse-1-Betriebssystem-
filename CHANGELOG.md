@@ -52,6 +52,9 @@
   Schnellantworten, bearbeitete und gelöschte Nachrichten werden übernommen; **„Nova schreibt für
   dich“** (diktieren, vorlesen, „Soll ich das senden?“); Nova-Assistent liest Chat-Nachrichten vor
   und schreibt über Nova Chat
+* **NovaOS Mobile – Nova Mail**: echte E-Mails mit dem eigenen Konto (GMX, WEB.DE, Gmail, T-Online,
+  Yahoo, iCloud, freenet und andere über IMAP/SMTP, nur verschlüsselt), Ordner, Anhänge, Antworten,
+  Weiterleiten, mehrere Konten, Benachrichtigungen; Nova liest E-Mails vor und schreibt sie
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

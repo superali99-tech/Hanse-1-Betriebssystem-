@@ -24,6 +24,7 @@ public final class MobileTest {
         nova();
         chat();
         chatMedia();
+        mail();
         weather();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
@@ -301,6 +302,88 @@ public final class MobileTest {
     }
 
     /** Nova Chat: Matrix /sync answers, contacts, Matrix IDs, JSON writing. */
+    private static void mail() {
+        // headers, encoded words, addresses, dates
+        check(Mime.decodeWords("=?UTF-8?Q?Gr=C3=BC=C3=9Fe_aus?= =?UTF-8?B?SGFtYnVyZw==?=").equals("Grüße ausHamburg"), "encoded words join");
+        check(Mime.decodeWords("=?iso-8859-1?q?M=FCller?=").equals("Müller") && Mime.decodeWords("plain").equals("plain"), "latin1 word");
+        java.util.List<Mime.Address> ad = Mime.addresses("\"Müller, Max\" <max@y.de>, Lisa <lisa@x.de>, z@w.de, Freunde: a@b.de, c@d.de;, kaputt");
+        check(ad.size() == 5 && ad.get(0).name.equals("Müller, Max") && ad.get(1).email.equals("lisa@x.de") && ad.get(2).name.isEmpty()
+                && ad.get(3).email.equals("a@b.de"), "addresses " + ad);
+        check(Mime.date("Fri, 20 Nov 2026 18:22:05 +0100 (CET)") == 1795195325000L, "date " + Mime.date("Fri, 20 Nov 2026 18:22:05 +0100 (CET)"));
+        check(Mime.date("20 Nov 2026 17:22:05 GMT") == 1795195325000L && Mime.date("kaputt") == 0 && Mime.date(null) == 0, "date variants");
+        check(Mime.headers("Subject: a\r\n b\r\nFrom: x@y\r\n").get("subject").equals("a b"), "unfolding");
+        check(Mime.headers("Subject: Gr\u00c3\u00bc\u00c3\u009fe\n").get("subject").equals("Grüße"), "raw utf-8 header");
+        // a real multipart mail: text, html, attachment with RFC 2231 name, quoted-printable
+        String raw = "From: =?UTF-8?Q?J=C3=B6rg?= <joerg@x.de>\r\nTo: a@b.de\r\nSubject: Test\r\nMIME-Version: 1.0\r\n"
+                + "Content-Type: multipart/mixed; boundary=\"XX\"\r\n\r\npreamble\r\n--XX\r\n"
+                + "Content-Type: multipart/alternative; boundary=YY\r\n\r\n--YY\r\nContent-Type: text/plain; charset=utf-8\r\n"
+                + "Content-Transfer-Encoding: quoted-printable\r\n\r\nSch=C3=B6ne Gr=C3=BC=\r\n=C3=9Fe\r\n--YY\r\n"
+                + "Content-Type: text/html; charset=windows-1252\r\n\r\n<p>Sch\u00f6ne &amp; <b>Gr\u00fc\u00dfe</b></p>\r\n--YY--\r\n"
+                + "--XX\r\nContent-Type: application/pdf\r\nContent-Disposition: attachment; filename*=UTF-8''Rechnung%20M%C3%A4rz.pdf\r\n"
+                + "Content-Transfer-Encoding: base64\r\n\r\nJVBERi0xLjQK\r\n--XX--\r\n";
+        Mime.Message m = Mime.parse(raw.getBytes(java.nio.charset.StandardCharsets.ISO_8859_1));
+        check(m.sender().name.equals("Jörg") && m.subject.equals("Test"), "parsed header");
+        check(m.text.equals("Schöne Grüße"), "qp text: [" + m.text + "]");
+        check(m.html.contains("Grüße") && Mime.htmlToText(m.html).equals("Schöne & Grüße"), "html " + Mime.htmlToText(m.html));
+        check(m.attachments.size() == 1 && m.attachments.get(0).name.equals("Rechnung März.pdf")
+                && new String(m.attachments.get(0).data).startsWith("%PDF-1.4"), "attachment rfc2231");
+        // building: round trip through the parser
+        Mime.Outgoing o = new Mime.Outgoing();
+        o.from = new Mime.Address("Alice Müller", "alice@nova.test");
+        o.to.add(new Mime.Address("Bob", "bob@x.de"));
+        o.cc.add(new Mime.Address("Kim, Lee", "kim@x.de"));
+        o.subject = "Grüße aus Hamburg ☀️ – eine ziemlich lange Betreffzeile mit Umlauten äöü";
+        o.text = "Zeile 1\n.\nZeile mit Leerzeichen am Ende \nÄÖÜ €";
+        Mime.Attachment at = new Mime.Attachment();
+        at.name = "Übersicht.txt";
+        at.type = "text/plain";
+        at.data = "Inhalt".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        o.attachments.add(at);
+        Mime.Message back = Mime.parse(Mime.build(o));
+        check(back.subject.equals(o.subject), "subject round trip: " + back.subject);
+        check(back.text.equals(o.text), "text round trip: [" + back.text + "]");
+        check(back.sender().name.equals("Alice Müller") && back.cc.get(0).name.equals("Kim, Lee"), "names round trip");
+        check(back.attachments.get(0).name.equals("Übersicht.txt") && new String(back.attachments.get(0).data).equals("Inhalt"), "attachment round trip");
+        check(Mime.qpEncode("x".repeat(200)).split("\r\n")[0].length() <= 76, "qp line length");
+        check(new String(Mime.base64Decode(Mime.base64("Hallo Welt äöü".getBytes(java.nio.charset.StandardCharsets.UTF_8), 76)),
+                java.nio.charset.StandardCharsets.UTF_8).equals("Hallo Welt äöü"), "base64 round trip");
+        check(Mime.replySubject("AW: x").equals("AW: x") && Mime.replySubject("x").equals("Re: x") && Mime.forwardSubject("WG: y").equals("WG: y"),
+                "reply/forward subject");
+        check(Mime.validEmail("a.b+c@x-y.de") && !Mime.validEmail("a@b") && !Mime.validEmail("a b@c.de"), "valid email");
+        check(Mime.preview("> zitat\nHallo\n\nWelt\n--\nSignatur", 50).equals("Hallo Welt"), "preview");
+        check(Smtp.dotStuff(".a\nb\n.c".getBytes()).length == ("..a\r\nb\r\n..c\r\n").length(), "dot stuffing");
+        // IMAP parsing
+        java.util.List<Object> l = ImapParser.parse("* 3 FETCH (UID 17 FLAGS (\\Seen) BODY[HEADER.FIELDS (FROM SUBJECT)] {12}\r\nSubject: x\r\n)"
+                .getBytes(java.nio.charset.StandardCharsets.ISO_8859_1));
+        java.util.List<?> f = (java.util.List<?>) l.get(3);
+        check(f.get(0).equals("UID") && f.get(1).equals("17") && f.get(4).equals("BODY[HEADER.FIELDS (FROM SUBJECT)]")
+                && ImapParser.string(f.get(5)).equals("Subject: x\r\n"), "imap fetch parse " + f);
+        check(ImapParser.parse("* LIST (\\HasNoChildren) \"/\" NIL".getBytes()).get(4) == null, "imap NIL");
+        check(Imap.literalSize("* 1 FETCH (BODY[] {123}") == 123 && Imap.literalSize("* OK") == -1, "literal size");
+        check(Utf7.decode("Entw&APw-rfe").equals("Entwürfe") && Utf7.encode("Entwürfe").equals("Entw&APw-rfe")
+                && Utf7.decode("A&-B").equals("A&B") && Utf7.decode(Utf7.encode("日本語 & Ümläut")).equals("日本語 & Ümläut"), "modified utf-7");
+        check(Imap.guessRole("Gesendete Objekte").equals("sent") && Imap.guessRole("INBOX/Papierkorb").equals("trash")
+                && Imap.guessRole("Spamverdacht").equals("junk") && Imap.guessRole("Urlaub").isEmpty(), "folder roles");
+        check(Imap.internalDate("17-Jul-1996 02:44:25 -0700") == 837596665000L, "internal date");
+        // finding the servers
+        MailServers.Settings gmx = MailServers.known("Max@GMX.de");
+        check(gmx != null && gmx.imapHost.equals("imap.gmx.net") && gmx.smtpPort == 465 && gmx.user.equals("Max@GMX.de"), "known gmx");
+        check(MailServers.known("a@web.de").smtpSecurity.equals("starttls") && MailServers.known("a@unbekannt.example") == null, "known web.de");
+        String xml = "<clientConfig version=\"1.1\"><emailProvider id=\"x\"><incomingServer type=\"pop3\"><hostname>pop.x.de</hostname>"
+                + "<port>995</port><socketType>SSL</socketType></incomingServer><incomingServer type=\"imap\"><hostname>imap.x.de</hostname>"
+                + "<port>143</port><socketType>plain</socketType><username>%EMAILADDRESS%</username></incomingServer>"
+                + "<incomingServer type=\"imap\"><hostname>imap.x.de</hostname><port>143</port><socketType>STARTTLS</socketType>"
+                + "<username>%EMAILLOCALPART%</username></incomingServer><outgoingServer type=\"smtp\"><hostname>smtp.x.de</hostname>"
+                + "<port>587</port><socketType>STARTTLS</socketType></outgoingServer></emailProvider></clientConfig>";
+        MailServers.Settings ac = MailServers.parseAutoconfig(xml, "max@x.de");
+        check(ac != null && ac.imapSecurity.equals("starttls") && ac.imapPort == 143 && ac.user.equals("max") && ac.smtpHost.equals("smtp.x.de"),
+                "autoconfig (plain refused): " + ac);
+        check(MailServers.parseAutoconfig("<html>", "a@b.de") == null, "autoconfig garbage");
+        check(MailServers.autoconfigUrls("a@meine-firma.de").get(0).equals("https://autoconfig.thunderbird.net/v1.1/meine-firma.de")
+                && MailServers.autoconfigUrls("a@b/../c").isEmpty(), "autoconfig urls");
+        check(MailServers.guess("a@firma.de").imapHost.equals("imap.firma.de") && MailServers.guess("kaputt") == null, "guess");
+    }
+
     private static void chatMedia() {
         String sync = "{\"next_batch\":\"s9\",\"rooms\":{\"join\":{\"!r:x.org\":{\"timeline\":{\"events\":["
                 + "{\"type\":\"m.room.message\",\"event_id\":\"$v\",\"sender\":\"@lisa:x.org\",\"origin_server_ts\":5,\"content\":"
@@ -412,6 +495,18 @@ public final class MobileTest {
         check(NovaBrain.understand("Sag Lisa: Ich komme", true).kind == NovaBrain.Kind.MESSAGE, "sag X:");
         check(NovaBrain.understand("Schreib auf: Milch kaufen", true).kind == NovaBrain.Kind.NOTE, "schreib auf stays note");
         check(NovaBrain.understand("tell Tom: see you", false).kind == NovaBrain.Kind.MESSAGE, "tell X:");
+        check(NovaBrain.understand("Lies meine E-Mails vor", true).kind == NovaBrain.Kind.READ_MAIL, "read mail");
+        check(NovaBrain.understand("Habe ich neue Mails?", true).kind == NovaBrain.Kind.READ_MAIL, "new mails?");
+        check(NovaBrain.understand("check my email", false).kind == NovaBrain.Kind.READ_MAIL, "check email");
+        NovaBrain.Command em = NovaBrain.understand("Schreib eine E-Mail an Lisa Meier: Hallo Lisa, bis morgen", true);
+        check(em.kind == NovaBrain.Kind.MAIL && em.text.equals("Lisa Meier") && em.body.equals("Hallo Lisa bis morgen"), "mail to: " + em);
+        NovaBrain.Command em2 = NovaBrain.understand("E-Mail an lisa@gmx.de", true);
+        check(em2.kind == NovaBrain.Kind.MAIL && NovaBrain.spokenEmail(em2.text).equals("lisa@gmx.de"), "mail to address: " + em2);
+        check(NovaBrain.understand("send an email to Tom saying see you", false).text.equals("Tom"), "send email en");
+        check(NovaBrain.understand("Neue E-Mail", true).kind == NovaBrain.Kind.MAIL, "new mail");
+        check("lisa.meier@gmx.de".equals(NovaBrain.spokenEmail("Lisa Punkt Meier at GMX Punkt de")), "spoken email");
+        check(NovaBrain.spokenEmail("Lisa") == null && NovaBrain.spokenEmail(null) == null, "not an email");
+        check(NovaBrain.understand("Öffne Nova Mail", true).kind == NovaBrain.Kind.OPEN_APP, "open mail app");
         check(NovaBrain.viaChat("Mama")[1].isEmpty() && NovaBrain.viaChat("Mama über Nova Chat")[0].equals("Mama"), "via chat");
     }
 

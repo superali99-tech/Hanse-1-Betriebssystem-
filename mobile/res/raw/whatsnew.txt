@@ -1,6 +1,6 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Nova Chat: Sprachnachrichten aufnehmen und abspielen – Mikrofon-Knopf antippen, sprechen, senden|Nova Chat: record and play voice messages – tap the microphone, speak, send
-Nova Chat: Emoji-Tastatur mit über 900 Emojis, Fotos senden und groß ansehen|Nova Chat: emoji keyboard with more than 900 emojis, send photos and view them full screen
-Nova schreibt für dich: sprechen statt tippen, Nova liest Nachrichten vor und fragt „Soll ich das senden?“|Nova writes for you: speak instead of typing, Nova reads messages aloud and asks "Shall I send it?"
-Schnellantworten mit einem Tipp, z. B. „Ja 👍“ oder „Bin gleich da 🏃“|Quick answers with one tap, e.g. "Yes 👍" or "Almost there 🏃"
-Nova-Assistent: „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“|Nova assistant: "Read my messages" and "Tell Lisa in chat: …"
+Neu: Nova Mail – echte E-Mails mit deinem Konto von GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud und anderen|New: Nova Mail – real e-mail with your account from GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud and others
+Nova Mail: lesen, antworten, weiterleiten, Anhänge, Ordner, mehrere Konten – immer verschlüsselt|Nova Mail: read, reply, forward, attachments, folders, several accounts – always encrypted
+Nova liest E-Mails vor und schreibt sie für dich: „Lies meine E-Mails vor“, „Schreib eine E-Mail an Lisa: …“|Nova reads e-mails aloud and writes them for you: "Read my e-mails", "Write an e-mail to Lisa: …"
+Benachrichtigung bei neuen E-Mails und eine Nova-Mail-Karte auf dem Startbildschirm|Notifications for new e-mails and a Nova Mail card on the home screen
+Nova Chat: Sprachnachrichten, Emojis, Fotos und Schnellantworten|Nova Chat: voice messages, emojis, photos and quick answers
