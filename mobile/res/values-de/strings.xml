@@ -237,6 +237,13 @@
     <string name="call_speaker">Lautsprecher</string>
     <string name="call_channel">Anrufe</string>
     <string name="call_direct_only">Anrufe gehen in Zweier-Chats.</string>
+    <string name="card_chat_sub">Chatten und telefonieren</string>
+    <string name="card_chat_none">Keine neuen Nachrichten</string>
+    <string name="card_nova_sub">Sag „Hey Nova“</string>
+    <plurals name="card_chat_unread">
+        <item quantity="one">%1$d neue Nachricht</item>
+        <item quantity="other">%1$d neue Nachrichten</item>
+    </plurals>
     <string name="restart">NovaOS neu starten</string>
     <string name="restart_sub">Startet die NovaOS-Oberfläche neu (nicht das ganze Handy)</string>
     <string name="boot_restarting">NovaOS wird neu gestartet</string>

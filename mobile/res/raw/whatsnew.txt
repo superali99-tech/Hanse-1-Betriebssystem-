@@ -1,4 +1,5 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Neue Updates erscheinen von selbst als „Update verfügbar“ – installiert wird erst nach „Aktualisieren“|New updates appear by themselves as "Update available" – installed only after "Update"
-Benachrichtigung mit dem Knopf „Aktualisieren“ direkt in der Leiste|Notification with an "Update" button right in the shade
-NovaOS sucht öfter nach Updates: am Startbildschirm alle 15 Minuten, im Hintergrund alle 3 Stunden|NovaOS checks more often: every 15 minutes on the home screen, every 3 hours in the background
+Nova Chat: chatten, Sprach- und Videoanrufe über Matrix – Kontakte werden in deinem Konto auf dem Server gespeichert|Nova Chat: chat, voice and video calls over Matrix – contacts are saved in your account on the server
+Nova, dein Assistent: „Hey Nova“ sagen oder aufs Mikrofon tippen – Uhrzeit, Wecker, Timer, Wetter, Apps, Anrufe, Notizen, Rechnen|Nova, your assistant: say "Hey Nova" or tap the microphone – time, alarms, timers, weather, apps, calls, notes, sums
+Software-Updates laufen jetzt wie bei Samsung: Herunterladen, Prüfen, Vorbereiten, Installieren|Software updates now run like on Samsung phones: download, verify, prepare, install
+Neue Karten auf dem Startbildschirm für Nova Chat und Nova|New cards on the home screen for Nova Chat and Nova

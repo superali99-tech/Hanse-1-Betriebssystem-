@@ -46,6 +46,9 @@ import java.util.concurrent.Executors;
 public class HomeActivity extends Activity {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final HeyNova heyNova = new HeyNova(this);  // "Hey Nova" while the home screen is visible
+    private final ChatSync.Listener chatListener = () -> {
+        if (!isDestroyed()) loadApps();  // unread messages on the Nova Chat card
+    };
     // the background update check (UpdateJob) found or downloaded an update: show it at once
     private final android.content.SharedPreferences.OnSharedPreferenceChangeListener updateListener = (p, key) -> {
         if ("last".equals(key) || "ready_sha".equals(key)) {
@@ -126,6 +129,7 @@ public class HomeActivity extends Activity {
         rebuild();
         UpdateJob.schedule(this);  // looks for updates in the background every few hours
         ChatSync.get(this).start();  // Nova Chat: messages and calls arrive while NovaOS runs
+        ChatSync.get(this).addListener(chatListener);
         Updates.prefs(this).registerOnSharedPreferenceChangeListener(updateListener);
     }
 
@@ -176,6 +180,7 @@ public class HomeActivity extends Activity {
     @Override
     protected void onDestroy() {
         unregisterReceiver(packageReceiver);
+        ChatSync.get(this).removeListener(chatListener);
         Updates.prefs(this).unregisterOnSharedPreferenceChangeListener(updateListener);
         if (torchCallback != null) getSystemService(CameraManager.class).unregisterTorchCallback(torchCallback);
         worker.shutdownNow();
@@ -212,6 +217,7 @@ public class HomeActivity extends Activity {
                 StringBuilder sig = new StringBuilder(Favorites.raw(this));
                 UpdateInfo u = Updates.pending(this);
                 if (u != null) sig.append("|update").append(u.versionCode).append(Updates.readyApk(this, u) != null);
+                sig.append("|chat").append(ChatDb.loggedIn(this)).append(chatUnread());
                 for (App a : list) sig.append('|').append(a.key()).append(a.label);
                 if (!sig.toString().equals(shown)) {
                     shown = sig.toString();
@@ -222,6 +228,13 @@ public class HomeActivity extends Activity {
     }
 
     // ------------------------------------------------------------ content
+    private int chatUnread() {
+        if (!ChatDb.loggedIn(this)) return 0;
+        int n = 0;
+        for (ChatDb.RoomRow r : ChatDb.get(this).rooms()) n += Math.max(0, r.unread) + (r.invite ? 1 : 0);
+        return n;
+    }
+
     private void rebuild() {
         rows.removeAllViews();
         int side = Ui.dp(this, 6);
@@ -250,6 +263,20 @@ public class HomeActivity extends Activity {
                 getString(R.string.card_filme_sub), false,
                 v -> startActivity(new Intent(this, FilmeActivity.class))), weight(side, 0));
         rows.addView(cards);
+        // Nova Chat (unread messages) and Nova, the assistant
+        LinearLayout cards2 = new LinearLayout(this);
+        cards2.setOrientation(LinearLayout.HORIZONTAL);
+        int unread = chatUnread();
+        cards2.addView(novaCard(R.drawable.ic_chat, getString(R.string.app_chat),
+                !ChatDb.loggedIn(this) ? getString(R.string.card_chat_sub)
+                        : unread > 0 ? getResources().getQuantityString(R.plurals.card_chat_unread, unread, unread)
+                        : getString(R.string.card_chat_none), unread > 0,
+                v -> startActivity(new Intent(this, ChatActivity.class))), weight(0, side));
+        cards2.addView(novaCard(R.drawable.ic_mic, getString(R.string.app_nova), getString(R.string.card_nova_sub), false,
+                v -> startActivity(new Intent(this, NovaActivity.class).putExtra(NovaActivity.EXTRA_LISTEN, true))), weight(side, 0));
+        LinearLayout.LayoutParams c2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        c2.topMargin = Ui.dp(this, 12);
+        rows.addView(cards2, c2);
 
         // quick settings
         rows.addView(Ui.section(this, R.string.quick));

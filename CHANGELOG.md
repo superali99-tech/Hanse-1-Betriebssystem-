@@ -40,6 +40,14 @@
 * NovaOS Mobile – Update-Kanal **ohne GitHub Pages**: das Update liegt als öffentliches Paket
   `novaos-mobile` in GitHubs Container-Registry (ghcr.io), das Repository bleibt privat; fester
   Signierschlüssel ohne Secrets (vom Workflow einmal erzeugt, im Entwurfs-Release aufbewahrt)
+* **NovaOS Mobile – Nova Chat**: Chat, Sprach- und Videoanrufe über Matrix (matrix.org, kompatibel
+  mit Element), Benachrichtigungen, eingehende Anrufe auch auf dem Sperrbildschirm, Kontakte im
+  Matrix-Konto auf dem Server
+* **NovaOS Mobile – Nova, der Assistent**: „Hey Nova“ und Mikrofon auf dem Startbildschirm, ohne
+  Cloud-KI (Uhrzeit, Wecker, Timer, Taschenlampe, Apps, Anrufe, Notizen, Wetter, TV, Rechnen …)
+* NovaOS Mobile: Updates erscheinen von selbst („Update verfügbar“, Benachrichtigung mit
+  „Aktualisieren“) und laufen wie ein System-Update in Stufen (etwa 2–3 Minuten); neue Karten für
+  Nova Chat und Nova auf dem Startbildschirm
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

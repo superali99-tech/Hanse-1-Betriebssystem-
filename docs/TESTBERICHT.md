@@ -268,6 +268,31 @@ Ersatz-Server (Testversionen 0.1.1.950 → 951 → 952):
 | Hintergrundsuche (JobScheduler) bei offenem Startbildschirm, ohne Bedienung: 952 gefunden, geladen, Hinweis + Benachrichtigung | ✅ | Job geplant (alle 3 Stunden, übersteht Neustarts) |
 | Benachrichtigung antippen → „Update bereit zur Installation“ → „Jetzt installieren“ | ✅ | kein zweiter Download; Androids Dialog → installiert → „Neu in NovaOS 0.1.1.952“; Benachrichtigung verschwindet |
 
+### Nova Chat, Anrufe, Nova-Assistent, Update-Stufen (20.11.2026)
+
+Android-x86 9 als Handy; **eigener Matrix-Server** (Synapse 1.165, HTTPS mit Test-Zertifikat) in
+der Testumgebung mit zwei Konten; Gegenüber „Bob“ = `tests/chat/peer.js` (kleiner Matrix-Client in
+Chromium mit simulierter Kamera/Mikrofon, antwortet auf Nachrichten und Anrufe). Bilder 17–24.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 243 bestanden (neu: 74 Nova-Sätze DE/EN, Rechnen, Matrix-/sync, Kontakte, Wetter) |
+| Nova Chat: Anmelden (Passwort) | ✅ | @alice:nova.test |
+| Erste Synchronisierung ohne Chats zeigte weiter „Laden …“ | ❌ → behoben | |
+| Neuer Chat mit @bob, Kontakt „Bob“ wird gespeichert | ✅ | Kontakte liegen im Konto auf dem Server (`org.novaos.contacts`) |
+| Nachrichten hin und zurück in Echtzeit | ✅ | Sprechblasen schnitten den Text ab ❌ → behoben |
+| Neue Nachricht bei geschlossenem Chat → Benachrichtigung „Bob: …“ | ✅ | sofort (Synchronisierung läuft mit dem Startbildschirm) |
+| Sprachanruf Alice → Bob | ✅ | „Wird angerufen …“ → „Verbunden 00:10“, Audio fließt, Auflegen kommt bei Bob an |
+| Anruf Bob → Alice (vom Startbildschirm aus) | ✅ | klingelt mit Annehmen/Ablehnen → „Verbunden“; zuerst ohne Verbindung ❌ → behoben (Signale vor dem Öffnen des Anrufbildschirms gingen verloren) |
+| Nova: Mikrofon-Knopf, Erlaubnis, „Ich höre zu …“ | ✅ | echte Spracheingabe nicht prüfbar (VM ohne Mikrofon) |
+| Nova: getippte Befehle (Rechnen, Uhrzeit, Notiz, Witz) | ✅ | Notizen wurden kleingeschrieben ❌ → behalten jetzt die Schreibweise |
+| Startbildschirm: Karten „Nova Chat – 3 neue Nachrichten“ und „Nova“ | ✅ | |
+| Update 0.1.1.960 → 961 mit Stufen | ✅ | 5 % Herunterladen → 66 % Prüfen → 81–92 % Vorbereiten → nach ca. 2:20 Androids Abfrage → installiert, Neustart |
+
+**Nicht getestet:** Videoanruf mit echter Kamera, matrix.org selbst (keine Testkonten angelegt),
+echte Spracherkennung und „Hey Nova“ (kein Mikrofon in der VM), Wetter im Gerät (Open-Meteo-Antworten
+nur in den Logik-Tests), Android 11+.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

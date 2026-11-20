@@ -31,6 +31,19 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
 * **Nova Dateien**: interner Speicher mit Abkürzungen (Downloads, Kamera, Bilder, Videos, Musik,
   Dokumente), Öffnen und Teilen mit anderen Apps, Umbenennen, Löschen, neuer Ordner
 * **Nova Notizen**: Notizen mit Suche, automatisches Speichern, gedrückt halten = löschen
+* **Nova Chat**: chatten, **Sprach- und Videoanrufe** über **Matrix** (offenes Chat-Netz, Standard
+  matrix.org, kompatibel mit Element): Anmelden mit Matrix-Konto (Passwort oder Browser), Chats und
+  Einladungen, Benachrichtigungen für neue Nachrichten, eingehende Anrufe klingeln (auch auf dem
+  Sperrbildschirm), **Kontakte werden im Matrix-Konto auf dem Server gespeichert** (auf jedem Handy
+  nach der Anmeldung wieder da). Neue Konten gibt es auf matrix.org nur noch über die Website
+  (Knopf „Neues Konto auf matrix.org erstellen“). Chats aus Nova Chat sind per HTTPS geschützt,
+  aber **nicht Ende-zu-Ende-verschlüsselt**; verschlüsselte Chats (z. B. aus Element) kann Nova Chat
+  noch nicht lesen.
+* **Nova, der Assistent**: eigene App, Mikrofon in der Suchleiste und **„Hey Nova“**, solange der
+  Startbildschirm offen ist (abschaltbar, erst nach Erlaubnis fürs Mikrofon). **Ohne Cloud-KI**:
+  Spracherkennung und Stimme kommen von Android, die Befehle versteht NovaOS selbst – Uhrzeit,
+  Datum, Wecker, Timer, Taschenlampe, Apps und Einstellungen öffnen, Kontakte anrufen oder
+  anschreiben, Notizen, Wetter (Open-Meteo, ohne Konto), TV-Sender, Websuche, Rechnen, kleine Gespräche
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
   Startbildschirm)
 * Deutsch und Englisch, dunkles NovaOS-Design
@@ -71,6 +84,10 @@ Startbildschirm* (Samsung: „One UI Home“ wählen). **Deinstallieren:** *Eins
 NovaOS → Deinstallieren*.
 
 ## Software-Update
+
+**„Aktualisieren“** startet das Update wie bei Samsung in vier Stufen mit großer Prozentanzeige:
+Herunterladen → Prüfen (SHA-256, Signatur) → Vorbereiten und optimieren → Installieren, zusammen
+etwa 2–3 Minuten; der Bildschirm bleibt dabei an.
 
 NovaOS sucht **von selbst** nach Updates: im Hintergrund alle 3 Stunden (auch wenn NovaOS nicht
 offen ist, auch nach einem Neustart des Handys) und beim Anzeigen des Startbildschirms höchstens
@@ -145,5 +162,9 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `NotesActivity.java`, `NoteEditActivity.java`, `NotesDb.java` | Nova Notizen (SQLite auf dem Handy) |
 | `Registry.java`, `MiniJson.java` | Update-Kanal: anonymes Lesen aus ghcr.io (Token, Manifest, Dateien) |
 | `tools/publish_update.sh`, `tools/signing_key.sh` | Workflow: Update nach ghcr.io hochladen, fester Signierschlüssel |
+| `ChatActivity.java`, `RoomActivity.java`, `ChatContactsActivity.java` | Nova Chat: Anmelden, Chats, Unterhaltung, Kontakte |
+| `MatrixApi.java`, `MatrixSync.java`, `ChatDb.java`, `ChatSync.java` | Matrix-Schnittstelle, Auswertung von /sync, Speicher, Aktualisierung + Benachrichtigungen |
+| `CallActivity.java`, `Calls.java`, `res/raw/call.html` | Anrufe (Matrix VoIP, WebRTC im WebView), Klingeln |
+| `NovaActivity.java`, `NovaBrain.java`, `HeyNova.java`, `Weather.java` | Nova: Bildschirm/Sprache, Befehle verstehen (getestet), „Hey Nova“, Wetter |
 | `tools/make_icons.py` | erzeugt die Symbole der Nova-Apps |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |
