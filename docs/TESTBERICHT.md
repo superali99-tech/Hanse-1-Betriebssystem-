@@ -355,6 +355,35 @@ Bilder 38–43.
 | Alter 11 | ✅ | Hinweis auf Nova Family erscheint unter 16 |
 | Fertig → Startbildschirm „Guten Abend, Alice“ | ✅ | |
 
+### Nova Family (20.11.2026)
+
+Weil die VM kein Internet hat: lokaler ntfy-kompatibler Dienst (`tests/family/fake_ntfy.py`, HTTPS mit
+Test-Zertifikat) und ein Test-Partner mit derselben Verschlüsselung wie die App (`tests/family/run.sh`, spielt
+das andere Handy). Für den Test war die Dienst-Adresse auf den lokalen Dienst gestellt (sonst ntfy.sh).
+Bilder 44–51.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1368 bestanden (neu: Familien-Code, Kanal und Schlüssel, Verschlüsseln/Öffnen, fremde/veränderte Nachrichten abgelehnt, PIN-Prüfsumme, Sperre jetzt/bis, Ruhezeit über Mitternacht, nur vor Schultagen, mittags, Bildschirmzeit, „Mehr Zeit“ nur heute, Regeln als JSON, Uhrzeiten, ntfy-Zeilen) |
+| ntfy.sh selbst (aus der Testumgebung) | ✅ | Senden und Abholen funktionieren (`/json?poll=1`) |
+| **Testgerät als Kinderhandy:** Code eingeben, „Lisa“ | ✅ | Beitritt, Status und App-Liste kommen verschlüsselt beim Eltern-Partner an; Schutz-Liste zeigt ✓ |
+| Eltern: „Jetzt sperren“ mit Nachricht | ✅ | nach wenigen Sekunden „Dein Handy wurde gesperrt – Bis deine Eltern es entsperren“, Nachricht, „Mama anrufen“, Notruf 112, Taschenlampe, Eltern fragen |
+| Home-Taste und geöffnete Einstellungen während der Sperre | ✅ | der Sperrbildschirm bleibt über allem |
+| „Eltern fragen → Bitte entsperren“ | ✅ | Bitte kommt bei den Eltern an |
+| „Mama anrufen“ | ✅ | Telefon-App mit Mamas Nummer, Sperrbildschirm verschwindet; ohne Anruf nach ca. 90 s wieder da |
+| Ruhezeit 19:00–7:00 | ✅ | „Ruhezeit – Komme am Samstag um 07:00 Uhr wieder“ → jetzt „Komme morgen um …“ |
+| Eltern-PIN am Kinderhandy | ✅ | 30 Minuten frei, Eltern bekommen Bescheid |
+| Familie verlassen am Kinderhandy | ✅ | nur mit der Eltern-PIN (falsche PIN abgelehnt) |
+| **Testgerät als Elternhandy:** Familie anlegen | ✅ | Familien-Code wird angezeigt |
+| Kinderhandy „Max“ (Partner) tritt bei | ✅ | Karte mit Zustand, Akku, Bildschirmzeit, Warnung „Schutz unvollständig“; Benachrichtigung „Kinderhandy verbunden“ |
+| „Jetzt sperren“ | ✅ | Regeln mit Sperre, Prüfsumme der Eltern-PIN und Elternnummer gehen hinaus |
+| Bitte „30 Minuten mehr“ → Benachrichtigung „Erlauben“ | ✅ | Regeln und Antwort gehen hinaus; bei Sperre von Hand gab es nur Bildschirmzeit dazu ❌ → gibt jetzt 30 Minuten frei |
+| Ruhezeit „Täglich 21:00 – 7:00“, Apps TikTok und Roblox sperren | ✅ | kommt beim Kind an; die Karte zeigt neue Regeln jetzt sofort („wird übertragen …“) |
+
+**Nicht getestet:** zwei echte Handys über das echte ntfy.sh, Samsung/Android 14 (Hintergrund-Regeln,
+Akkusparen), echter Anruf während der Sperre (VM ohne Telefon), gesperrte App mit Nutzungszugriff,
+Neustart des Kinderhandys.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

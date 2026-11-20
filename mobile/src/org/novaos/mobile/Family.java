@@ -204,7 +204,7 @@ final class Family {
 
     static final class Child {
         String id = "", name = "", model = "", reason = "";
-        long lastSeen, until;
+        long lastSeen, until, applied;  // applied: version of the rules the child's phone reported
         int battery = -1, screen;
         boolean locked;
         Map<String, Object> protection = new LinkedHashMap<>();
@@ -241,6 +241,7 @@ final class Family {
         ch.battery = (int) num(o, "battery", -1);
         ch.screen = (int) num(o, "screen");
         ch.locked = Boolean.TRUE.equals(MiniJson.get(o, "locked"));
+        ch.applied = num(o, "applied");
         Object pr = MiniJson.get(o, "protection");
         if (pr instanceof Map) for (Map.Entry<?, ?> e : ((Map<?, ?>) pr).entrySet()) ch.protection.put(String.valueOf(e.getKey()), e.getValue());
         ch.policy = FamilyPolicy.fromJson(MiniJson.get(o, "policy"));
@@ -266,7 +267,7 @@ final class Family {
         List<Object> apps = new ArrayList<>();
         for (String[] a : ch.apps) apps.add(MiniJson.obj("p", a[0], "l", a[1]));
         return MiniJson.obj("name", ch.name, "model", ch.model, "reason", ch.reason, "lastSeen", ch.lastSeen, "until", ch.until,
-                "battery", ch.battery, "screen", ch.screen, "locked", ch.locked, "protection", ch.protection,
+                "battery", ch.battery, "screen", ch.screen, "locked", ch.locked, "applied", ch.applied, "protection", ch.protection,
                 "policy", ch.policy.toJson(), "apps", apps);
     }
 
@@ -437,6 +438,7 @@ final class Family {
                 ch.protection.clear();
                 if (pr instanceof Map) for (Map.Entry<?, ?> e : ((Map<?, ?>) pr).entrySet()) ch.protection.put(String.valueOf(e.getKey()), e.getValue());
                 FamilyPolicy theirs = FamilyPolicy.fromJson(MiniJson.get(msg, "policy"));
+                ch.applied = theirs.version;
                 if (theirs.version > ch.policy.version) ch.policy = theirs;  // e.g. set by the other parent
                 Object apps = MiniJson.get(msg, "apps");
                 if (apps instanceof List) {
@@ -562,9 +564,14 @@ final class Family {
                 p.freeUntil = now + 60L * 60 * 1000;
             } else {
                 String today = FamilyPolicy.day(now, TimeZone.getDefault());
-                p.bonusMinutes = today.equals(p.bonusDay) ? p.bonusMinutes + minutes : minutes;
-                p.bonusDay = today;
-                if (ch.locked && !"limit".equals(ch.reason)) p.freeUntil = now + minutes * 60L * 1000;
+                // locked by hand or bedtime: free for these minutes; screen time used up: more screen time
+                FamilyPolicy.State st = p.evaluate(now, TimeZone.getDefault(), ch.screen, 0);
+                if (st.locked && !"limit".equals(st.reason)) {
+                    p.freeUntil = Math.max(p.freeUntil, now) + minutes * 60L * 1000;
+                } else {
+                    p.bonusMinutes = today.equals(p.bonusDay) ? p.bonusMinutes + minutes : minutes;
+                    p.bonusDay = today;
+                }
             }
             setPolicy(c, childId, p);
         }

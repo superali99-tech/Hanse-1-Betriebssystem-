@@ -68,6 +68,26 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   sein, T-Online braucht das „Passwort für E-Mail-Programme“. **Outlook.com/Hotmail geht nicht**: Microsoft
   lässt dort seit 2024 keine Anmeldung mit Passwort in fremden Mail-Apps mehr zu (nur mit Microsofts eigener
   Anmeldung, für die NovaOS bei Microsoft registriert sein müsste).
+* **Nova Family** (Kinderschutz): Eltern sperren das Kinderhandy **sofort**, **bis zu einer Uhrzeit** oder
+  jede Nacht (**Ruhezeit**, z. B. 21:00–7:00, auch nur vor Schultagen), legen eine **Bildschirmzeit pro Tag**
+  fest, geben „Mehr Zeit“, **sperren einzelne Apps** und schreiben eine Nachricht auf den Sperrbildschirm.
+  Gesperrt sieht das Kind **nur den Sperrbildschirm** über allen Apps („Dein Handy wurde gesperrt“ /
+  „Ruhezeit – Komme um 7:00 Uhr wieder“): **Eltern anrufen, Notruf 112, Taschenlampe** gehen immer, ebenso
+  eingehende Anrufe; „Eltern fragen“ schickt eine Bitte (Eltern: Benachrichtigung mit „Erlauben“/„Ablehnen“),
+  mit der **Eltern-PIN** lässt sich das Handy direkt am Gerät für 30 Minuten entsperren. Eltern sehen pro
+  Kind Zustand, Akku, Bildschirmzeit und ob der Schutz vollständig ist, und bekommen Bescheid, wenn der
+  Schutz ausgeschaltet wird. Einrichten: Elternhandy legt die Familie an (Name, Telefonnummer, Eltern-PIN) und
+  zeigt einen **Familien-Code**; auf dem Kinderhandy „Das ist ein Kinderhandy“ und den Code eingeben, dann
+  den Schutz einschalten (NovaOS als Startbildschirm, „Über anderen Apps einblenden“, Geräteadministrator
+  gegen Deinstallieren, Telefonstatus für Anrufe, kein Akkusparen, optional Nutzungszugriff für gesperrte
+  Apps). Ein zweites Elternteil tritt mit demselben Code bei. **Verbindung:** die Handys tauschen über den
+  kostenlosen Dienst **ntfy.sh** Nachrichten aus, **Ende-zu-Ende-verschlüsselt** (AES-256-GCM, Schlüssel aus
+  dem Familien-Code) – ntfy.sh sieht nur Zufallstext. Die Regeln liegen auf dem Kinderhandy, Ruhezeit und
+  Bildschirmzeit gelten also auch ohne Internet.
+  > **Ehrlich:** Nova Family ist eine App, kein System-Kinderschutz wie Google Family Link. Ein Kind kann
+  > ungesperrt in den Android-Einstellungen Schutzfunktionen abschalten (die Eltern bekommen dann Bescheid),
+  > und den abgesicherten Modus von Android kann keine App verhindern. Vollen Schutz gibt es nur mit
+  > Geräteeigentümer-Rechten (Einrichtung über einen zurückgesetzten Handy-Start) – das kann NovaOS noch nicht.
 * **Nova, der Assistent**: eigene App, Mikrofon in der Suchleiste und **„Hey Nova“**, solange der
   Startbildschirm offen ist (abschaltbar, erst nach Erlaubnis fürs Mikrofon). **Ohne Cloud-KI**:
   Spracherkennung und Stimme kommen von Android, die Befehle versteht NovaOS selbst – Uhrzeit,
@@ -201,6 +221,9 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `MailActivity.java`, `MailReadActivity.java`, `MailComposeActivity.java` | Nova Mail: Konto einrichten, Posteingang/Ordner, Lesen, Schreiben |
 | `Mime.java`, `Imap.java`, `ImapParser.java`, `Utf7.java`, `Smtp.java`, `MailServers.java` | E-Mail-Technik ohne Android: MIME lesen/bauen, IMAP, SMTP, Server finden (getestet, auch gegen Dovecot) |
 | `MailStore.java`, `MailSync.java`, `Secret.java` | Konten (Passwort im Android-Schlüsselspeicher), Kopie der Mail-Listen, Abgleich, Benachrichtigungen |
+| `FamilyActivity.java`, `Family.java` | Nova Family: Eltern-Übersicht und Regeln, Kinderhandy einrichten, Nachrichten, Benachrichtigungen |
+| `FamilyService.java`, `LockScreen.java`, `LockActivity.java`, `FamilyAdmin.java`, `BootReceiver.java` | Schutz auf dem Kinderhandy: Sperrbildschirm über allen Apps, Anrufe, Bildschirmzeit, gesperrte Apps, Deinstallationsschutz |
+| `FamilyPolicy.java`, `FamilyCrypto.java`, `FamilyRelay.java` | Regeln (Sperre, Ruhezeit, Bildschirmzeit), Verschlüsselung mit dem Familien-Code, ntfy-Verbindung (getestet) |
 | `SetupActivity.java`, `Profile.java` | Einrichtung beim ersten Start: Anmelden, Sperre, Berechtigungen, Alter; Profil |
 | `NovaWriter.java`, `Dictation.java`, `Ears.java`, `Speaker.java` | „Nova schreibt für dich“: Diktieren, Nachfragen, Vorlesen (Spracherkennung und Stimme von Android) |
 | `CallActivity.java`, `Calls.java`, `res/raw/call.html` | Anrufe (Matrix VoIP, WebRTC im WebView), Klingeln |

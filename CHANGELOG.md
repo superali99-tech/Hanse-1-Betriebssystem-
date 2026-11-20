@@ -58,6 +58,9 @@
 * **NovaOS Mobile – Einrichtung beim ersten Start**: Anmelden (Google-Konto des Handys, Microsoft,
   E-Mail mit Prüfung beim Anbieter), Bildschirmsperre (Passwort/PIN/Muster von Android),
   Berechtigungen, Alter; Begrüßung mit Namen
+* **NovaOS Mobile – Nova Family**: Eltern sperren das Kinderhandy (sofort, bis zu einer Uhrzeit, Ruhezeit),
+  Bildschirmzeit, Apps sperren, Bitten erlauben; gesperrt nur Sperrbildschirm mit Anrufen (Eltern, 112),
+  Taschenlampe und Eltern-PIN; Verbindung über ntfy.sh, Ende-zu-Ende-verschlüsselt
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

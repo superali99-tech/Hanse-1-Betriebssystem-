@@ -297,9 +297,21 @@ public class FamilyActivity extends Activity implements Family.Listener {
     }
 
     private String stateText(Family.Child k) {
-        if (!k.locked) return "✅ " + getString(R.string.family_state_free);
-        String until = k.until > 0 ? " " + getString(R.string.family_until, time(k.until)) : "";
-        switch (k.reason) {
+        boolean locked = k.locked;
+        String reason = k.reason;
+        long untilMs = k.until;
+        String pending = "";
+        if (k.applied < k.policy.version) {  // the child's phone has not confirmed the new rules yet
+            FamilyPolicy.State s = k.policy.evaluate(System.currentTimeMillis(), TimeZone.getDefault(), k.screen, 0);
+            locked = s.locked;
+            reason = s.reason;
+            untilMs = s.until;
+            pending = "  ·  " + getString(R.string.family_sending);
+        }
+        if (!locked) return "✅ " + getString(R.string.family_state_free) + pending;
+        String until = untilMs > 0 ? " " + getString(R.string.family_until, time(untilMs)) : "";
+        until += pending;
+        switch (reason) {
             case "bedtime": return "🌙 " + getString(R.string.lock_bedtime) + until;
             case "limit": return "⏳ " + getString(R.string.lock_limit) + until;
             default: return "🔒 " + getString(R.string.family_state_locked) + until;
@@ -322,7 +334,9 @@ public class FamilyActivity extends Activity implements Family.Listener {
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         col.addView(text(k.name.isEmpty() ? k.model : k.name, 18, Color.WHITE, true));
-        String seen = k.lastSeen > 0 ? DateUtils.getRelativeTimeSpanString(k.lastSeen, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString() : "–";
+        long ago = System.currentTimeMillis() - k.lastSeen;
+        String seen = k.lastSeen <= 0 ? "–" : ago < 60_000 ? getString(R.string.family_seen_now)
+                : DateUtils.getRelativeTimeSpanString(k.lastSeen, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
         col.addView(text(k.model + " · " + getString(R.string.family_seen, seen)
                 + (k.battery >= 0 ? " · 🔋 " + k.battery + " %" : ""), 12.5f, getColor(R.color.text_muted), false));
         LinearLayout.LayoutParams cl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);

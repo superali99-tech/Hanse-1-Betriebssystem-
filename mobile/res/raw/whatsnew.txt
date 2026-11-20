@@ -1,5 +1,5 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Neu: NovaOS einrichten – anmelden mit Google, Microsoft oder E-Mail, Bildschirmsperre, Berechtigungen, Alter|New: set up NovaOS – sign in with Google, Microsoft or e-mail, screen lock, permissions, age
-Der Startbildschirm begrüßt dich jetzt mit deinem Namen|The home screen now greets you by name
-Nova Mail: echte E-Mails mit deinem Konto von GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud und anderen|Nova Mail: real e-mail with your account from GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud and others
-Nova liest E-Mails und Chat-Nachrichten vor und schreibt sie für dich|Nova reads e-mails and chat messages aloud and writes them for you
+Neu: Nova Family – Eltern sperren das Kinderhandy sofort, bis zu einer Uhrzeit oder jede Nacht (Ruhezeit)|New: Nova Family – parents lock their child's phone now, until a time or every night (bedtime)
+Gesperrt sieht das Kind nur noch „Dein Handy wurde gesperrt“ – Eltern anrufen, Notruf und Taschenlampe gehen immer|While locked the child only sees "Your phone was locked" – calling the parents, emergency calls and the torch always work
+Bildschirmzeit pro Tag, Apps sperren, Bitten wie „30 Minuten mehr“ mit einem Tipp erlauben|Daily screen time, blocking apps, allowing requests like "30 minutes more" with one tap
+Einrichtung beim ersten Start, Nova Mail und Nova Chat mit Sprachnachrichten|Setup on first start, Nova Mail and Nova Chat with voice messages

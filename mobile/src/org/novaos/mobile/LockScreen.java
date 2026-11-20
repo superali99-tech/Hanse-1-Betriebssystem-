@@ -91,6 +91,7 @@ final class LockScreen {
         } else if (state.until > 0) {
             String time = DateFormat.getTimeFormat(c).format(new Date(state.until));
             until = DateUtils.isToday(state.until) ? c.getString(R.string.lock_until_today, time)
+                    : DateUtils.isToday(state.until - DateUtils.DAY_IN_MILLIS) ? c.getString(R.string.lock_until_tomorrow, time)
                     : c.getString(R.string.lock_until_day, DateUtils.formatDateTime(c, state.until, DateUtils.FORMAT_SHOW_WEEKDAY), time);
         } else {
             until = c.getString(R.string.lock_until_parents);
