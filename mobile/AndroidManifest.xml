@@ -119,7 +119,8 @@
         android:supportsRtl="true"
         android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.NovaMobile"
-        android:usesCleartextTraffic="false">
+        android:usesCleartextTraffic="false"
+        android:networkSecurityConfig="@xml/network_security">
 
         <!-- home screen: can be chosen as the phone's start screen -->
         <activity

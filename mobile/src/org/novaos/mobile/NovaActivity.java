@@ -84,9 +84,12 @@ public class NovaActivity extends Activity {
         orb.setElevation(Ui.dp(this, 16));
         orb.setOnClickListener(v -> listen());
         orb.setContentDescription(getString(R.string.nova_listen));
-        LinearLayout.LayoutParams ol = new LinearLayout.LayoutParams(Ui.dp(this, 132), Ui.dp(this, 132));
-        ol.topMargin = Ui.dp(this, 28);
-        ol.bottomMargin = Ui.dp(this, 22);
+        // landscape: a smaller orb, so the typing field stays on the screen
+        boolean wide = getResources().getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        int orbSize = Ui.dp(this, wide ? 72 : 132);
+        LinearLayout.LayoutParams ol = new LinearLayout.LayoutParams(orbSize, orbSize);
+        ol.topMargin = Ui.dp(this, wide ? 6 : 28);
+        ol.bottomMargin = Ui.dp(this, wide ? 8 : 22);
         content.addView(orb, ol);
 
         heard = Ui.text(this, "", 15, getColor(R.color.text_muted), false);
@@ -115,7 +118,7 @@ public class NovaActivity extends Activity {
         }
         hs.addView(chips);
         LinearLayout.LayoutParams hl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        hl.topMargin = Ui.dp(this, 26);
+        hl.topMargin = Ui.dp(this, wide ? 12 : 26);
         content.addView(hs, hl);
 
         // typing + microphone
@@ -153,7 +156,7 @@ public class NovaActivity extends Activity {
         ml.leftMargin = Ui.dp(this, 10);
         bar.addView(mic, ml);
         LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        bl.topMargin = Ui.dp(this, 18);
+        bl.topMargin = Ui.dp(this, wide ? 10 : 18);
         content.addView(bar, bl);
 
         // "Hey Nova" on the home screen

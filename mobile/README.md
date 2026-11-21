@@ -60,7 +60,9 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Balken mit Abbiege-Pfeil, Entfernung und Straße, „Danach: …“, unten Restzeit, Strecke und Ankunft – und **Nova sagt
   an**: „In 400 Metern …“, „In 150 Metern rechts abbiegen auf Gertrudenstraße“, „Jetzt links abbiegen“, „Im
   Kreisverkehr die zweite Ausfahrt nehmen“, „Du hast dein Ziel erreicht“; fährt man anders, wird die Route neu
-  berechnet. **Vorschau** fährt die Route zum Ausprobieren ab. Nova: „Navigiere nach Hamburg Hauptbahnhof“, „Wie komme
+  berechnet. „Starten“ fährt immer ab dem echten Standort (ist er noch unbekannt, wartet Nova Karte auf GPS);
+  **Vorschau** fährt die Route zum Ausprobieren ab. Im Querformat liegen die Karten schmal links wie bei Google Maps.
+  Nova: „Navigiere nach Hamburg Hauptbahnhof“, „Wie komme
   ich zum Rathaus?“, „Öffne die Karte“; andere Apps können Orte öffnen (`geo:`). **Ehrlich:** Karte, Suche und Routen
   brauchen Internet (keine Offline-Karten), und die Navigation läuft, solange Nova Karte geöffnet ist (der Bildschirm
   bleibt dafür an) – noch nicht im Hintergrund. Daten © OpenStreetMap-Mitwirkende.
@@ -282,6 +284,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `Wiki.java` | Nova: Wikipedia-Zusammenfassungen (getestet) |
 | `NovaAppDetailActivity.java`, `NewsActivity.java`, `AppNews.java`, `News.java` | Infoseite der Nova-Apps, „Neue Funktionen“, Regeln für „Neuerungen“ (getestet) |
 | `MapActivity.java`, `MapView.java`, `ManeuverView.java` | Nova Karte: Bildschirm, Karte aus OpenStreetMap-Kacheln, Abbiege-Pfeile |
+| `res/xml/network_security.xml`, `res/raw/isrg_root_x2.pem` | Vertrauen: Zertifikate des Handys plus ISRG Root X2 (neue Let's-Encrypt-Ketten auf Android < 14); keine Nutzer-Zertifikate, kein http |
 | `Geo.java`, `NavRoute.java`, `NavText.java`, `Guidance.java`, `Places.java` | Karten-Mathe, Routen lesen, Ansagen, Navigation, Ortssuche (getestet mit echten Server-Antworten in `test/*.json`) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |

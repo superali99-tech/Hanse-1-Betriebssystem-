@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Trusted certificates: those of the phone, plus ISRG Root X2 (Let's Encrypt). Newer Let's Encrypt
+  certificates (e.g. routing.openstreetmap.de for Nova Karte) chain to X2; today servers also send
+  X2 signed by ISRG Root X1, which every Android knows, but if a server sends the short chain,
+  Android before 14 (which does not know X2) would refuse it.
+  User-added certificates are still not trusted, and plain http stays forbidden.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="@raw/isrg_root_x2" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

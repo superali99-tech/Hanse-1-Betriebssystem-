@@ -65,7 +65,13 @@ public final class Places {
             if (city.isEmpty()) city = str(p.get("district"));
             place.city = (postcode.isEmpty() ? "" : postcode + " ") + city;
             place.kind = str(p.get("osm_value"));
-            if (!place.title().isEmpty()) out.add(place);
+            if (place.title().isEmpty()) continue;
+            // the same place is often in OpenStreetMap several times (point, building, area): once is enough
+            boolean twice = false;
+            for (Place o : out) {
+                if (o.title().equals(place.title()) && Geo.distance(o.at, place.at) < 250) twice = true;
+            }
+            if (!twice) out.add(place);
         }
         return out;
     }

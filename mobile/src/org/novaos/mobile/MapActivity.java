@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Location;
@@ -57,10 +58,14 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     private LinearLayout searchCard, results, sheet, banner, navBottom;
     private ScrollView resultsScroll;
     private ImageButton locate;
+    private LinearLayout fabs;
+    private FrameLayout overlay;
+    private Runnable afterLayout;
     private ManeuverView arrow;
     private TextView bannerDistance, bannerText, bannerThen, navTime, navInfo, muteButton;
 
     private Geo.Point me;
+    private Geo.Point origin;  // without a position: the middle of the map before a place was shown
     private float myBearing = Float.NaN, myAccuracy;
     private boolean follow = true;
     private Places.Place target;
@@ -68,6 +73,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     private NavRoute route;
     private Guidance guidance;
     private boolean navigating, simulating, muted, goWhenReady;
+    private boolean startWhenLocated;  // "Starten" before the own position was known
     private double simAlong;
     private long lastReroute;
     private int searchToken;
@@ -165,6 +171,13 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         map = new MapView(this);
         map.setListener(this);
         root.addView(map, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        // everything on top of the map keeps clear of the navigation bar (below, or at the side in landscape)
+        overlay = new FrameLayout(this);
+        root.addView(overlay, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        overlay.setOnApplyWindowInsetsListener((v, insets) -> {
+            v.setPadding(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
+            return insets;
+        });
         int status = statusBar(), side = Ui.dp(this, 12);
 
         // search at the top
@@ -234,7 +247,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         searchCard.addView(resultsScroll, rl);
         FrameLayout.LayoutParams sl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         sl.setMargins(side, status + Ui.dp(this, 8), side, 0);
-        root.addView(searchCard, sl);
+        overlay.addView(searchCard, sl);
 
         // navigation banner at the top (green, like in Google Maps)
         banner = new LinearLayout(this);
@@ -263,10 +276,10 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         banner.setVisibility(View.GONE);
         FrameLayout.LayoutParams bl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         bl.setMargins(side, status + Ui.dp(this, 8), side, 0);
-        root.addView(banner, bl);
+        overlay.addView(banner, bl);
 
         // buttons on the right: zoom and own position
-        LinearLayout fabs = new LinearLayout(this);
+        fabs = new LinearLayout(this);
         fabs.setOrientation(LinearLayout.VERTICAL);
         ImageButton plus = roundButton(R.drawable.ic_plus, R.string.map_zoom_in);
         plus.setOnClickListener(v -> map.zoomBy(1));
@@ -279,26 +292,26 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         fabs.addView(locate, fabLp(16));
         FrameLayout.LayoutParams fl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         fl.gravity = Gravity.END | Gravity.BOTTOM;
-        fl.setMargins(0, 0, side, Ui.dp(this, 200));
-        root.addView(fabs, fl);
+        fl.setMargins(0, 0, side, Ui.dp(this, 16));
+        overlay.addView(fabs, fl);
 
         // bottom card: place, route, arrival
         sheet = new LinearLayout(this);
         sheet.setOrientation(LinearLayout.VERTICAL);
         sheet.setBackground(card(0xFFFFFFFF, 26));
         sheet.setElevation(Ui.dp(this, 10));
-        sheet.setPadding(Ui.dp(this, 20), Ui.dp(this, 18), Ui.dp(this, 20), Ui.dp(this, 18) + navigationBar());
+        sheet.setPadding(Ui.dp(this, 20), Ui.dp(this, 18), Ui.dp(this, 20), Ui.dp(this, 18));
         sheet.setVisibility(View.GONE);
         FrameLayout.LayoutParams shl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         shl.gravity = Gravity.BOTTOM;
-        root.addView(sheet, shl);
+        overlay.addView(sheet, shl);
 
         // bottom bar while navigating: time left, distance, arrival, sound, stop
         navBottom = new LinearLayout(this);
         navBottom.setGravity(Gravity.CENTER_VERTICAL);
         navBottom.setBackground(card(0xFFFFFFFF, 26));
         navBottom.setElevation(Ui.dp(this, 10));
-        navBottom.setPadding(Ui.dp(this, 16), Ui.dp(this, 14), Ui.dp(this, 16), Ui.dp(this, 14) + navigationBar());
+        navBottom.setPadding(Ui.dp(this, 16), Ui.dp(this, 14), Ui.dp(this, 16), Ui.dp(this, 14));
         TextView stop = Ui.text(this, "✕", 20, Color.WHITE, true);
         stop.setGravity(Gravity.CENTER);
         stop.setBackground(card(0xFFD93025, 24));
@@ -325,8 +338,102 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         navBottom.setVisibility(View.GONE);
         FrameLayout.LayoutParams nbl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         nbl.gravity = Gravity.BOTTOM;
-        root.addView(navBottom, nbl);
+        overlay.addView(navBottom, nbl);
+        // whenever a card changes: the free part of the map, then what waited for the layout
+        overlay.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            updateFree();
+            if (afterLayout != null) {
+                Runnable run = afterLayout;
+                afterLayout = null;
+                ui.post(run);
+            }
+        });
+        applyOrientation();
         setContentView(root);
+    }
+
+    private boolean wide() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+    /** Landscape: the cards narrow on the left (the map stays visible on the right), like Google Maps. */
+    private void applyOrientation() {
+        boolean side = wide();
+        int width = side ? Math.min(Ui.dp(this, 400), getResources().getDisplayMetrics().widthPixels / 2) : ViewGroup.LayoutParams.MATCH_PARENT;
+        int gap = Ui.dp(this, 12);
+        for (View v : new View[]{searchCard, banner, sheet, navBottom}) {
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) v.getLayoutParams();
+            lp.width = width;
+            lp.gravity = (lp.gravity & Gravity.VERTICAL_GRAVITY_MASK) | Gravity.START;
+            if (v == sheet || v == navBottom) lp.setMargins(side ? gap : 0, 0, 0, side ? gap : 0);
+            v.setLayoutParams(lp);
+        }
+    }
+
+    /** The part of the map no card covers: places, routes and the own arrow are shown in its middle. */
+    private void updateFree() {
+        View bottomCard = navBottom.getVisibility() == View.VISIBLE ? navBottom : sheet.getVisibility() == View.VISIBLE ? sheet : null;
+        View topCard = banner.getVisibility() == View.VISIBLE ? banner : searchCard;
+        int right = overlay.getPaddingRight();  // navigation bar at the side
+        if (wide()) {
+            // cards on the left: the map between them and the buttons on the right
+            if (fabs.getVisibility() == View.VISIBLE && fabs.getWidth() > 0) right = map.getWidth() - fabs.getLeft();
+            map.setFree(bottomCard != null ? bottomCard.getRight() : 0, bottomCard != null ? statusBar() : topCard.getBottom(), right, 0);
+        } else {
+            map.setFree(0, topCard.getBottom(), right, bottomCard != null ? map.getHeight() - bottomCard.getTop() : 0);
+        }
+    }
+
+    /** The route and the place itself (it can lie a bit off the road, the pin must be visible too). */
+    private List<Geo.Point> routeAndTarget() {
+        List<Geo.Point> all = new ArrayList<>(route.points);
+        if (target != null) all.add(target.at);
+        return all;
+    }
+
+    /** A row of buttons; scrolls sideways if the card is narrow (landscape) instead of breaking words. */
+    private void addButtons(LinearLayout buttons) {
+        android.widget.HorizontalScrollView row = new android.widget.HorizontalScrollView(this);
+        row.setHorizontalScrollBarEnabled(false);
+        row.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        row.addView(buttons);
+        sheet.addView(row);
+    }
+
+    /** Runs r once the cards have their new size (after the next layout). */
+    private void whenLaidOut(Runnable r) {
+        afterLayout = r;
+        overlay.requestLayout();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration c) {
+        super.onConfigurationChanged(c);
+        applyOrientation();
+        placeButtons();
+        whenLaidOut(() -> {
+            if (navigating) return;  // the next position puts the arrow in place
+            if (route != null) map.fit(routeAndTarget());
+            else if (target != null) map.show(target.at, map.zoom());
+        });
+    }
+
+    /** The zoom buttons sit above the card at the bottom, and hide while the search results are open. */
+    private void placeButtons() {
+        ui.post(() -> {
+            boolean searching = resultsScroll.getVisibility() == View.VISIBLE;
+            fabs.setVisibility(searching || navigating ? View.GONE : View.VISIBLE);
+            View below = wide() ? null : navigating ? navBottom : sheet.getVisibility() == View.VISIBLE ? sheet : null;
+            int bottom = (below == null ? 0 : below.getHeight()) + Ui.dp(this, 16);
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) fabs.getLayoutParams();
+            if (lp.bottomMargin != bottom) {
+                lp.bottomMargin = bottom;
+                fabs.setLayoutParams(lp);
+            }
+            // not enough room between the search bar and the card (landscape): only the position button
+            int room = ((View) fabs.getParent()).getHeight() - bottom - (wide() ? statusBar() : searchCard.getBottom());
+            for (int i = 0; i < 2; i++) fabs.getChildAt(i).setVisibility(room < Ui.dp(this, 200) ? View.GONE : View.VISIBLE);
+        });
     }
 
     private LinearLayout.LayoutParams fabLp(int topDp) {
@@ -367,11 +474,6 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     private int statusBar() {
         int id = getResources().getIdentifier("status_bar_height", "dimen", "android");
         return id > 0 ? getResources().getDimensionPixelSize(id) : Ui.dp(this, 24);
-    }
-
-    private int navigationBar() {
-        int id = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        return id > 0 ? getResources().getDimensionPixelSize(id) : 0;
     }
 
     private void keyboard(boolean show) {
@@ -448,6 +550,13 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         me = now;
         myAccuracy = l.getAccuracy();
         map.setPosition(me, myBearing, myAccuracy);
+        if (startWhenLocated && !navigating && target != null) {
+            // "Starten" waited for this: the route from here, then go
+            startWhenLocated = false;
+            goWhenReady = true;
+            routeTo(target);
+            return;
+        }
         if (navigating) guide(me);
         else if (follow) map.show(me, Math.max(map.zoom(), 15));
     }
@@ -460,6 +569,17 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
 
     @Override
     public void onProviderDisabled(String provider) {}
+
+    /** "Starten" before the position is known: ask for it (permission) and start as soon as it is there. */
+    private void waitForPosition() {
+        startWhenLocated = true;
+        if (!hasLocation()) {
+            Toast.makeText(this, R.string.map_allow_location, Toast.LENGTH_LONG).show();
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION);
+        } else {
+            Toast.makeText(this, R.string.map_wait_position, Toast.LENGTH_LONG).show();
+        }
+    }
 
     private void centerOnMe() {
         if (me == null) {
@@ -544,6 +664,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     }
 
     private void limitResults() {
+        placeButtons();
         resultsScroll.post(() -> {
             int max = (int) (getResources().getDisplayMetrics().heightPixels * 0.5f);
             if (resultsScroll.getHeight() > max) {
@@ -579,6 +700,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
 
     private void hideResults() {
         resultsScroll.setVisibility(View.GONE);
+        placeButtons();
         ViewGroup.LayoutParams lp = resultsScroll.getLayoutParams();
         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         resultsScroll.setLayoutParams(lp);
@@ -636,18 +758,29 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         query.setText(p.title());
         remember(p);
         showPlace(p);
-        if (goWhenReady) routeTo(p);
+        if (goWhenReady) {
+            // navigation starts from the real position, not from the middle of the map
+            if (me == null) {
+                goWhenReady = false;
+                waitForPosition();
+            } else {
+                routeTo(p);
+            }
+        }
     }
 
     // ------------------------------------------------------------ place and route cards
 
     private void showPlace(Places.Place p) {
+        if (p != target) startWhenLocated = false;  // waiting was for the place before
+        if (me == null && (target == null || origin == null)) origin = map.center();
         target = p;
         route = null;
         map.setRoute(null, null);
         map.setDestination(p.at);
         follow = false;
-        map.show(p.at, Math.max(map.zoom(), 15));
+        double z = Math.max(map.zoom(), 15);
+        whenLaidOut(() -> map.show(p.at, z));
         sheet.removeAllViews();
         TextView title = Ui.text(this, p.title(), 22, 0xFF202124, true);
         sheet.addView(title);
@@ -659,16 +792,22 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         LinearLayout buttons = new LinearLayout(this);
         buttons.addView(pill("↱  " + getString(R.string.map_route), true, v -> routeTo(p)));
         buttons.addView(pill("▶  " + getString(R.string.map_start), false, v -> {
+            if (me == null) {
+                waitForPosition();
+                return;
+            }
             goWhenReady = true;
             routeTo(p);
         }));
-        sheet.addView(buttons);
+        addButtons(buttons);
         sheet.setVisibility(View.VISIBLE);
+        placeButtons();
     }
 
     private TextView pill(String text, boolean primary, View.OnClickListener click) {
         TextView t = Ui.text(this, text, 15, primary ? Color.WHITE : 0xFF1A73E8, true);
         t.setGravity(Gravity.CENTER);
+        t.setSingleLine(true);
         GradientDrawable g = card(primary ? 0xFF1A73E8 : Color.WHITE, 22);
         if (!primary) g.setStroke(Ui.dp(this, 1), 0xFFDADCE0);
         t.setBackground(g);
@@ -682,7 +821,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
 
     /** Start: the own position, without one the middle of the map (said on the card). */
     private Geo.Point startPoint() {
-        return me != null ? me : map.center();
+        return me != null ? me : origin != null ? origin : map.center();
     }
 
     private void routeTo(Places.Place p) {
@@ -701,6 +840,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
                 r = NavRoute.parse(Download.text(NavRoute.url(m, from, p.at)), m);
                 if (r == null) error = getString(R.string.map_no_route);
             } catch (IOException e) {
+                android.util.Log.w("NovaKarte", "route", e);
                 error = getString(R.string.map_offline);
             }
             NavRoute res = r;
@@ -763,10 +903,13 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         buttons.addView(pill("▶  " + getString(R.string.map_start), true, v -> startNavigation(false)));
         buttons.addView(pill(getString(R.string.map_preview), false, v -> startNavigation(true)));
         buttons.addView(pill(getString(R.string.map_steps), false, v -> steps()));
-        sheet.addView(buttons);
+        addButtons(buttons);
         sheet.setVisibility(View.VISIBLE);
-        List<Geo.Point> both = new ArrayList<>(route.points);
-        map.fit(both, searchCard.getHeight() + statusBar() + Ui.dp(this, 16), sheet.getHeight() > 0 ? sheet.getHeight() : Ui.dp(this, 230));
+        placeButtons();
+        NavRoute shown = route;
+        whenLaidOut(() -> {
+            if (route == shown && !navigating) map.fit(routeAndTarget());
+        });
     }
 
     /** The two longest roads of the route: "über Ballindamm und Kirchenallee". */
@@ -796,16 +939,24 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
 
     private void clear() {
         target = null;
+        origin = null;
+        startWhenLocated = false;
         route = null;
         map.setRoute(null, null);
         map.setDestination(null);
         sheet.setVisibility(View.GONE);
+        placeButtons();
     }
 
     // ------------------------------------------------------------ navigation
 
     private void startNavigation(boolean preview) {
         if (route == null) return;
+        if (!preview && me == null) {
+            waitForPosition();
+            return;
+        }
+        startWhenLocated = false;
         navigating = true;
         simulating = preview;
         guidance = new Guidance(route, german);
@@ -815,10 +966,11 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         banner.setVisibility(View.VISIBLE);
         navBottom.setVisibility(View.VISIBLE);
         map.setNavigating(true);
+        placeButtons();
         follow = true;
         say((preview ? getString(R.string.map_preview_start) + " " : "") + guidance.start());
-        Geo.Point start = preview || me == null ? route.points.get(0) : me;
-        if (preview || me == null) {
+        Geo.Point start = preview ? route.points.get(0) : me;
+        if (preview) {
             simulating = true;
             simAlong = 0;
             ui.post(simulate);
@@ -835,9 +987,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
             simAlong += speed * 0.5 * 3;  // every half second, three times as fast
             Geo.Point p = Geo.at(route.points, route.cumulative, simAlong);
             Geo.Point ahead = Geo.at(route.points, route.cumulative, simAlong + 8);
-            myBearing = (float) Geo.bearing(p, ahead);
-            me = p;
-            map.setPosition(p, myBearing, 5);
+            map.setPosition(p, (float) Geo.bearing(p, ahead), 5);
             guide(p);
             if (navigating) ui.postDelayed(this, 500);
         }
@@ -847,10 +997,8 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         Guidance.State st = guidance.update(p);
         map.setPassed(st.along);
         if (follow) {
-            // the position in the lower third, so more of the way ahead is visible
-            map.show(p, 17);
-            Geo.Point c = map.pointAt(map.getWidth() / 2f, map.getHeight() * 0.25f);
-            map.show(new Geo.Point(p.lat + (p.lat - c.lat), p.lon + (p.lon - c.lon)), 17);
+            // the position low in the free part, so more of the way ahead is visible
+            map.showAt(p, 17, 0.75f);
         }
         NavRoute r = guidance.route();
         NavRoute.Step step = r.steps.get(st.next);
@@ -908,6 +1056,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         }
         sheet.addView(pill(getString(R.string.ok), true, v -> clear()));
         sheet.setVisibility(View.VISIBLE);
+        placeButtons();
     }
 
     private void confirmStop() {
@@ -921,6 +1070,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
 
     private void stopNavigation() {
         navigating = false;
+        if (simulating) map.setPosition(me, myBearing, myAccuracy);  // back to the real position
         simulating = false;
         ui.removeCallbacks(simulate);
         speaker.stop();
@@ -930,10 +1080,13 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         searchCard.setVisibility(View.VISIBLE);
         map.setNavigating(false);
         map.setPassed(0);
+        placeButtons();
     }
 
     private void say(String text) {
-        if (!muted && text != null && !text.isEmpty()) speaker.say(text, null);
+        if (text == null || text.isEmpty()) return;
+        android.util.Log.i("NovaKarte", "Ansage: " + text);
+        if (!muted) speaker.say(text, null);
     }
 
     /** For Nova: open the map and navigate. */

@@ -75,6 +75,7 @@ final class MapView extends View {
     private Geo.Point destination, position;
     private float heading = Float.NaN, accuracy;
     private boolean navigating;
+    private float freeLeft, freeTop, freeRight, freeBottom;
 
     private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Rect src = new Rect();
@@ -145,19 +146,46 @@ final class MapView extends View {
         return zoom;
     }
 
-    Geo.Point center() {
-        return new Geo.Point(lat, lon);
+    /** The part of the map that no card or button covers, in pixels from each side. */
+    void setFree(float left, float top, float right, float bottom) {
+        freeLeft = left;
+        freeTop = top;
+        freeRight = right;
+        freeBottom = bottom;
     }
 
+    /** From the middle of the view to the point at the fraction fy of the free part's height (0.5 = its middle). */
+    private float offX() {
+        return (freeLeft - freeRight) / 2;
+    }
+
+    private float offY(float fy) {
+        float h = getHeight();
+        return h == 0 ? 0 : freeTop + (h - freeTop - freeBottom) * fy - h / 2;
+    }
+
+    /** The middle of the free part of the map. */
+    Geo.Point center() {
+        double cx = Geo.x(lon, zoom, tile) + offX(), cy = Geo.y(lat, zoom, tile) + offY(0.5f);
+        return new Geo.Point(Geo.lat(cy, zoom, tile), Geo.lon(cx, zoom, tile));
+    }
+
+    /** Shows p in the middle of the free part. */
     void show(Geo.Point p, double z) {
-        lat = p.lat;
-        lon = p.lon;
+        showAt(p, z, 0.5f);
+    }
+
+    /** Shows p in the middle of the free part, at the fraction fy of its height (navigation: low, to see ahead). */
+    void showAt(Geo.Point p, double z, float fy) {
         zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z));
+        double cx = Geo.x(p.lon, zoom, tile) - offX(), cy = Geo.y(p.lat, zoom, tile) - offY(fy);
+        lon = Geo.lon(cx, zoom, tile);
+        lat = Math.max(-85, Math.min(85, Geo.lat(cy, zoom, tile)));
         invalidate();
     }
 
-    /** Shows all points (route, or start and destination) with some margin. */
-    void fit(List<Geo.Point> pts, float topPx, float bottomPx) {
+    /** Shows all points (route, or start and destination) in the free part, with some margin. */
+    void fit(List<Geo.Point> pts) {
         if (pts.isEmpty() || getWidth() == 0) return;
         double minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
         for (Geo.Point q : pts) {
@@ -166,7 +194,7 @@ final class MapView extends View {
             minLon = Math.min(minLon, q.lon);
             maxLon = Math.max(maxLon, q.lon);
         }
-        float w = getWidth() - 2 * 32 * density, h = getHeight() - topPx - bottomPx - 2 * 24 * density;
+        float w = getWidth() - freeLeft - freeRight - 2 * 32 * density, h = getHeight() - freeTop - freeBottom - 2 * 24 * density;
         double z = MAX_ZOOM;
         while (z > MIN_ZOOM) {
             double dx = Geo.x(maxLon, z, tile) - Geo.x(minLon, z, tile), dy = Geo.y(minLat, z, tile) - Geo.y(maxLat, z, tile);
@@ -174,9 +202,8 @@ final class MapView extends View {
             z -= 0.25;
         }
         zoom = Math.min(17, z);
-        // the middle of the free area (between the top card and the bottom card)
-        double cx = (Geo.x(minLon, zoom, tile) + Geo.x(maxLon, zoom, tile)) / 2;
-        double cy = (Geo.y(minLat, zoom, tile) + Geo.y(maxLat, zoom, tile)) / 2 - (topPx - bottomPx) / 2;
+        double cx = (Geo.x(minLon, zoom, tile) + Geo.x(maxLon, zoom, tile)) / 2 - offX();
+        double cy = (Geo.y(minLat, zoom, tile) + Geo.y(maxLat, zoom, tile)) / 2 - offY(0.5f);
         lon = Geo.lon(cx, zoom, tile);
         lat = Geo.lat(cy, zoom, tile);
         invalidate();
@@ -418,6 +445,8 @@ final class MapView extends View {
                 if (bmp != null) {
                     MEMORY.put(key, bmp);
                     ui.post(this::invalidate);
+                } else {
+                    ui.postDelayed(this::invalidate, 4000);  // no connection right now: try again in a moment
                 }
             } finally {
                 loading.remove(key);

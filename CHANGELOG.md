@@ -109,6 +109,17 @@
   und „Zuletzt nach Updates gesucht“ mit Datum und Uhrzeit, „Was ist neu“ und Update-Verlauf mit Erscheinungs- und
   Installationsdatum (Installationen werden auf dem Handy mitgeschrieben). Behoben: ein „|“ im Text der Neuerungen von
   0.1.1.64 schnitt die Zeile ab (Test prüft das jetzt für alle Zeilen)
+* **NovaOS Mobile 0.1.1.70 – Nova Karte**: neue Karten-App wie Google Maps – Karte von OpenStreetMap (Ziehen, Zoomen,
+  Doppeltippen, langes Drücken setzt einen Punkt), Suche nach Orten und Adressen (Photon, Treffer in der Nähe zuerst,
+  doppelte Einträge zusammengefasst, letzte Ziele), Route mit Auto, Fahrrad oder zu Fuß (OSRM von FOSSGIS) mit Dauer,
+  Strecke, Ankunftszeit und „über …“, Liste der Schritte. Navigation mit grünem Banner (Pfeil, Entfernung, „Danach: …“),
+  Ansagen über die Sprachausgabe des Handys („In 150 Metern rechts abbiegen auf Neue Burg, danach rechts“, „Jetzt …“,
+  Kreisverkehr mit Ausfahrt, „Du hast dein Ziel erreicht – es ist links“), neue Route beim Abweichen, Ton aus/an,
+  Bildschirm bleibt an; „Vorschau“ fährt die Route simuliert ab. Im Querformat liegen die Karten links und Route/Ziel
+  werden im freien Teil der Karte gezeigt. Nova versteht „Navigiere nach …“, „Bring mich zum …“, „Wie komme ich zum …?“
+  und „Öffne die Karte“; `geo:`-Links öffnen Nova Karte. Neuer Vertrauensanker ISRG Root X2 (Let's Encrypt) in der
+  Netzwerk-Sicherheitskonfiguration, falls ein Server die kurze Kette ohne X1-Gegenzeichnung schickt (Android < 14 kennt
+  X2 nicht); Nutzer-Zertifikate und unverschlüsseltes http bleiben verboten
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

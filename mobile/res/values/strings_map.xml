@@ -25,6 +25,7 @@
     <string name="map_zoom_in">Zoom in</string>
     <string name="map_zoom_out">Zoom out</string>
     <string name="map_my_position">My location</string>
+    <string name="map_wait_position">Waiting for your position … navigation starts as soon as it is known (GPS works best outdoors). \"Preview\" shows the route without it.</string>
     <string name="map_no_position">Looking for your location … (works best outside with GPS)</string>
     <string name="map_allow_location">Please allow Nova Maps to use your location.</string>
     <string name="map_stop">Stop</string>

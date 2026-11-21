@@ -74,6 +74,22 @@ public final class MobileTest {
 
     /** Nova Karte with real answers of the routing and place servers (test/*.json). */
     private static void navigation(java.io.File mobile) {
+        // Let's Encrypt X2 chains (routing.openstreetmap.de): the root is shipped, unchanged
+        try {
+            java.nio.charset.Charset u8 = java.nio.charset.StandardCharsets.UTF_8;
+            String manifest = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "AndroidManifest.xml").toPath()), u8);
+            check(manifest.contains("android:networkSecurityConfig=\"@xml/network_security\""), "nav: network security config in the manifest");
+            String nsc = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "res/xml/network_security.xml").toPath()), u8);
+            check(nsc.contains("src=\"system\"") && nsc.contains("@raw/isrg_root_x2") && !nsc.contains("src=\"user\"")
+                    && nsc.contains("cleartextTrafficPermitted=\"false\""), "nav: trust = system + ISRG Root X2, no user certificates, no http");
+            String pem = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "res/raw/isrg_root_x2.pem").toPath()), u8);
+            byte[] der = java.util.Base64.getMimeDecoder().decode(pem.replaceAll("-----[A-Z0-9 ]+-----", "").trim());
+            StringBuilder hex = new StringBuilder();
+            for (byte b : java.security.MessageDigest.getInstance("SHA-256").digest(der)) hex.append(String.format("%02X", b));
+            check(hex.toString().equals("69729B8E15A86EFC177A57AFB7171DFC64ADD28C2FCA8CF1507E34453CCB1470"), "nav: ISRG Root X2 fingerprint");
+        } catch (Exception e) {
+            check(false, "nav: trust files readable: " + e);
+        }
         // maths
         check(Math.abs(Geo.distance(53.5511, 9.9937, 48.1374, 11.5755) - 612_000) < 3000, "geo: Hamburg - Munich about 612 km");
         double x = Geo.x(9.9937, 15, 256), y = Geo.y(53.5511, 15, 256);
@@ -158,6 +174,10 @@ public final class MobileTest {
             check(false, "places: " + e);
         }
         check(Places.parse("{}").isEmpty() && Places.parse("kaputt").isEmpty(), "places: broken answer");
+        String twice = "{\"features\":[{\"properties\":{\"name\":\"Rathaus\",\"street\":\"Rathausmarkt\",\"housenumber\":\"1\"},\"geometry\":{\"coordinates\":[9.9921,53.5506]}},"
+                + "{\"properties\":{\"name\":\"Rathaus\"},\"geometry\":{\"coordinates\":[9.9925,53.5507]}},"
+                + "{\"properties\":{\"name\":\"Rathaus\"},\"geometry\":{\"coordinates\":[10.5,53.0]}}]}";
+        check(Places.parse(twice).size() == 2, "places: the same place once (different places stay)");
         String[][] navCmds = {{"Hey Nova, navigiere nach Hamburg Hauptbahnhof", "NAVIGATE(Hamburg Hauptbahnhof)"},
                 {"Wie komme ich zum Rathaus", "NAVIGATE(Rathaus)"}, {"bring mich nach Hause", "NAVIGATE(Hause)"},
                 {"öffne die Karte", "NAVIGATE()"}, {"navigate to Berlin", "NAVIGATE(Berlin)"}};
@@ -417,7 +437,7 @@ public final class MobileTest {
                 check(l.split("\\|", -1).length == 2, "one | per line (German|English): " + l);
             }
             java.util.Set<String> novaKeys = new java.util.HashSet<>(java.util.Arrays.asList("nova", "chat", "mail", "family", "store",
-                    "camera", "gallery", "files", "notes", "settings", "music", "shop", "update"));
+                    "camera", "gallery", "files", "notes", "settings", "music", "shop", "update", "map"));
             for (String key : UpdateInfo.changedApps(news)) check(novaKeys.contains(key), "whatsnew.txt: unknown Nova app " + key);
             java.util.Map<String, StoreMeta> meta = StoreMeta.parseAll(new String(java.nio.file.Files.readAllBytes(
                     java.nio.file.Paths.get(res, "raw", "store_meta.json")), java.nio.charset.StandardCharsets.UTF_8));

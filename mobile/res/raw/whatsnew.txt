@@ -5,4 +5,5 @@
 {map} Neu: Nova Karte – Karte, Orte und Adressen suchen, Route mit Auto, Fahrrad oder zu Fuß|New: Nova Maps – map, search places and addresses, routes by car, bike or on foot
 {map} Navigation mit Ansagen: „In 200 Metern rechts abbiegen auf …“, „Jetzt links abbiegen“|Navigation with voice: "In 200 metres turn right onto …", "Now turn left"
 {map} Neue Route, wenn du anders fährst, Ankunftszeit und „Du hast dein Ziel erreicht“|New route when you take another way, arrival time and "You have arrived"
+{map} „Vorschau“ fährt die Route vorab ab, im Querformat bleibt die Karte rechts frei|"Preview" drives the route in advance, in landscape the map stays free on the right
 {nova} Sag zu Nova: „Navigiere nach Hamburg Hauptbahnhof“ oder „Wie komme ich zum Rathaus?“|Say to Nova: "Navigate to Hamburg Hauptbahnhof" or "How do I get to the town hall?"

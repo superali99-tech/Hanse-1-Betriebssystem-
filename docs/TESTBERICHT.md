@@ -511,6 +511,30 @@ Android-x86 9 in QEMU, Hochformat, Deutsch, Internet über den Proxy der Testumg
 **Nicht getestet:** Neuerungen einer F-Droid-App (dafür hätte eine F-Droid-App erst aktualisiert werden müssen), das
 Verschwinden nach genau 3 Stunden (nur als Logik-Test).
 
+### Update 0.1.1.70: Nova Karte (21.11.2026)
+
+Android-x86 9 in QEMU, Deutsch, Internet über den Proxy der Testumgebung, kein GPS im Emulator (Start ohne Standort =
+Kartenmitte, Navigation als „Vorschau“). Querformat 1280×720. Bilder 94–95.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1748 bestanden (neu: Kartenmathematik, Polyline, Routen-Antwort, Ansagen-Texte und -Zeitpunkte, Abweichen von der Route, Orte-Suche, doppelte Orte, Nova-Befehle, Vertrauensanker) |
+| Karte öffnen | ✅ | OpenStreetMap-Kacheln laden, Ziehen/Zoomen, Quellenangabe „© OpenStreetMap-Mitwirkende“ |
+| Suche „rathaus hamburg“ | ✅ | Rathaus, Harburg Rathaus, Rathaus Harburg |
+| Gleicher Ort dreimal in den Treffern | ❌ → behoben | Einträge mit gleichem Namen innerhalb von 250 m werden zusammengefasst |
+| Zoom-Knöpfe über den Treffern / dem Löschen-X | ❌ → behoben | Knöpfe verschwinden während der Suche und sitzen über der Karte unten |
+| Ort wählen | ✅ | Karte mit Name, Adresse, „Route“, „Starten“, roter Pin |
+| „Route“ im Test-Handy | ❌ → Ursache Testumgebung | der Proxy der Testumgebung schaltet sich bei `routing.openstreetmap.de` mit eigenem Zertifikat dazwischen; mit installiertem Proxy-Zertifikat ✅. Die echte Kette (Let's Encrypt YE2 → Root YE → X2 → ISRG Root X1) prüft Android 9 erfolgreich (eigener Test im Emulator) |
+| Route Hbf → Rathaus | ✅ | „2 Min. (700 m)“, Ankunftszeit, „über Willy-Brandt-Straße (B 4) und Große Johannisstraße“, Hinweis „Start: Kartenmitte“ |
+| Querformat: Route unter der Karte versteckt | ❌ → behoben | Karten schmal links wie bei Google Maps, Route und Pin im freien Teil zwischen Karte und Knöpfen |
+| Querformat: „Schritte“ brach in vier Zeilen um | ❌ → behoben | Knöpfe einzeilig, Zeile lässt sich seitlich schieben |
+| „Vorschau“ | ✅ | grünes Banner mit Pfeil „Rechts abbiegen auf Neue Burg – 200 m – Danach: Rechts abbiegen auf Trostbrücke“, unten „2 Min. · 600 m · 14:30“, Ton-Knopf, ✕ |
+| Ansagen (Protokoll, der Emulator hat keine Sprachausgabe) | ✅ | „Vorschau der Route. Fahre Richtung Westen auf Willy-Brandt-Straße (B 4). Dann in 300 Metern rechts abbiegen auf Neue Burg.“ → „In 150 Metern rechts abbiegen auf Neue Burg, danach rechts.“ → „Jetzt rechts abbiegen …“ → … → „In 150 Metern erreichst du dein Ziel.“ → „Du hast dein Ziel erreicht – es ist links.“ |
+| Ziel erreicht | ✅ | Karte „🏁 Ziel erreicht – Rathaus“ mit OK |
+| Nova: „navigiere zum hamburger hauptbahnhof“ | ✅ | öffnet Nova Karte, sucht das Ziel, berechnet die Route und startet |
+| … ohne bekannten Standort | ❌ → behoben | fuhr von der Kartenmitte los (im Taunus); jetzt wartet „Starten“ (und Nova) auf den Standort und rechnet dann die Route ab dort, nur „Vorschau“ simuliert |
+| Nova im Querformat: Eingabefeld unten abgeschnitten | ❌ → behoben | kleinere Kugel im Querformat |
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm
