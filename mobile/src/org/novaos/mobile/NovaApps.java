@@ -28,6 +28,7 @@ final class NovaApps {
             new App("mail", R.string.app_mail, R.mipmap.ic_nova_mail, R.string.novaapp_mail, MailActivity.class),
             new App("music", R.string.app_music, R.mipmap.ic_nova_music, R.string.novaapp_music, MusicActivity.class),
             new App("family", R.string.app_family, R.mipmap.ic_nova_family, R.string.novaapp_family, FamilyActivity.class),
+            new App("shop", R.string.app_shop, R.mipmap.ic_nova_shop, R.string.novaapp_shop, ShopActivity.class),
             new App("store", R.string.app_store, R.mipmap.ic_nova_store, R.string.novaapp_store, StoreActivity.class),
             new App("camera", R.string.app_camera, R.mipmap.ic_nova_camera, R.string.novaapp_camera, CameraActivity.class),
             new App("gallery", R.string.app_gallery, R.mipmap.ic_nova_gallery, R.string.novaapp_gallery, GalleryActivity.class),

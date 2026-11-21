@@ -43,6 +43,12 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   („Wiedergabe über …“), und öffnet mit einem Tipp die Bluetooth-Einstellungen zum Verbinden; pausiert, wenn Kopfhörer
   getrennt werden. Nova: „Spiel Radio SWR3“, „Spiel Atemlos von Helene Fischer“, „Spiel meine Musik“,
   „Nächstes Lied“, „Musik pausieren“, „Musik weiter“.
+* **Nova Phone Shop**: die **Nova-Handys** – Nova 2 Pro Max, Nova 2 Pro, Nova 2, Nova 1 Pro, Nova 1 und Nova Lite
+  (249 € bis 1.199 €) mit Trailer-Bannern, Filter (Pro/Standard/Günstig/Wunschliste) und Suche; jede Produktseite mit
+  großem Bild zum Drehen (vorne, hinten, beide), Farben, Speicher mit Preis, Highlights (z. B. Nova KI-Assistent,
+  Profi-Kamera, Hochleistung) und technischen Daten. Die Bilder werden von NovaOS gezeichnet (keine Fotos). **Ehrlich:**
+  Die Nova-Handys sind Konzepte – es gibt sie nicht zu kaufen, deshalb gibt es eine Wunschliste statt einer Kasse und
+  der Shop fragt nie nach Zahlungsdaten.
 * **Nova Kamera**: Fotos mit Vorschau, Blitz (Auto/An/Aus), Vorder-/Rückkamera, letztes Foto als
   Knopf zur Galerie, Symbole drehen sich mit dem Handy; Fotos landen in *DCIM/NovaOS*
 * **Nova Galerie**: alle Fotos und Videos, neueste zuerst; Vollbild mit Wischen, Teilen, Löschen
@@ -239,6 +245,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `StoreActivity.java`, `StoreApp.java`, `res/raw/store.txt` | Nova Store: Katalog, F-Droid-Versionen, Installieren/Aktualisieren/Öffnen |
 | `StoreDetailActivity.java`, `StoreInstall.java`, `StoreCatalog.java`, `StoreMeta.java`, `NovaApps.java` | Detailseite, gemeinsamer Download mit Fortschritt/Abbrechen, Katalog + F-Droid-Angaben, Nova-Apps |
 | `MusicActivity.java`, `Music.java`, `MusicService.java`, `MusicCatalog.java` | Nova Musik: Bildschirm, Player mit MediaSession, Hintergrund-Dienst, Radio/Deezer-Daten (getestet) |
+| `ShopActivity.java`, `PhoneDetailActivity.java`, `PhoneRender.java`, `PhoneModels.java` | Nova Phone Shop: Übersicht mit Bannern, Produktseite, gezeichnete Handy-Bilder, Modelle und Preise (getestet) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |

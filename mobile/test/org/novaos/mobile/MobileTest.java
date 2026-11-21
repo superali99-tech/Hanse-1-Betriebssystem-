@@ -31,6 +31,7 @@ public final class MobileTest {
         history();
         storeMeta();
         music();
+        phones();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -66,6 +67,29 @@ public final class MobileTest {
         check(Search.matches("anna mail", "Anna", "anna@mail.de") && !Search.matches("anna post", "Anna", "anna@mail.de"),
                 "search: every word must appear");
         check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
+    }
+
+    private static void phones() {
+        check(PhoneModels.ALL.size() >= 6, "phone shop: models");
+        java.util.Set<String> ids = new java.util.HashSet<>();
+        int cheapest = Integer.MAX_VALUE, dearest = 0;
+        for (PhoneModels.Model m : PhoneModels.ALL) {
+            check(ids.add(m.id) && PhoneModels.get(m.id) == m, "phone id once: " + m.id);
+            check(m.storage.length == m.storageExtra.length && !m.colours.isEmpty() && !m.specs.isEmpty() && !m.highlights.isEmpty(),
+                    "phone data complete: " + m.id);
+            for (int i = 0; i < m.storage.length; i++) {
+                check(m.price(i) <= 1200, "phone at most 1,200 euros: " + m.id + " " + m.price(i));
+                if (i > 0) check(m.price(i) >= m.price(i - 1) && m.storage[i] > m.storage[i - 1], "bigger storage costs more: " + m.id);
+                cheapest = Math.min(cheapest, m.price(i));
+                dearest = Math.max(dearest, m.price(i));
+            }
+            check(m.name.startsWith("Nova"), "phone name: " + m.name);
+        }
+        check(cheapest < 500 && dearest >= 1000, "phone prices: some cheaper, some high: " + cheapest + ".." + dearest);
+        check(PhoneModels.price(1199, true).equals("1.199 €") && PhoneModels.price(1199, false).equals("€1,199")
+                && PhoneModels.price(249, true).equals("249 €"), "phone price format");
+        check(PhoneModels.storage(512).equals("512 GB") && PhoneModels.storage(1024).equals("1 TB"), "storage format");
+        check(PhoneModels.from(PhoneModels.get("nova2pro")) == 999 && PhoneModels.get("nova2pro").price(2) == 1199, "phone from-price");
     }
 
     private static void music() {

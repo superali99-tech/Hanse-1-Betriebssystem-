@@ -1,8 +1,7 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
-@apps: music, nova
-Neu: Nova Musik – deine Musik vom Handy, Live-Radio und echte Songs aus den Charts|New: Nova Music – your music from the phone, live radio and real songs from the charts
-Radio: SWR3, 1LIVE, Bayern 3, Deutschlandfunk und viele mehr – mit dem Lied, das gerade läuft|Radio: SWR3, 1LIVE, Bayern 3, Deutschlandfunk and many more – with the song that is playing now
-Songs suchen: 30-Sekunden-Hörprobe, das ganze Lied in Deezer, Spotify oder YouTube Music|Search songs: 30-second preview, the whole song in Deezer, Spotify or YouTube Music
-Spielt im Hintergrund weiter, Steuerung auf dem Sperrbildschirm, über Bluetooth und Kopfhörer-Tasten|Keeps playing in the background, controls on the lock screen, over Bluetooth and headphone buttons
-Sag zu Nova: „Spiel Radio SWR3“, „Spiel Atemlos von Helene Fischer“, „Nächstes Lied“, „Musik pausieren“|Say to Nova: "Play radio SWR3", "Play Atemlos by Helene Fischer", "Next song", "Pause music"
+@apps: shop, store
+Neu: Nova Phone Shop – die Nova-Handys Nova 1, Nova 2, Pro, Pro Max und Lite|New: Nova Phone Shop – the Nova phones Nova 1, Nova 2, Pro, Pro Max and Lite
+Große Bilder zum Drehen (vorne, hinten), alle Farben, Speicher mit Preis von 249 € bis 1.199 €|Big pictures to turn (front, back), all colours, storage with price from €249 to €1,199
+Highlights wie Nova KI-Assistent und Profi-Kamera, technische Daten, Wunschliste|Highlights like the Nova AI assistant and pro camera, technical data, wish list
+Ehrlich: Die Nova-Handys sind Konzepte – kaufen kann man sie noch nicht|Honest: the Nova phones are concepts – they cannot be bought yet

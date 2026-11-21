@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Phone Shop (0.1.1.62) -->
+    <string name="app_shop">Nova Phone Shop</string>
+    <string name="shop_sub">Die Nova-Handys</string>
+    <string name="shop_search">Handy suchen (z. B. Pro, Kamera, KI)</string>
+    <string name="novaapp_shop">Die Nova-Handys: Nova 1, Nova 2, Pro, Pro Max und Lite</string>
+    <string name="shop_hero1">Das Größte.\nDas Klügste.</string>
+    <string name="shop_hero2">Hallo, Farbe.</string>
+    <string name="shop_hero3">NovaOS für alle.</string>
+    <string name="shop_from">ab %1$s</string>
+    <string name="shop_more">Mehr erfahren</string>
+    <string name="shop_all">Alle</string>
+    <string name="shop_standard">Standard</string>
+    <string name="shop_lite">Günstig</string>
+    <string name="shop_wishlist">Wunschliste</string>
+    <string name="shop_wish_empty">Deine Wunschliste ist leer. Öffne ein Handy und tippe auf „Auf die Wunschliste“.</string>
+    <string name="shop_turn">Antippen zum Drehen</string>
+    <string name="shop_highlights">Highlights</string>
+    <string name="shop_specs">Technische Daten</string>
+    <string name="shop_add_wishlist">Auf die Wunschliste</string>
+    <string name="shop_on_wishlist">Auf deiner Wunschliste</string>
+    <string name="shop_wish_added">%1$s ist auf deiner Wunschliste</string>
+    <string name="shop_wish_removed">%1$s von der Wunschliste genommen</string>
+    <string name="shop_concept_short">Konzept-Handy – noch nicht zu kaufen</string>
+    <string name="shop_concept">Die Nova-Handys sind Konzepte für NovaOS: Bilder, Daten und Preise zeigen, wie ein Nova-Handy sein könnte. Kaufen kann man sie (noch) nicht – der Shop fragt deshalb nie nach Zahlungsdaten. NovaOS selbst läuft auf deinem Android-Handy.</string>
+</resources>

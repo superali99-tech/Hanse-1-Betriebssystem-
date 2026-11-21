@@ -445,6 +445,18 @@ MediaSession). Bilder 62–67.
 **Nicht getestet:** echter Ton, echte Bluetooth-Geräte (die VM hat kein Bluetooth), Sperrbildschirm-Steuerung,
 Android 14 (Vordergrunddienst „Medienwiedergabe“).
 
+### Update 0.1.1.62: Nova Phone Shop (21.11.2026)
+
+Android-x86 9 in QEMU, Hochformat, Deutsch. Bilder 68–72.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1459 bestanden (neu: jedes Modell vollständig, höchstens 1.200 €, mehr Speicher kostet mehr, günstige und teure Modelle, Preisformat „1.199 €“/„€1,199“) |
+| Shop: Trailer-Banner wechseln, Filter, Modell-Karten | ✅ | jedes Modell mit eigenem Kameramodul (drei Linsen, Doppelkamera, Kamera-Leiste, Einzelkamera) und Farben |
+| Produktseite Nova 2 Pro Max | ✅ | Bild vorne+hinten, Farbe „Polarlicht“ ändert das Bild, Antippen dreht es |
+| Speicher 512 GB | ✅ | Preis 1.199 € |
+| Wunschliste | ✅ | „Auf deiner Wunschliste“, Herz auf der Karte, Filter „Wunschliste“ |
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

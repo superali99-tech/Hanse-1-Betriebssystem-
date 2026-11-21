@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Phone Shop (0.1.1.62) -->
+    <string name="app_shop">Nova Phone Shop</string>
+    <string name="shop_sub">The Nova phones</string>
+    <string name="shop_search">Search a phone (e.g. Pro, camera, AI)</string>
+    <string name="novaapp_shop">The Nova phones: Nova 1, Nova 2, Pro, Pro Max and Lite</string>
+    <string name="shop_hero1">The biggest.\nThe smartest.</string>
+    <string name="shop_hero2">Hello, colour.</string>
+    <string name="shop_hero3">NovaOS for everyone.</string>
+    <string name="shop_from">from %1$s</string>
+    <string name="shop_more">Learn more</string>
+    <string name="shop_all">All</string>
+    <string name="shop_standard">Standard</string>
+    <string name="shop_lite">Budget</string>
+    <string name="shop_wishlist">Wish list</string>
+    <string name="shop_wish_empty">Your wish list is empty. Open a phone and tap “Add to wish list”.</string>
+    <string name="shop_turn">Tap to turn</string>
+    <string name="shop_highlights">Highlights</string>
+    <string name="shop_specs">Technical data</string>
+    <string name="shop_add_wishlist">Add to wish list</string>
+    <string name="shop_on_wishlist">On your wish list</string>
+    <string name="shop_wish_added">%1$s is on your wish list</string>
+    <string name="shop_wish_removed">%1$s removed from the wish list</string>
+    <string name="shop_concept_short">Concept phone – not for sale yet</string>
+    <string name="shop_concept">The Nova phones are concepts for NovaOS: pictures, data and prices show what a Nova phone could be. They cannot be bought (yet) – so the shop never asks for payment details. NovaOS itself runs on your Android phone.</string>
+</resources>

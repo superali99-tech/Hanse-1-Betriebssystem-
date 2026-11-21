@@ -185,6 +185,22 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
         <activity
+            android:name=".ShopActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_shop"
+            android:label="@string/app_shop"
+            android:taskAffinity="org.novaos.mobile.shop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".PhoneDetailActivity"
+            android:exported="false"
+            android:taskAffinity="org.novaos.mobile.shop" />
+        <activity
             android:name=".StoreDetailActivity"
             android:exported="false"
             android:taskAffinity="org.novaos.mobile.store" />

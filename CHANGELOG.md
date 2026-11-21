@@ -82,6 +82,11 @@
   Bluetooth- und Kopfhörer-Tasten, Benachrichtigung ⏮ ⏯ ⏭, Pause beim Trennen von Kopfhörern, Anzeige des
   Ausgabegeräts mit Sprung in die Bluetooth-Einstellungen; Nova-Befehle „Spiel Radio …“, „Spiel <Lied>“, „Spiel meine
   Musik“, „Nächstes/Vorheriges Lied“, „Musik pausieren/weiter“; Karte auf dem Startbildschirm
+* **NovaOS Mobile 0.1.1.62 – Nova Phone Shop**: Konzept-Handys Nova 2 Pro Max (ab 1.099 €), Nova 2 Pro (ab 999 €),
+  Nova 2 (ab 799 €), Nova 1 Pro (649 €), Nova 1 (ab 449 €) und Nova Lite (ab 249 €), höchstens 1.199 €; Produktbilder
+  werden gezeichnet (`PhoneRender`: Vorderseite mit NovaOS-Bildschirm, Rückseite mit Kameramodul je Modell, Metallrahmen,
+  Glanz, Schatten), Trailer-Banner, Filter, Suche, Produktseite mit Farben, Speicher und Preis, Highlights,
+  technischen Daten und Wunschliste; klar als Konzept gekennzeichnet, keine Zahlungsdaten
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

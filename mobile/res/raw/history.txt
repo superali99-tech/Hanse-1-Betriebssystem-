@@ -1,6 +1,13 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.61 · 21.11.2026
+Neu: Nova Musik – deine Musik vom Handy, Live-Radio und echte Songs aus den Charts|New: Nova Music – your music from the phone, live radio and real songs from the charts
+Radio: SWR3, 1LIVE, Bayern 3, Deutschlandfunk und viele mehr – mit dem Lied, das gerade läuft|Radio: SWR3, 1LIVE, Bayern 3, Deutschlandfunk and many more – with the song that is playing now
+Songs suchen: 30-Sekunden-Hörprobe, das ganze Lied in Deezer, Spotify oder YouTube Music|Search songs: 30-second preview, the whole song in Deezer, Spotify or YouTube Music
+Spielt im Hintergrund weiter, Steuerung auf dem Sperrbildschirm, über Bluetooth und Kopfhörer-Tasten|Keeps playing in the background, controls on the lock screen, over Bluetooth and headphone buttons
+Sag zu Nova: „Spiel Radio SWR3“, „Spiel Atemlos von Helene Fischer“, „Nächstes Lied“, „Musik pausieren“|Say to Nova: "Play radio SWR3", "Play Atemlos by Helene Fischer", "Next song", "Pause music"
+
 == NovaOS 0.1.1.60 · 21.11.2026
 Nova Store wie im Play Store: jede App hat eine Seite mit Größe, Version, Bildern und „Über diese App“|Nova Store like the Play Store: every app has a page with size, version, pictures and "About this app"
 Installieren mit Ring um das Symbol und „42 % von 107 MB“ – mit „Abbrechen“|Installing with a ring around the icon and "42 % of 107 MB" – with "Cancel"
