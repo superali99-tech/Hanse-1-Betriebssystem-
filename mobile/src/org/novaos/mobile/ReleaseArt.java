@@ -10,9 +10,9 @@ import android.graphics.Shader;
 import android.view.View;
 
 /**
- * The picture of "Letztes erfolgreiches Update": the big "1" of NovaOS 1.0 in soft evening
- * colours - an orange flag and a blue stroke in front of a glowing sun, on a pale grey-blue
- * sky. Drawn, so it is sharp on every screen.
+ * The picture of "Letztes erfolgreiches Update": the number of the release (NovaOS 1.5) big
+ * and blue in front of a glowing sun, on a pale grey-blue sky - in the soft colours of the
+ * One UI pictures. Drawn, so it is sharp on every screen.
  */
 final class ReleaseArt extends View {
     private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -48,25 +48,28 @@ final class ReleaseArt extends View {
         p.setShader(new RadialGradient(sx - r * 0.2f, sy - r * 0.35f, r * 0.9f, 0x80FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
         c.drawCircle(sx, sy, r, p);
 
-        // the 1: the flag (orange, round end) and the stroke (blue) down out of the picture
-        float sw = r * 0.46f, cx = w * 0.56f, top = h * 0.13f;
-        float dx = -0.8f, dy = 0.6f, len = r * 0.78f, t = sw * 0.86f;
-        p.setShader(new LinearGradient(cx + dx * len, top + dy * len, cx, top, 0xFFE07A45, 0xFFF2B48E, Shader.TileMode.CLAMP));
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(t);
-        p.setStrokeCap(Paint.Cap.ROUND);
-        c.drawLine(cx, top + t / 2, cx + dx * len, top + t / 2 + dy * len, p);
-        p.setStyle(Paint.Style.FILL);
-        p.setStrokeCap(Paint.Cap.BUTT);
-        // shadow of the flag on the stroke, then the stroke itself
-        android.graphics.RectF stem = new android.graphics.RectF(cx - sw / 2, top, cx + sw / 2, h + sw);
-        p.setShader(new LinearGradient(0, top, 0, h, new int[] {0xFF8DB2EE, 0xFF3F7BE0, 0xFF1352D6}, new float[] {0f, 0.45f, 1f},
-                Shader.TileMode.CLAMP));
-        c.drawRoundRect(stem, sw * 0.18f, sw * 0.18f, p);
-        p.setShader(new LinearGradient(cx - sw / 2, 0, cx + sw / 2, 0, new int[] {0x55FFFFFF, 0x00FFFFFF, 0x33001A66},
-                new float[] {0f, 0.45f, 1f}, Shader.TileMode.CLAMP));
-        c.drawRoundRect(stem, sw * 0.18f, sw * 0.18f, p);
+        // the number of the release ("1.5") in front of the sun, blue with a light edge on top
+        String number = UpdateFacts.RELEASE;
+        p.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD));
+        p.setTextAlign(Paint.Align.CENTER);
+        float size = h * 0.62f;
+        p.setTextSize(size);
+        float tw = p.measureText(number);
+        if (tw > w * 0.82f) {
+            size *= w * 0.82f / tw;
+            p.setTextSize(size);
+        }
+        float base = sy + size * 0.36f;
         p.setShader(null);
+        p.setColor(0x33001A66);
+        c.drawText(number, sx + size * 0.03f, base + size * 0.04f, p);  // soft shadow
+        p.setColor(0xFFFFFFFF);  // full strength again: the shadow's transparency would dim the number
+        p.setShader(new LinearGradient(0, base - size * 0.75f, 0, base, new int[] {0xFF8DB2EE, 0xFF3F7BE0, 0xFF1352D6},
+                new float[] {0f, 0.5f, 1f}, Shader.TileMode.CLAMP));
+        c.drawText(number, sx, base, p);
+        p.setShader(null);
+        p.setTextAlign(Paint.Align.LEFT);
+        p.setTypeface(null);
 
         // fade into the dark page below
         p.setShader(new LinearGradient(0, h * 0.86f, 0, h, 0x0017171B, 0x6617171B, Shader.TileMode.CLAMP));

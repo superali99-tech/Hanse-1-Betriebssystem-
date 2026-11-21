@@ -826,21 +826,18 @@ public class NovaActivity extends Activity {
         }).start();
     }
 
-    @SuppressWarnings("MissingPermission")
+    /** The best known position (GPS before the rough one of the mobile network). */
     private Location lastLocation() {
-        LocationManager lm = getSystemService(LocationManager.class);
-        Location best = null;
-        if (lm == null) return null;
-        try {
-            for (String provider : lm.getProviders(true)) {
-                Location l = lm.getLastKnownLocation(provider);
-                if (l != null && (best == null || l.getTime() > best.getTime())) best = l;
-            }
-        } catch (SecurityException ignored) {
-            // no permission
-        }
-        return best;
+        Fixes.Fix f = Where.best(this);
+        if (f == null) return null;
+        Location l = new Location(f.provider);
+        l.setLatitude(f.lat);
+        l.setLongitude(f.lon);
+        l.setAccuracy(f.accuracy);
+        l.setTime(f.time);
+        return l;
     }
+
 
     /** Nova Musik: radio, songs, my music, and next/previous/pause/resume. */
     private void music(NovaBrain.Command c) {

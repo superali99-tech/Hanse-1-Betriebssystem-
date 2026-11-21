@@ -325,7 +325,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             glow.setBusy(false);
             UpdateInfo u = engine.update();
             title.setText(paused ? R.string.update_paused_title : R.string.update_running_title);
-            subtitle.setText(getString(R.string.update_version, u.versionName, UpdateInfo.size(u.size, german)));
+            subtitle.setText(getString(R.string.update_version, u.label(), UpdateInfo.size(u.size, german)));
             description.setText(paused ? R.string.update_paused_text : R.string.update_running_text);
             notes.setText(notesText(u));
             hint.setText(generic);
@@ -369,7 +369,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         String error = engine.error();
         if (!error.isEmpty() && update != null) {
             title.setText(R.string.update_failed_title);
-            subtitle.setText(getString(R.string.update_version, update.versionName, UpdateInfo.size(update.size, german)));
+            subtitle.setText(getString(R.string.update_version, update.label(), UpdateInfo.size(update.size, german)));
             description.setText(error);
             notes.setText(notesText(update));
             hint.setText(version);
@@ -377,12 +377,12 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         } else if (update != null) {
             boolean ready = Updates.readyApk(this, update) != null;
             title.setText(R.string.update_available_title);
-            subtitle.setText(getString(R.string.update_version, update.versionName, UpdateInfo.size(update.size, german)));
+            subtitle.setText(getString(R.string.update_version, update.label(), UpdateInfo.size(update.size, german)));
             description.setText(ready ? R.string.update_ready_text : R.string.update_available_text);
             notes.setText(notesText(update));
             hint.setText(version + "\n\n" + generic);
             button.setText(R.string.update_install);
-            subtitle.setText(getString(R.string.update_version, update.versionName, UpdateInfo.size(update.size, german)));
+            subtitle.setText(getString(R.string.update_version, update.label(), UpdateInfo.size(update.size, german)));
         }
     }
 

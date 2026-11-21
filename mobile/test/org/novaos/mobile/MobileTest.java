@@ -74,6 +74,26 @@ public final class MobileTest {
 
     /** Nova Karte with real answers of the routing and place servers (test/*.json). */
     private static void navigation(java.io.File mobile) {
+        // NovaOS 1.5: app screen order like Samsung (own order, new apps at the end) and pages
+        java.util.List<String> stored = java.util.Arrays.asList("chrome", "gone", "store", "camera");
+        java.util.List<String> present = java.util.Arrays.asList("camera", "store", "chrome", "whatsapp", "maps");
+        check(DrawerOrder.arrange(stored, present).equals(java.util.Arrays.asList("chrome", "store", "camera", "whatsapp", "maps")),
+                "drawer: own order kept, removed apps gone, new ones at the end");
+        check(DrawerOrder.arrange(new java.util.ArrayList<>(), present).equals(present), "drawer: first start = order of installation");
+        java.util.List<String> mv = new java.util.ArrayList<>(java.util.Arrays.asList("a", "b", "c"));
+        check(DrawerOrder.move(mv, "c", -1) && mv.equals(java.util.Arrays.asList("a", "c", "b")) && !DrawerOrder.move(mv, "a", -1)
+                && !DrawerOrder.move(mv, "x", 1), "drawer: move forward/back, not past the ends");
+        check(DrawerOrder.pages(0, 24) == 1 && DrawerOrder.pages(24, 24) == 1 && DrawerOrder.pages(25, 24) == 2, "drawer: pages");
+        check(DrawerOrder.page(java.util.Arrays.asList(1, 2, 3, 4, 5), 1, 2).equals(java.util.Arrays.asList(3, 4))
+                && DrawerOrder.page(java.util.Arrays.asList(1, 2, 3), 5, 2).isEmpty(), "drawer: one page");
+        check(DrawerOrder.rows(680, 104) == 6 && DrawerOrder.rows(200, 104) == 3 && DrawerOrder.rows(2000, 104) == 7, "drawer: rows that fit");
+        int[] cells = DrawerOrder.homeCells(12, 6, 4);
+        check(cells[0] == 0 && cells[1] == 3 && cells[2] == 4 && cells[3] == 7, "home: four apps around the widget");
+        check(cells[4] == 16 && cells[11] == 23, "home: the other apps in the bottom rows");
+        int[] many = DrawerOrder.homeCells(30, 6, 4);
+        check(many[19] == 23 && many[20] == -1 && many[29] == -1, "home: what does not fit goes to the next page");
+        int[] few = DrawerOrder.homeCells(6, 6, 4);
+        check(few[4] == 20 && few[5] == 21, "home: few apps in the last row, from the left");
         // which position to believe: the mobile network (Grambek, 2.5 km) never pushes GPS (Mölln, 8 m) aside
         long t0 = 1_800_000_000_000L;
         Fixes.Fix gps = new Fixes.Fix("gps", 53.6281, 10.6889, 8, t0);
@@ -348,8 +368,13 @@ public final class MobileTest {
     }
 
     private static void update() {
+        String withRelease = "versionCode=10100075\nversionName=0.1.1.75\napk=novaos-mobile.apk\nsha256=" + "a".repeat(64) + "\nsize=3000000\nrelease=1.5\n";
+        UpdateInfo rel = UpdateInfo.parse(withRelease);
+        check(rel != null && rel.release.equals("1.5") && rel.label().equals("1.5 (0.1.1.75)"), "update: release name 1.5");
+        UpdateInfo noRel = UpdateInfo.parse(withRelease.replace("release=1.5", "release=<b>"));
+        check(noRel != null && noRel.release.isEmpty() && noRel.label().equals("0.1.1.75"), "update: odd release name ignored");
         // like One UI: "NovaOS 1.0", "31. Oktober 2026 um 16:37", the update facts
-        check(UpdateFacts.title().equals("NovaOS 1.0"), "facts: NovaOS 1.0");
+        check(UpdateFacts.title().equals("NovaOS 1.5"), "facts: NovaOS 1.5");
         java.util.TimeZone berlin = java.util.TimeZone.getTimeZone("Europe/Berlin");
         long oct31 = 1793461020000L;  // 31.10.2026 15:37 UTC = 16:37 in Berlin (winter time)
         check(UpdateFacts.dateTime(oct31, berlin, true).equals("31. Oktober 2026 um 16:37"), "facts: date " + UpdateFacts.dateTime(oct31, berlin, true));
@@ -359,7 +384,7 @@ public final class MobileTest {
                 "facts: security patch level");
         check(UpdateFacts.patch("kaputt", true).equals("kaputt") && UpdateFacts.patch(null, true).isEmpty(), "facts: odd patch level");
         java.util.List<String> facts = UpdateFacts.info("9", "0.1.1.71", 3_040_000, "2026-10-05", true);
-        check(facts.size() == 5 && facts.get(0).equals("NovaOS-Version: 1.0") && facts.get(1).equals("Android-Version: 9")
+        check(facts.size() == 5 && facts.get(0).equals("NovaOS-Version: 1.5") && facts.get(1).equals("Android-Version: 9")
                 && facts.get(2).equals("Version: 0.1.1.71") && facts.get(3).equals("Größe: 2,9 MB")
                 && facts.get(4).equals("Sicherheitspatch-Ebene: 5. Oktober 2026"), "facts: list " + facts);
         check(UpdateFacts.info("", "0.1.1.71", 0, "", false).size() == 2, "facts: unknown values are left out");

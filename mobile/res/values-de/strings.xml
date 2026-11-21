@@ -23,10 +23,10 @@
     <string name="fav_empty">Eine App in der App-Übersicht gedrückt halten, um sie hier abzulegen.</string>
     <string name="all_apps">Alle Apps</string>
     <string name="no_results">Keine App gefunden</string>
-    <string name="menu_pin">Zu Favoriten hinzufügen</string>
-    <string name="menu_unpin">Aus Favoriten entfernen</string>
-    <string name="menu_left">Nach links verschieben</string>
-    <string name="menu_right">Nach rechts verschieben</string>
+    <string name="menu_pin">Zum Startbildschirm hinzufügen</string>
+    <string name="menu_unpin">Vom Startbildschirm entfernen</string>
+    <string name="menu_left">Auf dem Startbildschirm nach vorne</string>
+    <string name="menu_right">Auf dem Startbildschirm nach hinten</string>
     <string name="menu_info">App-Info</string>
     <string name="menu_uninstall">Deinstallieren</string>
     <string name="launch_failed">Die App konnte nicht gestartet werden.</string>

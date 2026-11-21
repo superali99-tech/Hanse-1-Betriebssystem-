@@ -27,6 +27,17 @@ public class NovaAppDetailActivity extends Activity {
     static final String EXTRA_KEY = "key";
     private NovaApps.App app;
     private LinearLayout content;
+    private Button updateButton;
+    private TextView progress;
+    private final android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
+    // the update of this Nova app runs right here: its progress every half second
+    private final Runnable tick = new Runnable() {
+        @Override
+        public void run() {
+            showProgress();
+            if (UpdateEngine.get(NovaAppDetailActivity.this).running()) ui.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle state) {
@@ -44,6 +55,25 @@ public class NovaAppDetailActivity extends Activity {
     protected void onResume() {
         super.onResume();
         show();
+        ui.post(tick);
+    }
+
+    @Override
+    protected void onPause() {
+        ui.removeCallbacks(tick);
+        super.onPause();
+    }
+
+    /** "Wird heruntergeladen … 45 %" under the buttons, "Pause"/"Fortsetzen" on the button. */
+    private void showProgress() {
+        if (updateButton == null || progress == null) return;
+        UpdateEngine e = UpdateEngine.get(this);
+        boolean busy = NovaUpdate.busy(this, app.key);
+        updateButton.setText(busy ? (e.paused() ? R.string.update_button_resume : R.string.update_button_pause) : R.string.store_update);
+        updateButton.setEnabled(!(busy && e.stage() == UpdateEngine.INSTALL));
+        String error = e.error();
+        progress.setText(busy ? NovaUpdate.status(this, e) : error);
+        progress.setVisibility(busy || !error.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     /** ⋮ at the top right: "Neuerungen anzeigen" on/off (also used by the store pages). */
@@ -110,12 +140,26 @@ public class NovaAppDetailActivity extends Activity {
         buttons.addView(open, ol);
         if (update) {
             ol.rightMargin = Ui.dp(this, 10);
-            buttons.addView(button(R.string.store_update, true, v -> startActivity(new Intent(this, UpdateActivity.class)
-                    .putExtra(UpdateActivity.EXTRA_INSTALL, true))), new LinearLayout.LayoutParams(0, Ui.dp(this, 46), 1));
+            updateButton = button(R.string.store_update, true, v -> {
+                UpdateEngine e = UpdateEngine.get(this);
+                if (NovaUpdate.busy(this, app.key)) {
+                    if (e.paused()) e.resume();
+                    else e.pause();
+                } else {
+                    NovaUpdate.start(this, app.key);  // right here, like in other app stores
+                }
+                ui.removeCallbacks(tick);
+                ui.post(tick);
+            });
+            buttons.addView(updateButton, new LinearLayout.LayoutParams(0, Ui.dp(this, 46), 1));
         }
         LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         bl.topMargin = Ui.dp(this, 14);
         content.addView(buttons, bl);
+        progress = Ui.text(this, "", 13, 0xFFB9A8FF, false);
+        progress.setPadding(Ui.dp(this, 2), Ui.dp(this, 8), 0, 0);
+        progress.setVisibility(View.GONE);
+        content.addView(progress);
 
         // Neuerungen • (3 hours after the update, or when the next update changes this app)
         AppNews.Item news = AppNews.nova(this, app.key);

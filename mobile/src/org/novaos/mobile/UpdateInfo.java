@@ -21,6 +21,8 @@ public final class UpdateInfo {
     public final List<String> notesDe, notesEn;
     /** Nova apps changed by this update ("apps=chat,mail"): the Nova Store shows "Aktualisieren" for them. */
     public final List<String> apps = new ArrayList<>();
+    /** The NovaOS generation this update brings ("1.5"), or "" (older update descriptions). */
+    public String release = "";
     private final java.util.Map<String, List<String>> appNotesDe = new java.util.HashMap<>(), appNotesEn = new java.util.HashMap<>();
 
     UpdateInfo(long versionCode, String versionName, String apk, String sha256, long size,
@@ -32,6 +34,11 @@ public final class UpdateInfo {
         this.size = size;
         this.notesDe = notesDe;
         this.notesEn = notesEn;
+    }
+
+    /** "1.5 (0.1.1.75)" - or only the build number when the update names no generation. */
+    public String label() {
+        return release.isEmpty() ? versionName : release + " (" + versionName + ")";
     }
 
     /** null if the text is not a valid update description. */
@@ -51,6 +58,8 @@ public final class UpdateInfo {
             long size = Long.parseLong(p.getProperty("size", "0").trim());
             if (code <= 0 || name.isEmpty() || !FILE.matcher(apk).matches() || !SHA256.matcher(sha).matches()) return null;
             UpdateInfo u = new UpdateInfo(code, name, apk, sha, size, notes(p, "de"), notes(p, "en"));
+            String release = p.getProperty("release", "").trim();
+            if (release.matches("[0-9]{1,3}(\\.[0-9]{1,3}){0,2}")) u.release = release;  // "1.5": the name of the generation
             for (String a : p.getProperty("apps", "").split(",")) {
                 String key = a.trim().toLowerCase(java.util.Locale.ROOT);
                 if (key.matches("[a-z]{1,20}") && !u.apps.contains(key)) u.apps.add(key);

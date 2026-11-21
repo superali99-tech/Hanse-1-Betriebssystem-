@@ -1,8 +1,10 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
 # "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
-@apps: map
-{map} Nova Karte nimmt jetzt deinen GPS-Standort: die ungenaue Position aus dem Mobilfunknetz (oft der Nachbarort) verdrängt GPS nicht mehr|Nova Maps now uses your GPS location: the rough position from the mobile network (often the next village) no longer pushes GPS aside
-{map} Erlaubt Android nur den „ungefähren Standort“, fragt Nova Karte nach dem genauen|If Android only allows the "approximate location", Nova Maps asks for the precise one
-{map} Hinweis unter dem Suchfeld, solange der Standort ungenau oder ausgeschaltet ist|A note under the search bar while the location is inaccurate or switched off
-{map} Navigation startet erst mit genauem Standort; neue Handys nutzen zusätzlich WLAN und Mobilfunk für eine schnelle, genaue Position|Navigation starts only with a precise location; newer phones also use Wi-Fi and the mobile network for a quick, precise position
+@apps: store, settings
+NovaOS 1.5: neuer Startbildschirm wie bei Samsung – Wetter-Widget, Apps im Raster, Suchleiste und Dock|NovaOS 1.5: new home screen like on Samsung phones – weather widget, apps in a grid, search bar and dock
+Hochwischen öffnet alle Apps: Seiten zum Seitwärts-Wischen, „Suchen“ unten, eigene Reihenfolge (neue Apps hinten)|Swipe up for all apps: pages to swipe sideways, "Search" at the bottom, your own order (new apps at the end)
+Rote Zahlen an den Apps: ungelesene Chats und Mails, Nova-Apps mit Update|Red numbers on the apps: unread chats and mails, Nova apps with an update
+Nova TV und Nova Filme sind jetzt eigene Apps|Nova TV and Nova Films are now apps of their own
+{store} Nova-Apps einzeln aktualisieren – direkt im Nova Store, mit Fortschritt am Symbol|Update Nova apps one by one – right in the Nova Store, with progress at the icon
+{settings} Software-Update zeigt „NovaOS 1.5“|Software update shows "NovaOS 1.5"

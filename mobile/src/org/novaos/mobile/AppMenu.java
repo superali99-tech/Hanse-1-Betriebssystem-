@@ -17,10 +17,15 @@ final class AppMenu {
     private AppMenu() {}
 
     static void show(Activity a, App app, Changed changed) {
+        show(a, app, changed, new ArrayList<>(), new ArrayList<>());
+    }
+
+    /** With extra entries first (e.g. moving the app in the app overview). */
+    static void show(Activity a, App app, Changed changed, List<String> extraLabels, List<Runnable> extraActions) {
         List<String> favs = Favorites.get(a);
         boolean isFav = favs.contains(app.key());
-        List<String> labels = new ArrayList<>();
-        List<Runnable> actions = new ArrayList<>();
+        List<String> labels = new ArrayList<>(extraLabels);
+        List<Runnable> actions = new ArrayList<>(extraActions);
         labels.add(a.getString(isFav ? R.string.menu_unpin : R.string.menu_pin));
         actions.add(() -> {
             KeyList.toggle(favs, app.key());

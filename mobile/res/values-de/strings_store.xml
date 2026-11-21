@@ -29,7 +29,7 @@
     <string name="store_uninstall">Deinstallieren</string>
     <!-- Nova apps in the store (they come with NovaOS) -->
     <string name="store_nova_apps">Nova-Apps</string>
-    <string name="store_nova_sub">Gehören zu NovaOS und werden mit dem Software-Update aktualisiert</string>
+    <string name="store_nova_sub">Gehören zu NovaOS – hier einzeln aktualisieren; ein Update bringt alle Nova-Apps mit Neuerungen</string>
     <string name="store_nova_included">In NovaOS enthalten · Version %1$s</string>
     <string name="store_nova_new">Neu im nächsten Update (%1$s)</string>
     <string name="store_nova_updates">„Aktualisieren“ installiert das NovaOS-Update – damit werden alle markierten Nova-Apps auf einmal neu.</string>

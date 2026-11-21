@@ -142,9 +142,19 @@
             android:exported="false"
             android:theme="@style/Theme.NovaMobile.Drawer"
             android:windowSoftInputMode="adjustResize" />
+        <!-- NovaOS 1.5: an app of its own (before, a card on the home screen) -->
         <activity
             android:name=".TvActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_tv"
+            android:label="@string/app_tv"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.tv">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".PlayerActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
@@ -152,9 +162,19 @@
             android:launchMode="singleTop"
             android:screenOrientation="sensorLandscape"
             android:theme="@style/Theme.NovaMobile.Player" />
+        <!-- NovaOS 1.5: an app of its own (before, a card on the home screen) -->
         <activity
             android:name=".FilmeActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_filme"
+            android:label="@string/app_filme"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.filme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".VideoActivity"
             android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"

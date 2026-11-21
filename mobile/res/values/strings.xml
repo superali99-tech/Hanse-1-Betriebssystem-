@@ -23,10 +23,10 @@
     <string name="fav_empty">Hold an app in the app overview to put it here.</string>
     <string name="all_apps">All apps</string>
     <string name="no_results">No app found</string>
-    <string name="menu_pin">Add to favorites</string>
-    <string name="menu_unpin">Remove from favorites</string>
-    <string name="menu_left">Move left</string>
-    <string name="menu_right">Move right</string>
+    <string name="menu_pin">Add to home screen</string>
+    <string name="menu_unpin">Remove from home screen</string>
+    <string name="menu_left">Move forward on the home screen</string>
+    <string name="menu_right">Move back on the home screen</string>
     <string name="menu_info">App info</string>
     <string name="menu_uninstall">Uninstall</string>
     <string name="launch_failed">The app could not be started.</string>

@@ -6,31 +6,27 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CameraManager;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.text.format.DateFormat;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.HorizontalScrollView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextClock;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.novaos.tv.KeyList;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -39,15 +35,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * NovaOS Mobile home screen (launcher): greeting, clock, app search, Nova cards (TV,
- * Nova Filme), quick settings, favorites and a dock with phone, messages, apps,
- * camera and browser. Swipe up = all apps, swipe down = notifications.
+ * NovaOS Mobile home screen, like on Samsung phones (NovaOS 1.5): the weather widget between
+ * the first apps, the other apps in the bottom rows, more pages to the right, the search bar
+ * and the dock with phone, browser, camera and messages. Swipe up = all apps, swipe down =
+ * notifications, hold an empty spot = NovaOS settings. Unread chats and mails, and waiting
+ * updates, show as red numbers on the apps.
  */
 public class HomeActivity extends Activity {
+    /** The Nova apps on a new (or just updated to 1.5) home screen, in this order. */
+    private static final Class<?>[] DEFAULTS = {ChatActivity.class, MailActivity.class, MapActivity.class, MusicActivity.class,
+            NovaActivity.class, StoreActivity.class, CameraActivity.class, GalleryActivity.class,
+            TvActivity.class, FilmeActivity.class, FamilyActivity.class, SettingsActivity.class};
+
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private final HeyNova heyNova = new HeyNova(this);  // "Hey Nova" while the home screen is visible
     private final ChatSync.Listener chatListener = () -> {
-        if (!isDestroyed()) loadApps();  // unread messages on the Nova Chat card
+        if (!isDestroyed()) loadApps();  // unread messages on Nova Chat
     };
     // the background update check (UpdateJob) found or downloaded an update: show it at once
     private final android.content.SharedPreferences.OnSharedPreferenceChangeListener updateListener = (p, key) -> {
@@ -60,52 +63,32 @@ public class HomeActivity extends Activity {
             });
         }
     };
-    private LinearLayout rows, dock;
-    private ScrollView scroll;
-    private TextView greeting;
+    private Pager pager;
+    private Pager.Dots dots;
+    private LinearLayout dock;
+    private TextView updatePill;
     private List<App> apps = new ArrayList<>();
     private String shown;
+    private int builtFor;
     private BroadcastReceiver packageReceiver;
     private GestureDetector gestures;
-    private View torchButton;
-    private String torchId;
-    private boolean torchOn;
-    private CameraManager.TorchCallback torchCallback;
-    private boolean bootShown;
+    private boolean bootShown, weatherLoading;
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         Ui.edgeToEdge(this);
-        setContentView(R.layout.activity_home);
-        rows = findViewById(R.id.rows);
-        dock = findViewById(R.id.dock);
-        scroll = findViewById(R.id.scroll);
-        greeting = findViewById(R.id.greeting);
-        TextClock date = findViewById(R.id.date);
-        String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM");
-        date.setFormat12Hour(pattern);
-        date.setFormat24Hour(pattern);
-        findViewById(R.id.search).setOnClickListener(v -> openApps(true));
-        // microphone in the search bar: Nova, the assistant
-        findViewById(R.id.nova_mic).setOnClickListener(v ->
-                startActivity(new Intent(this, NovaActivity.class).putExtra(NovaActivity.EXTRA_LISTEN, true)));
-        findViewById(R.id.settings).setOnClickListener(v -> startActivity(new Intent(this, SettingsActivity.class)));
-        findViewById(R.id.root).setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        });
-
+        build();
         gestures = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
                 if (e1 == null || Math.abs(vy) < Math.abs(vx) * 1.5f || Math.abs(vy) < 900) return false;
                 float dy = e2.getY() - e1.getY();
-                if (dy < -Ui.dp(HomeActivity.this, 60) && !scroll.canScrollVertically(1)) {
+                if (dy < -Ui.dp(HomeActivity.this, 60)) {
                     openApps(false);
                     return true;
                 }
-                if (dy > Ui.dp(HomeActivity.this, 60) && !scroll.canScrollVertically(-1)) {
+                if (dy > Ui.dp(HomeActivity.this, 60)) {
                     expandNotifications();
                     return true;
                 }
@@ -125,8 +108,6 @@ public class HomeActivity extends Activity {
         f.addAction(Intent.ACTION_PACKAGE_CHANGED);
         f.addDataScheme("package");
         registerReceiver(packageReceiver, f);
-        setupTorch();
-        rebuild();
         UpdateJob.schedule(this);  // looks for updates in the background every few hours
         if (!MailStore.accounts(this).isEmpty()) MailSync.MailJob.schedule(this);  // new mails every 15 minutes
         if (Family.child(this)) FamilyService.start(this);  // Nova Family protects this child's phone
@@ -139,7 +120,6 @@ public class HomeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        updateGreeting();
         if (Updates.justUpdated(this) && !bootShown) {
             bootShown = true;  // start animation after an update or on the first start
             startActivity(new Intent(this, BootActivity.class));
@@ -155,6 +135,7 @@ public class HomeActivity extends Activity {
         }
         ChatSync.get(this).start();
         loadApps();
+        loadWeather();
         if (MailSync.due(this)) {
             worker.execute(() -> {
                 MailSync.checkNew(getApplicationContext());
@@ -185,12 +166,12 @@ public class HomeActivity extends Activity {
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        scroll.smoothScrollTo(0, 0);  // home button pressed again: back to the top
+        pager.setPage(0, true);  // home button pressed again: back to the first page
     }
 
     @Override
     public void onBackPressed() {
-        scroll.smoothScrollTo(0, 0);  // the home screen does not close
+        pager.setPage(0, true);  // the home screen does not close
     }
 
     @Override
@@ -198,7 +179,6 @@ public class HomeActivity extends Activity {
         unregisterReceiver(packageReceiver);
         ChatSync.get(this).removeListener(chatListener);
         Updates.prefs(this).unregisterOnSharedPreferenceChangeListener(updateListener);
-        if (torchCallback != null) getSystemService(CameraManager.class).unregisterTorchCallback(torchCallback);
         worker.shutdownNow();
         super.onDestroy();
     }
@@ -215,11 +195,98 @@ public class HomeActivity extends Activity {
         return super.dispatchTouchEvent(ev);
     }
 
-    private void updateGreeting() {
-        int[] res = {R.string.greeting_morning, R.string.greeting_day, R.string.greeting_evening, R.string.greeting_night};
-        String hello = getString(res[Greeting.of(Calendar.getInstance().get(Calendar.HOUR_OF_DAY))]);
-        String name = Profile.firstName(this);
-        greeting.setText(name.isEmpty() ? hello : getString(R.string.greeting_named, hello, name));
+    // ------------------------------------------------------------ the screen
+
+    private void build() {
+        FrameLayout root = new FrameLayout(this);
+        ImageView wall = new ImageView(this);
+        wall.setImageResource(R.drawable.wallpaper_portrait);
+        wall.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        wall.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        root.addView(wall, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        View scrim = new View(this);
+        scrim.setBackgroundResource(R.drawable.home_scrim);
+        root.addView(scrim, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        LinearLayout col = new LinearLayout(this);
+        col.setOrientation(LinearLayout.VERTICAL);
+        root.addView(col, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        root.setOnApplyWindowInsetsListener((v, insets) -> {
+            col.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(),
+                    insets.getSystemWindowInsetBottom());
+            return insets.consumeSystemWindowInsets();
+        });
+
+        // a waiting software update: a small note at the top
+        updatePill = Ui.text(this, "", 14, Color.WHITE, true);
+        GradientDrawable pb = new GradientDrawable();
+        pb.setColor(0xCC5B6FE0);
+        pb.setCornerRadius(Ui.dp(this, 18));
+        updatePill.setBackground(pb);
+        updatePill.setPadding(Ui.dp(this, 16), Ui.dp(this, 8), Ui.dp(this, 16), Ui.dp(this, 8));
+        updatePill.setOnClickListener(v -> startActivity(new Intent(this, UpdateActivity.class)));
+        updatePill.setVisibility(View.GONE);
+        LinearLayout.LayoutParams ul = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        ul.gravity = Gravity.CENTER_HORIZONTAL;
+        ul.topMargin = Ui.dp(this, 10);
+        col.addView(updatePill, ul);
+
+        pager = new Pager(this);
+        pager.setListener(page -> dots.set(pager.pages(), page));
+        col.addView(pager, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1));
+        pager.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
+            int size = (r - l) * 10000 + (b - t);
+            if (size != builtFor && r > l && b > t) pager.post(this::buildPages);
+        });
+        dots = new Pager.Dots(this);
+        col.addView(dots, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(this, 22)));
+
+        // search bar: tap = search apps, microphone = Nova
+        LinearLayout search = new LinearLayout(this);
+        search.setGravity(Gravity.CENTER_VERTICAL);
+        GradientDrawable sb = new GradientDrawable();
+        sb.setColor(0xD93A3A3E);
+        sb.setCornerRadius(Ui.dp(this, 28));
+        search.setBackground(sb);
+        search.setPadding(Ui.dp(this, 14), 0, Ui.dp(this, 8), 0);
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.mipmap.ic_nova_nova);
+        logo.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        search.addView(logo, new LinearLayout.LayoutParams(Ui.dp(this, 32), Ui.dp(this, 32)));
+        TextView hint = Ui.text(this, getString(R.string.search_apps), 15, 0xFFB9B9C0, false);
+        LinearLayout.LayoutParams hl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+        hl.leftMargin = Ui.dp(this, 12);
+        search.addView(hint, hl);
+        ImageView lens = icon(R.drawable.ic_search, R.string.search_apps);
+        lens.setOnClickListener(v -> openApps(true));
+        search.addView(lens, new LinearLayout.LayoutParams(Ui.dp(this, 46), Ui.dp(this, 46)));
+        ImageView mic = icon(R.drawable.ic_mic, R.string.nova_listen);
+        mic.setOnClickListener(v -> startActivity(new Intent(this, NovaActivity.class).putExtra(NovaActivity.EXTRA_LISTEN, true)));
+        search.addView(mic, new LinearLayout.LayoutParams(Ui.dp(this, 46), Ui.dp(this, 46)));
+        search.setOnClickListener(v -> openApps(true));
+        LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(this, 56));
+        int side = Math.max(Ui.dp(this, 16), (getResources().getDisplayMetrics().widthPixels - Ui.dp(this, 560)) / 2);
+        sl.setMargins(side, Ui.dp(this, 4), side, Ui.dp(this, 10));
+        col.addView(search, sl);
+
+        // dock: phone, browser, camera, messages (icons only)
+        dock = new LinearLayout(this);
+        dock.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dl.setMargins(side - Ui.dp(this, 6), 0, side - Ui.dp(this, 6), Ui.dp(this, 8));
+        col.addView(dock, dl);
+        setContentView(root);
+    }
+
+    private ImageView icon(int res, int label) {
+        ImageView b = new ImageView(this);
+        b.setImageResource(res);
+        int p = Ui.dp(this, 11);
+        b.setPadding(p, p, p, p);
+        b.setContentDescription(getString(label));
+        android.util.TypedValue tv = new android.util.TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, tv, true);
+        b.setBackgroundResource(tv.resourceId);
+        return b;
     }
 
     private void openApps(boolean search) {
@@ -232,11 +299,11 @@ public class HomeActivity extends Activity {
             runOnUiThread(() -> {
                 if (isDestroyed()) return;
                 apps = list;
+                addDefaults();
                 StringBuilder sig = new StringBuilder(Favorites.raw(this));
                 UpdateInfo u = Updates.pending(this);
                 if (u != null) sig.append("|update").append(u.versionCode).append(Updates.readyApk(this, u) != null);
-                sig.append("|chat").append(ChatDb.loggedIn(this)).append(chatUnread()).append("|mail").append(mailUnread())
-                        .append("|family").append(Family.role(this)).append(Family.parent(this) ? Family.children(this).size() : 0);
+                sig.append("|chat").append(chatUnread()).append("|mail").append(mailUnread());
                 for (App a : list) sig.append('|').append(a.key()).append(a.label);
                 if (!sig.toString().equals(shown)) {
                     shown = sig.toString();
@@ -246,7 +313,34 @@ public class HomeActivity extends Activity {
         });
     }
 
-    // ------------------------------------------------------------ content
+    /** Once (new phone, or the update to NovaOS 1.5): the Nova apps join the home screen. */
+    private void addDefaults() {
+        android.content.SharedPreferences p = getSharedPreferences("novaos_mobile", MODE_PRIVATE);
+        if (p.getBoolean("home15", false) || apps.isEmpty()) return;
+        List<String> favs = Favorites.get(this);
+        for (Class<?> cls : DEFAULTS) {
+            App a = Apps.own(apps, cls);
+            if (a != null && !favs.contains(a.key())) favs.add(a.key());
+        }
+        Favorites.set(this, favs);
+        p.edit().putBoolean("home15", true).apply();
+    }
+
+    private void loadWeather() {
+        if (weatherLoading || !HomeWeather.due(this)) return;
+        weatherLoading = true;
+        worker.execute(() -> {
+            HomeWeather.Data d = HomeWeather.fetch(getApplicationContext());
+            runOnUiThread(() -> {
+                weatherLoading = false;
+                if (d != null && !isDestroyed()) {
+                    builtFor = 0;
+                    buildPages();
+                }
+            });
+        });
+    }
+
     private int chatUnread() {
         if (!ChatDb.loggedIn(this)) return 0;
         int n = 0;
@@ -254,198 +348,159 @@ public class HomeActivity extends Activity {
         return n;
     }
 
-    /** Unread mails in the inboxes of all Nova Mail accounts (-1 = no account). */
+    /** Unread mails in the inboxes of all Nova Mail accounts. */
     private int mailUnread() {
-        List<MailStore.Account> accounts = MailStore.accounts(this);
-        if (accounts.isEmpty()) return -1;
         int n = 0;
-        for (MailStore.Account a : accounts) n += MailStore.get(this).unreadCount(a.id, "INBOX");
+        for (MailStore.Account a : MailStore.accounts(this)) n += MailStore.get(this).unreadCount(a.id, "INBOX");
         return n;
     }
 
     private void rebuild() {
-        rows.removeAllViews();
-        int side = Ui.dp(this, 6);
-
-        // "system software update available" (from the NovaOS website)
         UpdateInfo update = Updates.pending(this);
         if (update != null) {
             boolean ready = Updates.readyApk(this, update) != null;
-            View banner = novaCard(R.drawable.ic_refresh, getString(R.string.home_update_banner),
-                    getString(ready ? R.string.home_update_ready : R.string.home_update_sub, update.versionName), true,
-                    v -> startActivity(new Intent(this, UpdateActivity.class)));
-            LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    Ui.dp(this, 112));
-            bl.topMargin = Ui.dp(this, 14);
-            rows.addView(banner, bl);
-        }
-
-        // Nova: TV and Nova Filme
-        rows.addView(Ui.section(this, R.string.nova));
-        LinearLayout cards = new LinearLayout(this);
-        cards.setOrientation(LinearLayout.HORIZONTAL);
-        cards.addView(novaCard(R.drawable.ic_antenna, getString(R.string.card_tv),
-                getString(R.string.card_tv_sub, Channels.get(this).size()), true,
-                v -> startActivity(new Intent(this, TvActivity.class))), weight(0, side));
-        cards.addView(novaCard(R.drawable.ic_play, getString(R.string.card_filme),
-                getString(R.string.card_filme_sub), false,
-                v -> startActivity(new Intent(this, FilmeActivity.class))), weight(side, 0));
-        rows.addView(cards);
-        // Nova Chat (unread messages) and Nova, the assistant
-        LinearLayout cards2 = new LinearLayout(this);
-        cards2.setOrientation(LinearLayout.HORIZONTAL);
-        int unread = chatUnread();
-        cards2.addView(novaCard(R.drawable.ic_chat, getString(R.string.app_chat),
-                !ChatDb.loggedIn(this) ? getString(R.string.card_chat_sub)
-                        : unread > 0 ? getResources().getQuantityString(R.plurals.card_chat_unread, unread, unread)
-                        : getString(R.string.card_chat_none), unread > 0,
-                v -> startActivity(new Intent(this, ChatActivity.class))), weight(0, side));
-        cards2.addView(novaCard(R.drawable.ic_mic, getString(R.string.app_nova), getString(R.string.card_nova_sub), false,
-                v -> startActivity(new Intent(this, NovaActivity.class).putExtra(NovaActivity.EXTRA_LISTEN, true))), weight(side, 0));
-        LinearLayout.LayoutParams c2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        c2.topMargin = Ui.dp(this, 12);
-        rows.addView(cards2, c2);
-        // Nova Mail (unread mails) and Nova Family
-        LinearLayout cards3 = new LinearLayout(this);
-        cards3.setOrientation(LinearLayout.HORIZONTAL);
-        int mails = mailUnread();
-        cards3.addView(novaCard(R.drawable.ic_mail, getString(R.string.app_mail),
-                mails < 0 ? getString(R.string.card_mail_sub) : mails > 0
-                        ? getResources().getQuantityString(R.plurals.card_mail_unread, mails, mails) : getString(R.string.card_mail_none),
-                mails > 0, v -> startActivity(new Intent(this, MailActivity.class))), weight(0, side));
-        int kids = Family.parent(this) ? Family.children(this).size() : 0;
-        cards3.addView(novaCard(R.drawable.ic_family, getString(R.string.app_family),
-                Family.child(this) ? getString(R.string.card_family_child) : kids > 0
-                        ? getResources().getQuantityString(R.plurals.card_family_children, kids, kids) : getString(R.string.card_family_sub), false,
-                v -> startActivity(new Intent(this, FamilyActivity.class))), weight(side, 0));
-        LinearLayout.LayoutParams c3 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        c3.topMargin = Ui.dp(this, 12);
-        rows.addView(cards3, c3);
-        // Nova Musik (what is playing) and Nova Store
-        LinearLayout cards4 = new LinearLayout(this);
-        cards4.setOrientation(LinearLayout.HORIZONTAL);
-        MusicCatalog.Track song = Music.get(this).current();
-        cards4.addView(novaCard(R.drawable.ic_music, getString(R.string.app_music),
-                song == null ? getString(R.string.card_music_sub) : (Music.get(this).playing() ? "▶ " : "⏸ ") + song.title,
-                song != null && Music.get(this).playing(), v -> startActivity(new Intent(this, MusicActivity.class))), weight(0, side));
-        cards4.addView(novaCard(R.drawable.ic_store, getString(R.string.app_store), getString(R.string.card_store_sub), false,
-                v -> startActivity(new Intent(this, StoreActivity.class))), weight(side, 0));
-        LinearLayout.LayoutParams c4 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        c4.topMargin = Ui.dp(this, 12);
-        rows.addView(cards4, c4);
-        // Nova Karte and Nova Phone Shop
-        LinearLayout cards5 = new LinearLayout(this);
-        cards5.setOrientation(LinearLayout.HORIZONTAL);
-        cards5.addView(novaCard(R.drawable.ic_map, getString(R.string.app_map), getString(R.string.card_map_sub), false,
-                v -> startActivity(new Intent(this, MapActivity.class))), weight(0, side));
-        cards5.addView(novaCard(R.drawable.ic_phone_shop, getString(R.string.app_shop), getString(R.string.shop_sub), false,
-                v -> startActivity(new Intent(this, ShopActivity.class))), weight(side, 0));
-        LinearLayout.LayoutParams c5 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        c5.topMargin = Ui.dp(this, 12);
-        rows.addView(cards5, c5);
-
-        // quick settings
-        rows.addView(Ui.section(this, R.string.quick));
-        HorizontalScrollView hs = new HorizontalScrollView(this);
-        hs.setHorizontalScrollBarEnabled(false);
-        hs.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        LinearLayout quick = new LinearLayout(this);
-        quick.setOrientation(LinearLayout.HORIZONTAL);
-        quick.addView(quickButton(R.drawable.ic_network, R.string.qs_wifi, v -> Launch.settings(this, Settings.ACTION_WIFI_SETTINGS)));
-        quick.addView(quickButton(R.drawable.ic_bluetooth, R.string.qs_bluetooth, v -> Launch.settings(this, Settings.ACTION_BLUETOOTH_SETTINGS)));
-        torchButton = quickButton(R.drawable.ic_torch, R.string.qs_torch, v -> toggleTorch());
-        quick.addView(torchButton);
-        quick.addView(quickButton(R.drawable.ic_display, R.string.qs_display, v -> Launch.settings(this, Settings.ACTION_DISPLAY_SETTINGS)));
-        quick.addView(quickButton(R.drawable.ic_sound, R.string.qs_sound, v -> Launch.settings(this, Settings.ACTION_SOUND_SETTINGS)));
-        quick.addView(quickButton(R.drawable.ic_battery, R.string.qs_battery, v -> Launch.settings(this, Intent.ACTION_POWER_USAGE_SUMMARY)));
-        quick.addView(quickButton(R.drawable.ic_settings, R.string.qs_settings, v -> Launch.settings(this, Settings.ACTION_SETTINGS)));
-        hs.addView(quick);
-        rows.addView(hs);
-        showTorch();
-
-        // favorites
-        rows.addView(Ui.section(this, R.string.favorites));
-        Set<String> installed = new HashSet<>();
-        for (App a : apps) installed.add(a.key());
-        List<String> favs = KeyList.retain(Favorites.get(this), installed);
-        if (favs.isEmpty()) {
-            TextView t = Ui.text(this, getString(R.string.fav_empty), 14, getColor(R.color.text_muted), false);
-            t.setPadding(Ui.dp(this, 4), 0, Ui.dp(this, 4), 0);
-            rows.addView(t);
+            updatePill.setText("⟳  " + getString(ready ? R.string.home_update_ready : R.string.home_update_sub, update.versionName));
+            updatePill.setVisibility(View.VISIBLE);
         } else {
-            int cols = Greeting.columns(Ui.widthDp(this) - 40, 84, 4, 7);
-            LinearLayout row = null;
-            for (int i = 0; i < favs.size(); i++) {
-                if (i % cols == 0) {
-                    row = new LinearLayout(this);
-                    row.setOrientation(LinearLayout.HORIZONTAL);
-                    rows.addView(row);
-                }
-                App a = Apps.find(apps, favs.get(i));
-                row.addView(appView(a, true), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-            }
-            int rest = (cols - favs.size() % cols) % cols;
-            for (int i = 0; i < rest; i++) {
-                row.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1));
-            }
+            updatePill.setVisibility(View.GONE);
         }
+        builtFor = 0;
+        buildPages();
         buildDock();
     }
 
-    private LinearLayout.LayoutParams weight(int left, int right) {
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, Ui.dp(this, 118), 1);
-        lp.leftMargin = left;
-        lp.rightMargin = right;
-        return lp;
+    /** The red numbers: unread chats and mails, Nova apps an update changes, a waiting update. */
+    private int badge(App a) {
+        String cls = a.component.getClassName();
+        if (!a.packageName().equals(getPackageName())) return 0;
+        if (cls.equals(ChatActivity.class.getName())) return chatUnread();
+        if (cls.equals(MailActivity.class.getName())) return mailUnread();
+        UpdateInfo u = Updates.pending(this);
+        if (u == null) return 0;
+        if (cls.equals(StoreActivity.class.getName())) return Math.max(1, u.apps.size());
+        if (cls.equals(SettingsActivity.class.getName())) return -1;
+        return 0;
     }
 
-    private View novaCard(int icon, String title, String sub, boolean accent, View.OnClickListener click) {
+    /** Page 1: widget in the middle of the first two rows, an app on each side, the rest at the bottom; more pages to the right. */
+    private void buildPages() {
+        int w = pager.getWidth(), h = pager.getHeight();
+        if (w == 0 || h == 0) return;
+        builtFor = w * 10000 + h;
+        float d = getResources().getDisplayMetrics().density;
+        int cols = Greeting.columns((int) (w / d) - 8, 86, 4, 6);
+        int rows = DrawerOrder.rows(h / d, 104);
+        Set<String> installed = new HashSet<>();
+        for (App a : apps) installed.add(a.key());
+        List<App> home = new ArrayList<>();
+        for (String k : KeyList.retain(Favorites.get(this), installed)) home.add(Apps.find(apps, k));
+        int[] cells = DrawerOrder.homeCells(home.size(), rows, cols);
+        int cw = w / cols, ch = h / rows, keep = pager.page();
+        pager.removeAllViews();
+
+        FrameLayout first = page();
+        int m = Ui.dp(this, 8);
+        FrameLayout.LayoutParams wl = new FrameLayout.LayoutParams((cols - 2) * cw - 2 * m, 2 * ch - 2 * m);
+        wl.leftMargin = cw + m;
+        wl.topMargin = m;
+        first.addView(widget(), wl);
+        List<App> rest = new ArrayList<>();
+        for (int i = 0; i < home.size(); i++) {
+            if (cells[i] < 0) {
+                rest.add(home.get(i));
+                continue;
+            }
+            place(first, home.get(i), cells[i] % cols, cells[i] / cols, cw, ch);
+        }
+        pager.addView(first);
+        int per = rows * cols;
+        for (int pg = 0; pg < DrawerOrder.pages(rest.size(), per) && !rest.isEmpty(); pg++) {
+            FrameLayout page = page();
+            List<App> on = DrawerOrder.page(rest, pg, per);
+            for (int i = 0; i < on.size(); i++) place(page, on.get(i), i % cols, i / cols, cw, ch);
+            pager.addView(page);
+        }
+        pager.setPage(Math.min(keep, pager.pages() - 1), false);
+        dots.set(pager.pages(), pager.page());
+    }
+
+    private FrameLayout page() {
+        FrameLayout page = new FrameLayout(this);
+        // hold an empty spot: NovaOS settings (wallpaper, home screen)
+        page.setOnLongClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        });
+        return page;
+    }
+
+    private void place(FrameLayout page, App a, int col, int row, int cw, int ch) {
+        FrameLayout box = new FrameLayout(this);
+        FrameLayout.LayoutParams cl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        cl.gravity = Gravity.CENTER;
+        box.addView(appView(a, true, badge(a)), cl);
+        FrameLayout.LayoutParams bl = new FrameLayout.LayoutParams(cw, ch);
+        bl.leftMargin = col * cw;
+        bl.topMargin = row * ch;
+        page.addView(box, bl);
+    }
+
+    /** The widget: the weather here (like Samsung's), or the clock while there is none. */
+    private View widget() {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
-        card.setBackgroundResource(accent ? R.drawable.accent_card_bg : R.drawable.card_bg);
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[] {0xE6404C86, 0xE65A6AA6});
+        g.setCornerRadius(Ui.dp(this, 26));
+        card.setBackground(g);
         int p = Ui.dp(this, 16);
         card.setPadding(p, p, p, p);
-        ImageView iv = new ImageView(this);
-        iv.setImageResource(icon);
-        iv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
-        card.addView(iv, new LinearLayout.LayoutParams(Ui.dp(this, 32), Ui.dp(this, 32)));
-        View gap = new View(this);
-        card.addView(gap, new LinearLayout.LayoutParams(1, 0, 1));
-        card.addView(Ui.text(this, title, 18, getColor(R.color.text), true));
-        TextView s = Ui.text(this, sub, 13, 0xDDFFFFFF, false);
-        s.setSingleLine(true);
-        card.addView(s);
-        card.setClickable(true);
-        card.setOnClickListener(click);
-        card.setContentDescription(title);
+        boolean german = Locale.getDefault().getLanguage().equals("de");
+        HomeWeather.Data wd = HomeWeather.cached(this);
+        if (wd != null) {
+            card.addView(Ui.text(this, Math.round(wd.temp) + "°  " + Weather.symbol(wd.code), 22, Color.WHITE, true));
+            String sky = Weather.describe(wd.code, german);
+            if (!sky.isEmpty()) sky = Character.toUpperCase(sky.charAt(0)) + sky.substring(1);
+            TextView what = Ui.text(this, sky, 18, Color.WHITE, false);
+            what.setMaxLines(2);
+            what.setPadding(0, Ui.dp(this, 4), 0, 0);
+            card.addView(what);
+            card.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1));
+            if (!Double.isNaN(wd.max) && !Double.isNaN(wd.min)) {
+                card.addView(Ui.text(this, getString(R.string.home_weather_range, Math.round(wd.max), Math.round(wd.min)), 14, 0xE6FFFFFF, false));
+            }
+            if (!wd.place.isEmpty()) {
+                TextView where = Ui.text(this, "📍 " + wd.place, 15, 0xE6FFFFFF, false);
+                where.setSingleLine(true);
+                where.setPadding(0, Ui.dp(this, 2), 0, 0);
+                card.addView(where);
+            }
+            card.setContentDescription(Weather.sentence(wd.place, new Weather.Now(wd.temp, wd.code, 0, wd.max, wd.min), german));
+        } else {
+            TextClock clock = new TextClock(this);
+            clock.setFormat12Hour("h:mm");
+            clock.setFormat24Hour("HH:mm");
+            clock.setTextColor(Color.WHITE);
+            clock.setTextSize(40);
+            clock.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+            card.addView(clock);
+            TextClock date = new TextClock(this);
+            String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM");
+            date.setFormat12Hour(pattern);
+            date.setFormat24Hour(pattern);
+            date.setTextColor(0xE6FFFFFF);
+            date.setTextSize(15);
+            card.addView(date);
+            card.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1));
+            card.addView(Ui.text(this, getString(R.string.home_weather_wait), 13, 0xCCFFFFFF, false));
+        }
+        // tap: Nova tells the weather
+        card.setOnClickListener(v -> startActivity(new Intent(this, NovaActivity.class)
+                .putExtra(NovaActivity.EXTRA_QUERY, getString(R.string.nova_try_weather))));
         return card;
     }
 
-    private View quickButton(int icon, int label, View.OnClickListener click) {
-        LinearLayout col = new LinearLayout(this);
-        col.setOrientation(LinearLayout.VERTICAL);
-        col.setGravity(Gravity.CENTER_HORIZONTAL);
-        ImageView b = new ImageView(this);
-        b.setImageResource(icon);
-        b.setBackgroundResource(R.drawable.round_bg);
-        int p = Ui.dp(this, 14);
-        b.setPadding(p, p, p, p);
-        b.setClickable(true);
-        b.setOnClickListener(click);
-        b.setContentDescription(getString(label));
-        col.addView(b, new LinearLayout.LayoutParams(Ui.dp(this, 56), Ui.dp(this, 56)));
-        TextView t = Ui.text(this, getString(label), 12, getColor(R.color.text), false);
-        t.setGravity(Gravity.CENTER);
-        t.setSingleLine(true);
-        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(Ui.dp(this, 74), ViewGroup.LayoutParams.WRAP_CONTENT);
-        tl.topMargin = Ui.dp(this, 6);
-        col.addView(t, tl);
-        col.setPadding(0, 0, Ui.dp(this, 2), 0);
-        return col;
-    }
-
-    private View appView(App a, boolean label) {
-        LinearLayout cell = Ui.appCell(this, a, label);
+    private View appView(App a, boolean label, int badge) {
+        LinearLayout cell = Ui.appCell(this, a, label, badge);
         cell.setOnClickListener(v -> Launch.app(this, a, v));
         cell.setOnLongClickListener(v -> {
             AppMenu.show(this, a, () -> {
@@ -457,43 +512,27 @@ public class HomeActivity extends Activity {
         return cell;
     }
 
-    /** Dock: phone, messages, all apps, camera, browser (the phone's default apps; Nova Kamera without one). */
+    /** Dock: phone, browser, camera, messages - the phone's default apps (Nova Kamera without one). */
     private void buildDock() {
         dock.removeAllViews();
         App camera = Apps.defaultFor(this, apps, new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA));
         App[] slots = {
             Apps.defaultFor(this, apps, new Intent(Intent.ACTION_DIAL)),
-            Apps.defaultFor(this, apps, new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:"))),
-            null,
-            camera != null ? camera : Apps.own(apps, CameraActivity.class),
             Apps.defaultFor(this, apps, new Intent(Intent.ACTION_VIEW, Uri.parse("https://"))),
+            camera != null ? camera : Apps.own(apps, CameraActivity.class),
+            Apps.defaultFor(this, apps, new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:"))),
         };
-        for (int i = 0; i < slots.length; i++) {
-            View v;
-            if (i == 2) {
-                ImageView all = new ImageView(this);
-                all.setImageResource(R.drawable.ic_apps);
-                all.setBackgroundResource(R.drawable.round_bg);
-                int p = Ui.dp(this, 13);
-                all.setPadding(p, p, p, p);
-                all.setContentDescription(getString(R.string.all_apps));
-                all.setOnClickListener(x -> openApps(false));
-                LinearLayout box = new LinearLayout(this);
-                box.setGravity(Gravity.CENTER);
-                box.addView(all, new LinearLayout.LayoutParams(Ui.dp(this, 54), Ui.dp(this, 54)));
-                v = box;
-            } else if (slots[i] != null) {
-                v = appView(slots[i], false);
-            } else {
-                // empty slot (phone without this app): 1 px high, or it would take all the height
-                dock.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1));
+        for (App a : slots) {
+            if (a == null) {
+                dock.addView(new View(this), new LinearLayout.LayoutParams(0, 1, 1));  // phone without this app
                 continue;
             }
-            dock.addView(v, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            dock.addView(appView(a, false, 0), new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         }
     }
 
     // ------------------------------------------------------------ system
+
     @SuppressLint("WrongConstant")
     private void expandNotifications() {
         try {
@@ -502,47 +541,5 @@ public class HomeActivity extends Activity {
         } catch (Exception | LinkageError e) {
             // not allowed on this phone: nothing happens
         }
-    }
-
-    private void setupTorch() {
-        CameraManager cm = getSystemService(CameraManager.class);
-        try {
-            for (String id : cm.getCameraIdList()) {
-                Boolean flash = cm.getCameraCharacteristics(id).get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
-                if (Boolean.TRUE.equals(flash)) {
-                    torchId = id;
-                    break;
-                }
-            }
-        } catch (CameraAccessException | RuntimeException e) {
-            torchId = null;
-        }
-        if (torchId == null) return;
-        torchCallback = new CameraManager.TorchCallback() {
-            @Override
-            public void onTorchModeChanged(String id, boolean enabled) {
-                if (id.equals(torchId)) {
-                    torchOn = enabled;
-                    showTorch();
-                }
-            }
-        };
-        cm.registerTorchCallback(torchCallback, null);
-    }
-
-    private void toggleTorch() {
-        if (torchId == null) {
-            Toast.makeText(this, R.string.no_torch, Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            getSystemService(CameraManager.class).setTorchMode(torchId, !torchOn);
-        } catch (CameraAccessException | RuntimeException e) {
-            Toast.makeText(this, R.string.not_available, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void showTorch() {
-        if (torchButton instanceof ViewGroup) ((ViewGroup) torchButton).getChildAt(0).setActivated(torchOn);
     }
 }

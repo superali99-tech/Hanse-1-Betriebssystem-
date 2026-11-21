@@ -13,6 +13,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -118,6 +119,14 @@ final class Ui {
 
     /** App icon with name below (favorites, app overview); without name in the dock. */
     static LinearLayout appCell(Context c, App app, boolean withLabel) {
+        return appCell(c, app, withLabel, 0);
+    }
+
+    /**
+     * An app with its name; badge > 0 puts a red number at the icon (unread messages, waiting
+     * updates), badge &lt; 0 a red dot - like on Samsung phones.
+     */
+    static LinearLayout appCell(Context c, App app, boolean withLabel, int badge) {
         LinearLayout col = new LinearLayout(c);
         col.setOrientation(LinearLayout.VERTICAL);
         col.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -128,7 +137,29 @@ final class Ui {
         iv.setImageDrawable(copy(c, app.icon));
         iv.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         int s = c.getResources().getDimensionPixelSize(R.dimen.icon);
-        col.addView(iv, new LinearLayout.LayoutParams(s, s));
+        if (badge == 0) {
+            col.addView(iv, new LinearLayout.LayoutParams(s, s));
+        } else {
+            FrameLayout box = new FrameLayout(c);
+            box.setClipChildren(false);
+            FrameLayout.LayoutParams il = new FrameLayout.LayoutParams(s, s);
+            il.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+            box.addView(iv, il);
+            TextView b = text(c, badge > 0 ? (badge > 99 ? "99+" : String.valueOf(badge)) : "", 11, Color.WHITE, true);
+            b.setGravity(Gravity.CENTER);
+            GradientDrawable g = new GradientDrawable();
+            g.setColor(0xFFE5393B);
+            g.setCornerRadius(dp(c, 10));
+            b.setBackground(g);
+            int size = badge > 0 ? dp(c, 20) : dp(c, 12);
+            b.setMinWidth(size);
+            b.setPadding(badge > 9 ? dp(c, 5) : 0, 0, badge > 9 ? dp(c, 5) : 0, 0);
+            FrameLayout.LayoutParams bl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, size);
+            bl.gravity = Gravity.TOP | Gravity.END;
+            box.addView(b, bl);
+            col.addView(box, new LinearLayout.LayoutParams(s + dp(c, 12), s + dp(c, 6)));
+            col.setContentDescription(app.label + (badge > 0 ? " (" + badge + ")" : ""));
+        }
         if (withLabel) {
             TextView t = text(c, app.label, 12.5f, Color.WHITE, false);
             t.setSingleLine(true);
@@ -140,7 +171,7 @@ final class Ui {
             lp.topMargin = dp(c, 5);
             col.addView(t, lp);
         }
-        col.setContentDescription(app.label);
+        if (badge == 0) col.setContentDescription(app.label);
         col.setClickable(true);
         col.setFocusable(true);
         return col;

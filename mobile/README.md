@@ -4,15 +4,18 @@
 Pixel, Xiaomi, Motorola … ab Android 7). Es ersetzt den **Startbildschirm** – so wie Samsung
 selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android legen:
 
-* **Startbildschirm**: Begrüßung, große Uhr und Datum, **App-Suche**, Aurora-Hintergrund
-* **Nova**: Karten für **Fernsehen** (30 Sender live: Das Erste, ZDF, ARTE, alle Dritten …) und
-  **Nova Filme** (kostenlose Filme, Serien, Dokus, Kinderprogramm – direkt in der App)
-* **Schnelleinstellungen**: WLAN, Bluetooth, **Taschenlampe**, Anzeige, Ton, Akku, Einstellungen
-* **Favoriten** (App in der App-Übersicht gedrückt halten) und ein **Dock** mit Telefon,
-  Nachrichten, App-Übersicht, Kamera und Browser des Handys
-* **Gesten**: nach oben wischen = alle Apps, nach unten wischen = Benachrichtigungen
-* **App-Übersicht** mit Suche (auch ohne Umlaute: „grosse“ findet „Größe“), gedrückt halten =
-  Favorit, App-Info, Deinstallieren
+* **Startbildschirm wie bei Samsung (NovaOS 1.5)**: **Wetter-Widget** für den eigenen Ort (Open-Meteo,
+  ohne Standort die Uhr) zwischen den ersten Apps, weitere Apps in den unteren Reihen und auf weiteren Seiten
+  (seitwärts wischen), Suchleiste mit Nova-Mikrofon und ein **Dock** mit Telefon, Browser, Kamera und Nachrichten.
+  Rote Zahlen an den Apps: ungelesene Chats und Mails, Nova-Apps mit Update. Neue Handys bekommen die Nova-Apps
+  auf den Startbildschirm (beim Update auf 1.5 kommen sie zu den bisherigen Apps dazu)
+* **Gesten**: nach oben wischen = alle Apps, nach unten wischen = Benachrichtigungen, leere Stelle halten =
+  NovaOS-Einstellungen; App halten = zum Startbildschirm hinzufügen/entfernen, verschieben, App-Info, Deinstallieren
+* **Alle Apps wie bei Samsung**: Seiten zum Seitwärts-Wischen mit Punkten, „Suchen“ unten (auch ohne Umlaute:
+  „grosse“ findet „Größe“), ⋮ oben → **Sortieren**: eigene Reihenfolge (neue Apps hinten, Apps lassen sich nach
+  vorne/hinten verschieben) oder alphabetisch; nach unten wischen schließt
+* **Nova TV** (30 Sender live: Das Erste, ZDF, ARTE, alle Dritten …) und **Nova Filme** (kostenlose Filme, Serien,
+  Dokus, Kinderprogramm – direkt in der App) als eigene Apps
 * **Fernsehen** im Vollbild: antippen = Bedienleiste, nach links/rechts wischen = Sender wechseln,
   Listen-Knopf = alle Sender
 * **Nova Filme**: im offiziellen YouTube-Player; Handy quer drehen = Vollbild
@@ -320,6 +323,8 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `MailContactsActivity.java` | Adressbuch von Nova Mail |
 | `Search.java`, `History.java` (+ `res/raw/history.txt`) | Suchfelder (Vergleich ohne Akzente/Umlaute), Update-Verlauf (getestet) |
 | `RingView.java`, `Page.java` | Fortschrittsring (Nova Store), gemeinsame Seite mit Suchfeld |
+| `HomeActivity.java`, `HomeWeather.java`, `AppsActivity.java`, `Pager.java`, `DrawerOrder.java` | Startbildschirm und alle Apps wie bei One UI: Seiten zum Wischen mit Punkten, Wetter-Widget, Raster, eigene Reihenfolge (getestet) |
+| `NovaUpdate.java`, `Where.java` | Nova-App im Store aktualisieren (Ring und Fortschritt); bester bekannter Standort |
 | `UpdateActivity.java`, `UpdateEngine.java`, `UpdateArt.java` | Software-Update: Seite, Ablauf im Hintergrund mit Pause, gezeichnetes Titelbild |
 | `LastUpdateActivity.java`, `UpdateFacts.java`, `UpdateGlow.java`, `ReleaseArt.java`, `UpdateNotes.java` | „NovaOS 1.0 – auf dem neuesten Stand“ (Leuchten), „Letztes erfolgreiches Update“ (Bild „1“, Datum, Aktualisierungsinformationen), Dialoge „Was ist neu“/„Update-Verlauf“ |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |

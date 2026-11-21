@@ -134,6 +134,16 @@
   fragt Nova Karte nach dem genauen (oder öffnet die App-Einstellungen), bei ausgeschaltetem Standort nach dem
   Einschalten; ein Hinweis unter dem Suchfeld zeigt „Standort noch ungenau (± 2,4 km)“; Navigation startet erst ab
   einer Genauigkeit von 150 m
+* **NovaOS Mobile 0.1.1.75 – NovaOS 1.5**: Startbildschirm wie bei Samsung One UI – Wetter-Widget (Ort aus dem
+  besten bekannten Standort, Name über Photon, alle 30 Minuten neu) zwischen den ersten Apps, weitere Apps unten und auf
+  weiteren Seiten (eigener `Pager` mit Punkten), Suchleiste, Dock mit Telefon, Browser, Kamera, Nachrichten, rote Zahlen
+  für ungelesene Chats/Mails und Nova-Apps mit Update; Begrüßung, große Uhr, Nova-Karten und Schnelleinstellungen
+  entfallen (Schnelleinstellungen gibt es im Benachrichtigungsfeld). Alle Apps: Seiten zum Seitwärts-Wischen, „Suchen“
+  unten, ⋮ → Sortieren (eigene Reihenfolge mit neuen Apps hinten, oder alphabetisch), Apps nach vorne/hinten
+  verschieben (`DrawerOrder`, getestet). Nova TV und Nova Filme sind eigene Apps. Nova Store: „Aktualisieren“ bei
+  einer Nova-App startet das Update direkt dort mit Ring ums Symbol, „Wird heruntergeladen … 45 %“ und Pause,
+  „Alle aktualisieren“ (die Nova-Apps stecken in NovaOS: ein Update bringt alle geänderten mit). Software-Update
+  zeigt „NovaOS 1.5 (0.1.1.N)“ (`release=` in `update.properties`), „Letztes erfolgreiches Update“ zeigt „1.5“
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

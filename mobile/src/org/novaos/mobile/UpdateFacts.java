@@ -7,12 +7,12 @@ import java.util.TimeZone;
 
 /**
  * What the update pages say about the installed NovaOS, like the software update of Samsung
- * phones: "NovaOS 1.0", "31. Oktober 2026 um 16:37" and the list under
+ * phones: "NovaOS 1.5", "31. Oktober 2026 um 16:37" and the list under
  * "Aktualisierungsinformationen". Android-independent, tested.
  */
 final class UpdateFacts {
-    /** The name of this NovaOS generation, shown big ("NovaOS 1.0"); the builds count on as 0.1.1.N. */
-    static final String RELEASE = "1.0";
+    /** The name of this NovaOS generation, shown big ("NovaOS 1.5"); the builds count on as 0.1.1.N. */
+    static final String RELEASE = "1.5";
 
     private static final String[] MONTHS_DE = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August",
             "September", "Oktober", "November", "Dezember"};

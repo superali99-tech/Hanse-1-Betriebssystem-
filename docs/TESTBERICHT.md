@@ -578,6 +578,27 @@ Test-App, die Positionen vorspielt (Android-Testanbieter für „gps“ und „n
 **Nicht getestet:** ein echtes Handy mit GPS-Empfang und der Dialog „Genau/Ungefähr“ von Android 12+ (der Emulator hat
 Android 9). Bitte nach dem Update draußen ausprobieren: der blaue Punkt sollte nach einigen Sekunden genau stehen.
 
+### Update 0.1.1.75: NovaOS 1.5 – Startbildschirm und alle Apps wie bei Samsung (21.11.2026)
+
+Vorlage: Bilder von Samsung One UI (Startbildschirm mit Wetter-Widget, App-Seiten mit Punkten und „Suchen“). Android-x86 9,
+Hochformat 720×1280, frisch gestartet, Standort über die Test-App (Mölln). Bilder 102–107.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1791 bestanden (neu: eigene Reihenfolge, neue Apps hinten, verschieben, Seiten, Reihen, Startbildschirm-Raster mit Widget, Name „1.5“ im Update) |
+| Startbildschirm | ✅ | Wetter-Widget „5° ☁ Bedeckt, ↑ 7° ↓ 1°, 📍 Mölln“, Nova Chat/Mail/Karte/Musik daneben, 8 Nova-Apps unten, Suchleiste, Dock |
+| „bedeckt“ klein geschrieben | ❌ → behoben | erster Buchstabe groß |
+| Hochwischen | ✅ | alle Apps: ⋮, 4 Spalten, 3 Seiten mit Punkten, „Suchen“ mit Mikrofon; zuerst die alten Apps, die neu installierten Nova-Apps hinten |
+| Seitwärts wischen | ✅ | Seite 3 mit Nova Store, Nova TV, NovaOS-Einstellungen |
+| „nova k“ suchen | ✅ | Nova Kamera, Nova Karte |
+| Nova Store mit Testversion 0.1.1.60 gegen das echte 0.1.1.74 | ✅ | Nova Karte „Aktualisieren“ → Ring ums Symbol, „Wird heruntergeladen … 72 %“, „Pause“ – direkt in der Zeile |
+| … Prüfung | ✅ (erwartet) | lehnt das echte Update ab, weil die Testversion mit dem Entwicklungsschlüssel signiert ist (auf echten Handys passt der Schlüssel) |
+| „Letztes erfolgreiches Update“ | ✅ | großes blaues „1.5“ vor der Leuchtkugel |
+| „1.5“ zu blass | ❌ → behoben | die Transparenz des Schattens blieb am Pinsel |
+
+**Nicht getestet:** Querformat, ein Handy mit mehr als 6 Reihen, „Alle aktualisieren“ (das echte Update ändert nur
+Nova Karte), Wischen auf einem echten Handy (im Emulator kamen schnelle Gesten manchmal zu spät an).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

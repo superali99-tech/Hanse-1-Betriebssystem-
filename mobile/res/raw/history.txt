@@ -1,6 +1,12 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.74 · 21.11.2026
+{map} Nova Karte nimmt jetzt deinen GPS-Standort: die ungenaue Position aus dem Mobilfunknetz (oft der Nachbarort) verdrängt GPS nicht mehr|Nova Maps now uses your GPS location: the rough position from the mobile network (often the next village) no longer pushes GPS aside
+{map} Erlaubt Android nur den „ungefähren Standort“, fragt Nova Karte nach dem genauen|If Android only allows the "approximate location", Nova Maps asks for the precise one
+{map} Hinweis unter dem Suchfeld, solange der Standort ungenau oder ausgeschaltet ist|A note under the search bar while the location is inaccurate or switched off
+{map} Navigation startet erst mit genauem Standort; neue Handys nutzen zusätzlich WLAN und Mobilfunk für eine schnelle, genaue Position|Navigation starts only with a precise location; newer phones also use Wi-Fi and the mobile network for a quick, precise position
+
 == NovaOS 0.1.1.72 · 21.11.2026
 {settings} Software-Update wie bei Samsung One UI: „NovaOS 1.0 – Deine Software ist auf dem neuesten Stand.“|Software update like Samsung One UI: "NovaOS 1.0 – Your software is up to date."
 {settings} Neue Seite „Letztes erfolgreiches Update“ mit Datum, „Alle Änderungen“ und Aktualisierungsinformationen|New page "Last successful update" with date, "All changes" and update information

@@ -52,6 +52,20 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
     private final Map<String, Button> novaButtons = new HashMap<>();
     private final Map<String, TextView> novaLines = new HashMap<>();
     private final Map<String, View> novaRows = new HashMap<>();
+    private final Map<String, RingView> novaRings = new HashMap<>();
+    private Button novaAll;
+    private final android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
+    // the Nova app update runs here in the store: progress every half second while it runs
+    private final UpdateEngine.Listener engineListener = () -> runOnUiThread(() -> {
+        if (!isDestroyed()) showNovaProgress();
+    });
+    private final Runnable tick = new Runnable() {
+        @Override
+        public void run() {
+            showNovaProgress();
+            if (UpdateEngine.get(StoreActivity.this).running()) ui.postDelayed(this, 500);
+        }
+    };
     private TextView none;
     private LinearLayout novaBox;
     private BroadcastReceiver packages;
@@ -74,10 +88,20 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
         View novaHeader = Ui.section(this, R.string.store_nova_apps);
         novaBox.addView(novaHeader);
         headers.add(novaHeader);
+        LinearLayout subRow = new LinearLayout(this);
+        subRow.setGravity(Gravity.CENTER_VERTICAL);
         TextView novaSub = Ui.text(this, getString(R.string.store_nova_sub), 13, getColor(R.color.text_muted), false);
-        novaSub.setPadding(Ui.dp(this, 4), 0, 0, Ui.dp(this, 2));
-        novaBox.addView(novaSub);
-        rows.add(new Object[] {novaSub, "", novaHeader});
+        novaSub.setPadding(Ui.dp(this, 4), 0, Ui.dp(this, 8), Ui.dp(this, 2));
+        subRow.addView(novaSub, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        novaAll = actionButton();
+        novaAll.setText(R.string.store_update_all);
+        novaAll.setOnClickListener(v -> {
+            NovaUpdate.start(this, null);
+            showNovaProgress();
+        });
+        subRow.addView(novaAll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Ui.dp(this, 40)));
+        novaBox.addView(subRow);
+        rows.add(new Object[] {subRow, "", novaHeader});
         for (NovaApps.App n : NovaApps.ALL) {
             View r = novaRow(n);
             novaBox.addView(r);
@@ -155,11 +179,15 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
         StoreInstall.cleanup(this);
         for (String pkg : apps.keySet()) refresh(pkg);
         refreshNova();
+        UpdateEngine.get(this).addListener(engineListener);
+        ui.post(tick);
     }
 
     @Override
     protected void onPause() {
         StoreInstall.removeListener(this);
+        UpdateEngine.get(this).removeListener(engineListener);
+        ui.removeCallbacks(tick);
         super.onPause();
     }
 
@@ -199,9 +227,19 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
 
     private View novaRow(NovaApps.App n) {
         LinearLayout r = card();
+        // icon with a progress ring around it while the update runs
+        FrameLayout box = new FrameLayout(this);
+        RingView ring = new RingView(this);
+        ring.setStroke(3);
+        ring.setVisibility(View.INVISIBLE);
+        box.addView(ring, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         ImageView icon = new ImageView(this);
         icon.setImageResource(n.icon);
-        r.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
+        FrameLayout.LayoutParams il = new FrameLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 44));
+        il.gravity = Gravity.CENTER;
+        box.addView(icon, il);
+        r.addView(box, new LinearLayout.LayoutParams(Ui.dp(this, 54), Ui.dp(this, 54)));
+        novaRings.put(n.key, ring);
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
         LinearLayout nameRow = new LinearLayout(this);
@@ -259,7 +297,7 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
             content.addView(novaBox, any ? content.indexOfChild(none) + 1 : content.getChildCount());
         }
         // the apps with an update first (like "Updates available" in other stores)
-        int at = 2;  // after the title and the explanation
+        int at = 2;  // after the title and the explanation with "Alle aktualisieren"
         for (int pass = 0; pass < 2; pass++) {
             for (NovaApps.App n : NovaApps.ALL) {
                 boolean update = pending != null && pending.apps.contains(n.key);
@@ -270,22 +308,49 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
                 novaBox.addView(r, at++);
             }
         }
+        showNovaProgress();
+    }
+
+    /** Buttons, lines and rings of the Nova apps: "Aktualisieren", the running update, or "Öffnen". */
+    private void showNovaProgress() {
+        UpdateInfo pending = Updates.pending(this);
+        UpdateEngine e = UpdateEngine.get(this);
+        int changed = 0;
         for (NovaApps.App n : NovaApps.ALL) {
             Button b = novaButtons.get(n.key);
             TextView line = novaLines.get(n.key);
+            RingView ring = novaRings.get(n.key);
             if (b == null || line == null) continue;
             boolean update = pending != null && pending.apps.contains(n.key);
-            b.setText(update ? R.string.store_update : R.string.store_open);
+            boolean busy = update && NovaUpdate.busy(this, n.key);
+            if (update) changed++;
+            if (ring != null) {
+                ring.setVisibility(busy ? View.VISIBLE : View.INVISIBLE);
+                if (busy) ring.set(NovaUpdate.fraction(e));
+            }
+            b.setEnabled(!(busy && e.stage() == UpdateEngine.INSTALL));
+            b.setText(busy ? (e.paused() ? R.string.update_button_resume : R.string.update_button_pause)
+                    : update ? R.string.store_update : R.string.store_open);
             b.setOnClickListener(v -> {
-                if (update) {
-                    startActivity(new Intent(this, UpdateActivity.class).putExtra(UpdateActivity.EXTRA_INSTALL, true));
+                if (NovaUpdate.busy(this, n.key)) {
+                    if (e.paused()) e.resume();
+                    else e.pause();
+                } else if (update) {
+                    NovaUpdate.start(this, n.key);  // right here, with progress at this app
+                    ui.removeCallbacks(tick);
+                    ui.post(tick);
                 } else {
                     startActivity(new Intent(this, n.activity));
                 }
+                showNovaProgress();
             });
-            line.setText(update ? getString(R.string.store_nova_new, pending.versionName)
+            String error = e.error();
+            line.setText(busy ? NovaUpdate.status(this, e)
+                    : update && !error.isEmpty() ? error
+                    : update ? getString(R.string.store_nova_new, pending.versionName)
                     : getString(R.string.store_nova_included, Updates.installedName(this)));
         }
+        if (novaAll != null) novaAll.setVisibility(changed > 1 && !e.running() ? View.VISIBLE : View.GONE);
     }
 
     // ------------------------------------------------------------ F-Droid and Play apps

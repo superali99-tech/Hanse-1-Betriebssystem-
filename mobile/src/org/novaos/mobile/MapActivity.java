@@ -524,24 +524,12 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     }
 
     private static Fixes.Fix fix(Location l) {
-        return new Fixes.Fix(l.getProvider(), l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 0, l.getTime());
+        return Where.fix(l);
     }
 
     /** The best position the phone still knows (not simply the newest: that may be the mobile network's). */
-    @SuppressWarnings("MissingPermission")
     private Fixes.Fix bestKnown() {
-        if (!hasLocation()) return null;
-        LocationManager lm = getSystemService(LocationManager.class);
-        List<Fixes.Fix> known = new ArrayList<>();
-        for (String provider : lm.getProviders(true)) {
-            try {
-                Location l = lm.getLastKnownLocation(provider);
-                if (l != null) known.add(fix(l));
-            } catch (RuntimeException ignored) {
-                // this source is not allowed
-            }
-        }
-        return Fixes.best(known);
+        return Where.best(this);
     }
 
     /** GPS, the fused position (GPS + Wi-Fi + mobile network, Android 12+) and the mobile network - each on its own. */

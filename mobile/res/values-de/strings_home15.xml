@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- NovaOS 1.5: home screen and app screen like One UI -->
+    <string name="drawer_search">Suchen</string>
+    <string name="drawer_sort">Sortieren</string>
+    <string name="drawer_sort_custom">Eigene Reihenfolge (neue Apps hinten)</string>
+    <string name="drawer_sort_az">Alphabetisch</string>
+    <string name="drawer_forward">In der Übersicht nach vorne</string>
+    <string name="drawer_back">In der Übersicht nach hinten</string>
+    <string name="app_tv">Nova TV</string>
+    <string name="app_filme">Nova Filme</string>
+    <string name="home_weather_wait">Wetter: Standort erlauben</string>
+    <string name="home_weather_range">↑ %1$d°  ↓ %2$d°</string>
+    <string name="store_update_all">Alle aktualisieren</string>
+    <string name="store_upd_download">Wird heruntergeladen … %1$d %%</string>
+    <string name="store_upd_install">Wird installiert … %1$d %%</string>
+    <string name="store_upd_finish">Wird installiert … gleich startet NovaOS neu</string>
+    <string name="store_upd_paused">Angehalten – %1$d %%</string>
+</resources>
