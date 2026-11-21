@@ -613,6 +613,26 @@ Update (vom Nutzer so angesagt, `@release: 1.5`) = Name, kleine und mittlere = l
 **Nicht getestet:** im Emulator (die Testumgebung startete währenddessen neu); die Anzeigen nutzen alle dieselbe
 Funktion (`Updates.displayName`, `UpdateInfo.label`).
 
+### Update 0.1.1.78: Glas-Design, Nova Wetter, Kalender, großer Player (21.11.2026)
+
+Android-x86 9, Hochformat 720×1280, Standort Mölln über die Test-App. Bilder 108–114.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1810 bestanden (neu: Vorhersage im Open-Meteo-Format – jetzt, 24 Stunden ab der aktuellen, 7 Tage –, Wochentage, Startbildschirm-Raster mit Widgets, Musik-Zeile, Tablet) |
+| Schrift Inter | ✅ | Start-Animation, Einrichtung, Seiten und Widgets in Inter |
+| Startbildschirm | ✅ | Glas-Widgets „Mölln 5° Bedeckt H: 7° T: 1°“ und „SAMSTAG 21 – Tippe hier für deine Termine“, Apps darunter |
+| Wetter-Widget antippen | ✅ | Nova Wetter: Nachthimmel, „Mölln 5° Bedeckt“, 24 Stunden (Jetzt, 20 … 01), 7 Tage mit Balken. Hinweis: Open-Meteo sperrte die gemeinsame Internet-Adresse der Testumgebung (Tageslimit), die Seite wurde mit der gespeicherten Beispiel-Vorhersage gezeigt |
+| Temperaturbalken zu blass | ❌ → behoben | Transparenz der Schiene blieb am Pinsel |
+| „Letztes erfolgreiches Update“ | ✅ | „Neu in NovaOS 1.5“ mit allen Punkten |
+| Radio SWR3 | ✅ | Glas-Leiste unten; antippen → großer Player in SWR3-Rot, großes Cover, „POP mit Marcus Barsch“, ⏮ ⏸ ⏭ |
+| Startbildschirm mit Musik | ✅ | Musik-Widget mit der laufenden Sendung und ⏮ ⏸ ⏭ |
+| Pause-Zeichen als oranges Emoji | ❌ → behoben | weiße Symbole wie im Player |
+
+**Nicht getestet:** Nova Chat (im Emulator ist kein Matrix-Konto angemeldet – nur gebaut), Kalender mit echten
+Terminen (die Berechtigung kommt erst beim Antippen), Nova Wetter mit frischen Daten (Tageslimit in der Testumgebung),
+Tablet-Querformat.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

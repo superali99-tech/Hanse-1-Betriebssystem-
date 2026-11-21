@@ -50,7 +50,7 @@ public class NoteEditActivity extends Activity {
         e.setTextColor(Color.WHITE);
         e.setHintTextColor(getColor(R.color.text_muted));
         e.setBackground(null);
-        if (bold) e.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        if (bold) e.setTypeface(Fonts.bold(this));
         e.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         return e;

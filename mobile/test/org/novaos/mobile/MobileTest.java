@@ -74,6 +74,23 @@ public final class MobileTest {
 
     /** Nova Karte with real answers of the routing and place servers (test/*.json). */
     private static void navigation(java.io.File mobile) {
+        // Nova Wetter: the forecast (Open-Meteo format)
+        try {
+            String wj = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "test/weather_forecast.json").toPath()), java.nio.charset.StandardCharsets.UTF_8);
+            Weather.Forecast wf = Weather.forecast(wj);
+            check(wf != null && Math.abs(wf.now.temp - 4.6) < 1e-9 && wf.now.code == 3 && !wf.day, "weather: now, at night");
+            check(wf.hours.size() == 24 && wf.hours.get(0).time.equals("2026-11-21T19:00") && wf.hours.get(0).hour().equals("19")
+                    && wf.hours.get(5).hour().equals("00"), "weather: 24 hours from the current one");
+            check(wf.days.size() == 7 && wf.days.get(1).date.equals("2026-11-22") && wf.days.get(1).code == 61
+                    && Math.abs(wf.days.get(4).min + 1.2) < 1e-9, "weather: 7 days");
+            check(Weather.forecast("{}") == null && Weather.forecast("kaputt") == null, "weather: broken answer");
+            check(Weather.detailUrl(53.62, 10.68).contains("forecast_days=7") && Weather.detailUrl(53.62, 10.68).contains("latitude=53.6200"),
+                    "weather: forecast address");
+        } catch (java.io.IOException e) {
+            check(false, "weather: test file " + e);
+        }
+        check(Weather.weekday("2026-11-22", true, false).equals("Sonntag") && Weather.weekday("2026-11-23", true, true).equals("Mo.")
+                && Weather.weekday("2026-11-21", false, true).equals("Sat") && Weather.weekday("x", true, true).equals("x"), "weather: weekdays");
         // NovaOS 1.5: app screen order like Samsung (own order, new apps at the end) and pages
         java.util.List<String> stored = java.util.Arrays.asList("chrome", "gone", "store", "camera");
         java.util.List<String> present = java.util.Arrays.asList("camera", "store", "chrome", "whatsapp", "maps");
@@ -87,13 +104,16 @@ public final class MobileTest {
         check(DrawerOrder.page(java.util.Arrays.asList(1, 2, 3, 4, 5), 1, 2).equals(java.util.Arrays.asList(3, 4))
                 && DrawerOrder.page(java.util.Arrays.asList(1, 2, 3), 5, 2).isEmpty(), "drawer: one page");
         check(DrawerOrder.rows(680, 104) == 6 && DrawerOrder.rows(200, 104) == 3 && DrawerOrder.rows(2000, 104) == 7, "drawer: rows that fit");
-        int[] cells = DrawerOrder.homeCells(12, 6, 4);
-        check(cells[0] == 0 && cells[1] == 3 && cells[2] == 4 && cells[3] == 7, "home: four apps around the widget");
-        check(cells[4] == 16 && cells[11] == 23, "home: the other apps in the bottom rows");
-        int[] many = DrawerOrder.homeCells(30, 6, 4);
-        check(many[19] == 23 && many[20] == -1 && many[29] == -1, "home: what does not fit goes to the next page");
-        int[] few = DrawerOrder.homeCells(6, 6, 4);
-        check(few[4] == 20 && few[5] == 21, "home: few apps in the last row, from the left");
+        java.util.Set<Integer> widgets = DrawerOrder.area(0, 0, 4, 2, 4);
+        check(widgets.size() == 8 && widgets.contains(0) && widgets.contains(7) && !widgets.contains(8), "home: weather and calendar take the first two rows");
+        int[] cells = DrawerOrder.fill(12, 6, 4, widgets);
+        check(cells[0] == 8 && cells[3] == 11 && cells[4] == 12 && cells[11] == 19, "home: the apps under the widgets, row by row");
+        java.util.Set<Integer> withMusic = new java.util.HashSet<>(widgets);
+        withMusic.addAll(DrawerOrder.area(0, 2, 4, 1, 4));
+        int[] full = DrawerOrder.fill(14, 6, 4, withMusic);
+        check(full[0] == 12 && full[11] == 23 && full[12] == -1 && full[13] == -1, "home: with music: what does not fit goes to the next page");
+        int[] tablet = DrawerOrder.fill(3, 5, 6, DrawerOrder.area(0, 0, 4, 2, 6));
+        check(tablet[0] == 4 && tablet[1] == 5 && tablet[2] == 10, "home: tablet: apps beside the widgets first");
         // which position to believe: the mobile network (Grambek, 2.5 km) never pushes GPS (Mölln, 8 m) aside
         long t0 = 1_800_000_000_000L;
         Fixes.Fix gps = new Fixes.Fix("gps", 53.6281, 10.6889, 8, t0);
@@ -500,7 +520,7 @@ public final class MobileTest {
                 if (l.isEmpty() || l.startsWith("#") || l.startsWith("@") || l.startsWith("==")) continue;
                 check(l.split("\\|", -1).length == 2, "one | per line (German|English): " + l);
             }
-            java.util.Set<String> novaKeys = new java.util.HashSet<>(java.util.Arrays.asList("nova", "chat", "mail", "family", "store",
+            java.util.Set<String> novaKeys = new java.util.HashSet<>(java.util.Arrays.asList("nova", "chat", "mail", "family", "store", "weather",
                     "camera", "gallery", "files", "notes", "settings", "music", "shop", "update", "map"));
             for (String key : UpdateInfo.changedApps(news)) check(novaKeys.contains(key), "whatsnew.txt: unknown Nova app " + key);
             java.util.Map<String, StoreMeta> meta = StoreMeta.parseAll(new String(java.nio.file.Files.readAllBytes(

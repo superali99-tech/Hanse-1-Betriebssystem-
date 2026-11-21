@@ -50,7 +50,7 @@ final class ReleaseArt extends View {
 
         // the number of the release ("1.5") in front of the sun, blue with a light edge on top
         String number = UpdateFacts.RELEASE;
-        p.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD));
+        p.setTypeface(Fonts.bold(getContext()));
         p.setTextAlign(Paint.Align.CENTER);
         float size = h * 0.62f;
         p.setTextSize(size);

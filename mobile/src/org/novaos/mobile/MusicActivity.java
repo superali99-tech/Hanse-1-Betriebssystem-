@@ -474,10 +474,10 @@ public class MusicActivity extends Activity implements Music.Listener {
     private void addPlayer() {
         LinearLayout box = new LinearLayout(this);
         box.setOrientation(LinearLayout.VERTICAL);
-        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[] {0xF22A1550, 0xF2121A3A});
-        bg.setCornerRadius(Ui.dp(this, 22));
-        bg.setStroke(Ui.dp(this, 1), 0x33FFFFFF);
-        box.setBackground(bg);
+        box.setBackground(HomeWidgets.glass(this, 0xB14CD8));  // glass design
+        box.setElevation(Ui.dp(this, 6));
+        // tap: the big player (cover, time bar, big buttons)
+        box.setOnClickListener(v -> startActivity(new Intent(this, NowPlayingActivity.class)));
         box.setPadding(Ui.dp(this, 12), Ui.dp(this, 10), Ui.dp(this, 12), Ui.dp(this, 8));
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);

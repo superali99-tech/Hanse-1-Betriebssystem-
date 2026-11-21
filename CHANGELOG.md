@@ -148,6 +148,15 @@
   zeigen „Was ist neu“, Update-Verlauf, Software-Update, Nova Store, Einstellungen, Hinweise und die Startanimation
   „NovaOS 1.5“ statt der langen Nummer; kleine und mittlere Updates (ohne die Zeile) zeigen weiter 0.1.1.N. Im
   Update-Verlauf: „== NovaOS 1.5 (0.1.1.75) · Datum“. `release=` steht nur noch bei großen Updates in `update.properties`
+* **NovaOS Mobile 0.1.1.78 – Glas-Design**: Vorlage: Bild des Glas-Designs (Chat auf buntem Hintergrund, Musik-Steuerung,
+  Startbildschirm mit Glas-Widgets); eigene NovaOS-Umsetzung, keine fremden Symbole. Schrift **Inter** (OFL, `res/font`,
+  Android 8+ über das Theme, alle Texte von `Ui.text` über `Fonts`); Glas-Hintergründe für Karten, Knöpfe, Dock
+  (oben heller, Lichtrand, größere Rundung), dünnerer Schleier auf allen Seiten. Startbildschirm: Glas-Widgets Wetter
+  (→ **Nova Wetter**, neue App: Open-Meteo mit 24 Stunden und 7 Tagen, Temperaturbalken, Himmel nach Wetter und
+  Tageszeit, letzte Antwort gespeichert) und Kalender (nächster Termin, Berechtigung „Kalender lesen“ erst beim Antippen),
+  Musik-Widget während Musik läuft, Apps darunter (`DrawerOrder.fill`, getestet). Nova Musik: Glas-Leiste, großer
+  Player (`NowPlayingActivity`) mit Hintergrund in den Cover-Farben. Nova Chat: bunter Verlauf, blaue eigene und
+  Glas-Blasen. „Letztes erfolgreiches Update“ zeigt die Neuerungen. Kleines/mittleres Update: lange Nummer
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

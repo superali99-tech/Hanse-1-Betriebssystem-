@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 8+: the same look with the NovaOS type (Inter) everywhere, also in dialogs -->
+    <style name="Theme.NovaMobile" parent="@android:style/Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorAccent">@color/nova_violet</item>
+        <item name="android:colorPrimary">@color/nova_violet</item>
+        <item name="android:textColorPrimary">@color/text</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:alertDialogTheme">@style/NovaDialog</item>
+        <item name="android:fontFamily">@font/inter</item>
+    </style>
+
+    <style name="NovaDialog" parent="@android:style/Theme.Material.Dialog.Alert">
+        <item name="android:fontFamily">@font/inter</item>
+    </style>
+</resources>

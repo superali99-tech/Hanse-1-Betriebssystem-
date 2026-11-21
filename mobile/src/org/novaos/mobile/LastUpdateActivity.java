@@ -51,7 +51,7 @@ public class LastUpdateActivity extends Activity {
         text.setPadding(side, Ui.dp(this, 24), side, Ui.dp(this, 28));
         page.addView(text);
         TextView title = Ui.text(this, getString(R.string.last_title), 27, Color.WHITE, true);
-        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        title.setTypeface(Fonts.bold(this));
         text.addView(title);
         long at = Updates.installedAt(this);
         if (at <= 0) at = packageTime();
@@ -66,6 +66,16 @@ public class LastUpdateActivity extends Activity {
         about.setLineSpacing(0, 1.2f);
         text.addView(about);
 
+        // what this version brought (like "Was ist neu")
+        java.util.List<String> news = UpdateInfo.whatsNew(UpdateNotes.raw(this, R.raw.whatsnew), german);
+        if (!news.isEmpty()) {
+            TextView newsHead = Ui.text(this, getString(R.string.last_news, Updates.displayName(this)), 16, 0xFFB4B4BA, true);
+            newsHead.setPadding(0, Ui.dp(this, 22), 0, Ui.dp(this, 4));
+            text.addView(newsHead);
+            TextView list = Ui.text(this, UpdateNotes.bullets(news), 16, 0xFFD2D2D8, false);
+            list.setLineSpacing(0, 1.25f);
+            text.addView(list);
+        }
         TextView all = Ui.text(this, getString(R.string.last_all), 16, 0xFFB4B4BA, true);
         all.setPaintFlags(all.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
         all.setPadding(0, Ui.dp(this, 26), 0, Ui.dp(this, 14));

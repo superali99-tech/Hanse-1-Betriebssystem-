@@ -2,5 +2,5 @@
 <resources>
     <dimen name="side">20dp</dimen>
     <dimen name="icon">54dp</dimen>
-    <dimen name="radius">22dp</dimen>
+    <dimen name="radius">26dp</dimen>
 </resources>

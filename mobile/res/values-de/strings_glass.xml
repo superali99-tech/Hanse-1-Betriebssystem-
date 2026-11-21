@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- glass design update: Nova Wetter, calendar and music widgets -->
+    <string name="weather_loading">Das Wetter wird geladen …</string>
+    <string name="weather_no_place">Für das Wetter braucht Nova deinen Standort – oder frag Nova einmal: „Wie ist das Wetter in Mölln?“</string>
+    <string name="weather_failed">Das Wetter ist gerade nicht erreichbar. Bitte später noch einmal versuchen.</string>
+    <string name="weather_here">Hier</string>
+    <string name="weather_hl">H: %1$d°  T: %2$d°</string>
+    <string name="weather_as_of">Stand: %1$s</string>
+    <string name="weather_hourly">Die nächsten 24 Stunden</string>
+    <string name="weather_days">Die nächsten 7 Tage</string>
+    <string name="weather_now">Jetzt</string>
+    <string name="weather_today">Heute</string>
+    <string name="weather_source">Wetterdaten: Open-Meteo.com</string>
+    <string name="app_weather">Nova Wetter</string>
+    <string name="novaapp_weather">Das Wetter, wo du bist: jetzt, die nächsten 24 Stunden und 7 Tage – ohne Konto und ohne Werbung.</string>
+    <string name="cal_none">Heute keine Termine</string>
+    <string name="cal_allow">Tippe hier für deine Termine</string>
+    <string name="cal_allday">Ganztägig</string>
+    <string name="cal_tomorrow">Morgen, %1$s</string>
+    <string name="cal_untitled">Termin</string>
+    <string name="cal_no_app">Auf diesem Handy ist keine Kalender-App.</string>
+</resources>

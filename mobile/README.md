@@ -9,6 +9,10 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   (seitwärts wischen), Suchleiste mit Nova-Mikrofon und ein **Dock** mit Telefon, Browser, Kamera und Nachrichten.
   Rote Zahlen an den Apps: ungelesene Chats und Mails, Nova-Apps mit Update. Neue Handys bekommen die Nova-Apps
   auf den Startbildschirm (beim Update auf 1.5 kommen sie zu den bisherigen Apps dazu)
+* **Glas-Design**: durchscheinende Karten, Knöpfe und Widgets, Schrift **Inter** (SIL Open Font License, liegt bei);
+  Startbildschirm oben mit Glas-Widgets **Wetter** (antippen = **Nova Wetter**: jetzt, 24 Stunden, 7 Tage, Himmel in
+  den Farben des Wetters) und **Kalender** (Wochentag, Datum, nächster Termin aus den Kalendern des Handys, antippen =
+  Kalender-App), darunter die **Musik**, die gerade läuft (⏮ ⏯ ⏭, antippen = großer Player mit Cover-Farben)
 * **Gesten**: nach oben wischen = alle Apps, nach unten wischen = Benachrichtigungen, leere Stelle halten =
   NovaOS-Einstellungen; App halten = zum Startbildschirm hinzufügen/entfernen, verschieben, App-Info, Deinstallieren
 * **Alle Apps wie bei Samsung**: Seiten zum Seitwärts-Wischen mit Punkten, „Suchen“ unten (auch ohne Umlaute:
@@ -324,6 +328,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `Search.java`, `History.java` (+ `res/raw/history.txt`) | Suchfelder (Vergleich ohne Akzente/Umlaute), Update-Verlauf (getestet) |
 | `RingView.java`, `Page.java` | Fortschrittsring (Nova Store), gemeinsame Seite mit Suchfeld |
 | `HomeActivity.java`, `HomeWeather.java`, `AppsActivity.java`, `Pager.java`, `DrawerOrder.java` | Startbildschirm und alle Apps wie bei One UI: Seiten zum Wischen mit Punkten, Wetter-Widget, Raster, eigene Reihenfolge (getestet) |
+| `HomeWidgets.java`, `WeatherActivity.java`, `NowPlayingActivity.java`, `Fonts.java` | Glas-Widgets (Wetter, Kalender, Musik), Nova Wetter, großer Player, Schrift Inter |
 | `NovaUpdate.java`, `Where.java` | Nova-App im Store aktualisieren (Ring und Fortschritt); bester bekannter Standort |
 | `UpdateActivity.java`, `UpdateEngine.java`, `UpdateArt.java` | Software-Update: Seite, Ablauf im Hintergrund mit Pause, gezeichnetes Titelbild |
 | `LastUpdateActivity.java`, `UpdateFacts.java`, `UpdateGlow.java`, `ReleaseArt.java`, `UpdateNotes.java` | „NovaOS 1.0 – auf dem neuesten Stand“ (Leuchten), „Letztes erfolgreiches Update“ (Bild „1“, Datum, Aktualisierungsinformationen), Dialoge „Was ist neu“/„Update-Verlauf“ |

@@ -1,6 +1,15 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line. A big update: "== NovaOS 1.5 (0.1.1.75) · date" (name, then the build).
+== NovaOS 1.5 (0.1.1.77) · 21.11.2026
+NovaOS 1.5: neuer Startbildschirm wie bei Samsung – Wetter-Widget, Apps im Raster, Suchleiste und Dock|NovaOS 1.5: new home screen like on Samsung phones – weather widget, apps in a grid, search bar and dock
+Hochwischen öffnet alle Apps: Seiten zum Seitwärts-Wischen, „Suchen“ unten, eigene Reihenfolge (neue Apps hinten)|Swipe up for all apps: pages to swipe sideways, "Search" at the bottom, your own order (new apps at the end)
+Rote Zahlen an den Apps: ungelesene Chats und Mails, Nova-Apps mit Update|Red numbers on the apps: unread chats and mails, Nova apps with an update
+Nova TV und Nova Filme sind jetzt eigene Apps|Nova TV and Nova Films are now apps of their own
+{store} Nova-Apps einzeln aktualisieren – direkt im Nova Store, mit Fortschritt am Symbol|Update Nova apps one by one – right in the Nova Store, with progress at the icon
+{settings} Software-Update zeigt „NovaOS 1.5“|Software update shows "NovaOS 1.5"
+Große Updates heißen „NovaOS 1.5“, kleine und mittlere zeigen weiter die lange Versionsnummer|Big updates are called "NovaOS 1.5", small and medium ones keep the long version number
+
 == NovaOS 0.1.1.74 · 21.11.2026
 {map} Nova Karte nimmt jetzt deinen GPS-Standort: die ungenaue Position aus dem Mobilfunknetz (oft der Nachbarort) verdrängt GPS nicht mehr|Nova Maps now uses your GPS location: the rough position from the mobile network (often the next village) no longer pushes GPS aside
 {map} Erlaubt Android nur den „ungefähren Standort“, fragt Nova Karte nach dem genauen|If Android only allows the "approximate location", Nova Maps asks for the precise one

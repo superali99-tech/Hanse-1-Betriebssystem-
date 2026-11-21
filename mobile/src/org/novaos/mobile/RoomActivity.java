@@ -128,6 +128,16 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
         me = ChatDb.me(this);
         String name = getIntent().getStringExtra(EXTRA_NAME);
         content = Page.setup(this, R.string.app_chat, "");
+        // glass design: a colourful background behind the bubbles (purple, pink, orange)
+        ViewGroup pageRoot = (ViewGroup) findViewById(R.id.page_title).getRootView().findViewById(android.R.id.content);
+        if (pageRoot != null && pageRoot.getChildCount() > 0 && pageRoot.getChildAt(0) instanceof ViewGroup) {
+            ViewGroup frame = (ViewGroup) pageRoot.getChildAt(0);
+            if (frame.getChildAt(0) instanceof android.widget.ImageView) {
+                ((android.widget.ImageView) frame.getChildAt(0)).setImageDrawable(new GradientDrawable(GradientDrawable.Orientation.TL_BR,
+                        new int[] {0xFF6A3DE8, 0xFFC13584, 0xFFF0763A}));
+            }
+            if (frame.getChildCount() > 1) frame.getChildAt(1).setBackgroundColor(0x2E000000);
+        }
         ((TextView) findViewById(R.id.page_title)).setText(name != null ? name : "");
         scroller = findViewById(R.id.scroller);
         scroller.setOnScrollChangeListener((v, x, y, ox, oy) -> atBottom = !scroller.canScrollVertically(1));
@@ -419,10 +429,12 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
             float r = Ui.dp(this, 18), small = Ui.dp(this, 5);
             bg.setCornerRadii(mine ? new float[] {r, r, r, r, small, small, r, r} : new float[] {r, r, r, r, r, r, small, small});
             if (mine) {
-                bg.setOrientation(GradientDrawable.Orientation.TL_BR);
-                bg.setColors(new int[] {0xFF7C5CFF, 0xFF3D7BFF});
+                bg.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
+                bg.setColors(new int[] {0xFF2F8BFF, 0xFF0A6CFF});  // blue, like the glass design
             } else {
-                bg.setColor(0x33FFFFFF);
+                bg.setOrientation(GradientDrawable.Orientation.TOP_BOTTOM);
+                bg.setColors(new int[] {0x52FFFFFF, 0x38FFFFFF});  // glass
+                bg.setStroke(Math.max(1, Ui.dp(this, 1)), 0x40FFFFFF);
             }
             b.setBackground(bg);
         }

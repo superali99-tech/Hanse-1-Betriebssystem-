@@ -584,7 +584,7 @@ public class MailActivity extends Activity implements NovaWriter.Target {
         e.setHintTextColor(getColor(R.color.text_muted));
         e.setBackgroundResource(R.drawable.pill_bg);
         e.setPadding(Ui.dp(this, 18), Ui.dp(this, 12), Ui.dp(this, 18), Ui.dp(this, 12));
-        if ((type & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0) e.setTypeface(Typeface.DEFAULT);
+        if ((type & InputType.TYPE_TEXT_VARIATION_PASSWORD) != 0) e.setTypeface(Fonts.regular(this));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = Ui.dp(this, 10);
         into.addView(e, lp);

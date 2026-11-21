@@ -30,6 +30,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- the calendar widget shows the next appointment (only read, only on the phone) -->
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
     <!-- Nova Karte: exact position for navigation (GPS) -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
@@ -447,6 +449,24 @@
         <activity
             android:name=".UpdateActivity"
             android:exported="false" />
+        <!-- Nova Wetter (NovaOS 1.5 glass design): from the weather widget and the app screen -->
+        <activity
+            android:name=".WeatherActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_weather"
+            android:label="@string/app_weather"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.weather">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- the music playing, big (glass design); slides up like the app screen -->
+        <activity
+            android:name=".NowPlayingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.NovaMobile.Drawer" />
         <!-- "Letztes erfolgreiches Update" (from the software update) -->
         <activity
             android:name=".LastUpdateActivity"

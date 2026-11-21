@@ -2,12 +2,10 @@
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
 # "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
 # "@release: 1.5": a big update - shown as "NovaOS 1.5" instead of the long number (leave out for small ones).
-@release: 1.5
-@apps: store, settings
-NovaOS 1.5: neuer Startbildschirm wie bei Samsung – Wetter-Widget, Apps im Raster, Suchleiste und Dock|NovaOS 1.5: new home screen like on Samsung phones – weather widget, apps in a grid, search bar and dock
-Hochwischen öffnet alle Apps: Seiten zum Seitwärts-Wischen, „Suchen“ unten, eigene Reihenfolge (neue Apps hinten)|Swipe up for all apps: pages to swipe sideways, "Search" at the bottom, your own order (new apps at the end)
-Rote Zahlen an den Apps: ungelesene Chats und Mails, Nova-Apps mit Update|Red numbers on the apps: unread chats and mails, Nova apps with an update
-Nova TV und Nova Filme sind jetzt eigene Apps|Nova TV and Nova Films are now apps of their own
-{store} Nova-Apps einzeln aktualisieren – direkt im Nova Store, mit Fortschritt am Symbol|Update Nova apps one by one – right in the Nova Store, with progress at the icon
-{settings} Software-Update zeigt „NovaOS 1.5“|Software update shows "NovaOS 1.5"
-Große Updates heißen „NovaOS 1.5“, kleine und mittlere zeigen weiter die lange Versionsnummer|Big updates are called "NovaOS 1.5", small and medium ones keep the long version number
+@apps: weather, music, chat, settings
+Neues Glas-Design: durchscheinende Karten und Knöpfe und eine neue Schrift (Inter) in allen Nova-Apps|New glass design: see-through cards and buttons and a new typeface (Inter) in all Nova apps
+Startbildschirm: Glas-Widgets für Wetter und Kalender (mit dem nächsten Termin), dazu die Musik, die gerade läuft|Home screen: glass widgets for weather and calendar (with the next appointment), plus the music playing
+{weather} Neu: Nova Wetter – Wetter-Widget antippen: jetzt, die nächsten 24 Stunden und 7 Tage|New: Nova Weather – tap the weather widget: now, the next 24 hours and 7 days
+{music} Nova Musik: großer Player mit Cover, Zeitleiste und großen Knöpfen – die Leiste unten antippen|Nova Music: big player with cover, time bar and big buttons – tap the bar at the bottom
+{chat} Nova Chat: bunter Hintergrund, blaue eigene Nachrichten und Glas-Blasen|Nova Chat: colourful background, blue own messages and glass bubbles
+{settings} „Letztes erfolgreiches Update“ zeigt jetzt auch, was neu ist|"Last successful update" now also shows what is new

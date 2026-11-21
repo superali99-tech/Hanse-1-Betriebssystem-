@@ -9,4 +9,5 @@
     <string name="last_text">With %1$s you have Nova, your assistant right on the device, Nova Maps with voice navigation, Nova Chat, Nova Mail, Nova Music and the Nova Store on your phone. No ads, and regular updates, which you find here.</string>
     <string name="last_all">All changes</string>
     <string name="last_info">Update information</string>
+    <string name="last_news">New in NovaOS %1$s</string>
 </resources>

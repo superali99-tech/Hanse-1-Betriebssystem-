@@ -138,7 +138,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         int side = Ui.dp(this, 26);
         text.setPadding(side, landscape ? statusBar + Ui.dp(this, 14) : Ui.dp(this, 22), side, Ui.dp(this, 12));
         title = Ui.text(this, "", 27, CYAN, true);
-        title.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        title.setTypeface(Fonts.bold(this));
         text.addView(title);
         subtitle = Ui.text(this, "", 14, 0xB3FFFFFF, false);
         subtitle.setPadding(0, Ui.dp(this, 2), 0, 0);
@@ -212,7 +212,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         int side = Ui.dp(this, 28);
         middle.setPadding(side, 0, side, 0);
         TextView name = Ui.text(this, UpdateFacts.title(), 44, Color.WHITE, true);
-        name.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        name.setTypeface(Fonts.bold(this));
         name.setGravity(Gravity.CENTER);
         middle.addView(name);
         currentText = Ui.text(this, "", 17, 0xFFB9B9C0, false);

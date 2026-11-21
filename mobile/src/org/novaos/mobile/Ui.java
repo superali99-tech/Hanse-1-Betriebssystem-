@@ -103,7 +103,7 @@ final class Ui {
         t.setText(s);
         t.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
         t.setTextColor(color);
-        if (bold) t.setTypeface(Typeface.DEFAULT_BOLD);
+        t.setTypeface(bold ? Fonts.bold(c) : Fonts.regular(c));
         return t;
     }
 

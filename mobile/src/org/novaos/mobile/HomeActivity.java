@@ -136,6 +136,8 @@ public class HomeActivity extends Activity {
         ChatSync.get(this).start();
         loadApps();
         loadWeather();
+        loadCalendar();
+        Music.get(this).addListener(musicListener);
         if (MailSync.due(this)) {
             worker.execute(() -> {
                 MailSync.checkNew(getApplicationContext());
@@ -157,8 +159,16 @@ public class HomeActivity extends Activity {
         }
     }
 
+    // the music widget follows what plays
+    private final Music.Listener musicListener = () -> runOnUiThread(() -> {
+        if (isDestroyed()) return;
+        builtFor = 0;
+        buildPages();
+    });
+
     @Override
     protected void onPause() {
+        Music.get(this).removeListener(musicListener);
         heyNova.stop();
         super.onPause();
     }
@@ -382,7 +392,10 @@ public class HomeActivity extends Activity {
         return 0;
     }
 
-    /** Page 1: widget in the middle of the first two rows, an app on each side, the rest at the bottom; more pages to the right. */
+    /**
+     * Page 1 like the picture: two glass widgets at the top (weather, calendar), the music
+     * while something plays, then the apps from the top left; more pages to the right.
+     */
     private void buildPages() {
         int w = pager.getWidth(), h = pager.getHeight();
         if (w == 0 || h == 0) return;
@@ -394,16 +407,18 @@ public class HomeActivity extends Activity {
         for (App a : apps) installed.add(a.key());
         List<App> home = new ArrayList<>();
         for (String k : KeyList.retain(Favorites.get(this), installed)) home.add(Apps.find(apps, k));
-        int[] cells = DrawerOrder.homeCells(home.size(), rows, cols);
         int cw = w / cols, ch = h / rows, keep = pager.page();
+        Set<Integer> taken = DrawerOrder.area(0, 0, 4, 2, cols);
+        boolean music = Music.get(this).current() != null;
+        if (music) taken.addAll(DrawerOrder.area(0, 2, 4, 1, cols));
+        int[] cells = DrawerOrder.fill(home.size(), rows, cols, taken);
         pager.removeAllViews();
 
         FrameLayout first = page();
         int m = Ui.dp(this, 8);
-        FrameLayout.LayoutParams wl = new FrameLayout.LayoutParams((cols - 2) * cw - 2 * m, 2 * ch - 2 * m);
-        wl.leftMargin = cw + m;
-        wl.topMargin = m;
-        first.addView(widget(), wl);
+        widgetAt(first, HomeWidgets.weather(this, v -> startActivity(new Intent(this, WeatherActivity.class))), 0, 0, 2, 2, cw, ch, m);
+        widgetAt(first, HomeWidgets.calendar(this, nextEvent, calendarAllowed(), v -> openCalendar()), 2, 0, 2, 2, cw, ch, m);
+        if (music) widgetAt(first, HomeWidgets.music(this), 0, 2, 4, 1, cw, ch, m);
         List<App> rest = new ArrayList<>();
         for (int i = 0; i < home.size(); i++) {
             if (cells[i] < 0) {
@@ -422,6 +437,59 @@ public class HomeActivity extends Activity {
         }
         pager.setPage(Math.min(keep, pager.pages() - 1), false);
         dots.set(pager.pages(), pager.page());
+    }
+
+    private void widgetAt(FrameLayout page, View v, int col, int row, int wCells, int hCells, int cw, int ch, int m) {
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(wCells * cw - 2 * m, hCells * ch - 2 * m);
+        lp.leftMargin = col * cw + m;
+        lp.topMargin = row * ch + m;
+        page.addView(v, lp);
+    }
+
+    // ------------------------------------------------------------ calendar widget
+
+    private HomeWidgets.Event nextEvent;
+    private static final int CALENDAR = 51;
+
+    private boolean calendarAllowed() {
+        return checkSelfPermission(android.Manifest.permission.READ_CALENDAR) == android.content.pm.PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** Tap on the calendar: first the permission for the appointments, then the phone's calendar. */
+    private void openCalendar() {
+        if (!calendarAllowed() && !getSharedPreferences("novaos_mobile", MODE_PRIVATE).getBoolean("asked_calendar", false)) {
+            getSharedPreferences("novaos_mobile", MODE_PRIVATE).edit().putBoolean("asked_calendar", true).apply();
+            requestPermissions(new String[] {android.Manifest.permission.READ_CALENDAR}, CALENDAR);
+            return;
+        }
+        try {
+            startActivity(Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_CALENDAR)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (RuntimeException e) {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("content://com.android.calendar/time/" + System.currentTimeMillis())));
+            } catch (RuntimeException e2) {
+                android.widget.Toast.makeText(this, R.string.cal_no_app, android.widget.Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int code, String[] permissions, int[] grants) {
+        if (code == CALENDAR) loadCalendar();
+    }
+
+    private void loadCalendar() {
+        if (!calendarAllowed()) return;
+        worker.execute(() -> {
+            HomeWidgets.Event e = HomeWidgets.nextEvent(getApplicationContext());
+            runOnUiThread(() -> {
+                if (isDestroyed()) return;
+                nextEvent = e;
+                builtFor = 0;
+                buildPages();
+            });
+        });
     }
 
     private FrameLayout page() {
@@ -443,60 +511,6 @@ public class HomeActivity extends Activity {
         bl.leftMargin = col * cw;
         bl.topMargin = row * ch;
         page.addView(box, bl);
-    }
-
-    /** The widget: the weather here (like Samsung's), or the clock while there is none. */
-    private View widget() {
-        LinearLayout card = new LinearLayout(this);
-        card.setOrientation(LinearLayout.VERTICAL);
-        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[] {0xE6404C86, 0xE65A6AA6});
-        g.setCornerRadius(Ui.dp(this, 26));
-        card.setBackground(g);
-        int p = Ui.dp(this, 16);
-        card.setPadding(p, p, p, p);
-        boolean german = Locale.getDefault().getLanguage().equals("de");
-        HomeWeather.Data wd = HomeWeather.cached(this);
-        if (wd != null) {
-            card.addView(Ui.text(this, Math.round(wd.temp) + "°  " + Weather.symbol(wd.code), 22, Color.WHITE, true));
-            String sky = Weather.describe(wd.code, german);
-            if (!sky.isEmpty()) sky = Character.toUpperCase(sky.charAt(0)) + sky.substring(1);
-            TextView what = Ui.text(this, sky, 18, Color.WHITE, false);
-            what.setMaxLines(2);
-            what.setPadding(0, Ui.dp(this, 4), 0, 0);
-            card.addView(what);
-            card.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1));
-            if (!Double.isNaN(wd.max) && !Double.isNaN(wd.min)) {
-                card.addView(Ui.text(this, getString(R.string.home_weather_range, Math.round(wd.max), Math.round(wd.min)), 14, 0xE6FFFFFF, false));
-            }
-            if (!wd.place.isEmpty()) {
-                TextView where = Ui.text(this, "📍 " + wd.place, 15, 0xE6FFFFFF, false);
-                where.setSingleLine(true);
-                where.setPadding(0, Ui.dp(this, 2), 0, 0);
-                card.addView(where);
-            }
-            card.setContentDescription(Weather.sentence(wd.place, new Weather.Now(wd.temp, wd.code, 0, wd.max, wd.min), german));
-        } else {
-            TextClock clock = new TextClock(this);
-            clock.setFormat12Hour("h:mm");
-            clock.setFormat24Hour("HH:mm");
-            clock.setTextColor(Color.WHITE);
-            clock.setTextSize(40);
-            clock.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
-            card.addView(clock);
-            TextClock date = new TextClock(this);
-            String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), "EEEEdMMMM");
-            date.setFormat12Hour(pattern);
-            date.setFormat24Hour(pattern);
-            date.setTextColor(0xE6FFFFFF);
-            date.setTextSize(15);
-            card.addView(date);
-            card.addView(new View(this), new LinearLayout.LayoutParams(1, 0, 1));
-            card.addView(Ui.text(this, getString(R.string.home_weather_wait), 13, 0xCCFFFFFF, false));
-        }
-        // tap: Nova tells the weather
-        card.setOnClickListener(v -> startActivity(new Intent(this, NovaActivity.class)
-                .putExtra(NovaActivity.EXTRA_QUERY, getString(R.string.nova_try_weather))));
-        return card;
     }
 
     private View appView(App a, boolean label, int badge) {

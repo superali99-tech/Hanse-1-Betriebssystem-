@@ -50,27 +50,23 @@ final class DrawerOrder {
     }
 
     /**
-     * Home screen page 1 like One UI: the widget in the middle of the first two rows with one
-     * app on each side, the other apps in the bottom rows. Returns per app index its cell
-     * (row * columns + column) for the first page; apps that do not fit get -1 (next pages).
+     * The home screen page: the widgets take some cells, the apps fill the others from the top
+     * left, row by row. Returns per app its cell (row * columns + column); -1 = next pages.
      */
-    static int[] homeCells(int apps, int rows, int cols) {
+    static int[] fill(int apps, int rows, int cols, Set<Integer> taken) {
         int[] cell = new int[apps];
         java.util.Arrays.fill(cell, -1);
         int i = 0;
-        // around the widget (it takes the middle columns of rows 0 and 1)
-        int[] around = {0, cols - 1, cols, 2 * cols - 1};
-        for (int c : around) {
-            if (i >= apps) return cell;
-            cell[i++] = c;
-        }
-        // the rest from the bottom: as many full rows as needed, the last one filled from the left
-        int freeRows = rows - 2;
-        int rest = apps - i, need = Math.min(freeRows, (rest + cols - 1) / cols);
-        int first = rows - need;
-        for (int r = first; r < rows && i < apps; r++) {
-            for (int c = 0; c < cols && i < apps; c++) cell[i++] = r * cols + c;
+        for (int c = 0; c < rows * cols && i < apps; c++) {
+            if (!taken.contains(c)) cell[i++] = c;
         }
         return cell;
+    }
+
+    /** The cells of a widget: w columns and h rows from (col, row). */
+    static Set<Integer> area(int col, int row, int w, int h, int cols) {
+        Set<Integer> out = new java.util.HashSet<>();
+        for (int r = row; r < row + h; r++) for (int c = col; c < col + w && c < cols; c++) out.add(r * cols + c);
+        return out;
     }
 }
