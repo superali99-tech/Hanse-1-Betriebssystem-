@@ -17,8 +17,12 @@ import java.util.regex.Pattern;
 public final class NovaBrain {
     public enum Kind {
         TIME, DATE, ALARM, TIMER, TORCH, OPEN_APP, SETTINGS, CALL, MESSAGE, NOTE, WEATHER, TV,
-        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL
+        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL, MUSIC
     }
+
+    /** Nova Musik: what to do (Command.level of a MUSIC command). */
+    public static final int MUSIC_LOCAL = 0, MUSIC_RADIO = 1, MUSIC_SONG = 2, MUSIC_NEXT = 3, MUSIC_PREVIOUS = 4,
+            MUSIC_PAUSE = 5, MUSIC_RESUME = 6;
 
     /** What Nova understood. Unused fields stay at their defaults. */
     public static final class Command {
@@ -126,7 +130,7 @@ public final class NovaBrain {
         String[] both = cleanBoth(spoken);
         Command r = understandClean(both[0], german, channels, seed);
         switch (r.kind) {
-            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN:
+            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN: case MUSIC:
                 r.text = spelled(r.text, both[0], both[1]);
                 r.body = spelled(r.body, both[0], both[1]);
                 break;
@@ -152,9 +156,12 @@ public final class NovaBrain {
         if ((r = note(c)) != null) return r;
         if ((r = calc(c, german)) != null) return r;
         if ((r = weather(c)) != null) return r;
+        if ((r = musicControl(c)) != null) return r;
         if ((r = volume(c)) != null) return r;
         if ((r = photo(c)) != null) return r;
+        if ((r = radio(c)) != null) return r;
         if ((r = tv(c, channels)) != null) return r;
+        if ((r = song(c)) != null) return r;
         if ((r = search(c)) != null) return r;
         if ((r = open(c)) != null) return r;
         if ((r = smallTalk(c, german, seed)) != null) return r;
@@ -654,6 +661,50 @@ public final class NovaBrain {
             }
         }
         return null;
+    }
+
+    // ------------------------------------------------------------------ Nova Musik
+
+    private static Command music(int level, String text) {
+        Command m = new Command(Kind.MUSIC);
+        m.level = level;
+        m.text = text;
+        return m;
+    }
+
+    /** "nächstes Lied", "Musik pausieren", "Musik weiter", "play my music". */
+    private static Command musicControl(String c) {
+        if (c.matches("(nächstes|nächster|next) (lied|song|titel|track)|skip|überspringen|lied überspringen")) return music(MUSIC_NEXT, "");
+        if (c.matches("(vorheriges|voriges|letztes|previous|last) (lied|song|titel|track)")) return music(MUSIC_PREVIOUS, "");
+        if (c.matches("(musik|radio|lied|song|music) (pausieren|pause|anhalten|stoppen|stopp|stop|aus)|(pausiere|stoppe|stopp|halte) (die )?(musik|das radio|das lied)( an)?|pause( music)?|stop (the )?music"))
+            return music(MUSIC_PAUSE, "");
+        if (c.matches("(musik|radio|music) (weiter|fortsetzen|resume)|weiter abspielen|(spiel|spiele) weiter|resume( music)?|continue (the )?music"))
+            return music(MUSIC_RESUME, "");
+        if (c.matches("(spiel|spiele|play|starte|start|mach) (meine |die |my |some )?(musik|music|lieder|songs)( an| ab| ein)?|musik (an|abspielen)|music on"))
+            return music(MUSIC_LOCAL, "");
+        return null;
+    }
+
+    private static final Pattern RADIO = Pattern.compile("^(?:(?:spiel|spiele|play|starte|mach|schalte|schalt)\\s+)?(?:das\\s+)?radio(?:sender)?(?:\\s+(.+?))?(?:\\s+(?:an|ein|ab|on))?$");
+    private static final Pattern RADIO_AFTER = Pattern.compile("^(?:spiel|spiele|play|starte|hör|höre)\\s+(.+?)\\s+(?:radio|im radio)$");
+
+    /** "Spiel Radio SWR3", "Radio 1LIVE an", "Radio", "spiel SWR3 im Radio". */
+    private static Command radio(String c) {
+        Matcher m = RADIO.matcher(c);
+        if (m.matches()) return music(MUSIC_RADIO, m.group(1) == null ? "" : m.group(1).trim());
+        m = RADIO_AFTER.matcher(c);
+        if (m.matches()) return music(MUSIC_RADIO, m.group(1).trim());
+        return null;
+    }
+
+    private static final Pattern SONG = Pattern.compile("^(?:spiel|spiele|play|hör|höre)\\s+(?:das lied\\s+|den song\\s+|das album\\s+|lied\\s+|song\\s+|the song\\s+|musik von\\s+|lieder von\\s+|songs by\\s+|music by\\s+)?(.+)$");
+
+    /** "Spiel Atemlos von Helene Fischer" - after the TV channels, so "Spiel ZDF" still means TV. */
+    private static Command song(String c) {
+        Matcher m = SONG.matcher(c);
+        if (!m.matches()) return null;
+        String q = m.group(1).trim().replaceAll("\\s+(von|by)\\s+", " ");
+        return q.isEmpty() ? null : music(MUSIC_SONG, q);
     }
 
     private static final Pattern SEARCH = Pattern.compile("^(?:suche|such|google|search|finde|look up)\\s+(?:nach\\s+|for\\s+|im internet nach\\s+)?(.+)$");

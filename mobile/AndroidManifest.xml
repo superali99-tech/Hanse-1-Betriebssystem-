@@ -48,6 +48,9 @@
          the lock screen covers other apps, calls always work, blocked apps are noticed -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Nova Musik: playing in the background, songs on the phone -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -164,6 +167,23 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MusicActivity"
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_music"
+            android:label="@string/app_music"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.music"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <service
+            android:name=".MusicService"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
         <activity
             android:name=".StoreDetailActivity"
             android:exported="false"

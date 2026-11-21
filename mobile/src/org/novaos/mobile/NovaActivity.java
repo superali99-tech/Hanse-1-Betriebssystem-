@@ -395,6 +395,9 @@ public class NovaActivity extends Activity {
             case TV:
                 tv(c.text);
                 break;
+            case MUSIC:
+                music(c);
+                break;
             case SEARCH:
                 Intent web = new Intent(Intent.ACTION_WEB_SEARCH).putExtra(SearchManager.QUERY, c.text);
                 if (!quietStart(web)) {
@@ -823,4 +826,41 @@ public class NovaActivity extends Activity {
         }
         return best;
     }
+
+    /** Nova Musik: radio, songs, my music, and next/previous/pause/resume. */
+    private void music(NovaBrain.Command c) {
+        Music m = Music.get(this);
+        switch (c.level) {
+            case NovaBrain.MUSIC_RADIO:
+                startActivity(new Intent(this, MusicActivity.class).putExtra(MusicActivity.EXTRA_RADIO, c.text));
+                speak(c.text.isEmpty() ? getString(R.string.nova_music_radio_top) : getString(R.string.nova_music_radio, c.text));
+                break;
+            case NovaBrain.MUSIC_SONG:
+                startActivity(new Intent(this, MusicActivity.class).putExtra(MusicActivity.EXTRA_SONG, c.text));
+                speak(getString(R.string.nova_music_song, c.text));
+                break;
+            case NovaBrain.MUSIC_LOCAL:
+                if (m.current() != null && !m.playing()) {
+                    m.play();
+                    speak(getString(R.string.nova_music_resumed));
+                } else {
+                    startActivity(new Intent(this, MusicActivity.class).putExtra(MusicActivity.EXTRA_LOCAL, true));
+                    speak(getString(R.string.nova_music_local));
+                }
+                break;
+            default:
+                if (m.current() == null) {
+                    speak(getString(R.string.nova_music_nothing));
+                    break;
+                }
+                if (c.level == NovaBrain.MUSIC_NEXT) m.next();
+                else if (c.level == NovaBrain.MUSIC_PREVIOUS) m.previous();
+                else if (c.level == NovaBrain.MUSIC_PAUSE) m.pause();
+                else m.play();
+                speak(getString(c.level == NovaBrain.MUSIC_NEXT ? R.string.nova_music_next : c.level == NovaBrain.MUSIC_PREVIOUS
+                        ? R.string.nova_music_previous : c.level == NovaBrain.MUSIC_PAUSE ? R.string.nova_music_paused : R.string.nova_music_resumed));
+                break;
+        }
+    }
+
 }

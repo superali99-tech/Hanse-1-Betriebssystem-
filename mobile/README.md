@@ -33,6 +33,16 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Oben bzw. unten die **Nova-Apps** (Nova, Chat, Mail, Family, Store, Kamera …): sie gehören zu NovaOS und werden
   mit dem Software-Update erneuert – ändert das nächste Update eine Nova-App, steht dort **„Aktualisieren“**
   (startet das NovaOS-Update) und die Apps mit Update stehen oben
+* **Nova Musik**: **Meine Musik** (Lieder auf dem Handy, nach Erlaubnis für „Musik und Audio“; Alle abspielen,
+  Zufällig, Suche), **Radio** (über 1000 Sender aus dem freien Verzeichnis radio-browser.info, beliebte deutsche
+  Sender zuerst, Suche; nur Sender mit verschlüsselter Verbindung; zeigt das Lied, das gerade läuft) und **Songs**
+  (echte Lieder aus Deezers öffentlicher Suche und den Charts: Nova Musik spielt die **30-Sekunden-Hörprobe**, die
+  Deezer frei anbietet; das ganze Lied über ⋮ in Deezer, Spotify oder YouTube Music – ganze Lieder kostenlos abspielen
+  darf keine App ohne Lizenz). Spielt im **Hintergrund** weiter, Steuerung in der Benachrichtigung, auf dem
+  Sperrbildschirm und mit den Tasten von **Bluetooth**-Kopfhörern/-Lautsprechern; zeigt, worüber der Ton läuft
+  („Wiedergabe über …“), und öffnet mit einem Tipp die Bluetooth-Einstellungen zum Verbinden; pausiert, wenn Kopfhörer
+  getrennt werden. Nova: „Spiel Radio SWR3“, „Spiel Atemlos von Helene Fischer“, „Spiel meine Musik“,
+  „Nächstes Lied“, „Musik pausieren“, „Musik weiter“.
 * **Nova Kamera**: Fotos mit Vorschau, Blitz (Auto/An/Aus), Vorder-/Rückkamera, letztes Foto als
   Knopf zur Galerie, Symbole drehen sich mit dem Handy; Fotos landen in *DCIM/NovaOS*
 * **Nova Galerie**: alle Fotos und Videos, neueste zuerst; Vollbild mit Wischen, Teilen, Löschen
@@ -228,6 +238,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `Installer.java`, `InstallReceiver.java`, `Download.java` | Installieren über den Android-PackageInstaller, Downloads mit SHA-256 |
 | `StoreActivity.java`, `StoreApp.java`, `res/raw/store.txt` | Nova Store: Katalog, F-Droid-Versionen, Installieren/Aktualisieren/Öffnen |
 | `StoreDetailActivity.java`, `StoreInstall.java`, `StoreCatalog.java`, `StoreMeta.java`, `NovaApps.java` | Detailseite, gemeinsamer Download mit Fortschritt/Abbrechen, Katalog + F-Droid-Angaben, Nova-Apps |
+| `MusicActivity.java`, `Music.java`, `MusicService.java`, `MusicCatalog.java` | Nova Musik: Bildschirm, Player mit MediaSession, Hintergrund-Dienst, Radio/Deezer-Daten (getestet) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |

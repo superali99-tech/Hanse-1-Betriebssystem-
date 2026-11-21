@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Musik (0.1.1.61) -->
+    <string name="app_music">Nova Music</string>
+    <string name="music_sub">Your music, radio and songs</string>
+    <string name="card_music_sub">Music and radio</string>
+    <string name="novaapp_music">Your own music, more than 1000 radio stations and real songs – also over Bluetooth</string>
+    <string name="music_tab_local">My music</string>
+    <string name="music_tab_radio">Radio</string>
+    <string name="music_tab_songs">Songs</string>
+    <string name="music_search_local">Search my music</string>
+    <string name="music_search_radio">Search stations (e.g. BBC, SWR3)</string>
+    <string name="music_search_songs">Search a song or artist</string>
+    <string name="music_local_permission">Nova Music plays the music stored on your phone. For this it needs the permission for “Music and audio”.</string>
+    <string name="music_allow">Allow</string>
+    <string name="music_local_empty">There is no music stored on this phone yet. Tip: radio and songs work without it.</string>
+    <plurals name="music_local_count">
+        <item quantity="one">%1$d song</item>
+        <item quantity="other">%1$d songs</item>
+    </plurals>
+    <string name="music_play_all">Play all</string>
+    <string name="music_shuffle">Shuffle</string>
+    <string name="music_radio_top">Popular stations in Germany</string>
+    <string name="music_radio_found">Stations found</string>
+    <string name="music_radio_note">Live radio from the free station directory radio-browser.info – only stations with an encrypted connection.</string>
+    <string name="music_charts">Current charts</string>
+    <string name="music_songs_found">Songs found</string>
+    <string name="music_songs_note">Real songs from Deezer: Nova Music plays a 30-second preview. The whole song: ⋮ → Deezer, Spotify or YouTube Music.</string>
+    <string name="music_full_song">Listen to “%1$s” in full</string>
+    <string name="music_live">Live radio</string>
+    <string name="music_preview">preview</string>
+    <string name="music_loading">Loading …</string>
+    <string name="music_error">Cannot be played – please choose something else.</string>
+    <string name="music_offline">No internet connection – radio and songs need the internet.</string>
+    <string name="music_play">Play</string>
+    <string name="music_pause">Pause</string>
+    <string name="music_next">Next song</string>
+    <string name="music_previous">Previous song</string>
+    <string name="music_output">Playing on %1$s</string>
+    <string name="music_speaker">speaker</string>
+    <string name="music_headphones">headphones</string>
+    <string name="music_bluetooth">Bluetooth</string>
+    <string name="music_bluetooth_connect">Connect Bluetooth</string>
+    <string name="nova_music_radio">Playing radio %1$s.</string>
+    <string name="nova_music_radio_top">Playing the radio.</string>
+    <string name="nova_music_song">Playing %1$s.</string>
+    <string name="nova_music_local">Playing your music.</string>
+    <string name="nova_music_next">Next song.</string>
+    <string name="nova_music_previous">Previous song.</string>
+    <string name="nova_music_paused">Music paused.</string>
+    <string name="nova_music_resumed">Here we go again.</string>
+    <string name="nova_music_nothing">No music is playing right now.</string>
+</resources>

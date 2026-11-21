@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Musik (0.1.1.61) -->
+    <string name="app_music">Nova Musik</string>
+    <string name="music_sub">Deine Musik, Radio und Songs</string>
+    <string name="card_music_sub">Musik und Radio</string>
+    <string name="novaapp_music">Eigene Musik, über 1000 Radiosender und echte Songs – auch über Bluetooth</string>
+    <string name="music_tab_local">Meine Musik</string>
+    <string name="music_tab_radio">Radio</string>
+    <string name="music_tab_songs">Songs</string>
+    <string name="music_search_local">Meine Musik durchsuchen</string>
+    <string name="music_search_radio">Radiosender suchen (z. B. SWR3, 1LIVE)</string>
+    <string name="music_search_songs">Lied oder Künstler suchen</string>
+    <string name="music_local_permission">Nova Musik spielt die Musik, die auf deinem Handy gespeichert ist. Dafür braucht es die Erlaubnis für „Musik und Audio“.</string>
+    <string name="music_allow">Erlauben</string>
+    <string name="music_local_empty">Auf diesem Handy ist noch keine Musik gespeichert. Tipp: Radio und Songs gehen auch ohne.</string>
+    <plurals name="music_local_count">
+        <item quantity="one">%1$d Lied</item>
+        <item quantity="other">%1$d Lieder</item>
+    </plurals>
+    <string name="music_play_all">Alle abspielen</string>
+    <string name="music_shuffle">Zufällig</string>
+    <string name="music_radio_top">Beliebte Sender in Deutschland</string>
+    <string name="music_radio_found">Gefundene Sender</string>
+    <string name="music_radio_note">Live-Radio aus dem freien Senderverzeichnis radio-browser.info – nur Sender mit verschlüsselter Verbindung.</string>
+    <string name="music_charts">Aktuelle Charts</string>
+    <string name="music_songs_found">Gefundene Lieder</string>
+    <string name="music_songs_note">Echte Lieder aus Deezer: Nova Musik spielt eine 30-Sekunden-Hörprobe. Das ganze Lied: ⋮ → Deezer, Spotify oder YouTube Music.</string>
+    <string name="music_full_song">„%1$s“ ganz anhören</string>
+    <string name="music_live">Live-Radio</string>
+    <string name="music_preview">Hörprobe</string>
+    <string name="music_loading">Lädt …</string>
+    <string name="music_error">Kann nicht abgespielt werden – bitte etwas anderes wählen.</string>
+    <string name="music_offline">Keine Internetverbindung – Radio und Songs brauchen Internet.</string>
+    <string name="music_play">Abspielen</string>
+    <string name="music_pause">Pause</string>
+    <string name="music_next">Nächstes Lied</string>
+    <string name="music_previous">Vorheriges Lied</string>
+    <string name="music_output">Wiedergabe über %1$s</string>
+    <string name="music_speaker">Lautsprecher</string>
+    <string name="music_headphones">Kopfhörer</string>
+    <string name="music_bluetooth">Bluetooth</string>
+    <string name="music_bluetooth_connect">Bluetooth verbinden</string>
+    <string name="nova_music_radio">Ich spiele Radio %1$s.</string>
+    <string name="nova_music_radio_top">Ich spiele Radio.</string>
+    <string name="nova_music_song">Ich spiele %1$s.</string>
+    <string name="nova_music_local">Ich spiele deine Musik.</string>
+    <string name="nova_music_next">Nächstes Lied.</string>
+    <string name="nova_music_previous">Vorheriges Lied.</string>
+    <string name="nova_music_paused">Musik pausiert.</string>
+    <string name="nova_music_resumed">Weiter geht\'s.</string>
+    <string name="nova_music_nothing">Gerade läuft keine Musik.</string>
+</resources>

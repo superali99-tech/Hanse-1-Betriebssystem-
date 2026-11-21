@@ -1,6 +1,12 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.60 · 21.11.2026
+Nova Store wie im Play Store: jede App hat eine Seite mit Größe, Version, Bildern und „Über diese App“|Nova Store like the Play Store: every app has a page with size, version, pictures and "About this app"
+Installieren mit Ring um das Symbol und „42 % von 107 MB“ – mit „Abbrechen“|Installing with a ring around the icon and "42 % of 107 MB" – with "Cancel"
+Nova-Apps im Store: „Aktualisieren“ steht bei jeder Nova-App, die das nächste Update verbessert|Nova apps in the store: "Update" appears for every Nova app the next update improves
+Nach dem Installieren: „Deinstallieren“ und „Öffnen“; heruntergeladene Dateien werden aufgeräumt|After installing: "Uninstall" and "Open"; downloaded files are cleaned up
+
 == NovaOS 0.1.1.59 · 21.11.2026
 Software-Update: oben rechts ⋮ mit „Was ist neu“ und dem ganzen Update-Verlauf|Software update: ⋮ at the top right with "What's new" and the whole update history
 Neue Update-Anzeige: Ring mit Prozent, „x von y MB“, echte Download-Geschwindigkeit und Restzeit|New update progress: ring with percent, "x of y MB", real download speed and time left

@@ -30,6 +30,7 @@ public final class MobileTest {
         search();
         history();
         storeMeta();
+        music();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -65,6 +66,42 @@ public final class MobileTest {
         check(Search.matches("anna mail", "Anna", "anna@mail.de") && !Search.matches("anna post", "Anna", "anna@mail.de"),
                 "search: every word must appear");
         check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
+    }
+
+    private static void music() {
+        String radio = "[{\"name\":\"  # SWR3 \",\"url_resolved\":\"https://liveradio.swr.de/swr3.mp3\",\"codec\":\"MP3\",\"tags\":\"pop,rock,hits,news\","
+                + "\"favicon\":\"https://swr3.de/i.png\",\"homepage\":\"http://swr3.de\"},"
+                + "{\"name\":\"SWR3\",\"url_resolved\":\"https://other/swr3\",\"codec\":\"MP3\"},"
+                + "{\"name\":\"Plain\",\"url_resolved\":\"http://plain/stream\",\"codec\":\"MP3\"},"
+                + "{\"name\":\"Opus\",\"url_resolved\":\"https://x/opus\",\"codec\":\"OPUS\"},{\"name\":\"\",\"url\":\"https://y\"}]";
+        java.util.List<MusicCatalog.Track> r = MusicCatalog.parseRadio(radio);
+        check(r.size() == 1 && r.get(0).title.equals("SWR3") && r.get(0).live(), "radio: https only, once, clean name: " + r.size());
+        check(r.get(0).artist.equals("Pop · Rock · Hits") && r.get(0).art.equals("https://swr3.de/i.png") && r.get(0).link.isEmpty(),
+                "radio: tags, https icon, no http homepage");
+        check(MusicCatalog.parseRadio("kaputt").isEmpty() && MusicCatalog.parseRadio("{}").isEmpty(), "radio: broken answer");
+        String dz = "{\"data\":[{\"id\":4250536021,\"title\":\"AN MEINER SEITE\",\"duration\":177,\"preview\":\"https://cdnt-preview.dzcdn.net/a.mp3\","
+                + "\"link\":\"https://www.deezer.com/track/4250536021\",\"artist\":{\"name\":\"Helene Fischer\"},"
+                + "\"album\":{\"title\":\"Album\",\"cover_medium\":\"https://cdn-images.dzcdn.net/c.jpg\"}},"
+                + "{\"title\":\"Ohne Hörprobe\",\"preview\":\"\"},{\"title\":\"Evil\",\"preview\":\"http://x\",\"link\":\"https://evil\"}]}";
+        java.util.List<MusicCatalog.Track> d = MusicCatalog.parseDeezer(dz);
+        check(d.size() == 1 && d.get(0).artist.equals("Helene Fischer") && d.get(0).durationMs == 177000
+                && d.get(0).id.equals("4250536021") && d.get(0).link.startsWith("https://www.deezer.com/"), "deezer track");
+        check(MusicCatalog.parseDeezer("{\"error\":{}}").isEmpty(), "deezer error answer");
+        check(MusicCatalog.songSearchUrl("Atemlos durch die Nacht").equals("https://api.deezer.com/search?q=Atemlos+durch+die+Nacht&limit=50"),
+                "deezer search url");
+        check(MusicCatalog.spotifySearch(d.get(0)).equals("https://open.spotify.com/search/Helene%20Fischer%20AN%20MEINER%20SEITE"), "spotify link");
+        check(MusicCatalog.time(245000).equals("4:05") && MusicCatalog.time(0).equals("0:00"), "time");
+        String[][] cmds = {
+                {"Hey Nova, spiel Radio SWR3", "MUSIC(swr3) 1"}, {"radio", "MUSIC() 1"}, {"Spiel 1LIVE im Radio", "MUSIC(1live) 1"},
+                {"spiel Atemlos von Helene Fischer", "MUSIC(atemlos helene fischer) 2"}, {"nächstes Lied", "MUSIC() 3"},
+                {"Musik pausieren", "MUSIC() 5"}, {"Musik weiter", "MUSIC() 6"}, {"spiel meine Musik", "MUSIC() 0"},
+                {"play the song Yesterday", "MUSIC(yesterday) 2"}};
+        for (String[] x : cmds) {
+            NovaBrain.Command c = NovaBrain.understand(x[0], true, java.util.Arrays.asList("ZDF", "Das Erste"), 0);
+            check((c.toString().toLowerCase() + " " + c.level).equals(x[1].toLowerCase()), "nova music: " + x[0] + " -> " + c + " " + c.level);
+        }
+        NovaBrain.Command zdf = NovaBrain.understand("spiel ZDF", true, java.util.Arrays.asList("ZDF", "Das Erste"), 0);
+        check(zdf.kind == NovaBrain.Kind.TV, "spiel ZDF is still TV: " + zdf);
     }
 
     private static void storeMeta() {

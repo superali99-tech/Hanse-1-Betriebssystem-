@@ -424,6 +424,27 @@ Android-x86 9 in QEMU, Hochformat, Deutsch, Internet über den Proxy der Testumg
 **Nicht getestet:** „Aktualisieren“ einer F-Droid-App mit neuerer Version (keine veraltete App installiert),
 Deinstallieren-Dialog, Play-Store-Apps (kein Play Store in der VM).
 
+### Update 0.1.1.61: Nova Musik (21.11.2026)
+
+Android-x86 9 in QEMU, Hochformat, Deutsch, Internet über den Proxy der Testumgebung (echtes Deezer und
+radio-browser.info). Die VM hat keine Tonausgabe – geprüft wurde, dass die Wiedergabe läuft (Position, Zustand der
+MediaSession). Bilder 62–67.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1418 bestanden (neu: Radio nur https, doppelte Sender, Namen säubern, Genres; Deezer-Antwort, Fehler, Links; Nova-Befehle „Spiel Radio SWR3“, „Spiel 1LIVE im Radio“, „Spiel Atemlos von Helene Fischer“, „Nächstes Lied“, „Musik pausieren/weiter“, „spiel ZDF“ bleibt Fernsehen) |
+| Songs: aktuelle Charts mit Covern | ✅ | |
+| Suche „helene fischer“, Lied antippen | ✅ | spielt (0:05 / 0:29), danach automatisch das nächste Lied |
+| Benachrichtigung und MediaSession | ✅ | MediaStyle mit ⏮ ⏯ ⏭; NovaOS ist die „Media button session“ |
+| Kopfhörer-/Bluetooth-Tasten (`MEDIA_NEXT`, `MEDIA_PAUSE`) | ✅ | nächstes Lied, Pause |
+| Radio: beliebte Sender mit Logo, SWR3 antippen | ✅ | live, zeigt das laufende Lied („Halo / Rea Garvey“) |
+| Nova: „spiel radio 1live“ | ✅ | Nova Musik öffnet sich, 1LIVE läuft |
+| Meine Musik: Erlaubnis, Testlied, abspielen | ✅ | „1 Lieder“ und „ · 0:20“ ohne Künstler → behoben („1 Lied“, „0:20“) |
+| Startbildschirm: Karten Nova Musik und Nova Store | ✅ | |
+
+**Nicht getestet:** echter Ton, echte Bluetooth-Geräte (die VM hat kein Bluetooth), Sperrbildschirm-Steuerung,
+Android 14 (Vordergrunddienst „Medienwiedergabe“).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

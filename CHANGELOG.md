@@ -75,6 +75,13 @@
   „Öffnen“; heruntergeladene APKs werden gelöscht. Neuer Bereich **Nova-Apps**: „Aktualisieren“ bei jeder Nova-App,
   die das wartende NovaOS-Update ändert (`@apps:` in `whatsnew.txt` → `apps=` in `update.properties`).
   Behoben: hängendes „Wird installiert …“ nach Abbrechen im Android-Installationsfenster
+* **NovaOS Mobile 0.1.1.61 – Nova Musik**: eigene Musik (MediaStore, Alle abspielen/Zufällig, Suche), Live-Radio
+  aus radio-browser.info (nur https-Streams, Logo, Genre, gerade laufender Titel aus den ICY-Daten), echte Songs
+  aus Deezers öffentlicher Suche und Charts (30-Sekunden-Hörprobe, ganzes Lied über Deezer/Spotify/YouTube Music);
+  Wiedergabe mit ExoPlayer im Hintergrund (Vordergrunddienst „Medienwiedergabe“), MediaSession für Sperrbildschirm,
+  Bluetooth- und Kopfhörer-Tasten, Benachrichtigung ⏮ ⏯ ⏭, Pause beim Trennen von Kopfhörern, Anzeige des
+  Ausgabegeräts mit Sprung in die Bluetooth-Einstellungen; Nova-Befehle „Spiel Radio …“, „Spiel <Lied>“, „Spiel meine
+  Musik“, „Nächstes/Vorheriges Lied“, „Musik pausieren/weiter“; Karte auf dem Startbildschirm
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

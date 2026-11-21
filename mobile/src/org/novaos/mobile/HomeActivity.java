@@ -321,6 +321,18 @@ public class HomeActivity extends Activity {
         LinearLayout.LayoutParams c3 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         c3.topMargin = Ui.dp(this, 12);
         rows.addView(cards3, c3);
+        // Nova Musik (what is playing) and Nova Store
+        LinearLayout cards4 = new LinearLayout(this);
+        cards4.setOrientation(LinearLayout.HORIZONTAL);
+        MusicCatalog.Track song = Music.get(this).current();
+        cards4.addView(novaCard(R.drawable.ic_music, getString(R.string.app_music),
+                song == null ? getString(R.string.card_music_sub) : (Music.get(this).playing() ? "▶ " : "⏸ ") + song.title,
+                song != null && Music.get(this).playing(), v -> startActivity(new Intent(this, MusicActivity.class))), weight(0, side));
+        cards4.addView(novaCard(R.drawable.ic_store, getString(R.string.app_store), getString(R.string.card_store_sub), false,
+                v -> startActivity(new Intent(this, StoreActivity.class))), weight(side, 0));
+        LinearLayout.LayoutParams c4 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        c4.topMargin = Ui.dp(this, 12);
+        rows.addView(cards4, c4);
 
         // quick settings
         rows.addView(Ui.section(this, R.string.quick));
