@@ -398,6 +398,9 @@ public class NovaActivity extends Activity {
             case MUSIC:
                 music(c);
                 break;
+            case WIKI:
+                wiki(c);
+                break;
             case SEARCH:
                 Intent web = new Intent(Intent.ACTION_WEB_SEARCH).putExtra(SearchManager.QUERY, c.text);
                 if (!quietStart(web)) {
@@ -861,6 +864,41 @@ public class NovaActivity extends Activity {
                         ? R.string.nova_music_previous : c.level == NovaBrain.MUSIC_PAUSE ? R.string.nova_music_paused : R.string.nova_music_resumed));
                 break;
         }
+    }
+
+
+    /** Knowledge question: the first two sentences of the Wikipedia article; otherwise a web search. */
+    private void wiki(NovaBrain.Command c) {
+        answer.setText(R.string.loading);
+        boolean de = java.util.Locale.getDefault().getLanguage().equals("de");
+        new Thread(() -> {
+            Wiki.Summary found = null;
+            for (String title : Wiki.titles(c.text)) {
+                try {
+                    Wiki.Summary s = Wiki.parse(Download.text(Wiki.summaryUrl(title, de)));
+                    if (s != null && !s.ambiguous) {
+                        found = s;
+                        break;
+                    }
+                } catch (java.io.IOException ignored) {
+                    // not found (404) or offline: try the next spelling
+                }
+            }
+            Wiki.Summary s = found;
+            runOnUiThread(() -> {
+                if (isDestroyed()) return;
+                if (s == null) {
+                    Intent web = new Intent(Intent.ACTION_WEB_SEARCH).putExtra(SearchManager.QUERY, c.text);
+                    if (!quietStart(web)) start(new Intent(Intent.ACTION_VIEW, Uri.parse("https://duckduckgo.com/?q=" + Uri.encode(c.text))));
+                    speak(getString(R.string.nova_search, c.text));
+                } else {
+                    speak(Wiki.sentences(s.text, 2));
+                    if (!s.url.isEmpty()) {
+                        android.widget.Toast.makeText(this, getString(R.string.nova_wiki_source, s.title), android.widget.Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }).start();
     }
 
 }

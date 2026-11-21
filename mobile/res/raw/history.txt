@@ -1,6 +1,12 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.62 · 21.11.2026
+Neu: Nova Phone Shop – die Nova-Handys Nova 1, Nova 2, Pro, Pro Max und Lite|New: Nova Phone Shop – the Nova phones Nova 1, Nova 2, Pro, Pro Max and Lite
+Große Bilder zum Drehen (vorne, hinten), alle Farben, Speicher mit Preis von 249 € bis 1.199 €|Big pictures to turn (front, back), all colours, storage with price from €249 to €1,199
+Highlights wie Nova KI-Assistent und Profi-Kamera, technische Daten, Wunschliste|Highlights like the Nova AI assistant and pro camera, technical data, wish list
+Ehrlich: Die Nova-Handys sind Konzepte – kaufen kann man sie noch nicht|Honest: the Nova phones are concepts – they cannot be bought yet
+
 == NovaOS 0.1.1.61 · 21.11.2026
 Neu: Nova Musik – deine Musik vom Handy, Live-Radio und echte Songs aus den Charts|New: Nova Music – your music from the phone, live radio and real songs from the charts
 Radio: SWR3, 1LIVE, Bayern 3, Deutschlandfunk und viele mehr – mit dem Lied, das gerade läuft|Radio: SWR3, 1LIVE, Bayern 3, Deutschlandfunk and many more – with the song that is playing now

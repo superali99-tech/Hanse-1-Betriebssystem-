@@ -123,7 +123,19 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Datum, Wecker, Timer, Taschenlampe, Apps und Einstellungen öffnen, Kontakte anrufen oder
   anschreiben, Notizen, Wetter (Open-Meteo, ohne Konto), TV-Sender, Websuche, Rechnen, kleine Gespräche;
   „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“ (über Nova Chat, wenn Lisa dort ein Kontakt ist),
-  „Lies meine E-Mails vor“ und „Schreib eine E-Mail an Lisa: …“ (Adresse aus Nova Mail oder den Kontakten)
+  „Lies meine E-Mails vor“ und „Schreib eine E-Mail an Lisa: …“ (Adresse aus Nova Mail oder den Kontakten);
+  Wissensfragen („Wer ist Albert Einstein?“, „Was ist der Eiffelturm?“) beantwortet Nova mit den ersten Sätzen aus
+  **Wikipedia** (sonst Websuche), dazu „Wie viele Tage bis Weihnachten?“, Einheiten umrechnen („5 km in Meilen“,
+  „20 Grad Celsius in Fahrenheit“), Würfeln und „Kopf oder Zahl“
+* **Konto und Sicherheit** (Einstellungen): deine Infos (Name, E-Mail, Anmeldeweg, geprüft, Alter, Gerät),
+  Bildschirmsperre und Fingerabdruck (einrichten mit einem Tipp). **Nova-Apps schützen** (an, sobald es eine
+  Bildschirmsperre gibt): Chat, Mail, Family, Notizen, Dateien, Galerie und Einstellungen fragen beim Öffnen nach PIN,
+  Muster, Passwort oder Fingerabdruck – Androids eigene Abfrage, NovaOS sieht davon nichts; danach frei, bis der
+  Bildschirm ausgeht oder 5 Minuten keine geschützte App benutzt wurde. **Abmelden**, Namen ändern und den Schutz
+  ausschalten gehen nur nach Bestätigung; ohne Bildschirmsperre kommt ein 6-stelliger **Bestätigungscode per E-Mail**
+  (über das eigene Nova-Mail-Konto an die eigene Adresse). **„PIN oder Muster vergessen?“**: keine App kann eine
+  vergessene Sperre umgehen (Diebstahlschutz) – NovaOS zeigt die echten Wege: neue PIN festlegen, Google „Mein Gerät
+  finden“, Samsung „SmartThings Find“, Zurücksetzen auf Werkseinstellungen.
 * **Software-Update** (Einstellungen): ⋮ oben rechts mit „Was ist neu“ (installierte und kommende Version),
   **Update-Verlauf** aller Versionen und „Nach Updates suchen“; beim Aktualisieren ein **Fortschrittsring**
   mit Prozent, den **echten MB und der Download-Geschwindigkeit**, Restzeit und den Schritten Herunterladen →
@@ -246,6 +258,8 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `StoreDetailActivity.java`, `StoreInstall.java`, `StoreCatalog.java`, `StoreMeta.java`, `NovaApps.java` | Detailseite, gemeinsamer Download mit Fortschritt/Abbrechen, Katalog + F-Droid-Angaben, Nova-Apps |
 | `MusicActivity.java`, `Music.java`, `MusicService.java`, `MusicCatalog.java` | Nova Musik: Bildschirm, Player mit MediaSession, Hintergrund-Dienst, Radio/Deezer-Daten (getestet) |
 | `ShopActivity.java`, `PhoneDetailActivity.java`, `PhoneRender.java`, `PhoneModels.java` | Nova Phone Shop: Übersicht mit Bannern, Produktseite, gezeichnete Handy-Bilder, Modelle und Preise (getestet) |
+| `AccountActivity.java`, `AppLock.java`, `ConfirmActivity.java`, `NovaApp.java`, `LockRule.java` | Konto und Sicherheit, Schutz der Nova-Apps mit Androids Sperre/Fingerabdruck, Bestätigungscodes (getestet) |
+| `Wiki.java` | Nova: Wikipedia-Zusammenfassungen (getestet) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |

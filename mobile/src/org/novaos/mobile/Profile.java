@@ -66,4 +66,10 @@ final class Profile {
         int a = age(c);
         return a > 0 && a < 16;
     }
+
+    /** Sign out of NovaOS: name, account and age are removed; the setup starts again. */
+    static void signOut(Context c) {
+        prefs(c).edit().remove("name").remove("email").remove("provider").remove("verified").remove("age")
+                .putBoolean("setup_done", false).apply();
+    }
 }

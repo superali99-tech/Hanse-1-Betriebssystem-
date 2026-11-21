@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public final class NovaBrain {
     public enum Kind {
         TIME, DATE, ALARM, TIMER, TORCH, OPEN_APP, SETTINGS, CALL, MESSAGE, NOTE, WEATHER, TV,
-        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL, MUSIC
+        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL, MUSIC, WIKI
     }
 
     /** Nova Musik: what to do (Command.level of a MUSIC command). */
@@ -130,7 +130,7 @@ public final class NovaBrain {
         String[] both = cleanBoth(spoken);
         Command r = understandClean(both[0], german, channels, seed);
         switch (r.kind) {
-            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN: case MUSIC:
+            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN: case MUSIC: case WIKI:
                 r.text = spelled(r.text, both[0], both[1]);
                 r.body = spelled(r.body, both[0], both[1]);
                 break;
@@ -154,6 +154,9 @@ public final class NovaBrain {
         if ((r = readMessages(c)) != null) return r;
         if ((r = message(c)) != null) return r;
         if ((r = note(c)) != null) return r;
+        if ((r = units(c, german)) != null) return r;
+        if ((r = daysUntil(c, german, java.util.Calendar.getInstance())) != null) return r;
+        if ((r = chance(c, german, seed)) != null) return r;
         if ((r = calc(c, german)) != null) return r;
         if ((r = weather(c)) != null) return r;
         if ((r = musicControl(c)) != null) return r;
@@ -663,6 +666,133 @@ public final class NovaBrain {
         return null;
     }
 
+    // ------------------------------------------------------------------ units, days until, dice
+
+    /** {words..., factor to the base unit} per unit; temperatures separately. */
+    private static final Object[][] UNITS = {
+            {new String[] {"km", "kilometer", "kilometern", "kilometers"}, 1000.0, "length", "Kilometer", "kilometres"},
+            {new String[] {"m", "meter", "metern", "meters", "metres"}, 1.0, "length", "Meter", "metres"},
+            {new String[] {"cm", "zentimeter", "zentimetern", "centimeters"}, 0.01, "length", "Zentimeter", "centimetres"},
+            {new String[] {"meilen", "meile", "miles", "mile", "mi"}, 1609.344, "length", "Meilen", "miles"},
+            {new String[] {"fuß", "fuss", "feet", "foot", "ft"}, 0.3048, "length", "Fuß", "feet"},
+            {new String[] {"zoll", "inch", "inches", "inches", "in"}, 0.0254, "length", "Zoll", "inches"},
+            {new String[] {"kg", "kilo", "kilogramm", "kilograms"}, 1.0, "mass", "Kilogramm", "kilograms"},
+            {new String[] {"g", "gramm", "grams"}, 0.001, "mass", "Gramm", "grams"},
+            {new String[] {"pfund", "pounds", "pound", "lb", "lbs"}, 0.45359237, "mass", "Pfund", "pounds"},
+            {new String[] {"liter", "litern", "l", "litres", "liters"}, 1.0, "volume", "Liter", "litres"},
+            {new String[] {"gallonen", "gallone", "gallons", "gallon"}, 3.785411784, "volume", "Gallonen", "gallons"},
+            {new String[] {"km/h", "kmh", "stundenkilometer"}, 1 / 3.6, "speed", "km/h", "km/h"},
+            {new String[] {"mph", "meilen pro stunde"}, 0.44704, "speed", "mph", "mph"}};
+    private static final Pattern CONVERT = Pattern.compile("(-?\\d+(?:[.,]\\d+)?)\\s*(°\\s*)?([a-zäöüß/°]+(?: pro stunde)?)\\s+(?:in|to|into|nach)\\s+(?:°\\s*)?([a-zäöüß/°]+(?: pro stunde)?)");
+
+    private static Object[] unit(String w) {
+        for (Object[] u : UNITS) for (String name : (String[]) u[0]) if (name.equals(w)) return u;
+        return null;
+    }
+
+    /** "Wie viel sind 5 km in Meilen?", "20 Grad Celsius in Fahrenheit", "3 kg in Pfund". */
+    private static Command units(String c, boolean german) {
+        Matcher m = CONVERT.matcher(numbers(c).replace("grad celsius", "celsius").replace("grad fahrenheit", "fahrenheit")
+                .replace("degrees celsius", "celsius").replace("degrees fahrenheit", "fahrenheit"));
+        if (!m.find()) return null;
+        double v = Double.parseDouble(m.group(1).replace(',', '.'));
+        String from = m.group(3), to = m.group(4);
+        double result;
+        String unitName;
+        if ((from.equals("celsius") || from.equals("c")) && (to.equals("fahrenheit") || to.equals("f"))) {
+            result = v * 9 / 5 + 32;
+            unitName = "°F";
+        } else if ((from.equals("fahrenheit") || from.equals("f")) && (to.equals("celsius") || to.equals("c"))) {
+            result = (v - 32) * 5 / 9;
+            unitName = "°C";
+        } else {
+            Object[] a = unit(from), b = unit(to);
+            if (a == null || b == null || !a[2].equals(b[2])) return null;
+            result = v * (Double) a[1] / (Double) b[1];
+            unitName = (String) (german ? b[3] : b[4]);
+        }
+        Command r = new Command(Kind.CALC);
+        r.value = Math.round(result * 100) / 100.0;
+        r.text = m.group();
+        r.answer = (german ? "Das sind " : "That is ") + format(r.value, german) + " " + unitName + ".";
+        return r;
+    }
+
+    private static final Pattern DAYS = Pattern.compile("^(?:wie viele tage|wie lange)(?: sind es| ist es| noch)?(?: noch)? bis (?:zu |zum |zur )?(.+)$|^how many days (?:until|till|to) (.+)$");
+
+    /** "Wie viele Tage bis Weihnachten?" (also Silvester, Ostern, Neujahr, Halloween, "24.12."). */
+    static Command daysUntil(String c, boolean german, java.util.Calendar today) {
+        Matcher m = DAYS.matcher(c);
+        if (!m.matches()) return null;
+        String what = (m.group(1) != null ? m.group(1) : m.group(2)).trim();
+        int year = today.get(java.util.Calendar.YEAR);
+        int[] md = null;
+        String name = what;
+        if (what.matches("weihnachten|heiligabend|christmas( eve)?")) md = new int[] {12, what.equals("weihnachten") || what.equals("christmas") ? 25 : 24};
+        else if (what.matches("silvester|new year'?s eve")) md = new int[] {12, 31};
+        else if (what.matches("neujahr|new year")) md = new int[] {1, 1};
+        else if (what.matches("halloween")) md = new int[] {10, 31};
+        else if (what.matches("valentinstag|valentine'?s day")) md = new int[] {2, 14};
+        else if (what.matches("ostern|easter")) md = easter(year);
+        else {
+            Matcher d = Pattern.compile("^(\\d{1,2})\\.\\s*(\\d{1,2})\\.?$").matcher(what);
+            if (d.matches()) md = new int[] {Integer.parseInt(d.group(2)), Integer.parseInt(d.group(1))};
+        }
+        if (md == null || md[0] < 1 || md[0] > 12 || md[1] < 1 || md[1] > 31) return null;
+        java.util.Calendar start = (java.util.Calendar) today.clone();
+        start.set(java.util.Calendar.HOUR_OF_DAY, 12);
+        java.util.Calendar target = (java.util.Calendar) start.clone();
+        target.set(year, md[0] - 1, md[1]);
+        if (target.before(start) && !sameDay(target, start)) {
+            if (what.matches("ostern|easter")) {
+                int[] e = easter(year + 1);
+                target.set(year + 1, e[0] - 1, e[1]);
+            } else {
+                target.set(java.util.Calendar.YEAR, year + 1);
+            }
+        }
+        long days = Math.round((target.getTimeInMillis() - start.getTimeInMillis()) / 86_400_000.0);
+        Command r = new Command(Kind.TALK);
+        r.value = days;
+        String n = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+        r.answer = days == 0 ? (german ? n + " ist heute! 🎉" : n + " is today! 🎉")
+                : german ? (days == 1 ? "Noch 1 Tag bis " + n + "." : "Noch " + days + " Tage bis " + n + ".")
+                : (days == 1 ? "1 day until " + n + "." : days + " days until " + n + ".");
+        return r;
+    }
+
+    private static boolean sameDay(java.util.Calendar a, java.util.Calendar b) {
+        return a.get(java.util.Calendar.YEAR) == b.get(java.util.Calendar.YEAR) && a.get(java.util.Calendar.DAY_OF_YEAR) == b.get(java.util.Calendar.DAY_OF_YEAR);
+    }
+
+    /** Easter Sunday (Gauss/Anonymous Gregorian algorithm): {month, day}. */
+    static int[] easter(int y) {
+        int a = y % 19, b = y / 100, c = y % 100, d = b / 4, e = b % 4, f = (b + 8) / 25, g = (b - f + 1) / 3;
+        int h = (19 * a + b - d - g + 15) % 30, i = c / 4, k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = (a + 11 * h + 22 * l) / 451;
+        int month = (h + l - 7 * m + 114) / 31, day = ((h + l - 7 * m + 114) % 31) + 1;
+        return new int[] {month, day};
+    }
+
+    /** "Wirf einen Würfel", "Kopf oder Zahl". */
+    private static Command chance(String c, boolean german, int seed) {
+        java.util.Random random = new java.util.Random(seed == 0 ? System.nanoTime() : seed);
+        if (c.matches(".*(würfel|würfle|roll a die|roll the dice|roll dice).*")) {
+            int n = 1 + random.nextInt(6);
+            Command r = new Command(Kind.TALK);
+            r.value = n;
+            r.answer = (german ? "🎲 Eine " : "🎲 ") + n + (german ? "!" : "!");
+            return r;
+        }
+        if (c.matches(".*(kopf oder zahl|münze werfen|wirf eine münze|flip a coin|heads or tails|toss a coin).*")) {
+            boolean heads = random.nextBoolean();
+            Command r = new Command(Kind.TALK);
+            r.value = heads ? 1 : 0;
+            r.answer = "🪙 " + (german ? (heads ? "Kopf!" : "Zahl!") : (heads ? "Heads!" : "Tails!"));
+            return r;
+        }
+        return null;
+    }
+
     // ------------------------------------------------------------------ Nova Musik
 
     private static Command music(int level, String text) {
@@ -708,7 +838,7 @@ public final class NovaBrain {
     }
 
     private static final Pattern SEARCH = Pattern.compile("^(?:suche|such|google|search|finde|look up)\\s+(?:nach\\s+|for\\s+|im internet nach\\s+)?(.+)$");
-    private static final Pattern QUESTION = Pattern.compile("^(?:wer ist|wer war|was ist|was sind|wo ist|wo liegt|who is|who was|what is|where is)\\s+(.+)$");
+    private static final Pattern QUESTION = Pattern.compile("^(?:wer ist|wer war|wer sind|wer waren|was ist|was war|was sind|was bedeutet|wo ist|wo liegt|erzähl mir (?:etwas )?(?:über|von)|who is|who was|what is|what are|where is|tell me about)\\s+(.+)$");
 
     private static Command search(String c) {
         Matcher m = SEARCH.matcher(c);
@@ -717,9 +847,10 @@ public final class NovaBrain {
             s.text = m.group(1).trim();
             return s;
         }
-        if (QUESTION.matcher(c).find()) {  // knowledge questions: Nova has no cloud AI, so a web search
-            Command s = new Command(Kind.SEARCH);
-            s.text = c;
+        Matcher q = QUESTION.matcher(c);
+        if (q.find()) {  // knowledge questions: the Wikipedia summary (Nova has no cloud AI); a web search if there is none
+            Command s = new Command(Kind.WIKI);
+            s.text = q.group(1).trim();
             return s;
         }
         return null;

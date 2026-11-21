@@ -32,6 +32,7 @@ public final class MobileTest {
         storeMeta();
         music();
         phones();
+        smarter();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -67,6 +68,44 @@ public final class MobileTest {
         check(Search.matches("anna mail", "Anna", "anna@mail.de") && !Search.matches("anna post", "Anna", "anna@mail.de"),
                 "search: every word must appear");
         check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
+    }
+
+    private static void smarter() {
+        String[][] units = {{"Wie viel sind 5 km in Meilen", "3,11"}, {"20 Grad Celsius in Fahrenheit", "68"}, {"100 fahrenheit in celsius", "37,78"},
+                {"3 kg in pfund", "6,61"}, {"was sind zehn meilen in kilometer", "16,09"}, {"2 liter in gallonen", "0,53"}};
+        for (String[] u : units) {
+            NovaBrain.Command c = NovaBrain.understand(u[0], true);
+            check(c.kind == NovaBrain.Kind.CALC && c.answer.contains(u[1]), "units: " + u[0] + " -> " + c.answer);
+        }
+        check(NovaBrain.understand("5 kg in meilen", true).kind != NovaBrain.Kind.CALC || !NovaBrain.understand("5 kg in meilen", true).answer.contains("Meilen"),
+                "units: kg are no miles");
+        java.util.Calendar day = java.util.Calendar.getInstance();
+        day.set(2026, java.util.Calendar.NOVEMBER, 21, 9, 0);
+        NovaBrain.Command x = NovaBrain.daysUntil("wie viele tage bis weihnachten", true, day);
+        check(x != null && x.value == 34 && x.answer.equals("Noch 34 Tage bis Weihnachten."), "days until Christmas: " + (x == null ? null : x.answer));
+        check(NovaBrain.daysUntil("wie viele tage noch bis silvester", true, day).value == 40, "days until New Year's Eve");
+        check(NovaBrain.daysUntil("wie viele tage bis ostern", true, day).value == 127, "days until Easter 2027 (28 March)");
+        check(NovaBrain.daysUntil("wie viele tage bis 21.11.", true, day).answer.contains("heute"), "today");
+        check(java.util.Arrays.equals(NovaBrain.easter(2026), new int[] {4, 5}) && java.util.Arrays.equals(NovaBrain.easter(2027), new int[] {3, 28}),
+                "easter dates");
+        NovaBrain.Command dice = NovaBrain.understand("wirf einen würfel", true, new java.util.ArrayList<>(), 7);
+        check(dice.kind == NovaBrain.Kind.TALK && dice.value >= 1 && dice.value <= 6, "dice " + dice.answer);
+        check(NovaBrain.understand("Kopf oder Zahl", true, new java.util.ArrayList<>(), 3).answer.matches("🪙 (Kopf|Zahl)!"), "coin");
+        check(Wiki.titles("albert einstein").equals(java.util.Arrays.asList("Albert einstein", "Albert Einstein")), "wiki titles");
+        check(Wiki.titles("der Eiffelturm?").equals(java.util.Arrays.asList("Eiffelturm")), "wiki titles without article");
+        check(Wiki.summaryUrl("Albert Einstein", true).equals("https://de.wikipedia.org/api/rest_v1/page/summary/Albert_Einstein"), "wiki url");
+        Wiki.Summary w = Wiki.parse("{\"type\":\"standard\",\"title\":\"Eiffelturm\",\"extract\":\"Der Eiffelturm ist ein 330 m hoher Turm. "
+                + "Er steht in Paris, z. B. am Marsfeld. Er wurde 1889 eröffnet.\",\"content_urls\":{\"mobile\":{\"page\":\"https://de.m.wikipedia.org/wiki/Eiffelturm\"}}}");
+        check(w != null && w.title.equals("Eiffelturm") && w.url.startsWith("https://de.m.wikipedia.org") && !w.ambiguous, "wiki summary");
+        check(Wiki.sentences(w.text, 2).equals("Der Eiffelturm ist ein 330 m hoher Turm. Er steht in Paris, z. B. am Marsfeld."), "wiki sentences: " + Wiki.sentences(w.text, 2));
+        check(Wiki.parse("{\"type\":\"https://mediawiki.org/wiki/HyperSwitch/errors/not_found\"}") == null && Wiki.parse("kaputt") == null, "wiki not found");
+        check(LockRule.needed(true, true, true, true, 1000, 0) && !LockRule.needed(true, false, true, true, 1000, 0)
+                && !LockRule.needed(false, true, true, true, 1000, 0) && !LockRule.needed(true, true, false, true, 1000, 0), "lock: only with screen lock and switched on");
+        check(!LockRule.needed(true, true, true, false, 60_000, 0) && LockRule.needed(true, true, true, false, LockRule.IDLE_MS + 1, 0), "lock: 5 minutes free");
+        String code = LockRule.newCode();
+        check(code.matches("\\d{6}") && LockRule.codeOk(code, 0, 0, code.substring(0, 3) + " " + code.substring(3), 1000), "code: 6 digits, spaces ok");
+        check(!LockRule.codeOk(code, 0, 0, code, LockRule.CODE_MS + 1) && !LockRule.codeOk(code, 0, LockRule.CODE_TRIES, code, 1)
+                && !LockRule.codeOk(code, 0, 0, "000000".equals(code) ? "111111" : "000000", 1), "code: expires, limited tries, wrong code");
     }
 
     private static void phones() {
@@ -383,7 +422,9 @@ public final class MobileTest {
         expect("Spiele NDR", "TV(NDR Hamburg)");
         expect("Fernsehen", "TV()");
         expect("Suche nach Pizza in der Nähe", "SEARCH(Pizza in der Nähe)");
-        expect("Wer ist Albert Einstein", "SEARCH(Wer ist Albert Einstein)");
+        expect("Wer ist Albert Einstein", "WIKI(Albert Einstein)");
+        expect("Was ist der Eiffelturm?", "WIKI(der Eiffelturm)");
+        expect("Erzähl mir etwas über Hamburg", "WIKI(Hamburg)");
         expect("Lauter", "VOLUME()");
         check(NovaBrain.understand("Leiser bitte", true).level == -1, "volume down");
         check(NovaBrain.understand("Ton aus", true).level == 0, "mute");

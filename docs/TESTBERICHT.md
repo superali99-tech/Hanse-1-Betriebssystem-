@@ -457,6 +457,24 @@ Android-x86 9 in QEMU, Hochformat, Deutsch. Bilder 68–72.
 | Speicher 512 GB | ✅ | Preis 1.199 € |
 | Wunschliste | ✅ | „Auf deiner Wunschliste“, Herz auf der Karte, Filter „Wunschliste“ |
 
+### Update 0.1.1.63: Konto und Sicherheit, klügerer Nova (21.11.2026)
+
+Android-x86 9 in QEMU, Hochformat, Deutsch; Wikipedia über den Proxy der Testumgebung. Bilder 73–78
+(Androids PIN-Abfrage selbst lässt sich nicht fotografieren – Android sperrt Bildschirmfotos davon).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1485 bestanden (neu: Einheiten, Tage bis Weihnachten/Silvester/Ostern, Osterdatum, Würfel/Münze, Wikipedia-Titel/Antwort/Sätze, Sperr-Regel, Codes: 6 Ziffern, Ablauf, Versuche) |
+| Konto ohne Bildschirmsperre | ✅ | Infos, „keine“ Sperre, „PIN, Muster oder Passwort einrichten“ |
+| PIN 1234 gesetzt, Nova Chat öffnen | ✅ | Androids PIN-Abfrage, nach 1234 öffnet sich der Chat |
+| Bildschirm aus/an, Nova Mail öffnen, Abfrage abbrechen | ✅ | Nova Mail schließt sich, Startbildschirm |
+| Konto öffnen → PIN; „Name ändern“ → erneut PIN → Dialog | ✅ | Name gespeichert |
+| Nova: „wer ist albert einstein“ | ✅ | erste zwei Sätze aus Wikipedia |
+| Nova: „wie viele tage bis weihnachten“, „5 km in meilen“ | ✅ | „Noch 34 Tage bis Weihnachten.“, „Das sind 3,11 Meilen.“ |
+
+**Nicht getestet:** Fingerabdruck (VM ohne Sensor; auf Android 10+ fragt Android über BiometricPrompt nach
+Fingerabdruck oder PIN), Bestätigungscode per E-Mail mit echtem Postfach, Abmelden.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

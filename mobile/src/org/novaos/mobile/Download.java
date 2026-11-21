@@ -118,7 +118,7 @@ final class Download {
             con.setInstanceFollowRedirects(false);
             con.setConnectTimeout(TIMEOUT_MS);
             con.setReadTimeout(TIMEOUT_MS);
-            con.setRequestProperty("User-Agent", "NovaOS-Mobile");
+            con.setRequestProperty("User-Agent", "NovaOS-Mobile (https://github.com/superali99-tech/Hanse-1-Betriebssystem-)");  // Wikimedia asks for a contact
             if (auth != null && u.getAuthority().equals(first)) con.setRequestProperty("Authorization", auth);
             if (accept != null) con.setRequestProperty("Accept", accept);
             int code = con.getResponseCode();

@@ -1,7 +1,7 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
-@apps: shop, store
-Neu: Nova Phone Shop – die Nova-Handys Nova 1, Nova 2, Pro, Pro Max und Lite|New: Nova Phone Shop – the Nova phones Nova 1, Nova 2, Pro, Pro Max and Lite
-Große Bilder zum Drehen (vorne, hinten), alle Farben, Speicher mit Preis von 249 € bis 1.199 €|Big pictures to turn (front, back), all colours, storage with price from €249 to €1,199
-Highlights wie Nova KI-Assistent und Profi-Kamera, technische Daten, Wunschliste|Highlights like the Nova AI assistant and pro camera, technical data, wish list
-Ehrlich: Die Nova-Handys sind Konzepte – kaufen kann man sie noch nicht|Honest: the Nova phones are concepts – they cannot be bought yet
+@apps: settings, nova, chat, mail, family, notes, files, gallery
+Neu: Konto und Sicherheit – deine Infos, Bildschirmsperre, Fingerabdruck, Abmelden|New: Account and security – your details, screen lock, fingerprint, sign out
+Nova-Apps geschützt: Chat, Mail, Family, Notizen, Dateien und Galerie fragen nach PIN, Muster oder Fingerabdruck|Nova apps protected: Chat, Mail, Family, Notes, Files and Gallery ask for your PIN, pattern or fingerprint
+Abmelden und Ändern nur nach Bestätigung (Sperre oder Code per E-Mail); Hilfe bei vergessener PIN|Signing out and changes only after confirming (lock or code by e-mail); help for a forgotten PIN
+Nova ist klüger: „Wer ist …?“ mit Wikipedia, „Wie viele Tage bis Weihnachten?“, „5 km in Meilen“, Würfeln|Nova is smarter: "Who is …?" with Wikipedia, "How many days until Christmas?", "5 km in miles", dice

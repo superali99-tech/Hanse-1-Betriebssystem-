@@ -87,6 +87,15 @@
   werden gezeichnet (`PhoneRender`: Vorderseite mit NovaOS-Bildschirm, Rückseite mit Kameramodul je Modell, Metallrahmen,
   Glanz, Schatten), Trailer-Banner, Filter, Suche, Produktseite mit Farben, Speicher und Preis, Highlights,
   technischen Daten und Wunschliste; klar als Konzept gekennzeichnet, keine Zahlungsdaten
+* **NovaOS Mobile 0.1.1.63 – Konto und Sicherheit, klügerer Nova**: Seite „Konto und Sicherheit“ (Name, E-Mail,
+  Anmeldeweg, Alter, Gerät, Bildschirmsperre, Fingerabdruck); Schutz der Nova-Apps mit persönlichen Daten (Chat, Mail,
+  Family, Notizen, Dateien, Galerie, Einstellungen) über Androids eigene Abfrage (BiometricPrompt bzw. Sperrbildschirm-
+  Bestätigung: PIN, Muster, Passwort, Fingerabdruck/Gesicht) – frei bis der Bildschirm ausgeht oder 5 Minuten ungenutzt;
+  Abmelden, Namen ändern und Schutz ausschalten nur nach Bestätigung (ohne Sperre: 6-stelliger Code per E-Mail über das
+  eigene Nova-Mail-Konto, 10 Minuten gültig, 5 Versuche); „PIN vergessen?“ mit ehrlichen Wegen (neue PIN, Google „Mein
+  Gerät finden“, Samsung „SmartThings Find“, Zurücksetzen). Nova: Wikipedia-Antworten („Wer ist …“, „Was ist …“),
+  „Wie viele Tage bis Weihnachten/Ostern/24.12.“, Einheiten umrechnen (km/Meilen, °C/°F, kg/Pfund, Liter/Gallonen,
+  km/h/mph), Würfeln und Münzwurf
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 
