@@ -144,6 +144,10 @@
   einer Nova-App startet das Update direkt dort mit Ring ums Symbol, „Wird heruntergeladen … 45 %“ und Pause,
   „Alle aktualisieren“ (die Nova-Apps stecken in NovaOS: ein Update bringt alle geänderten mit). Software-Update
   zeigt „NovaOS 1.5 (0.1.1.N)“ (`release=` in `update.properties`), „Letztes erfolgreiches Update“ zeigt „1.5“
+* **NovaOS Mobile 0.1.1.77 – große Updates heißen „NovaOS 1.5“**: steht in `whatsnew.txt` die Zeile `@release: 1.5`,
+  zeigen „Was ist neu“, Update-Verlauf, Software-Update, Nova Store, Einstellungen, Hinweise und die Startanimation
+  „NovaOS 1.5“ statt der langen Nummer; kleine und mittlere Updates (ohne die Zeile) zeigen weiter 0.1.1.N. Im
+  Update-Verlauf: „== NovaOS 1.5 (0.1.1.75) · Datum“. `release=` steht nur noch bei großen Updates in `update.properties`
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

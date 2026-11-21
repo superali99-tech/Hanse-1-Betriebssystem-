@@ -51,6 +51,29 @@ final class Updates {
         }
     }
 
+    private static String installedRelease;
+
+    /**
+     * How the installed NovaOS is called: a big update by its name ("1.5"), small and medium
+     * updates by their long number ("0.1.1.76") - "@release:" in res/raw/whatsnew.txt.
+     */
+    static String displayName(Context c) {
+        if (installedRelease == null) {
+            String text = "";
+            try (java.io.InputStream in = c.getResources().openRawResource(R.raw.whatsnew)) {
+                java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) > 0) b.write(buf, 0, n);
+                text = new String(b.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
+            } catch (java.io.IOException | RuntimeException ignored) {
+                // no notes: the long number
+            }
+            installedRelease = UpdateInfo.release(text);
+        }
+        return installedRelease.isEmpty() ? installedName(c) : installedRelease;
+    }
+
     static String installedName(Context c) {
         try {
             return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).versionName;

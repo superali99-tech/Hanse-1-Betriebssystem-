@@ -388,7 +388,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
 
     /** "Installiert: NovaOS 0.1.1.64" + when it was installed and when NovaOS last looked for updates. */
     private String installedLine() {
-        StringBuilder b = new StringBuilder(getString(R.string.update_current, Updates.installedName(this)));
+        StringBuilder b = new StringBuilder(getString(R.string.update_current, Updates.displayName(this)));
         long at = Updates.installedAt(this), checked = Updates.lastChecked(this);
         if (at > 0) b.append('\n').append(getString(R.string.update_last_installed, UpdateNotes.when(this, at)));
         if (checked > 0) b.append('\n').append(getString(R.string.update_last_checked, UpdateNotes.when(this, checked)));
@@ -399,8 +399,8 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
     private String notesText(UpdateInfo u) {
         List<String> lines = u != null ? u.notes(german) : UpdateInfo.whatsNew(UpdateNotes.raw(this, R.raw.whatsnew), german);
         if (lines.isEmpty()) return "";
-        StringBuilder b = new StringBuilder(u != null ? getString(R.string.update_menu_coming, u.versionName)
-                : getString(R.string.update_whatsnew_installed, Updates.installedName(this))).append('\n');
+        StringBuilder b = new StringBuilder(u != null ? getString(R.string.update_menu_coming, u.label())
+                : getString(R.string.update_whatsnew_installed, Updates.displayName(this))).append('\n');
         for (String l : lines) b.append("\n•  ").append(l);
         return b.toString();
     }

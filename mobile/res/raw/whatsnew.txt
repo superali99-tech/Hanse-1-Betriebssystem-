@@ -1,6 +1,8 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
 # "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
+# "@release: 1.5": a big update - shown as "NovaOS 1.5" instead of the long number (leave out for small ones).
+@release: 1.5
 @apps: store, settings
 NovaOS 1.5: neuer Startbildschirm wie bei Samsung – Wetter-Widget, Apps im Raster, Suchleiste und Dock|NovaOS 1.5: new home screen like on Samsung phones – weather widget, apps in a grid, search bar and dock
 Hochwischen öffnet alle Apps: Seiten zum Seitwärts-Wischen, „Suchen“ unten, eigene Reihenfolge (neue Apps hinten)|Swipe up for all apps: pages to swipe sideways, "Search" at the bottom, your own order (new apps at the end)
@@ -8,3 +10,4 @@ Rote Zahlen an den Apps: ungelesene Chats und Mails, Nova-Apps mit Update|Red nu
 Nova TV und Nova Filme sind jetzt eigene Apps|Nova TV and Nova Films are now apps of their own
 {store} Nova-Apps einzeln aktualisieren – direkt im Nova Store, mit Fortschritt am Symbol|Update Nova apps one by one – right in the Nova Store, with progress at the icon
 {settings} Software-Update zeigt „NovaOS 1.5“|Software update shows "NovaOS 1.5"
+Große Updates heißen „NovaOS 1.5“, kleine und mittlere zeigen weiter die lange Versionsnummer|Big updates are called "NovaOS 1.5", small and medium ones keep the long version number

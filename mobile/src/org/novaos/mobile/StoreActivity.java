@@ -347,8 +347,8 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
             String error = e.error();
             line.setText(busy ? NovaUpdate.status(this, e)
                     : update && !error.isEmpty() ? error
-                    : update ? getString(R.string.store_nova_new, pending.versionName)
-                    : getString(R.string.store_nova_included, Updates.installedName(this)));
+                    : update ? getString(R.string.store_nova_new, pending.label())
+                    : getString(R.string.store_nova_included, Updates.displayName(this)));
         }
         if (novaAll != null) novaAll.setVisibility(changed > 1 && !e.running() ? View.VISIBLE : View.GONE);
     }

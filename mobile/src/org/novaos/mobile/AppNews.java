@@ -45,7 +45,7 @@ final class AppNews {
         if (pending != null && pending.apps.contains(key)) {
             Item i = new Item();
             i.upcoming = true;
-            i.version = pending.versionName;
+            i.version = pending.label();
             i.lines = pending.appNotes(key, de);
             return i.lines.isEmpty() ? null : i;
         }
@@ -53,7 +53,7 @@ final class AppNews {
         long at = Updates.installedAt(c);
         if (lines.isEmpty() || !News.show(true, at, System.currentTimeMillis(), false)) return null;
         Item i = new Item();
-        i.version = Updates.installedName(c);
+        i.version = Updates.displayName(c);
         i.date = at;
         i.lines = lines;
         return i;

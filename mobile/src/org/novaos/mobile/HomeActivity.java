@@ -359,7 +359,7 @@ public class HomeActivity extends Activity {
         UpdateInfo update = Updates.pending(this);
         if (update != null) {
             boolean ready = Updates.readyApk(this, update) != null;
-            updatePill.setText("⟳  " + getString(ready ? R.string.home_update_ready : R.string.home_update_sub, update.versionName));
+            updatePill.setText("⟳  " + getString(ready ? R.string.home_update_ready : R.string.home_update_sub, update.label()));
             updatePill.setVisibility(View.VISIBLE);
         } else {
             updatePill.setVisibility(View.GONE);

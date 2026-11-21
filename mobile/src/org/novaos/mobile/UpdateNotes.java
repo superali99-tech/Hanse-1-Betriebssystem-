@@ -71,9 +71,9 @@ final class UpdateNotes {
         List<String[]> blocks = new ArrayList<>();
         UpdateInfo pending = Updates.pending(a);
         if (pending != null && !pending.notes(german).isEmpty()) {
-            blocks.add(new String[] {a.getString(R.string.update_menu_coming, pending.versionName), bullets(pending.notes(german))});
+            blocks.add(new String[] {a.getString(R.string.update_menu_coming, pending.label()), bullets(pending.notes(german))});
         }
-        blocks.add(new String[] {a.getString(R.string.update_menu_installed, Updates.installedName(a)),
+        blocks.add(new String[] {a.getString(R.string.update_menu_installed, Updates.displayName(a)),
                 dated(a, Updates.installedAt(a), 0) + bullets(UpdateInfo.whatsNew(raw(a, R.raw.whatsnew), german))});
         dialog(a, R.string.update_menu_whatsnew, blocks);
     }
@@ -83,11 +83,11 @@ final class UpdateNotes {
         boolean german = german();
         List<String[]> blocks = new ArrayList<>();
         java.util.Map<String, Long> log = Updates.installLog(a);
-        blocks.add(new String[] {a.getString(R.string.update_menu_installed, Updates.installedName(a)),
+        blocks.add(new String[] {a.getString(R.string.update_menu_installed, Updates.displayName(a)),
                 dated(a, Updates.installedAt(a), 0) + bullets(UpdateInfo.whatsNew(raw(a, R.raw.whatsnew), german))});
         for (History.Entry e : History.parse(raw(a, R.raw.history))) {
-            if (e.version().equals(Updates.installedName(a))) continue;
-            Long installed = log.get(e.version());
+            if (e.build().equals(Updates.installedName(a)) || e.version().equals(Updates.installedName(a))) continue;
+            Long installed = log.get(e.build());
             blocks.add(new String[] {"NovaOS " + e.version(), dated(a, installed == null ? 0 : installed, e.released()) + bullets(e.lines(german))});
         }
         dialog(a, title, blocks);

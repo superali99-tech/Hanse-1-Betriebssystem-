@@ -116,13 +116,11 @@ def esc(t):  # Java properties: ASCII with \\uXXXX (UTF-16 units)
 	return "".join(chr(u) if 32 <= u < 127 else "\\u%04x" % u for u in units)
 print("# NovaOS Mobile software update")
 print(f"versionCode={code}\nversionName={name}\napk=novaos-mobile.apk\nsha256={sha}\nsize={size}")
-import os, re as _re
-facts = open(os.path.join(os.path.dirname(news), "..", "..", "src", "org", "novaos", "mobile", "UpdateFacts.java"), encoding="utf-8").read()
-m = _re.search(r'RELEASE = "([0-9.]+)"', facts)
-if m:  # the NovaOS generation ("1.5"): the software update shows "NovaOS 1.5 (0.1.1.N)"
-	print("release=" + m.group(1))
 lines = [l.strip() for l in open(news, encoding="utf-8") if l.strip() and not l.startswith("#")]
 apps = [a.strip() for l in lines if l.startswith("@apps:") for a in l[6:].split(",") if a.strip()]
+rel = [l[9:].strip() for l in lines if l.startswith("@release:")]
+if rel:  # a big update with a name ("1.5"): shown instead of the long number
+	print("release=" + rel[0])
 if apps:  # the Nova apps this update changes (Nova Store: "Aktualisieren")
 	print("apps=" + ",".join(apps))
 lines = [l for l in lines if not l.startswith("@")]

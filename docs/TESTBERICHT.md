@@ -600,6 +600,19 @@ Hochformat 720×1280, frisch gestartet, Standort über die Test-App (Mölln). Bi
 **Nicht getestet:** Querformat, ein Handy mit mehr als 6 Reihen, „Alle aktualisieren“ (das echte Update ändert nur
 Nova Karte), Wischen auf einem echten Handy (im Emulator kamen schnelle Gesten manchmal zu spät an).
 
+### Update 0.1.1.77: große Updates heißen „NovaOS 1.5“ (21.11.2026)
+
+Rückmeldung (Bild vom Tablet): „Was ist neu“ zeigte „Installiert: NovaOS 0.1.1.75“ statt „NovaOS 1.5“. Regel jetzt: großes
+Update (vom Nutzer so angesagt, `@release: 1.5`) = Name, kleine und mittlere = lange Nummer.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1796 bestanden (neu: `@release` in den Neuerungen, großes Update heißt „1.5“, kleines behält die Nummer, Verlauf „NovaOS 1.5 (0.1.1.75)“ mit Build für das Installationsdatum) |
+| `update.properties` des Builds | ✅ | `release=1.5` nur mit `@release:`-Zeile |
+
+**Nicht getestet:** im Emulator (die Testumgebung startete währenddessen neu); die Anzeigen nutzen alle dieselbe
+Funktion (`Updates.displayName`, `UpdateInfo.label`).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

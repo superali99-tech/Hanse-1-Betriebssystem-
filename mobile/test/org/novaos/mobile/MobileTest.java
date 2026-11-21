@@ -370,9 +370,16 @@ public final class MobileTest {
     private static void update() {
         String withRelease = "versionCode=10100075\nversionName=0.1.1.75\napk=novaos-mobile.apk\nsha256=" + "a".repeat(64) + "\nsize=3000000\nrelease=1.5\n";
         UpdateInfo rel = UpdateInfo.parse(withRelease);
-        check(rel != null && rel.release.equals("1.5") && rel.label().equals("1.5 (0.1.1.75)"), "update: release name 1.5");
+        check(rel != null && rel.release.equals("1.5") && rel.label().equals("1.5"), "update: a big update is called 1.5");
         UpdateInfo noRel = UpdateInfo.parse(withRelease.replace("release=1.5", "release=<b>"));
         check(noRel != null && noRel.release.isEmpty() && noRel.label().equals("0.1.1.75"), "update: odd release name ignored");
+        check(UpdateInfo.parse(withRelease.replace("release=1.5\n", "")).label().equals("0.1.1.75"), "update: a small update keeps the long number");
+        check(UpdateInfo.release("# x\n@release: 1.5\n@apps: map\nNeu|New").equals("1.5") && UpdateInfo.release("@apps: map\nNeu|New").isEmpty()
+                && UpdateInfo.release("@release: eins").isEmpty(), "update: @release in the notes");
+        History.Entry big = History.parse("== NovaOS 1.5 (0.1.1.75) · 21.11.2026\nNeu|New\n").get(0);
+        check(big.version().equals("1.5") && big.build().equals("0.1.1.75") && big.released() > 0, "history: big update with name and build");
+        History.Entry small = History.parse("== NovaOS 0.1.1.74 · 21.11.2026\nNeu|New\n").get(0);
+        check(small.version().equals("0.1.1.74") && small.build().equals("0.1.1.74"), "history: small update with its number");
         // like One UI: "NovaOS 1.0", "31. Oktober 2026 um 16:37", the update facts
         check(UpdateFacts.title().equals("NovaOS 1.5"), "facts: NovaOS 1.5");
         java.util.TimeZone berlin = java.util.TimeZone.getTimeZone("Europe/Berlin");

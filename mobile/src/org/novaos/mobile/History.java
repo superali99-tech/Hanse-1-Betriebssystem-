@@ -23,6 +23,12 @@ public final class History {
             return m.find() ? m.group(1) : title;
         }
 
+        /** The build of the title: "NovaOS 1.5 (0.1.1.75) · …" -> "0.1.1.75"; without one the version. */
+        public String build() {
+            java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\(([0-9][0-9.]*)\\)").matcher(title);
+            return m.find() ? m.group(1) : version();
+        }
+
         /** The release date of the title ("20.11.2026"), local midnight in ms; 0 if there is none. */
         public long released() {
             java.util.regex.Matcher m = java.util.regex.Pattern.compile("(\\d{1,2})\\.(\\d{1,2})\\.(\\d{4})").matcher(title);

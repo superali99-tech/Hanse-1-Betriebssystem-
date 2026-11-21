@@ -211,7 +211,7 @@ public class BootActivity extends Activity {
         panel.setElevation(Ui.dp(this, 12));
         int p = Ui.dp(this, 22);
         panel.setPadding(p, p, p, p);
-        panel.addView(Ui.text(this, getString(R.string.whatsnew_title, Updates.installedName(this)), 20, Color.WHITE, true));
+        panel.addView(Ui.text(this, getString(R.string.whatsnew_title, Updates.displayName(this)), 20, Color.WHITE, true));
         for (String line : UpdateInfo.whatsNew(raw(R.raw.whatsnew), german)) {
             TextView t = Ui.text(this, "•  " + line, 15, Color.WHITE, false);
             t.setPadding(0, Ui.dp(this, 10), 0, 0);

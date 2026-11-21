@@ -32,8 +32,8 @@ public class SettingsActivity extends Activity {
                 v -> startActivity(new android.content.Intent(this, AccountActivity.class))));
         UpdateInfo update = Updates.pending(this);
         content.addView(row(R.drawable.ic_refresh, R.string.update_title, update != null
-                        ? getString(R.string.update_available) + " · NovaOS " + update.versionName
-                        : getString(R.string.update_current, Updates.installedName(this)),
+                        ? getString(R.string.update_available) + " · NovaOS " + update.label()
+                        : getString(R.string.update_current, Updates.displayName(this)),
                 v -> startActivity(new android.content.Intent(this, UpdateActivity.class))));
         content.addView(row(R.drawable.ic_novaos_restart, R.string.restart, getString(R.string.restart_sub),
                 v -> startActivity(new android.content.Intent(this, BootActivity.class)

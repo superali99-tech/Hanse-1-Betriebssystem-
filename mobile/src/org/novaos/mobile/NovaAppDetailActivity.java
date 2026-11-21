@@ -112,7 +112,7 @@ public class NovaAppDetailActivity extends Activity {
         names.setOrientation(LinearLayout.VERTICAL);
         names.addView(Ui.text(this, getString(app.name), 26, Color.WHITE, true));
         names.addView(Ui.text(this, "NovaOS", 16, 0xFFB9A8FF, true));
-        names.addView(Ui.text(this, getString(R.string.store_nova_included, Updates.installedName(this)), 13, getColor(R.color.text_muted), false));
+        names.addView(Ui.text(this, getString(R.string.store_nova_included, Updates.displayName(this)), 13, getColor(R.color.text_muted), false));
         LinearLayout.LayoutParams nl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
         nl.leftMargin = Ui.dp(this, 16);
         head.addView(names, nl);
@@ -122,7 +122,7 @@ public class NovaAppDetailActivity extends Activity {
         LinearLayout facts = new LinearLayout(this);
         facts.setGravity(Gravity.CENTER_VERTICAL);
         facts.setPadding(0, Ui.dp(this, 18), 0, Ui.dp(this, 4));
-        fact(facts, Updates.installedName(this), getString(R.string.store_detail_version), false);
+        fact(facts, Updates.displayName(this), getString(R.string.store_detail_version), false);
         fact(facts, getString(R.string.nova_detail_free), getString(R.string.nova_detail_price), true);
         fact(facts, getString(R.string.nova_detail_none), getString(R.string.nova_detail_ads), true);
         fact(facts, getString(R.string.nova_detail_on_phone), getString(R.string.nova_detail_data), true);

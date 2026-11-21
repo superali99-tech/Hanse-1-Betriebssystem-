@@ -39,7 +39,7 @@ final class UpdateNotice {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         @SuppressWarnings("deprecation")
         Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CHANNEL) : new Notification.Builder(c);
-        String text = c.getString(ready ? R.string.notify_ready : R.string.notify_available, u.versionName);
+        String text = c.getString(ready ? R.string.notify_ready : R.string.notify_available, u.label());
         b.setSmallIcon(R.drawable.ic_refresh)
                 .setColor(c.getColor(R.color.nova_violet))
                 .setContentTitle(c.getString(R.string.home_update_banner))

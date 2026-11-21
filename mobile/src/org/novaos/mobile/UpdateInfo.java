@@ -21,7 +21,7 @@ public final class UpdateInfo {
     public final List<String> notesDe, notesEn;
     /** Nova apps changed by this update ("apps=chat,mail"): the Nova Store shows "Aktualisieren" for them. */
     public final List<String> apps = new ArrayList<>();
-    /** The NovaOS generation this update brings ("1.5"), or "" (older update descriptions). */
+    /** The name of a big update ("1.5"); "" for small and medium updates (they show versionName). */
     public String release = "";
     private final java.util.Map<String, List<String>> appNotesDe = new java.util.HashMap<>(), appNotesEn = new java.util.HashMap<>();
 
@@ -36,9 +36,21 @@ public final class UpdateInfo {
         this.notesEn = notesEn;
     }
 
-    /** "1.5 (0.1.1.75)" - or only the build number when the update names no generation. */
+    /** A big update shows its name ("1.5"), the small and medium ones their long number ("0.1.1.76"). */
     public String label() {
-        return release.isEmpty() ? versionName : release + " (" + versionName + ")";
+        return release.isEmpty() ? versionName : release;
+    }
+
+    /** "@release: 1.5" in res/raw/whatsnew.txt: this version is a big update with a name; "" otherwise. */
+    public static String release(String whatsnew) {
+        if (whatsnew == null) return "";
+        for (String raw : whatsnew.split("\r?\n")) {
+            String line = raw.trim();
+            if (!line.startsWith("@release:")) continue;
+            String r = line.substring(9).trim();
+            return r.matches("[0-9]{1,3}(\\.[0-9]{1,3}){0,2}") ? r : "";
+        }
+        return "";
     }
 
     /** null if the text is not a valid update description. */
