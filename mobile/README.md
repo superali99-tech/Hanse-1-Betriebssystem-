@@ -53,6 +53,17 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Profi-Kamera, Hochleistung) und technischen Daten. Die Bilder werden von NovaOS gezeichnet (keine Fotos). **Ehrlich:**
   Die Nova-Handys sind Konzepte – es gibt sie nicht zu kaufen, deshalb gibt es eine Wunschliste statt einer Kasse und
   der Shop fragt nie nach Zahlungsdaten.
+* **Nova Karte**: Karte von **OpenStreetMap** (verschieben, mit zwei Fingern oder Doppeltipp zoomen, eigener Standort
+  mit Blickrichtung), **Suche** nach Orten und Adressen (Photon, eigene Umgebung zuerst; zuletzt gesuchte Orte),
+  langer Druck markiert einen Ort. **Route** mit Auto, Fahrrad oder zu Fuß (Routing-Server der FOSSGIS mit OSRM):
+  Dauer, Strecke, Ankunftszeit, die wichtigsten Straßen und alle Schritte. **Navigation** wie bei Google Maps: grüner
+  Balken mit Abbiege-Pfeil, Entfernung und Straße, „Danach: …“, unten Restzeit, Strecke und Ankunft – und **Nova sagt
+  an**: „In 400 Metern …“, „In 150 Metern rechts abbiegen auf Gertrudenstraße“, „Jetzt links abbiegen“, „Im
+  Kreisverkehr die zweite Ausfahrt nehmen“, „Du hast dein Ziel erreicht“; fährt man anders, wird die Route neu
+  berechnet. **Vorschau** fährt die Route zum Ausprobieren ab. Nova: „Navigiere nach Hamburg Hauptbahnhof“, „Wie komme
+  ich zum Rathaus?“, „Öffne die Karte“; andere Apps können Orte öffnen (`geo:`). **Ehrlich:** Karte, Suche und Routen
+  brauchen Internet (keine Offline-Karten), und die Navigation läuft, solange Nova Karte geöffnet ist (der Bildschirm
+  bleibt dafür an) – noch nicht im Hintergrund. Daten © OpenStreetMap-Mitwirkende.
 * **Nova Kamera**: Fotos mit Vorschau, Blitz (Auto/An/Aus), Vorder-/Rückkamera, letztes Foto als
   Knopf zur Galerie, Symbole drehen sich mit dem Handy; Fotos landen in *DCIM/NovaOS*
 * **Nova Galerie**: alle Fotos und Videos, neueste zuerst; Vollbild mit Wischen, Teilen, Löschen
@@ -270,6 +281,8 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `AccountActivity.java`, `AppLock.java`, `ConfirmActivity.java`, `NovaApp.java`, `LockRule.java` | Konto und Sicherheit, Schutz der Nova-Apps mit Androids Sperre/Fingerabdruck, Bestätigungscodes (getestet) |
 | `Wiki.java` | Nova: Wikipedia-Zusammenfassungen (getestet) |
 | `NovaAppDetailActivity.java`, `NewsActivity.java`, `AppNews.java`, `News.java` | Infoseite der Nova-Apps, „Neue Funktionen“, Regeln für „Neuerungen“ (getestet) |
+| `MapActivity.java`, `MapView.java`, `ManeuverView.java` | Nova Karte: Bildschirm, Karte aus OpenStreetMap-Kacheln, Abbiege-Pfeile |
+| `Geo.java`, `NavRoute.java`, `NavText.java`, `Guidance.java`, `Places.java` | Karten-Mathe, Routen lesen, Ansagen, Navigation, Ortssuche (getestet mit echten Server-Antworten in `test/*.json`) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |

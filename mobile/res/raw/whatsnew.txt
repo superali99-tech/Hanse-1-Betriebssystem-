@@ -1,8 +1,8 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
 # "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
-@apps: store, settings
-{store} Nova Store: Nova-Apps antippen zeigt ihre Infoseite wie im Play Store|Nova Store: tapping a Nova app shows its info page like in the Play Store
-{store} „Neuerungen •“ mit blauem Punkt: 3 Stunden nach einem Update und wenn das nächste kommt|"What's new •" with a blue dot: for 3 hours after an update and when the next one comes
-{store} Neuerungen ausschalten: ⋮ oben rechts → „Neuerungen anzeigen“|Switch off what's new: ⋮ at the top right → "Show what's new"
-{settings} Software-Update zeigt, wann zuletzt aktualisiert und gesucht wurde – auch im Update-Verlauf|Software update shows when it was last updated and checked – also in the update history
+@apps: map, nova
+{map} Neu: Nova Karte – Karte, Orte und Adressen suchen, Route mit Auto, Fahrrad oder zu Fuß|New: Nova Maps – map, search places and addresses, routes by car, bike or on foot
+{map} Navigation mit Ansagen: „In 200 Metern rechts abbiegen auf …“, „Jetzt links abbiegen“|Navigation with voice: "In 200 metres turn right onto …", "Now turn left"
+{map} Neue Route, wenn du anders fährst, Ankunftszeit und „Du hast dein Ziel erreicht“|New route when you take another way, arrival time and "You have arrived"
+{nova} Sag zu Nova: „Navigiere nach Hamburg Hauptbahnhof“ oder „Wie komme ich zum Rathaus?“|Say to Nova: "Navigate to Hamburg Hauptbahnhof" or "How do I get to the town hall?"
