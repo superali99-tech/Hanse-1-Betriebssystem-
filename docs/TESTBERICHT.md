@@ -492,7 +492,7 @@ Bildschirmgröße auf Querformat ausgelöst (dieselbe Neuerstellung der Seite wi
 **Nicht getestet:** Drehen während „Vorbereiten“ mit einem passend signierten Update (gleiche Hintergrund-Logik), echtes
 Drehen am Handy, langsames Netz mit Fortsetzen mitten im Download (HTTP-Range).
 
-### Update 0.1.1.65: Neuerungen, Infoseiten der Nova-Apps, Update-Daten (21.11.2026)
+### Update 0.1.1.66: Neuerungen, Infoseiten der Nova-Apps, Update-Daten (21.11.2026)
 
 Android-x86 9 in QEMU, Hochformat, Deutsch, Internet über den Proxy der Testumgebung. Bilder 83–88.
 
