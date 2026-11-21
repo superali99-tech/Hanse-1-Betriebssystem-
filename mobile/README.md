@@ -62,6 +62,9 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Kreisverkehr die zweite Ausfahrt nehmen“, „Du hast dein Ziel erreicht“; fährt man anders, wird die Route neu
   berechnet. „Starten“ fährt immer ab dem echten Standort (ist er noch unbekannt, wartet Nova Karte auf GPS);
   **Vorschau** fährt die Route zum Ausprobieren ab. Im Querformat liegen die Karten schmal links wie bei Google Maps.
+  **Standort:** GPS, auf Android 12+ zusätzlich der „fused“ Standort (GPS + WLAN + Mobilfunk) und das Mobilfunknetz;
+  eine ungenaue Mobilfunk-Position (oft der Nachbarort) verdrängt GPS nicht (`Fixes.java`). Erlaubt Android nur den
+  „ungefähren Standort“, fragt Nova Karte nach dem genauen; unter dem Suchfeld steht, solange der Standort ungenau ist.
   Nova: „Navigiere nach Hamburg Hauptbahnhof“, „Wie komme
   ich zum Rathaus?“, „Öffne die Karte“; andere Apps können Orte öffnen (`geo:`). **Ehrlich:** Karte, Suche und Routen
   brauchen Internet (keine Offline-Karten), und die Navigation läuft, solange Nova Karte geöffnet ist (der Bildschirm
@@ -289,6 +292,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `Wiki.java` | Nova: Wikipedia-Zusammenfassungen (getestet) |
 | `NovaAppDetailActivity.java`, `NewsActivity.java`, `AppNews.java`, `News.java` | Infoseite der Nova-Apps, „Neue Funktionen“, Regeln für „Neuerungen“ (getestet) |
 | `MapActivity.java`, `MapView.java`, `ManeuverView.java` | Nova Karte: Bildschirm, Karte aus OpenStreetMap-Kacheln, Abbiege-Pfeile |
+| `Fixes.java` | Welcher Standort zählt: GPS vor Mobilfunk, beste bekannte Position, „genau genug zum Navigieren“ (getestet) |
 | `res/xml/network_security.xml`, `res/raw/isrg_root_x2.pem` | Vertrauen: Zertifikate des Handys plus ISRG Root X2 (neue Let's-Encrypt-Ketten auf Android < 14); keine Nutzer-Zertifikate, kein http |
 | `Geo.java`, `NavRoute.java`, `NavText.java`, `Guidance.java`, `Places.java` | Karten-Mathe, Routen lesen, Ansagen, Navigation, Ortssuche (getestet mit echten Server-Antworten in `test/*.json`) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |

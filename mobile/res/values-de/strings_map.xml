@@ -25,7 +25,7 @@
     <string name="map_zoom_in">Vergrößern</string>
     <string name="map_zoom_out">Verkleinern</string>
     <string name="map_my_position">Mein Standort</string>
-    <string name="map_wait_position">Warte auf deinen Standort … die Navigation startet, sobald er bekannt ist (draußen klappt GPS am besten). „Vorschau“ zeigt die Route auch ohne.</string>
+    <string name="map_wait_position">Warte auf deinen genauen Standort (GPS) … die Navigation startet, sobald er da ist. Draußen klappt es am besten. „Vorschau“ zeigt die Route auch ohne.</string>
     <string name="map_no_position">Dein Standort wird gesucht … (draußen klappt es mit GPS am besten)</string>
     <string name="map_allow_location">Bitte erlaube Nova Karte den Standort.</string>
     <string name="map_stop">Beenden</string>
@@ -35,4 +35,16 @@
     <string name="map_preview_start">Vorschau der Route.</string>
     <string name="nova_navigate">Ich navigiere dich nach %1$s.</string>
     <string name="nova_map_open">Ich öffne die Karte.</string>
+    <string name="map_precise_title">Genauer Standort</string>
+    <string name="map_precise_text">Nova Karte darf nur deinen ungefähren Standort sehen. Der liegt oft einige Kilometer daneben – zum Beispiel im Nachbarort. Für die Karte und die Navigation bitte „Genauer Standort“ erlauben (bei „Einstellungen“: Berechtigungen → Standort → „Genauen Standort verwenden“).</string>
+    <string name="map_precise_allow">Genau erlauben</string>
+    <string name="map_precise_settings">Einstellungen</string>
+    <string name="map_later">Später</string>
+    <string name="map_location_off_title">Standort ist aus</string>
+    <string name="map_location_off_text">Schalte den Standort (GPS) ein, damit Nova Karte weiß, wo du bist.</string>
+    <string name="map_location_switch_on">Einschalten</string>
+    <string name="map_hint_off">📍 Standort ist aus – hier tippen zum Einschalten</string>
+    <string name="map_hint_approx">📍 Nur ungefährer Standort – hier tippen für den genauen</string>
+    <string name="map_hint_searching">📍 Suche deinen Standort (GPS) …</string>
+    <string name="map_hint_weak">📍 Standort noch ungenau (± %1$s) – warte auf GPS …</string>
 </resources>

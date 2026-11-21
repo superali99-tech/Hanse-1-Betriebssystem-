@@ -14,6 +14,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -67,6 +68,9 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     private Geo.Point me;
     private Geo.Point origin;  // without a position: the middle of the map before a place was shown
     private float myBearing = Float.NaN, myAccuracy;
+    private Fixes.Fix myFix;  // the position believed (see Fixes: mobile network never pushes GPS aside)
+    private TextView accuracyHint;
+    private static boolean askedPrecise, askedLocationOn;  // once per start of NovaOS
     private boolean follow = true;
     private Places.Place target;
     private String mode = NavRoute.CAR;
@@ -86,11 +90,12 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         speaker = new Speaker(this);
         mode = prefs().getString("mode", NavRoute.CAR);
         build();
-        Location last = lastKnown();
-        if (last != null) {
-            me = new Geo.Point(last.getLatitude(), last.getLongitude());
+        Fixes.Fix last = bestKnown();
+        if (last != null && System.currentTimeMillis() - last.time < Fixes.STALE_MS) {
+            accept(last);
             map.show(me, 15);
-            map.setPosition(me, Float.NaN, last.getAccuracy());
+        } else if (last != null) {
+            map.show(new Geo.Point(last.lat, last.lon), 13);  // where the phone was; the real position follows
         } else {
             map.show(new Geo.Point(51.16, 10.45), 6);  // Germany
         }
@@ -235,6 +240,15 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         });
         bar.addView(clear, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
         searchCard.addView(bar);
+        accuracyHint = Ui.text(this, "", 13, 0xFF3C4043, false);
+        accuracyHint.setBackground(card(0xF2FFFFFF, 16));
+        accuracyHint.setElevation(Ui.dp(this, 4));
+        accuracyHint.setPadding(Ui.dp(this, 14), Ui.dp(this, 7), Ui.dp(this, 14), Ui.dp(this, 7));
+        accuracyHint.setVisibility(View.GONE);
+        LinearLayout.LayoutParams hl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        hl.topMargin = Ui.dp(this, 8);
+        hl.leftMargin = Ui.dp(this, 4);
+        searchCard.addView(accuracyHint, hl);
         resultsScroll = new ScrollView(this);
         results = new LinearLayout(this);
         results.setOrientation(LinearLayout.VERTICAL);
@@ -490,35 +504,133 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
                 || checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
-    @SuppressWarnings("MissingPermission")
-    private Location lastKnown() {
-        if (!hasLocation()) return null;
-        LocationManager lm = getSystemService(LocationManager.class);
-        Location best = null;
-        for (String provider : lm.getProviders(true)) {
-            Location l = lm.getLastKnownLocation(provider);
-            if (l != null && (best == null || l.getTime() > best.getTime())) best = l;
-        }
-        return best;
+    private boolean precise() {
+        return checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
+    private void askLocation() {
+        requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION);
+    }
+
+    private boolean locationOn() {
+        LocationManager lm = getSystemService(LocationManager.class);
+        try {
+            // any source switched on is enough (some phones report the main switch oddly)
+            if (Build.VERSION.SDK_INT >= 28 && lm.isLocationEnabled()) return true;
+            return lm.isProviderEnabled(LocationManager.GPS_PROVIDER) || lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (RuntimeException e) {
+            return true;
+        }
+    }
+
+    private static Fixes.Fix fix(Location l) {
+        return new Fixes.Fix(l.getProvider(), l.getLatitude(), l.getLongitude(), l.hasAccuracy() ? l.getAccuracy() : 0, l.getTime());
+    }
+
+    /** The best position the phone still knows (not simply the newest: that may be the mobile network's). */
+    @SuppressWarnings("MissingPermission")
+    private Fixes.Fix bestKnown() {
+        if (!hasLocation()) return null;
+        LocationManager lm = getSystemService(LocationManager.class);
+        List<Fixes.Fix> known = new ArrayList<>();
+        for (String provider : lm.getProviders(true)) {
+            try {
+                Location l = lm.getLastKnownLocation(provider);
+                if (l != null) known.add(fix(l));
+            } catch (RuntimeException ignored) {
+                // this source is not allowed
+            }
+        }
+        return Fixes.best(known);
+    }
+
+    /** GPS, the fused position (GPS + Wi-Fi + mobile network, Android 12+) and the mobile network - each on its own. */
     @SuppressWarnings("MissingPermission")
     private void startLocation() {
         if (!hasLocation()) {
             if (!prefs().getBoolean("asked", false)) {
                 prefs().edit().putBoolean("asked", true).apply();
-                requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION);
+                askLocation();
             }
+            showAccuracy();
             return;
         }
         LocationManager lm = getSystemService(LocationManager.class);
-        try {
-            for (String provider : new String[] {LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER}) {
-                if (lm.getAllProviders().contains(provider)) lm.requestLocationUpdates(provider, 1000, 0, this, Looper.getMainLooper());
+        List<String> all = lm.getAllProviders();
+        String[][] sources = {{LocationManager.GPS_PROVIDER, "1000"}, {"fused", "1000"}, {LocationManager.NETWORK_PROVIDER, "3000"}};
+        for (String[] src : sources) {
+            if (!all.contains(src[0])) continue;
+            if (LocationManager.GPS_PROVIDER.equals(src[0]) && !precise()) continue;  // GPS needs "Genauer Standort"
+            try {
+                lm.requestLocationUpdates(src[0], Long.parseLong(src[1]), 0, this, Looper.getMainLooper());
+            } catch (RuntimeException ignored) {
+                // this source is not available on the phone
             }
-        } catch (RuntimeException ignored) {
-            // no location on this device
         }
+        if (!locationOn() && !askedLocationOn) {
+            askedLocationOn = true;
+            askLocationOn();
+        } else if (!precise() && !askedPrecise) {
+            askedPrecise = true;
+            askPrecise();
+        }
+        showAccuracy();
+    }
+
+    /** Android 12+ lets an app see only the "approximate" position - often the next village. */
+    private void askPrecise() {
+        new AlertDialog.Builder(this).setTitle(R.string.map_precise_title).setMessage(R.string.map_precise_text)
+                .setPositiveButton(R.string.map_precise_allow, (d, w) -> askLocation())
+                .setNeutralButton(R.string.map_precise_settings, (d, w) -> {
+                    try {
+                        startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                android.net.Uri.fromParts("package", getPackageName(), null)));
+                    } catch (RuntimeException ignored) {
+                        // no settings page
+                    }
+                })
+                .setNegativeButton(R.string.map_later, null).show();
+    }
+
+    private void askLocationOn() {
+        new AlertDialog.Builder(this).setTitle(R.string.map_location_off_title).setMessage(R.string.map_location_off_text)
+                .setPositiveButton(R.string.map_location_switch_on, (d, w) -> {
+                    try {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    } catch (RuntimeException ignored) {
+                        // no settings page
+                    }
+                })
+                .setNegativeButton(R.string.map_later, null).show();
+    }
+
+    /** The small note under the search bar: location off, only approximate, or not accurate yet. */
+    private void showAccuracy() {
+        if (accuracyHint == null) return;
+        String text = null;
+        View.OnClickListener click = null;
+        if (!hasLocation()) {
+            text = getString(R.string.map_allow_location);
+            click = v -> askLocation();
+        } else if (!locationOn()) {
+            text = getString(R.string.map_hint_off);
+            click = v -> askLocationOn();
+        } else if (!precise()) {
+            text = getString(R.string.map_hint_approx);
+            click = v -> askPrecise();
+        } else if (myFix == null) {
+            text = getString(R.string.map_hint_searching);
+        } else if (!myFix.good()) {
+            text = getString(R.string.map_hint_weak, Geo.distanceText(myFix.accuracy(), german));
+        }
+        accuracyHint.setText(text == null ? "" : text);
+        accuracyHint.setOnClickListener(click);
+        accuracyHint.setVisibility(text == null ? View.GONE : View.VISIBLE);
+    }
+
+    /** A position good enough to navigate from. */
+    private boolean located() {
+        return me != null && myFix != null && myFix.good();
     }
 
     private void stopLocation() {
@@ -532,25 +644,34 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     @Override
     public void onRequestPermissionsResult(int code, String[] permissions, int[] grants) {
         if (code == PERMISSION && hasLocation()) {
-            startLocation();
-            Location l = lastKnown();
-            if (l != null) onLocationChanged(l);
+            stopLocation();
+            startLocation();  // GPS only now that "Genauer Standort" may be allowed
+            Fixes.Fix f = bestKnown();
+            if (Fixes.better(f, myFix) && f != null && System.currentTimeMillis() - f.time < Fixes.STALE_MS) accept(f);
             centerOnMe();
         }
+        showAccuracy();
     }
 
     @Override
     public void onLocationChanged(Location l) {
         if (simulating) return;
-        // the GPS position is better than the one of the mobile network
-        if (LocationManager.NETWORK_PROVIDER.equals(l.getProvider()) && me != null && myAccuracy > 0 && myAccuracy < l.getAccuracy() && navigating) return;
-        Geo.Point now = new Geo.Point(l.getLatitude(), l.getLongitude());
+        Fixes.Fix f = fix(l);
+        // a worse position (e.g. the mobile network, kilometres off) does not push GPS aside
+        if (!Fixes.better(f, myFix)) return;
+        Geo.Point now = new Geo.Point(f.lat, f.lon);
         if (l.hasBearing() && l.getSpeed() > 1) myBearing = l.getBearing();
         else if (me != null && Geo.distance(me, now) > 4) myBearing = (float) Geo.bearing(me, now);
-        me = now;
-        myAccuracy = l.getAccuracy();
+        accept(f);
+    }
+
+    private void accept(Fixes.Fix f) {
+        myFix = f;
+        me = new Geo.Point(f.lat, f.lon);
+        myAccuracy = f.accuracy;
         map.setPosition(me, myBearing, myAccuracy);
-        if (startWhenLocated && !navigating && target != null) {
+        showAccuracy();
+        if (startWhenLocated && !navigating && target != null && f.good()) {
             // "Starten" waited for this: the route from here, then go
             startWhenLocated = false;
             goWhenReady = true;
@@ -575,7 +696,11 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         startWhenLocated = true;
         if (!hasLocation()) {
             Toast.makeText(this, R.string.map_allow_location, Toast.LENGTH_LONG).show();
-            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION);
+            askLocation();
+        } else if (!locationOn()) {
+            askLocationOn();
+        } else if (!precise()) {
+            askPrecise();  // the approximate position is kilometres off: no navigation from there
         } else {
             Toast.makeText(this, R.string.map_wait_position, Toast.LENGTH_LONG).show();
         }
@@ -584,7 +709,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
     private void centerOnMe() {
         if (me == null) {
             Toast.makeText(this, hasLocation() ? R.string.map_no_position : R.string.map_allow_location, Toast.LENGTH_LONG).show();
-            if (!hasLocation()) requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION);
+            if (!hasLocation()) askLocation();
             return;
         }
         follow = true;
@@ -760,7 +885,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         showPlace(p);
         if (goWhenReady) {
             // navigation starts from the real position, not from the middle of the map
-            if (me == null) {
+            if (!located()) {
                 goWhenReady = false;
                 waitForPosition();
             } else {
@@ -792,7 +917,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
         LinearLayout buttons = new LinearLayout(this);
         buttons.addView(pill("↱  " + getString(R.string.map_route), true, v -> routeTo(p)));
         buttons.addView(pill("▶  " + getString(R.string.map_start), false, v -> {
-            if (me == null) {
+            if (!located()) {
                 waitForPosition();
                 return;
             }
@@ -952,7 +1077,7 @@ public class MapActivity extends Activity implements MapView.Listener, LocationL
 
     private void startNavigation(boolean preview) {
         if (route == null) return;
-        if (!preview && me == null) {
+        if (!preview && !located()) {
             waitForPosition();
             return;
         }

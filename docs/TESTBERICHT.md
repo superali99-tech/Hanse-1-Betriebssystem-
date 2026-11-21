@@ -560,6 +560,24 @@ dem neuesten Stand.“, „Letztes erfolgreiches Update“). Bilder 96–99.
 
 **Nicht getestet:** Querformat dieser Seiten, „Erneut versuchen“ ohne Internet.
 
+### Update 0.1.1.74: Nova Karte nimmt den GPS-Standort (21.11.2026)
+
+Rückmeldung: „Er denkt, wir sind in Grambek, aber wir sind in Mölln.“ Nachgestellt in Android-x86 9 mit einer kleinen
+Test-App, die Positionen vorspielt (Android-Testanbieter für „gps“ und „network“, nur im Emulator): GPS Mölln
+(53,6281 / 10,6889, ± 8 m), Mobilfunk Grambek (53,5850 / 10,6640, ± 2,5 km). Bilder 100–101.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1768 bestanden (neu: Mobilfunk nach GPS wird ignoriert, GPS ersetzt Mobilfunk, nach 2 Minuten ohne GPS zählt die neuere, alte Position kommt nicht zurück, beste bekannte Position) |
+| Start mit GPS Mölln und neuerer Mobilfunk-Position Grambek | ✅ | Karte startet in Mölln (vorher: die neueste, also Grambek) |
+| Dreimal Mobilfunk Grambek, dann GPS ein paar Meter weiter | ✅ | blauer Punkt bleibt in der Mölner Altstadt und wandert mit GPS |
+| Nur „ungefährer Standort“ erlaubt | ✅ | Dialog „Genauer Standort“ (Genau erlauben / Einstellungen / Später) und Hinweis „Nur ungefährer Standort – hier tippen“ |
+| „Genau erlauben“ | ✅ | danach GPS angemeldet, Karte springt nach Mölln |
+| „Standort ist aus“ im Emulator, obwohl an | ❌ → behoben | Android 9 im Emulator meldet den Hauptschalter falsch; jetzt reicht eine eingeschaltete Quelle |
+
+**Nicht getestet:** ein echtes Handy mit GPS-Empfang und der Dialog „Genau/Ungefähr“ von Android 12+ (der Emulator hat
+Android 9). Bitte nach dem Update draußen ausprobieren: der blaue Punkt sollte nach einigen Sekunden genau stehen.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

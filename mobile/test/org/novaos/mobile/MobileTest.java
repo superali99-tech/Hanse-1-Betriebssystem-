@@ -74,6 +74,20 @@ public final class MobileTest {
 
     /** Nova Karte with real answers of the routing and place servers (test/*.json). */
     private static void navigation(java.io.File mobile) {
+        // which position to believe: the mobile network (Grambek, 2.5 km) never pushes GPS (Mölln, 8 m) aside
+        long t0 = 1_800_000_000_000L;
+        Fixes.Fix gps = new Fixes.Fix("gps", 53.6281, 10.6889, 8, t0);
+        Fixes.Fix cell = new Fixes.Fix("network", 53.5850, 10.6640, 2500, t0 + 5_000);
+        check(Fixes.better(gps, null) && !Fixes.better(cell, gps), "fixes: mobile network after GPS is ignored");
+        check(Fixes.better(gps, cell), "fixes: GPS replaces the mobile network");
+        check(Fixes.better(new Fixes.Fix("gps", 53.6290, 10.6895, 12, t0 + 1_000), gps), "fixes: GPS moving on (a bit less accurate)");
+        check(Fixes.better(new Fixes.Fix("network", 53.6, 10.7, 2500, t0 + 3 * 60_000), gps), "fixes: after 2 minutes without GPS the newer one counts");
+        check(!Fixes.better(new Fixes.Fix("gps", 53.62, 10.68, 5, t0 - 3 * 60_000), gps), "fixes: an old position does not come back");
+        check(Fixes.better(new Fixes.Fix("fused", 53.6282, 10.6888, 6, t0 + 1_000), gps), "fixes: a more accurate fused position");
+        check(!Fixes.better(new Fixes.Fix("fused", 53.6282, 10.6888, 40, t0 + 1_000), gps), "fixes: a worse position of another source");
+        check(gps.good() && !cell.good() && !new Fixes.Fix("gps", 0, 0, 0, t0).good(), "fixes: good enough to navigate");
+        java.util.List<Fixes.Fix> known = java.util.Arrays.asList(cell, gps, new Fixes.Fix("passive", 53.0, 10.0, 30, t0 - 3_600_000L));
+        check(Fixes.best(known) == gps, "fixes: best known position is the GPS one, not the newest");
         // Let's Encrypt X2 chains (routing.openstreetmap.de): the root is shipped, unchanged
         try {
             java.nio.charset.Charset u8 = java.nio.charset.StandardCharsets.UTF_8;

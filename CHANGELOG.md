@@ -126,6 +126,14 @@
   „Alle Änderungen“ und Aktualisierungsinformationen (NovaOS-Version 1.0, Android-Version, Build 0.1.1.N, Größe,
   Sicherheitspatch-Ebene). „NovaOS 1.0“ ist der Anzeigename; die Build-Nummer zählt für Updates weiter. Behoben: im
   Update-Verlauf standen Markierungen wie „{map}“ vor den Punkten
+* **NovaOS Mobile 0.1.1.74 – Nova Karte nimmt den GPS-Standort**: Rückmeldung aus Mölln, die Karte zeigte Grambek. Ursache:
+  eine neuere, aber ungenaue Position aus dem Mobilfunknetz (± 2–3 km) ersetzte die GPS-Position, beim Start wurde die
+  neueste statt der genauesten bekannten Position genommen, und „ungefährer Standort“ (Android 12+) wurde nicht erkannt.
+  Jetzt entscheidet `Fixes` (getestet): eine schlechtere Position anderer Herkunft ersetzt eine genaue erst, wenn diese
+  2 Minuten alt ist; GPS, „fused“ (Android 12+) und Mobilfunk werden einzeln angemeldet; bei nur ungefährem Standort
+  fragt Nova Karte nach dem genauen (oder öffnet die App-Einstellungen), bei ausgeschaltetem Standort nach dem
+  Einschalten; ein Hinweis unter dem Suchfeld zeigt „Standort noch ungenau (± 2,4 km)“; Navigation startet erst ab
+  einer Genauigkeit von 150 m
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

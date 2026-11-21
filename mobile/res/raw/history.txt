@@ -1,6 +1,11 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.72 · 21.11.2026
+{settings} Software-Update wie bei Samsung One UI: „NovaOS 1.0 – Deine Software ist auf dem neuesten Stand.“|Software update like Samsung One UI: "NovaOS 1.0 – Your software is up to date."
+{settings} Neue Seite „Letztes erfolgreiches Update“ mit Datum, „Alle Änderungen“ und Aktualisierungsinformationen|New page "Last successful update" with date, "All changes" and update information
+{settings} Zu finden über „NovaOS 1.0“ antippen oder ⋮ → „Letztes Update“|Open it by tapping "NovaOS 1.0" or ⋮ → "Last update"
+
 == NovaOS 0.1.1.70 · 21.11.2026
 {map} Neu: Nova Karte – Karte, Orte und Adressen suchen, Route mit Auto, Fahrrad oder zu Fuß|New: Nova Maps – map, search places and addresses, routes by car, bike or on foot
 {map} Navigation mit Ansagen: „In 200 Metern rechts abbiegen auf …“, „Jetzt links abbiegen“|Navigation with voice: "In 200 metres turn right onto …", "Now turn left"
