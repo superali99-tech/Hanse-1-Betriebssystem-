@@ -492,6 +492,25 @@ Bildschirmgröße auf Querformat ausgelöst (dieselbe Neuerstellung der Seite wi
 **Nicht getestet:** Drehen während „Vorbereiten“ mit einem passend signierten Update (gleiche Hintergrund-Logik), echtes
 Drehen am Handy, langsames Netz mit Fortsetzen mitten im Download (HTTP-Range).
 
+### Update 0.1.1.65: Neuerungen, Infoseiten der Nova-Apps, Update-Daten (21.11.2026)
+
+Android-x86 9 in QEMU, Hochformat, Deutsch, Internet über den Proxy der Testumgebung. Bilder 83–88.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1544 bestanden (neu: 3-Stunden-Regel, wartendes Update, ausgeschaltet; Zeilen je Nova-App `{app}`; `appnote.*`; Datum aus dem Verlauf; **jede Zeile mit genau einem „\|“** – fängt den Fehler aus 0.1.1.64) |
+| Software-Update | ✅ | „Zuletzt aktualisiert: Heute, 12:31“, „Zuletzt nach Updates gesucht: Heute, 12:33“ |
+| ⋮ → Update-Verlauf | ✅ | installierte Version „Auf diesem Handy installiert: Heute, 12:31“, ältere „Erschienen am 21. November 2026“ |
+| Nova Store direkt nach dem Update | ✅ | blauer Punkt nur bei „Nova Store“ (die App, die das Update ändert) |
+| Nova Store antippen | ✅ | Infoseite: NovaOS, Version, kostenlos, keine Werbung, Öffnen, „Neuerungen •“ mit Datum und Punkten, „Über diese App“ |
+| → bei Neuerungen | ✅ | „Neue Funktionen •“ und „Über diese App“ |
+| ⋮ → „Neuerungen anzeigen“ aus | ✅ | Neuerungen verschwinden |
+| Simuliertes Update für Nova Chat (`apps=chat,store`, eigene Zeilen) | ✅ | „Öffnen \| Aktualisieren“, „Kommt mit dem nächsten Update (Version 0.1.1.99)“ mit den Chat-Punkten |
+| Angabe „Auf dem Har…“ abgeschnitten | ❌ → behoben | jetzt „Privat“ |
+
+**Nicht getestet:** Neuerungen einer F-Droid-App (dafür hätte eine F-Droid-App erst aktualisiert werden müssen), das
+Verschwinden nach genau 3 Stunden (nur als Logik-Test).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm
