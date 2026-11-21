@@ -67,7 +67,11 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Gmail, Yahoo, AOL und iCloud verlangen ein **App-Passwort**, bei GMX/WEB.DE muss „POP3/IMAP Abruf“ an
   sein, T-Online braucht das „Passwort für E-Mail-Programme“. **Outlook.com/Hotmail geht nicht**: Microsoft
   lässt dort seit 2024 keine Anmeldung mit Passwort in fremden Mail-Apps mehr zu (nur mit Microsofts eigener
-  Anmeldung, für die NovaOS bei Microsoft registriert sein müsste).
+  Anmeldung, für die NovaOS bei Microsoft registriert sein müsste). Wer noch keine passende Adresse hat:
+  **„Neue E-Mail-Adresse erstellen“** öffnet die Anmeldeseite von GMX, WEB.DE, freenet oder Gmail (eigene
+  @nova-Adressen gibt es nicht – dafür bräuchte NovaOS einen eigenen Mailserver). **Adressbuch** („📇 Kontakte“:
+  Name, Adresse, Telefon, Notiz, Suche; „Als Kontakt speichern“ in jeder Mail; gespeicherte Kontakte werden
+  beim Schreiben zuerst vorgeschlagen) und **Suche** in den Mails (Absender, Empfänger, Betreff, Textanfang).
 * **Nova Family** (Kinderschutz): Eltern sperren das Kinderhandy **sofort**, **bis zu einer Uhrzeit** oder
   jede Nacht (**Ruhezeit**, z. B. 21:00–7:00, auch nur vor Schultagen), legen eine **Bildschirmzeit pro Tag**
   fest, geben „Mehr Zeit“, **sperren einzelne Apps** und schreiben eine Nachricht auf den Sperrbildschirm.
@@ -89,12 +93,19 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   > und den abgesicherten Modus von Android kann keine App verhindern. Vollen Schutz gibt es nur mit
   > Geräteeigentümer-Rechten (Einrichtung über einen zurückgesetzten Handy-Start) – das kann NovaOS noch nicht.
 * **Nova, der Assistent**: eigene App, Mikrofon in der Suchleiste und **„Hey Nova“**, solange der
-  Startbildschirm offen ist (abschaltbar, erst nach Erlaubnis fürs Mikrofon). **Ohne Cloud-KI**:
+  Startbildschirm offen ist (seit 0.1.1.59 **standardmäßig aus** und in Nova einschaltbar: Android spielt bei
+  jedem Zuhören einen kurzen Ton, der nach jedem Tippen auf dem Startbildschirm kam). **Ohne Cloud-KI**:
   Spracherkennung und Stimme kommen von Android, die Befehle versteht NovaOS selbst – Uhrzeit,
   Datum, Wecker, Timer, Taschenlampe, Apps und Einstellungen öffnen, Kontakte anrufen oder
   anschreiben, Notizen, Wetter (Open-Meteo, ohne Konto), TV-Sender, Websuche, Rechnen, kleine Gespräche;
   „Lies meine Nachrichten vor“ und „Schreib Lisa im Chat: …“ (über Nova Chat, wenn Lisa dort ein Kontakt ist),
   „Lies meine E-Mails vor“ und „Schreib eine E-Mail an Lisa: …“ (Adresse aus Nova Mail oder den Kontakten)
+* **Software-Update** (Einstellungen): ⋮ oben rechts mit „Was ist neu“ (installierte und kommende Version),
+  **Update-Verlauf** aller Versionen und „Nach Updates suchen“; beim Aktualisieren ein **Fortschrittsring**
+  mit Prozent, den **echten MB und der Download-Geschwindigkeit**, Restzeit und den Schritten Herunterladen →
+  Prüfen → Vorbereiten → Installieren (etwa 2 Minuten wie ein System-Update).
+* **Suchfelder** in Nova Store, Nova Chat (Chats und Kontakte) und Nova Mail (Mails und Kontakte): jedes
+  getippte Wort muss vorkommen, Groß-/Kleinschreibung und Akzente egal, „ae/oe/ue“ findet auch „ä/ö/ü“.
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
   Startbildschirm)
 * Deutsch und Englisch, dunkles NovaOS-Design
@@ -229,4 +240,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `CallActivity.java`, `Calls.java`, `res/raw/call.html` | Anrufe (Matrix VoIP, WebRTC im WebView), Klingeln |
 | `NovaActivity.java`, `NovaBrain.java`, `HeyNova.java`, `Weather.java` | Nova: Bildschirm/Sprache, Befehle verstehen (getestet), „Hey Nova“, Wetter |
 | `tools/make_icons.py` | erzeugt die Symbole der Nova-Apps |
+| `MailContactsActivity.java` | Adressbuch von Nova Mail |
+| `Search.java`, `History.java` (+ `res/raw/history.txt`) | Suchfelder (Vergleich ohne Akzente/Umlaute), Update-Verlauf (getestet) |
+| `RingView.java`, `Page.java` | Fortschrittsring, gemeinsame Seite mit Suchfeld |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |

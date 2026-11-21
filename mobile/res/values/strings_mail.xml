@@ -30,7 +30,7 @@
     <string name="mail_hint_gmail">Gmail only allows an app password in other mail apps: switch on 2-Step Verification in your Google account, then create an app password (16 letters) and enter it here.</string>
     <string name="mail_hint_gmx">Switch on “POP3/IMAP access” once in the web mailer: Settings → POP3/IMAP. Then sign in here with your normal password.</string>
     <string name="mail_hint_tonline">T-Online needs a separate “password for e-mail programs”: create it in the T-Online e-mail center under Settings → Password, then enter it here.</string>
-    <string name="mail_hint_outlook">Note: Microsoft no longer allows signing in with a password in other mail apps for Outlook.com and Hotmail (only with Microsoft\'s own sign-in, which Nova Mail does not have). Work and school accounts with an app password may still work.</string>
+    <string name="mail_hint_outlook">Note: Microsoft no longer allows signing in with a password in other mail apps for Outlook.com and Hotmail (only with Microsoft\'s own sign-in, which Nova Mail does not have). Work and school accounts with an app password may still work. Tip: create a free address at GMX or WEB.DE (back → “Create a new e-mail address”).</string>
     <string name="mail_hint_yahoo">Yahoo and AOL only allow an app password in other mail apps: create it in your account security settings, then enter it here.</string>
     <string name="mail_hint_icloud">iCloud Mail needs an app-specific password: create it in your Apple account under Sign-In and Security, then enter it here.</string>
     <string name="mail_loading">Loading mails …</string>
@@ -115,4 +115,25 @@
     <string name="mail_label_smtp">Outgoing server (SMTP)</string>
     <string name="mail_label_smtp_port">SMTP port</string>
     <string name="mail_label_user">User name</string>
+    <string name="mail_search">Search mail</string>
+    <string name="mail_contacts">Contacts</string>
+    <string name="mail_contacts_sub">Your address book for Nova Mail</string>
+    <string name="mail_contacts_empty">No contacts yet. Tap +, or open a mail and tap “Save as contact”.</string>
+    <string name="mail_contact_add">Add contact</string>
+    <string name="mail_contact_edit">Edit contact</string>
+    <string name="mail_contact_write">Write an e-mail</string>
+    <string name="mail_contact_call">Call: %1$s</string>
+    <string name="mail_contact_name">Name</string>
+    <string name="mail_contact_email">E-mail address</string>
+    <string name="mail_contact_phone">Phone number (optional)</string>
+    <string name="mail_contact_note">Note (optional)</string>
+    <string name="mail_contact_bad_email">Please enter a valid e-mail address</string>
+    <string name="mail_contact_saved">%1$s saved</string>
+    <string name="mail_contact_save">Save as contact</string>
+    <string name="mail_contact_saved_as">In your contacts: %1$s</string>
+    <string name="mail_create">Create a new e-mail address</string>
+    <string name="mail_create_sub">No address yet – or Outlook does not work? Get your own address with your name and password, free of charge.</string>
+    <string name="mail_have_address">I already have an address</string>
+    <string name="mail_create_how">Nova Mail is your e-mail program. Own addresses like name@nova do not exist, because that would need a mail server of its own – but this takes 2 minutes:\n\n1. Tap a provider – its sign-up page opens.\n2. There, sign up for free: choose your name, address and password.\n3. Come back to Nova Mail and sign in with the new address.\n\nEasiest: GMX or WEB.DE (switch on “POP3/IMAP” there).</string>
+    <string name="mail_create_gmail_note">needs an app password</string>
 </resources>

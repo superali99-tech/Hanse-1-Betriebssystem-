@@ -62,10 +62,42 @@ public class StoreActivity extends Activity {
         LinearLayout content = Page.setup(this, R.string.app_store, getString(R.string.store_sub));
         List<StoreApp> list = StoreApp.parse(raw(R.raw.store));
         for (StoreApp a : list) apps.put(a.pkg, a);
+        TextView none = Ui.text(this, getString(R.string.search_none), 15, getColor(R.color.text_muted), false);
+        none.setPadding(Ui.dp(this, 4), Ui.dp(this, 18), 0, 0);
+        none.setVisibility(View.GONE);
+        content.addView(none);
+        List<View[]> headers = new ArrayList<>();  // {header, "recommended"?}
+        List<Object[]> rows = new ArrayList<>();   // {row, app, header}
         for (Map.Entry<String, List<StoreApp>> sec : StoreApp.sections(list).entrySet()) {
-            content.addView(Ui.section(this, category(sec.getKey())));
-            for (StoreApp a : sec.getValue()) content.addView(row(a));
+            View header = Ui.section(this, category(sec.getKey()));
+            header.setTag("empfohlen".equals(sec.getKey()) ? "rec" : null);
+            content.addView(header);
+            headers.add(new View[] {header});
+            for (StoreApp a : sec.getValue()) {
+                View r = row(a);
+                content.addView(r);
+                rows.add(new Object[] {r, a, header});
+            }
         }
+        // search: name, description and category; the "recommended" apps also appear in their category
+        Page.search(this, R.string.store_search, q -> {
+            boolean searching = !q.trim().isEmpty();
+            java.util.Set<View> used = new java.util.HashSet<>();
+            int found = 0;
+            for (Object[] x : rows) {
+                StoreApp a = (StoreApp) x[1];
+                View header = (View) x[2];
+                boolean show = !searching || (!"rec".equals(header.getTag())
+                        && Search.matches(q, a.name, a.text(german), getString(category(a.category))));
+                ((View) x[0]).setVisibility(show ? View.VISIBLE : View.GONE);
+                if (show) {
+                    used.add(header);
+                    found++;
+                }
+            }
+            for (View[] h : headers) h[0].setVisibility(used.contains(h[0]) ? View.VISIBLE : View.GONE);
+            none.setVisibility(found == 0 ? View.VISIBLE : View.GONE);
+        });
         Installer.setListener((pkg, ok, message) -> runOnUiThread(() -> {
             progress.remove(pkg);
             if (!ok && message != null) Toast.makeText(this, getString(R.string.store_failed, message), Toast.LENGTH_LONG).show();

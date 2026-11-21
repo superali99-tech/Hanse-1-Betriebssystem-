@@ -384,6 +384,27 @@ Bilder 44–51.
 Akkusparen), echter Anruf während der Sperre (VM ohne Telefon), gesperrte App mit Nutzungszugriff,
 Neustart des Kinderhandys.
 
+### Update 0.1.1.59: Update-Menü, Fortschritt, Suche, Kontakte (21.11.2026)
+
+Android-x86 9 in QEMU, Hochformat 720×1280, Deutsch; Internet über den Proxy der Testumgebung.
+Für den Update-Test lief eine Testversion 0.1.1.57 gegen das echte Update 0.1.1.58 auf ghcr.io. Bilder 52–57.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1377 bestanden (neu: Suche mit Umlauten/Akzenten/mehreren Wörtern, Update-Verlauf lesen) |
+| Software-Update: ⋮ → „Was ist neu“, „Update-Verlauf“, „Nach Updates suchen“ | ✅ | Verlauf zeigt die installierte Version und alle früheren |
+| Update 0.1.1.58 gefunden, „Aktualisieren“ | ✅ | Ring, Prozent, „360 KB von 2,7 MB“, Restzeit, Schritte |
+| Anzeige „1,3 MB von 2,7 MB · vollständig geladen“ gleichzeitig | ❌ → behoben | der Download war längst fertig, die Anzeige gestreckt; jetzt echte MB, echte Geschwindigkeit, danach „✓ vollständig geladen“ |
+| Prüfung des Updates gegen den NovaOS-Schlüssel | ✅ | die lokal (mit anderem Schlüssel) gebaute Testversion lehnt das echte Update richtig ab – mit dem Release-Schlüssel passt er |
+| Nova Store: Suche „karte“ | ✅ | Organic Maps und Google Maps, leere Kategorien ausgeblendet |
+| Nova Mail: „Neue E-Mail-Adresse erstellen“ | ✅ | Erklärung und GMX, WEB.DE, freenet, Gmail (Links geprüft: Seiten erreichbar) |
+| Outlook-Hilfelink | ❌ → behoben | zeigte auf eine nicht vorhandene Microsoft-Seite (404); jetzt die echte Seite „POP-, IMAP- und SMTP-Einstellungen für Outlook.com“ |
+| Adressbuch: Kontakt aus Mail-Vorschlag speichern, zweiten Kontakt anlegen, Suche „mueller“ | ✅ | findet „anna.mueller@web.de“; Tippen: E-Mail schreiben, Anrufen, Bearbeiten, Löschen |
+| „Hey Nova“ standardmäßig aus | ✅ | kein Zuhören (und kein Android-Ton) nach dem Zurückkehren auf den Startbildschirm |
+
+**Nicht getestet:** Suche und „Als Kontakt speichern“ in Nova Chat mit einem Matrix-Konto (kein Matrix-Server in
+dieser Sitzung), Mail-Suche mit echtem Postfach.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

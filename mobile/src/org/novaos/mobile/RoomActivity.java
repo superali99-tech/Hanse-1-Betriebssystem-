@@ -365,6 +365,20 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
             t.setPadding(Ui.dp(this, 10), Ui.dp(this, 10), Ui.dp(this, 10), Ui.dp(this, 6));
             content.addView(t);
         }
+        if (!room.directUser.isEmpty() && !isContact(room.directUser)) {  // direct chat with someone not saved yet
+            TextView save = Ui.text(this, "➕ " + getString(R.string.chat_contact_save), 14, Color.WHITE, true);
+            save.setBackgroundResource(R.drawable.pill_bg);
+            save.setPadding(Ui.dp(this, 16), Ui.dp(this, 9), Ui.dp(this, 16), Ui.dp(this, 9));
+            save.setOnClickListener(v -> ChatContactsActivity.rename(this, room.name, room.directUser, () -> {
+                shown = "";
+                show();
+            }));
+            LinearLayout.LayoutParams sl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            sl.gravity = Gravity.CENTER_HORIZONTAL;
+            sl.topMargin = Ui.dp(this, 6);
+            sl.bottomMargin = Ui.dp(this, 6);
+            content.addView(save, sl);
+        }
         Page.status(this, messages.isEmpty() && pending.isEmpty() ? getString(R.string.chat_no_messages) : null);
         boolean group = room.directUser.isEmpty();
         String prevSender = "";
@@ -496,6 +510,11 @@ public class RoomActivity extends Activity implements ChatSync.Listener, NovaWri
             return true;
         });
         return iv;
+    }
+
+    private boolean isContact(String userId) {
+        for (MatrixSync.Contact c : ChatDb.get(this).contacts()) if (c.id.equals(userId)) return true;
+        return false;
     }
 
     private void openPhoto(MatrixSync.Message m) {

@@ -1,0 +1,28 @@
+# Earlier versions for "Update-Verlauf" in the software update (newest first). The current
+# version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
+# then "German|English" per line.
+== NovaOS 0.1.1.58 · 20.11.2026
+Nova Family: Eltern sperren das Kinderhandy sofort, bis zu einer Uhrzeit oder jede Nacht (Ruhezeit)|Nova Family: parents lock their child's phone now, until a time or every night (bedtime)
+Gesperrt: nur Sperrbildschirm – Eltern anrufen, Notruf und Taschenlampe gehen immer|Locked: only the lock screen – calling the parents, emergency calls and the torch always work
+Bildschirmzeit pro Tag, Apps sperren, Bitten wie „30 Minuten mehr“ erlauben|Daily screen time, blocking apps, allowing requests like "30 minutes more"
+== NovaOS 0.1.1.56 · 20.11.2026
+Einrichtung beim ersten Start: anmelden, Bildschirmsperre, Berechtigungen, Alter|Setup on first start: sign in, screen lock, permissions, age
+Begrüßung mit deinem Namen auf dem Startbildschirm|Greeting with your name on the home screen
+== NovaOS 0.1.1.55 · 20.11.2026
+Nova Mail: echte E-Mails mit deinem Konto (GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud …)|Nova Mail: real e-mail with your account (GMX, WEB.DE, Gmail, T-Online, Yahoo, iCloud …)
+Nova liest E-Mails vor und schreibt sie für dich|Nova reads e-mails aloud and writes them for you
+== NovaOS 0.1.1.53 · 20.11.2026
+Nova Chat: Sprachnachrichten, Emoji-Tastatur, Fotos, Schnellantworten|Nova Chat: voice messages, emoji keyboard, photos, quick answers
+„Nova schreibt für dich“: sprechen statt tippen, Nova liest vor|"Nova writes for you": speak instead of typing, Nova reads aloud
+== NovaOS 0.1.1.51 · 20.11.2026
+Nova Chat: chatten, Sprach- und Videoanrufe über Matrix|Nova Chat: chats, voice and video calls over Matrix
+Nova, dein Assistent, mit „Hey Nova“|Nova, your assistant, with "Hey Nova"
+Software-Updates in Stufen wie bei Samsung|Software updates in stages like on Samsung phones
+== NovaOS 0.1.1.46 · 20.11.2026
+„Update verfügbar“ mit Knopf „Aktualisieren“, NovaOS sucht öfter nach Updates|"Update available" with an "Update" button, NovaOS checks more often
+== NovaOS 0.1.1.45 · 19.11.2026
+Updates erscheinen von selbst: Suche im Hintergrund, Benachrichtigung, Installieren mit einem Tipp|Updates appear by themselves: background check, notification, one-tap install
+== NovaOS 0.1.1.42 · 19.11.2026
+Neuer Update-Kanal über GitHub, Dateivorschauen, Store-Symbole|New update channel via GitHub, file previews, store icons
+== NovaOS 0.1.1.38 · 19.11.2026
+Nova Store, Nova Kamera, Nova Galerie, Nova Dateien, Nova Notizen und das Software-Update|Nova Store, Nova Kamera, Nova Galerie, Nova Dateien, Nova Notizen and the software update

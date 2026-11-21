@@ -39,6 +39,8 @@ public class MailActivity extends Activity implements NovaWriter.Target {
     private boolean loading;
     private NovaWriter nova;
     private boolean adding;  // setup of another account
+    private android.widget.EditText search;
+    private String query = "";
 
     @Override
     protected void onCreate(Bundle state) {
@@ -51,6 +53,10 @@ public class MailActivity extends Activity implements NovaWriter.Target {
         int side = getResources().getDimensionPixelSize(R.dimen.side);
         nl.setMargins(side, Ui.dp(this, 6), side, Ui.dp(this, 10));
         parent.addView(nova, nl);
+        search = Page.search(this, R.string.mail_search, q -> {
+            query = q;
+            if (account != null && !adding) showList();
+        });
     }
 
     @Override
@@ -110,6 +116,7 @@ public class MailActivity extends Activity implements NovaWriter.Target {
 
     private void showList() {
         content.removeAllViews();
+        ((View) search.getParent()).setVisibility(View.VISIBLE);
         ((TextView) findViewById(R.id.page_title)).setText(R.string.app_mail);
         ((TextView) findViewById(R.id.page_subtitle)).setText(account.email);
 
@@ -118,6 +125,7 @@ public class MailActivity extends Activity implements NovaWriter.Target {
         hs.setHorizontalScrollBarEnabled(false);
         LinearLayout pills = new LinearLayout(this);
         pills.addView(pill("👤 " + getString(R.string.mail_accounts), v -> accounts()));
+        pills.addView(pill("📇 " + getString(R.string.mail_contacts), v -> startActivity(new Intent(this, MailContactsActivity.class))));
         pills.addView(pill("⟳ " + getString(R.string.mail_refresh), v -> refresh()));
         pills.addView(pill("🔊 " + getString(R.string.mail_read_new), v -> {
             nova.setVisibility(View.VISIBLE);
@@ -150,8 +158,19 @@ public class MailActivity extends Activity implements NovaWriter.Target {
         fl.topMargin = Ui.dp(this, 10);
         content.addView(fs, fl);
 
-        List<MailStore.Mail> mails = db.mails(account.id, folder, MailSync.PAGE);
-        if (mails.isEmpty() && !loading) {
+        boolean searching = !query.trim().isEmpty();
+        List<MailStore.Mail> mails = db.mails(account.id, folder, searching ? 2000 : MailSync.PAGE);
+        if (searching) {  // sender, recipients, subject and the start of the text
+            List<MailStore.Mail> hits = new ArrayList<>();
+            for (MailStore.Mail m : mails) if (Search.matches(query, m.sender(), m.to, m.subject, m.preview)) hits.add(m);
+            mails = hits;
+        }
+        if (mails.isEmpty() && searching) {
+            TextView t = Ui.text(this, getString(R.string.search_none), 15, getColor(R.color.text_muted), false);
+            t.setPadding(Ui.dp(this, 6), Ui.dp(this, 30), Ui.dp(this, 6), 0);
+            t.setGravity(Gravity.CENTER);
+            content.addView(t, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        } else if (mails.isEmpty() && !loading) {
             TextView t = Ui.text(this, getString(R.string.mail_empty), 15, getColor(R.color.text_muted), false);
             t.setPadding(Ui.dp(this, 6), Ui.dp(this, 30), Ui.dp(this, 6), 0);
             t.setGravity(Gravity.CENTER);
@@ -294,8 +313,47 @@ public class MailActivity extends Activity implements NovaWriter.Target {
 
     // ------------------------------------------------------------ setting up an account
 
+    /** Free mail providers that work with Nova Mail: their sign-up page opens in the browser. */
+    private void createAddress() {
+        String[][] free = {
+                {"GMX", "https://www.gmx.net/", "gmx"},
+                {"WEB.DE", "https://web.de/", "webde"},
+                {"freenet Mail", "https://mail.freenet.de/email/", "freenet"},
+                {"Gmail (Google)", "https://accounts.google.com/signup", "gmail"}};
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        int p = Ui.dp(this, 22);
+        box.setPadding(p, Ui.dp(this, 6), p, Ui.dp(this, 6));
+        TextView how = Ui.text(this, getString(R.string.mail_create_how), 15, getColor(R.color.text), false);
+        how.setLineSpacing(0, 1.15f);
+        box.addView(how);
+        android.app.AlertDialog[] dialog = new android.app.AlertDialog[1];
+        for (String[] f : free) {
+            TextView b = Ui.text(this, "↗  " + f[0] + ("gmail".equals(f[2]) ? "  ·  " + getString(R.string.mail_create_gmail_note) : ""),
+                    16, Color.WHITE, true);
+            b.setBackgroundResource(R.drawable.card_bg);
+            b.setPadding(Ui.dp(this, 16), Ui.dp(this, 14), Ui.dp(this, 16), Ui.dp(this, 14));
+            b.setOnClickListener(v -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(f[1])));
+                } catch (RuntimeException e) {
+                    Toast.makeText(this, R.string.nova_no_app, Toast.LENGTH_SHORT).show();
+                }
+                if (dialog[0] != null) dialog[0].dismiss();
+                showSetup(MailServers.provider(f[2]));  // back here: sign in with the new address
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.topMargin = Ui.dp(this, 8);
+            box.addView(b, lp);
+        }
+        android.widget.ScrollView sv = new android.widget.ScrollView(this);
+        sv.addView(box);
+        dialog[0] = new AlertDialog.Builder(this).setTitle(R.string.mail_create).setView(sv).setNegativeButton(R.string.cancel, null).show();
+    }
+
     private void showSetup(MailServers.Provider chosen) {
         content.removeAllViews();
+        ((View) search.getParent()).setVisibility(View.GONE);
         View fab = findViewById(R.id.mail_fab);
         if (fab != null) ((ViewGroup) fab.getParent()).removeView(fab);
         ((TextView) findViewById(R.id.page_title)).setText(R.string.app_mail);
@@ -305,6 +363,20 @@ public class MailActivity extends Activity implements NovaWriter.Target {
             TextView intro = Ui.text(this, getString(R.string.mail_intro), 15, Color.WHITE, false);
             intro.setPadding(0, Ui.dp(this, 6), 0, Ui.dp(this, 14));
             content.addView(intro);
+            // no address yet (or Outlook does not work): create a free one
+            LinearLayout create = new LinearLayout(this);
+            create.setOrientation(LinearLayout.VERTICAL);
+            create.setBackgroundResource(R.drawable.accent_card_bg);
+            int cp = Ui.dp(this, 16);
+            create.setPadding(cp, cp, cp, cp);
+            create.addView(Ui.text(this, "✨ " + getString(R.string.mail_create), 17, Color.WHITE, true));
+            TextView ct = Ui.text(this, getString(R.string.mail_create_sub), 13, 0xE6FFFFFF, false);
+            ct.setPadding(0, Ui.dp(this, 4), 0, 0);
+            create.addView(ct);
+            create.setOnClickListener(v -> createAddress());
+            content.addView(create, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            TextView have = Ui.section(this, R.string.mail_have_address);
+            content.addView(have);
             String[] keys = {"gmx", "webde", "gmail", "tonline", "outlook", "yahoo", "icloud", "freenet"};
             LinearLayout row = null;
             for (int i = 0; i <= keys.length; i++) {

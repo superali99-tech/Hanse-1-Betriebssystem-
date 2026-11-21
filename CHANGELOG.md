@@ -61,6 +61,13 @@
 * **NovaOS Mobile – Nova Family**: Eltern sperren das Kinderhandy (sofort, bis zu einer Uhrzeit, Ruhezeit),
   Bildschirmzeit, Apps sperren, Bitten erlauben; gesperrt nur Sperrbildschirm mit Anrufen (Eltern, 112),
   Taschenlampe und Eltern-PIN; Verbindung über ntfy.sh, Ende-zu-Ende-verschlüsselt
+* **NovaOS Mobile 0.1.1.59**: Software-Update mit ⋮-Menü („Was ist neu“, Update-Verlauf aller Versionen,
+  „Nach Updates suchen“), neue Fortschrittsanzeige (Ring mit Prozent, echte MB und Download-Geschwindigkeit,
+  Restzeit, Schritte); Suchfelder in Nova Store, Nova Chat, Kontakten und Nova Mail (auch ohne Umlaute:
+  „mueller“ findet „Müller“); Adressbuch in Nova Mail (Name, Adresse, Telefon, Notiz; „Als Kontakt speichern“
+  in jeder Mail), Kontakt speichern direkt aus einem Chat und Umbenennen in Nova Chat; „Neue E-Mail-Adresse
+  erstellen“ (GMX, WEB.DE, freenet, Gmail) und richtiger Outlook-Hilfelink; „Hey Nova“ standardmäßig aus –
+  dadurch kein Android-Ton mehr nach jedem Tippen auf dem Startbildschirm
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

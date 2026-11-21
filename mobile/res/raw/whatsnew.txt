@@ -1,5 +1,7 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
-Neu: Nova Family – Eltern sperren das Kinderhandy sofort, bis zu einer Uhrzeit oder jede Nacht (Ruhezeit)|New: Nova Family – parents lock their child's phone now, until a time or every night (bedtime)
-Gesperrt sieht das Kind nur noch „Dein Handy wurde gesperrt“ – Eltern anrufen, Notruf und Taschenlampe gehen immer|While locked the child only sees "Your phone was locked" – calling the parents, emergency calls and the torch always work
-Bildschirmzeit pro Tag, Apps sperren, Bitten wie „30 Minuten mehr“ mit einem Tipp erlauben|Daily screen time, blocking apps, allowing requests like "30 minutes more" with one tap
-Einrichtung beim ersten Start, Nova Mail und Nova Chat mit Sprachnachrichten|Setup on first start, Nova Mail and Nova Chat with voice messages
+Software-Update: oben rechts ⋮ mit „Was ist neu“ und dem ganzen Update-Verlauf|Software update: ⋮ at the top right with "What's new" and the whole update history
+Neue Update-Anzeige: Ring mit Prozent, „x von y MB“, echte Download-Geschwindigkeit und Restzeit|New update progress: ring with percent, "x of y MB", real download speed and time left
+Suchfeld im Nova Store, in Nova Chat, in den Kontakten und in Nova Mail|Search field in Nova Store, Nova Chat, the contacts and Nova Mail
+Kontakte speichern: Adressbuch in Nova Mail, in Nova Chat direkt aus dem Chat|Save contacts: address book in Nova Mail, in Nova Chat straight from a chat
+Nova Mail: „Neue E-Mail-Adresse erstellen“ – kostenlos bei GMX, WEB.DE, freenet oder Gmail|Nova Mail: "Create a new e-mail address" – free at GMX, WEB.DE, freenet or Gmail
+Kein Sprach-Ton mehr beim Tippen: „Hey Nova“ hört nur noch, wenn du es in Nova einschaltest|No more voice beep when tapping: "Hey Nova" only listens when you switch it on in Nova

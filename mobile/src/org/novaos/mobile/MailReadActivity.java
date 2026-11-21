@@ -155,6 +155,18 @@ public class MailReadActivity extends Activity implements NovaWriter.Target {
         cl.leftMargin = Ui.dp(this, 12);
         from.addView(col, cl);
         content.addView(from);
+        // save the sender in the address book (or open the saved contact)
+        if (Mime.validEmail(s.email)) {
+            MailStore.Contact known = MailStore.get(this).contact(s.email);
+            TextView save = Ui.text(this, known == null ? "➕ " + getString(R.string.mail_contact_save) : "📇 " + getString(R.string.mail_contact_saved_as, known.display()),
+                    13, 0xFFB9A8FF, true);
+            save.setPadding(Ui.dp(this, 56), Ui.dp(this, 6), 0, Ui.dp(this, 4));
+            save.setOnClickListener(v -> MailContactsActivity.edit(this, MailStore.get(this).contact(s.email), s.name, s.email, () -> {
+                MailStore.Contact now = MailStore.get(this).contact(s.email);
+                if (now != null) save.setText("📇 " + getString(R.string.mail_contact_saved_as, now.display()));
+            }));
+            content.addView(save);
+        }
 
         // attachments
         List<Mime.Attachment> files = new java.util.ArrayList<>();

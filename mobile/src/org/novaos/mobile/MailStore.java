@@ -54,7 +54,7 @@ final class MailStore extends SQLiteOpenHelper {
     }
 
     private MailStore(Context c) {
-        super(c, "mail.db", null, 1);
+        super(c, "mail.db", null, 2);
     }
 
     @Override
@@ -70,11 +70,17 @@ final class MailStore extends SQLiteOpenHelper {
                 + "fetched INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (account, folder, uid))");
         db.execSQL("CREATE INDEX mails_date ON mails (account, folder, date)");
         db.execSQL("CREATE TABLE addresses (email TEXT PRIMARY KEY, name TEXT NOT NULL DEFAULT '', used INTEGER NOT NULL DEFAULT 0)");
+        createContacts(db);
+    }
+
+    private static void createContacts(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE contacts (email TEXT PRIMARY KEY, name TEXT NOT NULL DEFAULT '', phone TEXT NOT NULL DEFAULT '', "
+                + "note TEXT NOT NULL DEFAULT '')");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-        // version 1 only
+        if (oldV < 2) createContacts(db);  // 0.1.1.59: address book
     }
 
     // ------------------------------------------------------------ accounts
@@ -393,11 +399,73 @@ final class MailStore extends SQLiteOpenHelper {
         for (Mime.Address a : list) remember(getWritableDatabase(), a, true);
     }
 
+    /** Suggestions when writing: the saved contacts first (with their saved name), then addresses used before. */
     List<Mime.Address> addresses() {
         List<Mime.Address> out = new ArrayList<>();
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (Contact k : contacts()) {
+            out.add(new Mime.Address(k.name, k.email));
+            seen.add(k.email);
+        }
         try (Cursor c = getReadableDatabase().query("addresses", null, null, null, null, null, "used DESC, name", "500")) {
-            while (c.moveToNext()) out.add(new Mime.Address(c.getString(c.getColumnIndexOrThrow("name")), c.getString(c.getColumnIndexOrThrow("email"))));
+            while (c.moveToNext()) {
+                String email = c.getString(c.getColumnIndexOrThrow("email"));
+                if (seen.add(email)) out.add(new Mime.Address(c.getString(c.getColumnIndexOrThrow("name")), email));
+            }
         }
         return out;
+    }
+
+    // ------------------------------------------------------------ address book (saved contacts)
+
+    static final class Contact {
+        String name = "", email = "", phone = "", note = "";
+
+        Contact() {}
+
+        Contact(String name, String email) {
+            this.name = name == null ? "" : name;
+            this.email = email == null ? "" : email.trim().toLowerCase(java.util.Locale.ROOT);
+        }
+
+        String display() {
+            return name.isEmpty() ? email : name;
+        }
+    }
+
+    List<Contact> contacts() {
+        List<Contact> out = new ArrayList<>();
+        try (Cursor c = getReadableDatabase().query("contacts", null, null, null, null, null, "name COLLATE NOCASE, email")) {
+            while (c.moveToNext()) {
+                Contact k = new Contact(c.getString(c.getColumnIndexOrThrow("name")), c.getString(c.getColumnIndexOrThrow("email")));
+                k.phone = c.getString(c.getColumnIndexOrThrow("phone"));
+                k.note = c.getString(c.getColumnIndexOrThrow("note"));
+                out.add(k);
+            }
+        }
+        return out;
+    }
+
+    Contact contact(String email) {
+        if (email == null) return null;
+        String e = email.trim().toLowerCase(java.util.Locale.ROOT);
+        for (Contact k : contacts()) if (k.email.equals(e)) return k;
+        return null;
+    }
+
+    /** Saves a contact; oldEmail (may be null) is replaced when the address was changed. */
+    void saveContact(String oldEmail, Contact k) {
+        SQLiteDatabase db = getWritableDatabase();
+        if (oldEmail != null && !oldEmail.equalsIgnoreCase(k.email)) deleteContact(oldEmail);
+        ContentValues cv = new ContentValues();
+        cv.put("email", k.email.trim().toLowerCase(java.util.Locale.ROOT));
+        cv.put("name", k.name.trim());
+        cv.put("phone", k.phone.trim());
+        cv.put("note", k.note.trim());
+        db.insertWithOnConflict("contacts", null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    void deleteContact(String email) {
+        getWritableDatabase().delete("contacts", "email=?", new String[] {email.trim().toLowerCase(java.util.Locale.ROOT)});
     }
 }

@@ -101,11 +101,20 @@
     <string name="update_stage_verify">Verifying the update …</string>
     <string name="update_stage_prepare">Preparing and optimizing NovaOS …</string>
     <string name="update_stage_install">Installing …</string>
+    <string name="more_options">More options</string>
+    <string name="update_menu_whatsnew">What\'s new</string>
+    <string name="update_menu_history">Update history</string>
+    <string name="update_menu_coming">New in version %1$s</string>
+    <string name="update_menu_installed">Installed: NovaOS %1$s</string>
+    <string name="update_left">about %1$d:%2$s min left</string>
+    <string name="update_bytes">%1$s of %2$s</string>
+    <string name="update_preloaded">already downloaded in the background</string>
+    <string name="update_downloaded">fully downloaded</string>
     <string name="update_step_download">Download</string>
     <string name="update_step_verify">Verify</string>
     <string name="update_step_prepare">Prepare and optimize</string>
     <string name="update_step_install">Install and restart</string>
-    <string name="update_duration_hint">The update takes about 2–3 minutes. Please keep NovaOS open; it then restarts by itself.</string>
+    <string name="update_duration_hint">The update takes about 2 minutes. Please keep NovaOS open; it then restarts by itself.</string>
     <string name="app_nova">Nova</string>
     <string name="app_chat">Nova Chat</string>
     <string name="nova_sub">Your assistant – no cloud, right on the device</string>
@@ -117,7 +126,7 @@
     <string name="nova_no_speech">Speech recognition is not available on this device – type your question below.</string>
     <string name="nova_type">Ask Nova something …</string>
     <string name="nova_hey_switch">“Hey Nova” on the home screen</string>
-    <string name="nova_hey_hint">Nova only listens while the NovaOS home screen is open. Speech recognition comes from Android; some devices play a short tone.</string>
+    <string name="nova_hey_hint">Nova only listens while the NovaOS home screen is open. Note: Android plays a short sound every time it starts listening – that is why “Hey Nova” is off by default. The microphone in the search bar always works.</string>
     <string name="nova_try_time">What time is it?</string>
     <string name="nova_try_weather">What\'s the weather?</string>
     <string name="nova_try_timer">Timer 5 minutes</string>
@@ -239,7 +248,7 @@
     <string name="call_direct_only">Calls work in one-to-one chats.</string>
     <string name="card_chat_sub">Chat and call</string>
     <string name="card_chat_none">No new messages</string>
-    <string name="card_nova_sub">Say “Hey Nova”</string>
+    <string name="card_nova_sub">Tap and ask</string>
     <plurals name="card_chat_unread">
         <item quantity="one">%1$d new message</item>
         <item quantity="other">%1$d new messages</item>
@@ -326,4 +335,10 @@
     <!-- second channel: files of this GitHub release (public repository) -->
     <string name="update_repo" translatable="false">superali99-tech/Hanse-1-Betriebssystem-</string>
     <string name="update_release" translatable="false">mobile-update</string>
+    <!-- search fields (0.1.1.59) -->
+    <string name="search_clear">Clear search</string>
+    <string name="search_none">Nothing found.</string>
+    <string name="store_search">Search apps</string>
+    <string name="contacts_search">Search contacts</string>
+    <string name="save">Save</string>
 </resources>

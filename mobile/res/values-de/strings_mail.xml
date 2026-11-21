@@ -30,7 +30,7 @@
     <string name="mail_hint_gmail">Gmail erlaubt in fremden Mail-Apps nur ein App-Passwort: Schalte in deinem Google-Konto die Bestätigung in zwei Schritten ein, erstelle dann ein App-Passwort (16 Buchstaben) und gib es hier ein.</string>
     <string name="mail_hint_gmx">Schalte einmal im Web-Postfach „POP3/IMAP Abruf“ ein: Einstellungen → POP3/IMAP Abruf. Danach hier mit deinem normalen Passwort anmelden.</string>
     <string name="mail_hint_tonline">T-Online braucht ein eigenes „Passwort für E-Mail-Programme“: Lege es im T-Online E-Mail Center unter Einstellungen → Passwörter an und gib es hier ein.</string>
-    <string name="mail_hint_outlook">Hinweis: Microsoft erlaubt bei Outlook.com und Hotmail keine Anmeldung mit Passwort in fremden Mail-Apps mehr (nur mit Microsofts eigener Anmeldung, die Nova Mail nicht hat). Firmen- und Schulkonten mit App-Passwort können noch gehen.</string>
+    <string name="mail_hint_outlook">Hinweis: Microsoft erlaubt bei Outlook.com und Hotmail keine Anmeldung mit Passwort in fremden Mail-Apps mehr (nur mit Microsofts eigener Anmeldung, die Nova Mail nicht hat). Firmen- und Schulkonten mit App-Passwort können noch gehen. Tipp: Erstelle dir kostenlos eine Adresse bei GMX oder WEB.DE (zurück → „Neue E-Mail-Adresse erstellen“).</string>
     <string name="mail_hint_yahoo">Yahoo und AOL erlauben in fremden Mail-Apps nur ein App-Passwort: Erstelle es in den Sicherheitseinstellungen deines Kontos und gib es hier ein.</string>
     <string name="mail_hint_icloud">iCloud Mail braucht ein app-spezifisches Passwort: Erstelle es in deinem Apple Account unter „Anmeldung und Sicherheit“ und gib es hier ein.</string>
     <string name="mail_loading">E-Mails werden geladen …</string>
@@ -115,4 +115,25 @@
     <string name="mail_label_smtp">Postausgangsserver (SMTP)</string>
     <string name="mail_label_smtp_port">SMTP-Port</string>
     <string name="mail_label_user">Benutzername</string>
+    <string name="mail_search">Mails durchsuchen</string>
+    <string name="mail_contacts">Kontakte</string>
+    <string name="mail_contacts_sub">Dein Adressbuch für Nova Mail</string>
+    <string name="mail_contacts_empty">Noch keine Kontakte. Tippe auf +, oder öffne eine Mail und tippe auf „Als Kontakt speichern“.</string>
+    <string name="mail_contact_add">Kontakt hinzufügen</string>
+    <string name="mail_contact_edit">Kontakt bearbeiten</string>
+    <string name="mail_contact_write">E-Mail schreiben</string>
+    <string name="mail_contact_call">Anrufen: %1$s</string>
+    <string name="mail_contact_name">Name</string>
+    <string name="mail_contact_email">E-Mail-Adresse</string>
+    <string name="mail_contact_phone">Telefonnummer (freiwillig)</string>
+    <string name="mail_contact_note">Notiz (freiwillig)</string>
+    <string name="mail_contact_bad_email">Bitte eine gültige E-Mail-Adresse eingeben</string>
+    <string name="mail_contact_saved">%1$s gespeichert</string>
+    <string name="mail_contact_save">Als Kontakt speichern</string>
+    <string name="mail_contact_saved_as">In deinen Kontakten: %1$s</string>
+    <string name="mail_create">Neue E-Mail-Adresse erstellen</string>
+    <string name="mail_create_sub">Noch keine Adresse – oder Outlook klappt nicht? Hol dir kostenlos eine eigene Adresse mit deinem Namen und Passwort.</string>
+    <string name="mail_have_address">Ich habe schon eine Adresse</string>
+    <string name="mail_create_how">Nova Mail ist dein E-Mail-Programm. Eigene Adressen wie name@nova gibt es nicht, weil dafür ein eigener Mail-Server nötig wäre – aber so geht es in 2 Minuten:\n\n1. Anbieter antippen – die Anmeldeseite öffnet sich.\n2. Dort „Kostenlos registrieren“: Name, Wunsch-Adresse und Passwort festlegen.\n3. Zurück zu Nova Mail und mit der neuen Adresse anmelden.\n\nAm einfachsten: GMX oder WEB.DE (dort „POP3/IMAP-Abruf“ einschalten).</string>
+    <string name="mail_create_gmail_note">braucht App-Passwort</string>
 </resources>

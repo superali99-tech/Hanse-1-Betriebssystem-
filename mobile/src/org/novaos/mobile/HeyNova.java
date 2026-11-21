@@ -32,11 +32,13 @@ final class HeyNova {
     }
 
     static boolean enabled(Context c) {
-        return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("hey_nova", true);
+        // off unless switched on: Android plays a short sound every time the recognizer starts
+        // listening, and on the home screen that happened after every tap (0.1.1.58 and before: on)
+        return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("hey_nova2", false);
     }
 
     static void setEnabled(Context c, boolean on) {
-        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("hey_nova", on).apply();
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("hey_nova2", on).apply();
     }
 
     private boolean possible() {

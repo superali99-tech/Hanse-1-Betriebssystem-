@@ -27,6 +27,8 @@ public final class MobileTest {
         mail();
         family();
         weather();
+        search();
+        history();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -52,6 +54,24 @@ public final class MobileTest {
                 + "{\"versionName\":\"14.0.9\",\"versionCode\":140009},{\"versionName\":\"14.0.8\",\"versionCode\":140008}]}";
         check(StoreApp.suggestedCode(api) == 140009 && StoreApp.versionName(api, 140009).equals("14.0.9"), "f-droid api");
         check(StoreApp.suggestedCode("{}") == -1 && StoreApp.suggestedCode(null) == -1, "f-droid api broken");
+    }
+
+    private static void search() {
+        check(Search.matches("", "x") && Search.matches("  ", (String) null), "search: empty query matches all");
+        check(Search.matches("muller", "Anna Müller") && Search.matches("mueller", "Anna Müller"), "search: umlauts both ways");
+        check(Search.matches("oeffi", "Öffi") && Search.matches("öffi", "Oeffi") == false, "search: ö -> oe, but oe is not ö");
+        check(Search.matches("STRASSE", "Hauptstraße 1") && Search.matches("cafe", "Café"), "search: ß and accents");
+        check(Search.matches("anna mail", "Anna", "anna@mail.de") && !Search.matches("anna post", "Anna", "anna@mail.de"),
+                "search: every word must appear");
+        check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
+    }
+
+    private static void history() {
+        java.util.List<History.Entry> h = History.parse("# comment\n== NovaOS 2 · heute\nNeu A|New A\nnur de\n\n== NovaOS 1\nAlt|Old\n");
+        check(h.size() == 2 && h.get(0).title.equals("NovaOS 2 · heute") && h.get(1).title.equals("NovaOS 1"), "history titles");
+        check(h.get(0).lines(true).equals(java.util.Arrays.asList("Neu A", "nur de"))
+                && h.get(0).lines(false).equals(java.util.Arrays.asList("New A", "nur de")), "history lines");
+        check(History.parse("Zeile ohne Titel|x\n").isEmpty() && History.parse(null).isEmpty(), "history without title");
     }
 
     private static void update() {

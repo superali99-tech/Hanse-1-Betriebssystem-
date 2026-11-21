@@ -60,7 +60,7 @@ public final class MailServers {
         new Provider("tonline", "T-Online", "secureimap.t-online.de", 993, "securesmtp.t-online.de", 465, false,
                 "https://www.telekom.de/hilfe/apps-dienste/e-mail/e-mail-programme/passwort", "t-online.de", "magenta.de"),
         new Provider("outlook", "Outlook / Hotmail", "outlook.office365.com", 993, "smtp-mail.outlook.com", 587, true,
-                "https://support.microsoft.com/office/c5a8e3b5-5c1a-4d5b-9b1f-8e2d1a9a9a9a", "outlook.com", "outlook.de", "hotmail.com",
+                "https://support.microsoft.com/de-de/outlook/pop-imap-and-smtp-settings-for-outlook-com", "outlook.com", "outlook.de", "hotmail.com",
                 "hotmail.de", "live.com", "live.de", "msn.com"),
         new Provider("yahoo", "Yahoo", "imap.mail.yahoo.com", 993, "smtp.mail.yahoo.com", 465, false,
                 "https://login.yahoo.com/account/security/app-passwords", "yahoo.com", "yahoo.de", "ymail.com", "rocketmail.com"),

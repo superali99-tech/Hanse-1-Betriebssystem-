@@ -33,12 +33,18 @@ public class ChatActivity extends Activity implements ChatSync.Listener {
     private static final String REGISTER_URL = "https://app.element.io/#/register";
     private LinearLayout content;
     private View fab;
+    private android.widget.EditText search;
+    private String query = "";
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         content = Page.setup(this, R.string.app_chat, "");
         fab = Ui.fab(this, R.drawable.ic_plus, R.string.chat_new, v -> newChat());
+        search = Page.search(this, R.string.chat_search, q -> {
+            query = q;
+            show();
+        });
         handleSso(getIntent());
     }
 
@@ -72,6 +78,7 @@ public class ChatActivity extends Activity implements ChatSync.Listener {
 
     private void show() {
         content.removeAllViews();
+        ((View) search.getParent()).setVisibility(ChatDb.loggedIn(this) ? View.VISIBLE : View.GONE);
         if (!ChatDb.loggedIn(this)) {
             fab.setVisibility(View.GONE);
             ((TextView) findViewById(R.id.page_subtitle)).setText(R.string.chat_sub);
@@ -89,7 +96,19 @@ public class ChatActivity extends Activity implements ChatSync.Listener {
         content.addView(pills, pl);
         List<ChatDb.RoomRow> rooms = ChatDb.get(this).rooms();
         Page.status(this, rooms.isEmpty() ? getString(ChatDb.get(this).get("since") == null ? R.string.loading : R.string.chat_empty) : null);
-        for (ChatDb.RoomRow r : rooms) content.addView(roomRow(r));
+        int shown = 0;
+        for (ChatDb.RoomRow r : rooms) {
+            if (!Search.matches(query, r.name, r.lastBody, r.inviter)) continue;
+            content.addView(roomRow(r));
+            shown++;
+        }
+        if (shown == 0 && !rooms.isEmpty()) content.addView(noResults());
+    }
+
+    private View noResults() {
+        TextView t = Ui.text(this, getString(R.string.search_none), 15, getColor(R.color.text_muted), false);
+        t.setPadding(Ui.dp(this, 4), Ui.dp(this, 18), 0, 0);
+        return t;
     }
 
     private View pill(int text, View.OnClickListener click) {

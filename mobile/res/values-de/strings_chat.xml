@@ -70,4 +70,7 @@
         <item quantity="one">Du hast eine neue Nachricht.</item>
         <item quantity="other">Du hast %d neue Nachrichten.</item>
     </plurals>
+    <string name="chat_search">Chats suchen</string>
+    <string name="chat_contact_save">Als Kontakt speichern</string>
+    <string name="chat_contact_rename">Umbenennen</string>
 </resources>

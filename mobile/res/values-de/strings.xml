@@ -101,11 +101,20 @@
     <string name="update_stage_verify">Update wird geprüft …</string>
     <string name="update_stage_prepare">NovaOS wird vorbereitet und optimiert …</string>
     <string name="update_stage_install">Wird installiert …</string>
+    <string name="more_options">Weitere Optionen</string>
+    <string name="update_menu_whatsnew">Was ist neu</string>
+    <string name="update_menu_history">Update-Verlauf</string>
+    <string name="update_menu_coming">Neu in Version %1$s</string>
+    <string name="update_menu_installed">Installiert: NovaOS %1$s</string>
+    <string name="update_left">noch etwa %1$d:%2$s Min.</string>
+    <string name="update_bytes">%1$s von %2$s</string>
+    <string name="update_preloaded">schon im Hintergrund geladen</string>
+    <string name="update_downloaded">vollständig geladen</string>
     <string name="update_step_download">Herunterladen</string>
     <string name="update_step_verify">Prüfen</string>
     <string name="update_step_prepare">Vorbereiten und optimieren</string>
     <string name="update_step_install">Installieren und neu starten</string>
-    <string name="update_duration_hint">Das Update dauert etwa 2–3 Minuten. Bitte NovaOS geöffnet lassen – danach startet es von selbst neu.</string>
+    <string name="update_duration_hint">Das Update dauert etwa 2 Minuten. Bitte NovaOS geöffnet lassen – danach startet es von selbst neu.</string>
     <string name="app_nova">Nova</string>
     <string name="app_chat">Nova Chat</string>
     <string name="nova_sub">Dein Assistent – ohne Cloud, direkt auf dem Gerät</string>
@@ -117,7 +126,7 @@
     <string name="nova_no_speech">Spracherkennung ist auf diesem Gerät nicht verfügbar – tippe deine Frage unten ein.</string>
     <string name="nova_type">Frag Nova etwas …</string>
     <string name="nova_hey_switch">„Hey Nova“ auf dem Startbildschirm</string>
-    <string name="nova_hey_hint">Nova hört nur zu, solange der NovaOS-Startbildschirm offen ist. Die Spracherkennung kommt von Android; je nach Gerät ertönt dabei ein kurzer Ton.</string>
+    <string name="nova_hey_hint">Nova hört nur zu, solange der NovaOS-Startbildschirm offen ist. Achtung: Android spielt bei jedem Zuhören einen kurzen Ton – deshalb ist „Hey Nova“ normalerweise aus. Das Mikrofon in der Suchleiste geht immer.</string>
     <string name="nova_try_time">Wie spät ist es?</string>
     <string name="nova_try_weather">Wie ist das Wetter?</string>
     <string name="nova_try_timer">Timer 5 Minuten</string>
@@ -239,7 +248,7 @@
     <string name="call_direct_only">Anrufe gehen in Zweier-Chats.</string>
     <string name="card_chat_sub">Chatten und telefonieren</string>
     <string name="card_chat_none">Keine neuen Nachrichten</string>
-    <string name="card_nova_sub">Sag „Hey Nova“</string>
+    <string name="card_nova_sub">Tippen und fragen</string>
     <plurals name="card_chat_unread">
         <item quantity="one">%1$d neue Nachricht</item>
         <item quantity="other">%1$d neue Nachrichten</item>
@@ -319,4 +328,10 @@
     <string name="notes_text_hint">Notiz</string>
     <string name="notes_just_now">Gerade eben</string>
     <string name="notes_untitled">Ohne Titel</string>
+    <!-- search fields (0.1.1.59) -->
+    <string name="search_clear">Suche leeren</string>
+    <string name="search_none">Nichts gefunden.</string>
+    <string name="store_search">Apps suchen</string>
+    <string name="contacts_search">Kontakte suchen</string>
+    <string name="save">Speichern</string>
 </resources>
