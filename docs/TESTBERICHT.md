@@ -514,7 +514,7 @@ Verschwinden nach genau 3 Stunden (nur als Logik-Test).
 ### Update 0.1.1.70: Nova Karte (21.11.2026)
 
 Android-x86 9 in QEMU, Deutsch, Internet über den Proxy der Testumgebung, kein GPS im Emulator (Start ohne Standort =
-Kartenmitte, Navigation als „Vorschau“). Querformat 1280×720. Bilder 94–95.
+Kartenmitte, Navigation als „Vorschau“). Hochformat 720×1280 (Bilder 89–93), Querformat 1280×720 (Bilder 94–95).
 
 | Test | Ergebnis | Details |
 |---|---|---|
@@ -534,6 +534,13 @@ Kartenmitte, Navigation als „Vorschau“). Querformat 1280×720. Bilder 94–9
 | Nova: „navigiere zum hamburger hauptbahnhof“ | ✅ | öffnet Nova Karte, sucht das Ziel, berechnet die Route und startet |
 | … ohne bekannten Standort | ❌ → behoben | fuhr von der Kartenmitte los (im Taunus); jetzt wartet „Starten“ (und Nova) auf den Standort und rechnet dann die Route ab dort, nur „Vorschau“ simuliert |
 | Nova im Querformat: Eingabefeld unten abgeschnitten | ❌ → behoben | kleinere Kugel im Querformat |
+| Version 0.1.1.70 frisch installiert, Hochformat | ✅ | fragt einmal nach dem Standort; Suche, Ortskarte (Pin mittig zwischen Suchfeld und Karte), Route „6 Min. (2,1 km)“, Vorschau mit Banner „Links abbiegen – 10 m – Danach: Links abbiegen auf Stockmeyerstraße“ |
+| „Starten“ ohne Standort (0.1.1.70) | ✅ | „Warte auf deinen Standort … die Navigation startet, sobald er bekannt ist …“ – keine Fahrt ab der Kartenmitte |
+| Update auf ghcr.io | ✅ | `versionName=0.1.1.70`, `apps=map,nova` |
+
+**Nicht getestet:** eine echte Fahrt mit GPS (der Emulator hat keins) und damit auch das Warten auf den Standort bis zum
+Start und die Neuberechnung beim Abweichen (beides nur als Logik bzw. Code geprüft), die hörbare Sprachausgabe (keine
+Sprach-Engine im Emulator; die Texte und Zeitpunkte sind im Protokoll geprüft).
 
 ## NovaOS TV (App für Google TV / Android TV)
 
