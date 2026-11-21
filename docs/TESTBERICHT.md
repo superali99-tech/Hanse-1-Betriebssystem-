@@ -628,6 +628,7 @@ Android-x86 9, Hochformat 720×1280, Standort Mölln über die Test-App. Bilder 
 | Radio SWR3 | ✅ | Glas-Leiste unten; antippen → großer Player in SWR3-Rot, großes Cover, „POP mit Marcus Barsch“, ⏮ ⏸ ⏭ |
 | Startbildschirm mit Musik | ✅ | Musik-Widget mit der laufenden Sendung und ⏮ ⏸ ⏭ |
 | Pause-Zeichen als oranges Emoji | ❌ → behoben | weiße Symbole wie im Player |
+| Update auf ghcr.io | ✅ | `versionName=0.1.1.78`, ohne `release=` (mittleres Update), `apps=weather,music,chat,settings` |
 
 **Nicht getestet:** Nova Chat (im Emulator ist kein Matrix-Konto angemeldet – nur gebaut), Kalender mit echten
 Terminen (die Berechtigung kommt erst beim Antippen), Nova Wetter mit frischen Daten (Tageslimit in der Testumgebung),
