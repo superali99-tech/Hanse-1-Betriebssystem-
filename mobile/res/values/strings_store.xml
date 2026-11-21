@@ -43,4 +43,21 @@
     <string name="novaapp_files">Open, share and sort files</string>
     <string name="novaapp_notes">Write and search notes</string>
     <string name="novaapp_settings">Set up NovaOS, software update</string>
+    <!-- Neuerungen (0.1.1.65) -->
+    <string name="news_title">What\'s new</string>
+    <string name="news_features">New features</string>
+    <string name="news_details">Details</string>
+    <string name="news_show">Show what\'s new</string>
+    <string name="news_updated">Last updated: %1$s</string>
+    <string name="news_upcoming">Comes with the next update (version %1$s)</string>
+    <string name="news_version">Version %1$s</string>
+    <string name="news_no_text">Version %1$s – the developer left no description for this version at F-Droid.</string>
+    <string name="news_all_changes">All changes at the developer</string>
+    <string name="news_nova_about">Part of NovaOS: free, no ads, your data stays on the phone (except what you send yourself). The app is updated with the NovaOS software update.</string>
+    <string name="nova_detail_price">Price</string>
+    <string name="nova_detail_free">Free</string>
+    <string name="nova_detail_ads">Ads</string>
+    <string name="nova_detail_none">None</string>
+    <string name="nova_detail_data">Your data</string>
+    <string name="nova_detail_on_phone">On the phone</string>
 </resources>

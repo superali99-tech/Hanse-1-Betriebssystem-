@@ -43,4 +43,21 @@
     <string name="novaapp_files">Dateien öffnen, teilen und ordnen</string>
     <string name="novaapp_notes">Notizen schreiben und durchsuchen</string>
     <string name="novaapp_settings">NovaOS einstellen, Software-Update</string>
+    <!-- Neuerungen (0.1.1.65) -->
+    <string name="news_title">Neuerungen</string>
+    <string name="news_features">Neue Funktionen</string>
+    <string name="news_details">Details</string>
+    <string name="news_show">Neuerungen anzeigen</string>
+    <string name="news_updated">Zuletzt aktualisiert: %1$s</string>
+    <string name="news_upcoming">Kommt mit dem nächsten Update (Version %1$s)</string>
+    <string name="news_version">Version %1$s</string>
+    <string name="news_no_text">Version %1$s – der Entwickler hat zu dieser Version keine Beschreibung bei F-Droid hinterlegt.</string>
+    <string name="news_all_changes">Alle Änderungen beim Entwickler</string>
+    <string name="news_nova_about">Gehört zu NovaOS: kostenlos, ohne Werbung, deine Daten bleiben auf dem Handy (außer was du selbst verschickst). Aktualisiert wird die App mit dem NovaOS-Software-Update.</string>
+    <string name="nova_detail_price">Preis</string>
+    <string name="nova_detail_free">Kostenlos</string>
+    <string name="nova_detail_ads">Werbung</string>
+    <string name="nova_detail_none">Keine</string>
+    <string name="nova_detail_data">Deine Daten</string>
+    <string name="nova_detail_on_phone">Auf dem Handy</string>
 </resources>

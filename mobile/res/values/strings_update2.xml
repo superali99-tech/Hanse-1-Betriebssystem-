@@ -18,4 +18,10 @@
     <string name="update_button_resume">Resume</string>
     <string name="update_button_installing">Installing …</string>
     <string name="update_checking_button">Checking …</string>
+    <string name="update_last_installed">Last updated: %1$s</string>
+    <string name="update_last_checked">Last checked for updates: %1$s</string>
+    <string name="update_today">Today, %1$s</string>
+    <string name="update_whatsnew_installed">New in NovaOS %1$s</string>
+    <string name="update_released_on">Released on %1$s</string>
+    <string name="update_installed_on">Installed on this phone: %1$s</string>
 </resources>

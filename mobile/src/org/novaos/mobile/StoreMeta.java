@@ -12,7 +12,8 @@ import java.util.Map;
  */
 public final class StoreMeta {
     public String author = "", license = "", web = "", source = "", summaryDe = "", summaryEn = "", descDe = "", descEn = "", version = "";
-    public long added, updated, code, size;
+    public String newsDe = "", newsEn = "", changelog = "";
+    public long added, updated, code, size, newsDate;
     public int minSdk, permissions;
     public List<String> anti = Collections.emptyList(), shots = Collections.emptyList();
 
@@ -46,6 +47,10 @@ public final class StoreMeta {
             s.minSdk = (int) num(m, "minSdk");
             s.permissions = (int) num(m, "permissions");
             s.anti = list(m.get("anti"), false);
+            s.newsDe = str(m, "news_de");
+            s.newsEn = str(m, "news_en");
+            s.newsDate = num(m, "news_date");
+            s.changelog = url(str(m, "changelog"));
             s.shots = list(m.get("shots"), true);
             out.put(String.valueOf(e.getKey()), s);
         }
@@ -60,6 +65,11 @@ public final class StoreMeta {
     private static long num(Map<?, ?> m, String k) {
         Object v = m.get(k);
         return v instanceof Number ? ((Number) v).longValue() : 0;
+    }
+
+    /** What is new in this version (German if there is, otherwise English). */
+    public String news(boolean german) {
+        return german && !newsDe.isEmpty() ? newsDe : !newsEn.isEmpty() ? newsEn : newsDe;
     }
 
     /** Only https links are opened. */

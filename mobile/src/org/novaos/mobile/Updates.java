@@ -225,6 +225,52 @@ final class Updates {
 
     static void markSeen(Context c) {
         prefs(c).edit().putLong("seen", installedCode(c)).apply();
+        logInstalled(c);
+    }
+
+    /** When the installed NovaOS was installed or last updated on this phone (0 = unknown). */
+    static long installedAt(Context c) {
+        try {
+            return c.getPackageManager().getPackageInfo(c.getPackageName(), 0).lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            return 0;
+        }
+    }
+
+    /** The NovaOS versions installed on this phone and when ("0.1.1.64" -> time), oldest first. */
+    static java.util.Map<String, Long> installLog(Context c) {
+        java.util.Map<String, Long> out = new java.util.LinkedHashMap<>();
+        for (String line : prefs(c).getString("install_log", "").split("\n")) {
+            int eq = line.indexOf('=');
+            if (eq <= 0) continue;
+            try {
+                out.put(line.substring(0, eq), Long.parseLong(line.substring(eq + 1)));
+            } catch (NumberFormatException ignored) {
+                // skip a broken line
+            }
+        }
+        return out;
+    }
+
+    /** Notes the installed version with its time (once per version; the last 50 versions). */
+    static void logInstalled(Context c) {
+        java.util.Map<String, Long> log = installLog(c);
+        String name = installedName(c);
+        long at = installedAt(c);
+        if (at <= 0 || log.containsKey(name)) return;
+        log.put(name, at);
+        StringBuilder b = new StringBuilder();
+        int skip = Math.max(0, log.size() - 50);
+        for (java.util.Map.Entry<String, Long> e : log.entrySet()) {
+            if (skip-- > 0) continue;
+            b.append(e.getKey()).append('=').append(e.getValue()).append('\n');
+        }
+        prefs(c).edit().putString("install_log", b.toString()).apply();
+    }
+
+    /** When NovaOS last looked for an update (0 = never). */
+    static long lastChecked(Context c) {
+        return prefs(c).getLong("checked", 0);
     }
 
     static boolean firstStart(Context c) {

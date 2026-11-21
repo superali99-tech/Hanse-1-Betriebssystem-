@@ -74,6 +74,10 @@ public class StoreDetailActivity extends Activity implements StoreInstall.Listen
         meta = StoreCatalog.meta(this, pkg);
         LinearLayout content = Page.setup(this, R.string.app_store, "");
         build(content);
+        NovaAppDetailActivity.addMenu(this, () -> {
+            newsShown = null;
+            showNews();
+        });
         packages = new BroadcastReceiver() {
             @Override
             public void onReceive(Context c, Intent i) {
@@ -186,6 +190,10 @@ public class StoreDetailActivity extends Activity implements StoreInstall.Listen
         LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         bl.topMargin = Ui.dp(this, 12);
         content.addView(buttons, bl);
+        // "Neuerungen •" (3 hours after an update, or when a newer version waits)
+        newsBox = new LinearLayout(this);
+        newsBox.setOrientation(LinearLayout.VERTICAL);
+        content.addView(newsBox);
 
         // screenshots
         if (meta != null && !meta.shots.isEmpty()) {
@@ -358,8 +366,24 @@ public class StoreDetailActivity extends Activity implements StoreInstall.Listen
 
     private String mode = "";  // the buttons are only rebuilt when this changes (a tap must not hit a replaced button)
 
+    private LinearLayout newsBox;
+
+    private String newsShown = null;
+
+    private void showNews() {
+        if (newsBox == null) return;
+        AppNews.Item news = AppNews.fdroid(this, app, latest, latestName);
+        String sig = news == null ? "" : news.upcoming + "|" + news.version + "|" + news.lines.size();
+        if (sig.equals(newsShown)) return;  // unchanged (refresh runs often while downloading)
+        newsShown = sig;
+        newsBox.removeAllViews();
+        if (news != null) newsBox.addView(NovaAppDetailActivity.newsBlock(this, news, () -> startActivity(new Intent(this, NewsActivity.class)
+                .putExtra(NewsActivity.EXTRA_PKG, app.pkg).putExtra(NewsActivity.EXTRA_LATEST, latest).putExtra(NewsActivity.EXTRA_LATEST_NAME, latestName))));
+    }
+
     private void refresh() {
         if (buttons == null) return;
+        showNews();
         long installed = installedCode();
         StoreInstall.State s = StoreInstall.state(app.pkg);
         if (latest > 0 && versionValue != null && !latestName.isEmpty()) versionValue.setText(latestName);

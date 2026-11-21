@@ -99,6 +99,10 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
             }
         }
         // search: the "recommended" apps also appear in their category, so that section is hidden while searching
+        NovaAppDetailActivity.addMenu(this, () -> {  // "Neuerungen anzeigen" on/off
+            refreshNova();
+            for (String pkg : apps.keySet()) refresh(pkg);
+        });
         Page.search(this, R.string.store_search, q -> {
             query = q;
             filter();
@@ -200,7 +204,13 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
         r.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
-        texts.addView(Ui.text(this, getString(n.name), 16, Color.WHITE, true));
+        LinearLayout nameRow = new LinearLayout(this);
+        nameRow.setGravity(Gravity.CENTER_VERTICAL);
+        nameRow.addView(Ui.text(this, getString(n.name), 16, Color.WHITE, true));
+        View dot = newsDot();
+        dot.setTag("dot:" + n.key);
+        nameRow.addView(dot);
+        texts.addView(nameRow);
         TextView d = Ui.text(this, getString(n.text), 13, getColor(R.color.text_muted), false);
         d.setMaxLines(2);
         d.setEllipsize(TextUtils.TruncateAt.END);
@@ -215,13 +225,31 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
         Button b = actionButton();
         r.addView(b, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Ui.dp(this, 42)));
         novaButtons.put(n.key, b);
-        r.setOnClickListener(v -> startActivity(new Intent(this, n.activity)));
+        // tap: the app's page with all information (the button opens the app itself)
+        r.setOnClickListener(v -> startActivity(new Intent(this, NovaAppDetailActivity.class).putExtra(NovaAppDetailActivity.EXTRA_KEY, n.key)));
         return r;
     }
 
     /** "Aktualisieren" for the Nova apps that the waiting NovaOS update changes, otherwise "Öffnen". */
+    /** The blue dot of "Neuerungen" next to a name. */
+    private View newsDot() {
+        View d = new View(this);
+        android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+        g.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+        g.setColor(0xFF8AB4F8);
+        d.setBackground(g);
+        LinearLayout.LayoutParams dl = new LinearLayout.LayoutParams(Ui.dp(this, 8), Ui.dp(this, 8));
+        dl.leftMargin = Ui.dp(this, 8);
+        d.setLayoutParams(dl);
+        d.setVisibility(View.GONE);
+        return d;
+    }
+
     private void refreshNova() {
         UpdateInfo pending = Updates.pending(this);
+        for (NovaApps.App n : NovaApps.ALL) {
+            for (View d : findAll(findViewById(R.id.content), "dot:" + n.key)) d.setVisibility(AppNews.nova(this, n.key) != null ? View.VISIBLE : View.GONE);
+        }
         boolean any = false;
         for (NovaApps.App n : NovaApps.ALL) any |= pending != null && pending.apps.contains(n.key);
         ViewGroup content = (ViewGroup) novaBox.getParent();
@@ -304,7 +332,13 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
 
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
-        texts.addView(Ui.text(this, a.name, 16, Color.WHITE, true));
+        LinearLayout nameRow = new LinearLayout(this);
+        nameRow.setGravity(Gravity.CENTER_VERTICAL);
+        nameRow.addView(Ui.text(this, a.name, 16, Color.WHITE, true));
+        View dot = newsDot();
+        dot.setTag("dot:" + a.pkg);
+        nameRow.addView(dot);
+        texts.addView(nameRow);
         TextView d = Ui.text(this, a.text(german), 13, getColor(R.color.text_muted), false);
         d.setMaxLines(2);
         d.setEllipsize(TextUtils.TruncateAt.END);
@@ -361,6 +395,9 @@ public class StoreActivity extends Activity implements StoreInstall.Listener {
         if (rl != null) for (RingView ring : rl) {
             ring.setVisibility(s == null ? View.INVISIBLE : View.VISIBLE);
             if (s != null) ring.set(s.installing || s.checking || s.total <= 0 ? -1 : s.done / (float) s.total);
+        }
+        for (View d : findAll(findViewById(R.id.content), "dot:" + pkg)) {
+            d.setVisibility(a.fromFdroid() && AppNews.dot(this, a, latest == null ? -1 : latest) ? View.VISIBLE : View.GONE);
         }
         String name = fdroidName.get(pkg);
         StoreMeta m = StoreCatalog.meta(this, pkg);

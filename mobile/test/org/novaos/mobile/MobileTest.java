@@ -33,6 +33,7 @@ public final class MobileTest {
         music();
         phones();
         smarter();
+        news();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -68,6 +69,26 @@ public final class MobileTest {
         check(Search.matches("anna mail", "Anna", "anna@mail.de") && !Search.matches("anna post", "Anna", "anna@mail.de"),
                 "search: every word must appear");
         check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
+    }
+
+    private static void news() {
+        long h = 3600_000L;
+        check(News.show(true, 1000, 1000 + 2 * h, false) && !News.show(true, 1000, 1000 + 3 * h + 1, false), "news: 3 hours after the update");
+        check(News.show(true, 0, 5 * h, true) && !News.show(false, 1000, 1001, true) && !News.show(true, 0, 5, false), "news: upcoming, switched off, never updated");
+        check(!News.show(true, 10 * h, 9 * h, false), "news: clock before the update");
+        String w = "# x\n@apps: chat, mail, store\n{chat} Chat neu|Chat new\n{chat,mail} Beide|Both\nAllgemein|General\n";
+        check(News.forApp(w, "chat", true).equals(java.util.Arrays.asList("Chat neu", "Beide")), "news: lines of chat");
+        check(News.forApp(w, "mail", false).equals(java.util.Arrays.asList("Both")), "news: lines of mail in English");
+        check(News.forApp(w, "store", true).equals(java.util.Arrays.asList("Chat neu", "Beide", "Allgemein")), "news: app without own lines gets all");
+        check(News.forApp(w, "camera", true).isEmpty(), "news: unchanged app");
+        check(UpdateInfo.whatsNew(w, true).equals(java.util.Arrays.asList("Chat neu", "Beide", "Allgemein")), "whats new without tags");
+        String props = "versionCode=10100070\nversionName=0.1.1.70\napk=novaos-mobile.apk\nsha256=" + "ab".repeat(32) + "\nsize=1\n"
+                + "apps=chat,store\nnote.de.1=A\nnote.de.2=B\nappnote.chat.de.1=A\nappnote.chat.en.1=A en\n";
+        UpdateInfo u = UpdateInfo.parse(props);
+        check(u != null && u.appNotes("chat", true).equals(java.util.Arrays.asList("A")) && u.appNotes("chat", false).equals(java.util.Arrays.asList("A en")),
+                "update: notes of one app");
+        check(u != null && u.appNotes("store", true).equals(java.util.Arrays.asList("A", "B")) && u.appNotes("mail", true).isEmpty(),
+                "update: app without own notes, unchanged app");
     }
 
     private static void smarter() {
@@ -184,6 +205,11 @@ public final class MobileTest {
         check(h.get(0).lines(true).equals(java.util.Arrays.asList("Neu A", "nur de"))
                 && h.get(0).lines(false).equals(java.util.Arrays.asList("New A", "nur de")), "history lines");
         check(History.parse("Zeile ohne Titel|x\n").isEmpty() && History.parse(null).isEmpty(), "history without title");
+        check(h.get(1).version().equals("1") && History.parse("== NovaOS 0.1.1.58 · 20.11.2026\nA|B").get(0).version().equals("0.1.1.58"), "history version");
+        java.util.Calendar rel = java.util.Calendar.getInstance();
+        rel.setTimeInMillis(History.parse("== NovaOS 0.1.1.58 · 20.11.2026\nA|B").get(0).released());
+        check(rel.get(java.util.Calendar.DAY_OF_MONTH) == 20 && rel.get(java.util.Calendar.MONTH) == 10 && rel.get(java.util.Calendar.YEAR) == 2026
+                && h.get(1).released() == 0, "history release date");
     }
 
     private static void update() {
@@ -285,6 +311,13 @@ public final class MobileTest {
                     java.nio.charset.StandardCharsets.UTF_8);
             java.util.List<String> de = UpdateInfo.whatsNew(news, true), en = UpdateInfo.whatsNew(news, false);
             check(!de.isEmpty() && de.size() == en.size() && de.size() <= 8, "whatsnew.txt: " + de.size() + " points");
+            String hist = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(res, "raw", "history.txt")),
+                    java.nio.charset.StandardCharsets.UTF_8);
+            for (String line : (news + "\n" + hist).split("\n")) {
+                String l = line.trim();
+                if (l.isEmpty() || l.startsWith("#") || l.startsWith("@") || l.startsWith("==")) continue;
+                check(l.split("\\|", -1).length == 2, "one | per line (German|English): " + l);
+            }
             java.util.Set<String> novaKeys = new java.util.HashSet<>(java.util.Arrays.asList("nova", "chat", "mail", "family", "store",
                     "camera", "gallery", "files", "notes", "settings", "music", "shop", "update"));
             for (String key : UpdateInfo.changedApps(news)) check(novaKeys.contains(key), "whatsnew.txt: unknown Nova app " + key);

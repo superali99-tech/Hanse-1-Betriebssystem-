@@ -213,6 +213,14 @@
             android:exported="false"
             android:taskAffinity="org.novaos.mobile.shop" />
         <activity
+            android:name=".NovaAppDetailActivity"
+            android:exported="false"
+            android:taskAffinity="org.novaos.mobile.store" />
+        <activity
+            android:name=".NewsActivity"
+            android:exported="false"
+            android:taskAffinity="org.novaos.mobile.store" />
+        <activity
             android:name=".StoreDetailActivity"
             android:exported="false"
             android:taskAffinity="org.novaos.mobile.store" />

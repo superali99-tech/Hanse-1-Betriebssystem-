@@ -101,6 +101,14 @@
   „Aktualisieren“ → „Pause“ → „Fortsetzen“; Querformat mit Bild links. Das Update läuft jetzt in `UpdateEngine` unabhängig
   von der Seite (Drehen, Verlassen, andere Apps brechen es nicht mehr ab), Download mit Pause und Fortsetzen per
   HTTP-Range (`Download.resumable`), Fortschritt in der Benachrichtigung. Behoben: Drehen ins Querformat brach das Update ab
+* **NovaOS Mobile 0.1.1.65 – Neuerungen und Infoseiten der Nova-Apps**: Nova-Apps im Nova Store antippbar mit Seite
+  wie im Play Store (NovaOS, Version, kostenlos, keine Werbung, Öffnen/Aktualisieren, „Neuerungen •“, „Über diese App“);
+  Detailseite „Neue Funktionen •“; „Neuerungen“ mit blauem Punkt 3 Stunden nach einem Update und wenn das nächste wartet
+  (Nova-Apps: Zeilen `{app} …` in `whatsnew.txt` → `appnote.<app>.*` in `update.properties`; F-Droid-Apps: Änderungstext
+  der Version aus F-Droids Index), abschaltbar über ⋮ → „Neuerungen anzeigen“. Software-Update: „Zuletzt aktualisiert“
+  und „Zuletzt nach Updates gesucht“ mit Datum und Uhrzeit, „Was ist neu“ und Update-Verlauf mit Erscheinungs- und
+  Installationsdatum (Installationen werden auf dem Handy mitgeschrieben). Behoben: ein „|“ im Text der Neuerungen von
+  0.1.1.64 schnitt die Zeile ab (Test prüft das jetzt für alle Zeilen)
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

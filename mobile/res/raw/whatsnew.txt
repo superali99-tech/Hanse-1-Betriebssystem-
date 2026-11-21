@@ -1,7 +1,8 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
-@apps: settings
-Neue Update-Seite wie bei Samsung: großes Bild, „Download und Installation“ und ein großer Knopf|New update page like on Samsung phones: big picture, "Download and installation" and one big button
-„Pause“ und „Fortsetzen“: das Update macht genau dort weiter, wo es aufgehört hat|"Pause" and "Resume": the update continues exactly where it stopped
-Behoben: Drehen ins Querformat hat das Update abgebrochen – jetzt läuft es weiter, auch in anderen Apps|Fixed: turning the phone sideways stopped the update – now it keeps running, also in other apps
-Fortschritt in zwei Teilen (Download | Bestätigung) und in der Benachrichtigung|Progress in two parts (download | confirmation) and in the notification
+# "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
+@apps: store, settings
+{store} Nova Store: Nova-Apps antippen zeigt ihre Infoseite wie im Play Store|Nova Store: tapping a Nova app shows its info page like in the Play Store
+{store} „Neuerungen •“ mit blauem Punkt: 3 Stunden nach einem Update und wenn das nächste kommt|"What's new •" with a blue dot: for 3 hours after an update and when the next one comes
+{store} Neuerungen ausschalten: ⋮ oben rechts → „Neuerungen anzeigen“|Switch off what's new: ⋮ at the top right → "Show what's new"
+{settings} Software-Update zeigt, wann zuletzt aktualisiert und gesucht wurde – auch im Update-Verlauf|Software update shows when it was last updated and checked – also in the update history

@@ -21,6 +21,7 @@ public final class UpdateInfo {
     public final List<String> notesDe, notesEn;
     /** Nova apps changed by this update ("apps=chat,mail"): the Nova Store shows "Aktualisieren" for them. */
     public final List<String> apps = new ArrayList<>();
+    private final java.util.Map<String, List<String>> appNotesDe = new java.util.HashMap<>(), appNotesEn = new java.util.HashMap<>();
 
     UpdateInfo(long versionCode, String versionName, String apk, String sha256, long size,
                List<String> notesDe, List<String> notesEn) {
@@ -54,6 +55,11 @@ public final class UpdateInfo {
                 String key = a.trim().toLowerCase(java.util.Locale.ROOT);
                 if (key.matches("[a-z]{1,20}") && !u.apps.contains(key)) u.apps.add(key);
             }
+            for (String key : u.apps) {  // "appnote.chat.de.1=…": what is new in this app
+                java.util.List<String> de = notes(p, "de", "appnote." + key + "."), en = notes(p, "en", "appnote." + key + ".");
+                if (!de.isEmpty()) u.appNotesDe.put(key, de);
+                if (!en.isEmpty()) u.appNotesEn.put(key, en);
+            }
             return u;
         } catch (NumberFormatException e) {
             return null;
@@ -61,9 +67,13 @@ public final class UpdateInfo {
     }
 
     private static List<String> notes(Properties p, String lang) {
+        return notes(p, lang, "note.");
+    }
+
+    private static List<String> notes(Properties p, String lang, String prefix) {
         List<String> out = new ArrayList<>();
         for (int i = 1; i <= 20; i++) {
-            String s = p.getProperty("note." + lang + "." + i);
+            String s = p.getProperty(prefix + lang + "." + i);
             if (s != null && !s.trim().isEmpty()) out.add(s.trim());
         }
         return out;
@@ -77,6 +87,13 @@ public final class UpdateInfo {
         return german || notesEn.isEmpty() ? notesDe : notesEn;
     }
 
+    /** What this update brings to one Nova app (its own lines, otherwise all); empty if it does not change it. */
+    public List<String> appNotes(String key, boolean german) {
+        if (!apps.contains(key)) return new ArrayList<>();
+        List<String> own = german || !appNotesEn.containsKey(key) ? appNotesDe.get(key) : appNotesEn.get(key);
+        return own != null ? own : notes(german);
+    }
+
     /** "what's new" lines of res/raw/whatsnew.txt ("German|English" per line). */
     public static List<String> whatsNew(String text, boolean german) {
         List<String> out = new ArrayList<>();
@@ -84,7 +101,7 @@ public final class UpdateInfo {
         for (String raw : text.split("\r?\n")) {
             String line = raw.trim();
             if (line.isEmpty() || line.startsWith("#") || line.startsWith("@")) continue;  // "@apps: ..." is no text
-            String[] f = line.split("\\|", 2);
+            String[] f = News.strip(line).split("\\|", 2);
             out.add((german || f.length < 2 ? f[0] : f[1]).trim());
         }
         return out;

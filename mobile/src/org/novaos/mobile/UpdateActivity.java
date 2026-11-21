@@ -51,6 +51,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         super.onCreate(state);
         Ui.edgeToEdge(this);
         engine = UpdateEngine.get(this);
+        Updates.logInstalled(this);
         build();
         UpdateInfo known = Updates.pending(this);
         if (engine.running()) {
@@ -240,7 +241,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
     private void render() {
         boolean running = engine.running(), paused = engine.paused();
         art.setMoving(running && !paused);
-        String version = getString(R.string.update_current, Updates.installedName(this));
+        String version = installedLine();
         String generic = getString(R.string.update_generic);
         bars.setVisibility(running ? View.VISIBLE : View.GONE);
         button.setEnabled(true);
@@ -284,6 +285,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         } else if (checking) {
             title.setText(R.string.update_checking);
             subtitle.setText(version);
+            subtitle.setLineSpacing(0, 1.2f);
             description.setText("");
             notes.setText("");
             hint.setText(generic);
@@ -298,9 +300,11 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             notes.setText(notesText(update));
             hint.setText(version + "\n\n" + generic);
             button.setText(R.string.update_install);
+            subtitle.setText(getString(R.string.update_version, update.versionName, UpdateInfo.size(update.size, german)));
         } else {
             title.setText(checkStatus == Updates.OK ? R.string.update_none_title : R.string.update_error_title);
             subtitle.setText(version);
+            subtitle.setLineSpacing(0, 1.2f);
             description.setText(checkStatus == Updates.OK ? R.string.update_none
                     : checkStatus == Updates.NOT_PUBLIC ? R.string.update_not_public
                     : checkStatus == Updates.INVALID ? R.string.update_invalid : R.string.update_unreachable);
@@ -310,12 +314,29 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         }
     }
 
+    /** "Installiert: NovaOS 0.1.1.64" + when it was installed and when NovaOS last looked for updates. */
+    private String installedLine() {
+        StringBuilder b = new StringBuilder(getString(R.string.update_current, Updates.installedName(this)));
+        long at = Updates.installedAt(this), checked = Updates.lastChecked(this);
+        if (at > 0) b.append('\n').append(getString(R.string.update_last_installed, when(at)));
+        if (checked > 0) b.append('\n').append(getString(R.string.update_last_checked, when(checked)));
+        return b.toString();
+    }
+
+    /** "21. November 2026, 09:30" (today: "Heute, 09:30"). */
+    private String when(long ms) {
+        String time = android.text.format.DateFormat.getTimeFormat(this).format(new java.util.Date(ms));
+        if (android.text.format.DateUtils.isToday(ms)) return getString(R.string.update_today, time);
+        return android.text.format.DateUtils.formatDateTime(this, ms, android.text.format.DateUtils.FORMAT_SHOW_DATE
+                | android.text.format.DateUtils.FORMAT_SHOW_YEAR) + ", " + time;
+    }
+
     /** "• Neu …" lines of the update (or of the installed version when there is none). */
     private String notesText(UpdateInfo u) {
         List<String> lines = u != null ? u.notes(german) : UpdateInfo.whatsNew(raw(R.raw.whatsnew), german);
         if (lines.isEmpty()) return "";
         StringBuilder b = new StringBuilder(u != null ? getString(R.string.update_menu_coming, u.versionName)
-                : getString(R.string.update_menu_installed, Updates.installedName(this))).append('\n');
+                : getString(R.string.update_whatsnew_installed, Updates.installedName(this))).append('\n');
         for (String l : lines) b.append("\n•  ").append(l);
         return b.toString();
     }
@@ -439,18 +460,30 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             blocks.add(new String[] {getString(R.string.update_menu_coming, pending.versionName), bullets(pending.notes(german))});
         }
         blocks.add(new String[] {getString(R.string.update_menu_installed, Updates.installedName(this)),
-                bullets(UpdateInfo.whatsNew(raw(R.raw.whatsnew), german))});
+                dated(Updates.installedAt(this), 0) + bullets(UpdateInfo.whatsNew(raw(R.raw.whatsnew), german))});
         notesDialog(R.string.update_menu_whatsnew, blocks);
     }
 
     private void history() {
         List<String[]> blocks = new ArrayList<>();
+        java.util.Map<String, Long> log = Updates.installLog(this);
         blocks.add(new String[] {getString(R.string.update_menu_installed, Updates.installedName(this)),
-                bullets(UpdateInfo.whatsNew(raw(R.raw.whatsnew), german))});
+                dated(Updates.installedAt(this), 0) + bullets(UpdateInfo.whatsNew(raw(R.raw.whatsnew), german))});
         for (History.Entry e : History.parse(raw(R.raw.history))) {
-            if (e.title.contains(Updates.installedName(this))) continue;
-            blocks.add(new String[] {e.title, bullets(e.lines(german))});
+            if (e.version().equals(Updates.installedName(this))) continue;
+            Long installed = log.get(e.version());
+            blocks.add(new String[] {"NovaOS " + e.version(), dated(installed == null ? 0 : installed, e.released()) + bullets(e.lines(german))});
         }
         notesDialog(R.string.update_menu_history, blocks);
+    }
+
+    /** "📅 Erschienen am …  ·  installiert am …" above the points of a version. */
+    private String dated(long installed, long released) {
+        StringBuilder b = new StringBuilder();
+        if (released > 0) b.append(getString(R.string.update_released_on,
+                android.text.format.DateUtils.formatDateTime(this, released, android.text.format.DateUtils.FORMAT_SHOW_DATE
+                        | android.text.format.DateUtils.FORMAT_SHOW_YEAR)));
+        if (installed > 0) b.append(b.length() > 0 ? "\n" : "").append(getString(R.string.update_installed_on, when(installed)));
+        return b.length() == 0 ? "" : "📅 " + b.toString().replace("\n", "\n📅 ") + "\n\n";
     }
 }

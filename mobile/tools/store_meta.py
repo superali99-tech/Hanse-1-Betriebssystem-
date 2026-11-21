@@ -69,6 +69,11 @@ def main():
             "permissions": len(v["manifest"].get("usesPermission") or []),
             "anti": [plain(a, 300) for a in anti],
             "shots": [s["name"] for s in (shots.get(loc) or [])][:8] if loc else [],
+            # "Neuerungen": what changed in this version (if the developer wrote it), and when it came out
+            "news_de": plain(pick(v.get("whatsNew"), ("de-DE", "de")), 1200),
+            "news_en": plain(pick(v.get("whatsNew"), ("en-US", "en", "en-GB")), 1200),
+            "news_date": v.get("added", 0),
+            "changelog": m.get("changelog", "") if str(m.get("changelog", "")).startswith("https://") else "",
         }
     json.dump(out, sys.stdout, ensure_ascii=False, indent=0, sort_keys=True)
     print()

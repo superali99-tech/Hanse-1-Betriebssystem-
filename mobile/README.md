@@ -32,7 +32,11 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   (`tools/store_meta.py` → `res/raw/store_meta.json`); F-Droid hat keine Bewertungen, deshalb zeigt der Store keine.
   Oben bzw. unten die **Nova-Apps** (Nova, Chat, Mail, Family, Store, Kamera …): sie gehören zu NovaOS und werden
   mit dem Software-Update erneuert – ändert das nächste Update eine Nova-App, steht dort **„Aktualisieren“**
-  (startet das NovaOS-Update) und die Apps mit Update stehen oben
+  (startet das NovaOS-Update) und die Apps mit Update stehen oben. Antippen öffnet die **Infoseite** der Nova-App wie im
+  Play Store (Version, kostenlos, keine Werbung, Öffnen/Aktualisieren, „Über diese App“). **„Neuerungen •“** mit blauem
+  Punkt erscheinen 3 Stunden lang nach einem Update und wieder, wenn das nächste Update für die App wartet – bei den
+  Nova-Apps mit den Punkten des NovaOS-Updates, bei F-Droid-Apps mit dem Änderungstext des Entwicklers; die Pfeile führen
+  zu „Neue Funktionen“. Wer das nicht möchte: ⋮ oben rechts → „Neuerungen anzeigen“ ausschalten
 * **Nova Musik**: **Meine Musik** (Lieder auf dem Handy, nach Erlaubnis für „Musik und Audio“; Alle abspielen,
   Zufällig, Suche), **Radio** (über 1000 Sender aus dem freien Verzeichnis radio-browser.info, beliebte deutsche
   Sender zuerst, Suche; nur Sender mit verschlüsselter Verbindung; zeigt das Lied, das gerade läuft) und **Songs**
@@ -141,8 +145,10 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Prüfen, Vorbereiten, Installieren) mit echten MB, Geschwindigkeit und Restzeit, und ein großer Knopf
   **„Aktualisieren“ → „Pause“ → „Fortsetzen“** (der Download macht genau dort weiter). Das Update läuft im Hintergrund
   weiter – beim Drehen ins Querformat, beim Verlassen der Seite und in anderen Apps – und zeigt den Fortschritt in der
-  Benachrichtigung; zum Schluss fragt Android einmal, dann startet NovaOS neu (etwa 2 Minuten). ⋮ oben rechts: „Was ist
-  neu“, **Update-Verlauf** aller Versionen, „Nach Updates suchen“.
+  Benachrichtigung; zum Schluss fragt Android einmal, dann startet NovaOS neu (etwa 2 Minuten). Die Seite zeigt
+  „Zuletzt aktualisiert“ und „Zuletzt nach Updates gesucht“ mit Datum und Uhrzeit. ⋮ oben rechts: „Was ist neu“ und
+  **Update-Verlauf** aller Versionen – jeweils mit Erscheinungsdatum und, wenn bekannt, wann sie auf diesem Handy
+  installiert wurde –, „Nach Updates suchen“.
 * **Suchfelder** in Nova Store, Nova Chat (Chats und Kontakte) und Nova Mail (Mails und Kontakte): jedes
   getippte Wort muss vorkommen, Groß-/Kleinschreibung und Akzente egal, „ae/oe/ue“ findet auch „ä/ö/ü“.
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
@@ -263,6 +269,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `ShopActivity.java`, `PhoneDetailActivity.java`, `PhoneRender.java`, `PhoneModels.java` | Nova Phone Shop: Übersicht mit Bannern, Produktseite, gezeichnete Handy-Bilder, Modelle und Preise (getestet) |
 | `AccountActivity.java`, `AppLock.java`, `ConfirmActivity.java`, `NovaApp.java`, `LockRule.java` | Konto und Sicherheit, Schutz der Nova-Apps mit Androids Sperre/Fingerabdruck, Bestätigungscodes (getestet) |
 | `Wiki.java` | Nova: Wikipedia-Zusammenfassungen (getestet) |
+| `NovaAppDetailActivity.java`, `NewsActivity.java`, `AppNews.java`, `News.java` | Infoseite der Nova-Apps, „Neue Funktionen“, Regeln für „Neuerungen“ (getestet) |
 | `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |

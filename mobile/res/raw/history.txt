@@ -1,6 +1,12 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.64 · 21.11.2026
+Neue Update-Seite wie bei Samsung: großes Bild, „Download und Installation“ und ein großer Knopf|New update page like on Samsung phones: big picture, "Download and installation" and one big button
+„Pause“ und „Fortsetzen“: das Update macht genau dort weiter, wo es aufgehört hat|"Pause" and "Resume": the update continues exactly where it stopped
+Behoben: Drehen ins Querformat hat das Update abgebrochen – jetzt läuft es weiter, auch in anderen Apps|Fixed: turning the phone sideways stopped the update – now it keeps running, also in other apps
+Fortschritt in zwei Teilen (Download und Bestätigung) und in der Benachrichtigung|Progress in two parts (download and confirmation) and in the notification
+
 == NovaOS 0.1.1.63 · 21.11.2026
 Neu: Konto und Sicherheit – deine Infos, Bildschirmsperre, Fingerabdruck, Abmelden|New: Account and security – your details, screen lock, fingerprint, sign out
 Nova-Apps geschützt: Chat, Mail, Family, Notizen, Dateien und Galerie fragen nach PIN, Muster oder Fingerabdruck|Nova apps protected: Chat, Mail, Family, Notes, Files and Gallery ask for your PIN, pattern or fingerprint

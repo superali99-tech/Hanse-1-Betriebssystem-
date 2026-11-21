@@ -121,9 +121,19 @@ apps = [a.strip() for l in lines if l.startswith("@apps:") for a in l[6:].split(
 if apps:  # the Nova apps this update changes (Nova Store: "Aktualisieren")
 	print("apps=" + ",".join(apps))
 lines = [l for l in lines if not l.startswith("@")]
+import re
+per_app = {}
 for i, line in enumerate(lines[:20], 1):
-	de, _, en = line.partition("|")
+	m = re.match(r"^\{([a-z, ]+)\}\s*(.*)$", line)  # "{chat,mail} text": lines of single Nova apps
+	text = m.group(2) if m else line
+	de, _, en = text.partition("|")
 	print(f"note.de.{i}={esc(de.strip())}")
 	print(f"note.en.{i}={esc((en or de).strip())}")
+	for key in ([k.strip() for k in m.group(1).split(",") if k.strip()] if m else []):
+		per_app.setdefault(key, []).append((de.strip(), (en or de).strip()))
+for key, notes in per_app.items():
+	for j, (de, en) in enumerate(notes[:10], 1):
+		print(f"appnote.{key}.de.{j}={esc(de)}")
+		print(f"appnote.{key}.en.{j}={esc(en)}")
 PY
 echo "== done: $APK ($(du -h "$APK" | cut -f1)), versionCode $CODE"
