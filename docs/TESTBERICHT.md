@@ -595,6 +595,7 @@ Hochformat 720×1280, frisch gestartet, Standort über die Test-App (Mölln). Bi
 | … Prüfung | ✅ (erwartet) | lehnt das echte Update ab, weil die Testversion mit dem Entwicklungsschlüssel signiert ist (auf echten Handys passt der Schlüssel) |
 | „Letztes erfolgreiches Update“ | ✅ | großes blaues „1.5“ vor der Leuchtkugel |
 | „1.5“ zu blass | ❌ → behoben | die Transparenz des Schattens blieb am Pinsel |
+| Update auf ghcr.io | ✅ | `versionName=0.1.1.75`, `release=1.5`, `apps=store,settings` |
 
 **Nicht getestet:** Querformat, ein Handy mit mehr als 6 Reihen, „Alle aktualisieren“ (das echte Update ändert nur
 Nova Karte), Wischen auf einem echten Handy (im Emulator kamen schnelle Gesten manchmal zu spät an).
