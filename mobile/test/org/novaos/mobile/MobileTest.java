@@ -34,6 +34,7 @@ public final class MobileTest {
         phones();
         smarter();
         news();
+        if (args.length > 0) navigation(new java.io.File(args[0]).getParentFile());
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -69,6 +70,103 @@ public final class MobileTest {
         check(Search.matches("anna mail", "Anna", "anna@mail.de") && !Search.matches("anna post", "Anna", "anna@mail.de"),
                 "search: every word must appear");
         check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
+    }
+
+    /** Nova Karte with real answers of the routing and place servers (test/*.json). */
+    private static void navigation(java.io.File mobile) {
+        // maths
+        check(Math.abs(Geo.distance(53.5511, 9.9937, 48.1374, 11.5755) - 612_000) < 3000, "geo: Hamburg - Munich about 612 km");
+        double x = Geo.x(9.9937, 15, 256), y = Geo.y(53.5511, 15, 256);
+        check(Math.abs(Geo.lon(x, 15, 256) - 9.9937) < 1e-9 && Math.abs(Geo.lat(y, 15, 256) - 53.5511) < 1e-9, "geo: mercator both ways");
+        check((int) (x / 256) == 17293 && (int) (y / 256) == 10590, "geo: tile of Hamburg town hall at zoom 15: " + (int) (x / 256) + "/" + (int) (y / 256));
+        java.util.List<Geo.Point> poly = Geo.decode("_p~iF~ps|U_ulLnnqC_mqNvxq`@");
+        check(poly.size() == 3 && Math.abs(poly.get(0).lat - 38.5) < 1e-9 && Math.abs(poly.get(2).lon + 126.453) < 1e-9, "geo: polyline (Google's example)");
+        check(Geo.compass(0, true).equals("Norden") && Geo.compass(100, true).equals("Osten") && Geo.compass(350, false).equals("north"), "geo: compass");
+        check(Geo.distanceText(84, true).equals("80 m") && Geo.distanceText(437, true).equals("450 m") && Geo.distanceText(1490, true).equals("1,5 km")
+                && Geo.distanceText(23_400, false).equals("23 km"), "geo: distance text");
+        check(Geo.durationText(200, true).equals("3 Min.") && Geo.durationText(3900, true).equals("1 Std. 5 Min.") && Geo.durationText(10, false).equals("1 min"), "geo: duration text");
+        java.util.List<Geo.Point> line = java.util.Arrays.asList(new Geo.Point(53.0, 10.0), new Geo.Point(53.0, 10.01), new Geo.Point(53.01, 10.01));
+        double[] cum = Geo.cumulative(line);
+        Geo.Snap sn = Geo.snap(line, cum, new Geo.Point(53.0003, 10.005));
+        check(sn.segment == 0 && Math.abs(sn.offLine - 33) < 2 && Math.abs(sn.along - cum[1] / 2) < 2, "geo: snap to the route " + sn.offLine + " " + sn.along);
+        Geo.Point half = Geo.at(line, cum, cum[1] + 100);
+        check(Math.abs(half.lon - 10.01) < 1e-9 && half.lat > 53.0 && half.lat < 53.01, "geo: point along the route");
+        // route
+        String json;
+        try {
+            json = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "test/nav_route_car.json").toPath()), java.nio.charset.StandardCharsets.UTF_8);
+        } catch (java.io.IOException e) {
+            check(false, "nav: test route " + e);
+            return;
+        }
+        NavRoute r = NavRoute.parse(json, NavRoute.CAR);
+        check(r != null && r.steps.size() == 9 && Math.abs(r.distance - 1490) < 5 && r.points.size() > 20, "nav: route parsed");
+        if (r == null) return;
+        double total = r.cumulative[r.cumulative.length - 1];
+        check(Math.abs(total - r.distance) < 60, "nav: line length " + total + " ~ " + r.distance);
+        check(r.steps.get(0).along == 0 && r.steps.get(1).along > 60 && r.steps.get(1).along < 110, "nav: first turn after ~82 m: " + r.steps.get(1).along);
+        for (int i = 1; i < r.steps.size(); i++) check(r.steps.get(i).along >= r.steps.get(i - 1).along, "nav: steps in order " + i);
+        check(NavText.instruction(r.steps.get(1), NavRoute.CAR, true).equals("Links abbiegen auf Ballindamm"), "nav text: " + NavText.instruction(r.steps.get(1), NavRoute.CAR, true));
+        check(NavText.instruction(r.steps.get(3), NavRoute.CAR, true).equals("Am Ende der Straße links abbiegen auf Raboisen"), "nav text end of road");
+        check(NavText.instruction(r.steps.get(4), NavRoute.CAR, true).equals("Am Ende der Straße rechts abbiegen auf Glockengießerwall (Ring 1)"), "nav text with number");
+        check(NavText.instruction(r.steps.get(0), NavRoute.CAR, true).startsWith("Fahre Richtung Nordosten auf Plan"), "nav text depart: " + NavText.instruction(r.steps.get(0), NavRoute.CAR, true));
+        check(NavText.instruction(r.steps.get(8), NavRoute.CAR, true).equals("Du hast dein Ziel erreicht"), "nav text arrive");
+        NavRoute.Step arr = new NavRoute.Step();
+        arr.type = "arrive";
+        arr.modifier = "right";
+        check(NavText.instruction(arr, NavRoute.CAR, true).equals("Du hast dein Ziel erreicht – es ist rechts"), "nav text arrive on the right");
+        check(NavText.announcement(r.steps.get(2), 200, NavRoute.CAR, true).equals("In 200 Metern rechts abbiegen auf Gertrudenstraße"), "nav: announcement");
+        check(NavText.inDistance(1520, true).equals("In 1,5 Kilometern") && NavText.inDistance(30, true).equals("Jetzt") && NavText.inDistance(1000, true).equals("In einem Kilometer")
+                && NavText.inDistance(60, true).equals("In 60 Metern"), "nav: spoken distance " + NavText.inDistance(1000, true));
+        NavRoute.Step rb = new NavRoute.Step();
+        rb.type = "roundabout";
+        rb.exit = 2;
+        rb.name = "Hauptstraße";
+        check(NavText.announcement(rb, 300, NavRoute.CAR, true).equals("In 300 Metern im Kreisverkehr die zweite Ausfahrt nehmen auf Hauptstraße"), "nav: roundabout");
+        check(NavRoute.url(NavRoute.FOOT, new Geo.Point(53.5, 10.0), new Geo.Point(53.6, 10.1)).startsWith("https://routing.openstreetmap.de/routed-foot/route/v1/driving/10.000000,53.500000;10.100000,53.600000?"), "nav: url");
+        check(NavRoute.parse("{\"code\":\"NoRoute\"}", NavRoute.CAR) == null && NavRoute.parse("kaputt", NavRoute.CAR) == null, "nav: no route");
+        // guidance: drive along the route, every 10 m
+        Guidance g = new Guidance(r, true);
+        String start = g.start();
+        check(start.startsWith("Fahre Richtung Nordosten auf Plan. Dann in 80 Metern links abbiegen auf Ballindamm"), "guidance start: " + start);
+        java.util.List<String> said = new java.util.ArrayList<>();
+        boolean arrived = false;
+        for (double m = 0; m <= total + 10; m += 10) {
+            Guidance.State st = g.update(Geo.at(r.points, r.cumulative, m));
+            check(!st.offRoute, "guidance: on the route at " + m);
+            if (st.say != null) said.add(st.say);
+            arrived |= st.arrived;
+        }
+        check(arrived && said.get(said.size() - 1).equals("Du hast dein Ziel erreicht."), "guidance: arrival " + said);
+        check(said.contains("In 150 Metern rechts abbiegen auf Gertrudenstraße.") || said.contains("In 140 Metern rechts abbiegen auf Gertrudenstraße."), "guidance: 150 m " + said);
+        check(said.stream().filter(t -> t.startsWith("Jetzt rechts abbiegen auf Gertrudenstraße")).count() == 1, "guidance: 'Jetzt' once");
+        java.util.Set<String> unique = new java.util.HashSet<>(said);
+        check(unique.size() == said.size(), "guidance: nothing twice " + said);
+        // off the route: 3 positions 100 m away
+        Guidance g2 = new Guidance(r, true);
+        Geo.Point far = new Geo.Point(53.5480, 9.9900);
+        boolean off = false;
+        for (int i = 0; i < 3; i++) off = g2.update(far).offRoute;
+        check(off, "guidance: left the route");
+        // places
+        try {
+            String pj = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "test/places_photon.json").toPath()), java.nio.charset.StandardCharsets.UTF_8);
+            java.util.List<Places.Place> pl = Places.parse(pj);
+            check(!pl.isEmpty() && pl.get(0).title().equals("Hamburg Hauptbahnhof") && pl.get(0).address().contains("Hamburg")
+                    && Math.abs(pl.get(0).at.lat - 53.55) < 0.01, "places: Hamburg Hauptbahnhof " + (pl.isEmpty() ? "" : pl.get(0).address()));
+        } catch (java.io.IOException e) {
+            check(false, "places: " + e);
+        }
+        check(Places.parse("{}").isEmpty() && Places.parse("kaputt").isEmpty(), "places: broken answer");
+        String[][] navCmds = {{"Hey Nova, navigiere nach Hamburg Hauptbahnhof", "NAVIGATE(Hamburg Hauptbahnhof)"},
+                {"Wie komme ich zum Rathaus", "NAVIGATE(Rathaus)"}, {"bring mich nach Hause", "NAVIGATE(Hause)"},
+                {"öffne die Karte", "NAVIGATE()"}, {"navigate to Berlin", "NAVIGATE(Berlin)"}};
+        for (String[] cmd : navCmds) {
+            NovaBrain.Command c = NovaBrain.understand(cmd[0], true, java.util.Arrays.asList("ZDF"), 0);
+            check(c.toString().equals(cmd[1]), "nova navigate: " + cmd[0] + " -> " + c);
+        }
+        check(Places.searchUrl("Café am Markt", new Geo.Point(53.5, 10.0), true).equals("https://photon.komoot.io/api/?q=Caf%C3%A9+am+Markt&limit=8&lang=de&lat=53.50000&lon=10.00000"),
+                "places: url");
     }
 
     private static void news() {

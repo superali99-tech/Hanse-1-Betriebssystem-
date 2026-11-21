@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 public final class NovaBrain {
     public enum Kind {
         TIME, DATE, ALARM, TIMER, TORCH, OPEN_APP, SETTINGS, CALL, MESSAGE, NOTE, WEATHER, TV,
-        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL, MUSIC, WIKI
+        SEARCH, CALC, VOLUME, PHOTO, HELP, TALK, UNKNOWN, READ_MESSAGES, READ_MAIL, MAIL, MUSIC, WIKI, NAVIGATE
     }
 
     /** Nova Musik: what to do (Command.level of a MUSIC command). */
@@ -130,7 +130,7 @@ public final class NovaBrain {
         String[] both = cleanBoth(spoken);
         Command r = understandClean(both[0], german, channels, seed);
         switch (r.kind) {
-            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN: case MUSIC: case WIKI:
+            case OPEN_APP: case CALL: case MESSAGE: case MAIL: case NOTE: case WEATHER: case SEARCH: case UNKNOWN: case MUSIC: case WIKI: case NAVIGATE:
                 r.text = spelled(r.text, both[0], both[1]);
                 r.body = spelled(r.body, both[0], both[1]);
                 break;
@@ -159,6 +159,7 @@ public final class NovaBrain {
         if ((r = chance(c, german, seed)) != null) return r;
         if ((r = calc(c, german)) != null) return r;
         if ((r = weather(c)) != null) return r;
+        if ((r = navigate(c)) != null) return r;
         if ((r = musicControl(c)) != null) return r;
         if ((r = volume(c)) != null) return r;
         if ((r = photo(c)) != null) return r;
@@ -662,6 +663,29 @@ public final class NovaBrain {
                     return t;
                 }
             }
+        }
+        return null;
+    }
+
+    // ------------------------------------------------------------------ Nova Karte
+
+    private static final Pattern NAVIGATE = Pattern.compile("^(?:navigiere|navigier|navigation|route|fahr mich|bring mich|führe mich|navigate|take me|directions|drive me)"
+            + "(?:\\s+mich)?\\s+(?:nach|zu|zum|zur|in die|in den|ins|bis|to|towards)\\s+(.+)$");
+    private static final Pattern HOW_TO = Pattern.compile("^(?:wie komme ich|wie fahre ich|wie gehe ich|how do i get|how do i go)\\s+(?:nach|zu|zum|zur|ins|in die|to)\\s+(.+?)(?:\\s+hin)?$");
+
+    /** "Navigiere nach Hamburg Hauptbahnhof", "Wie komme ich zum Rathaus"; level 1 = start right away. */
+    private static Command navigate(String c) {
+        Matcher m = NAVIGATE.matcher(c);
+        if (!m.matches()) m = HOW_TO.matcher(c);
+        if (m.matches()) {
+            Command n = new Command(Kind.NAVIGATE);
+            n.text = m.group(1).trim();
+            n.level = 1;
+            return n;
+        }
+        if (c.matches("(öffne |zeig mir |zeige mir |open )?(die )?(nova )?(karte|karten|map|maps|navi|navigation)( öffnen| app)?")) {
+            Command n = new Command(Kind.NAVIGATE);
+            return n;
         }
         return null;
     }

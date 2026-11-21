@@ -30,6 +30,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Nova Karte: exact position for navigation (GPS) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <!-- Nova Chat calls -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
@@ -168,6 +170,26 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MapActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden"
+            android:exported="true"
+            android:icon="@mipmap/ic_nova_map"
+            android:label="@string/app_map"
+            android:launchMode="singleTask"
+            android:taskAffinity="org.novaos.mobile.map"
+            android:windowSoftInputMode="adjustNothing">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <!-- other apps can show places and addresses ("geo:53.55,10.0?q=Hauptbahnhof") -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="geo" />
             </intent-filter>
         </activity>
         <activity

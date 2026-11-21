@@ -401,6 +401,15 @@ public class NovaActivity extends Activity {
             case WIKI:
                 wiki(c);
                 break;
+            case NAVIGATE:
+                if (c.text.isEmpty()) {
+                    startActivity(new Intent(this, MapActivity.class));
+                    speak(getString(R.string.nova_map_open));
+                } else {
+                    startActivity(MapActivity.navigate(this, c.text));
+                    speak(getString(R.string.nova_navigate, c.text));
+                }
+                break;
             case SEARCH:
                 Intent web = new Intent(Intent.ACTION_WEB_SEARCH).putExtra(SearchManager.QUERY, c.text);
                 if (!quietStart(web)) {

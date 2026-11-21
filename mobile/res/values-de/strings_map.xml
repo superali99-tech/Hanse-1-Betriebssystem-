@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Karte (0.1.1.68) -->
+    <string name="app_map">Nova Karte</string>
+    <string name="card_map_sub">Karte und Navigation</string>
+    <string name="novaapp_map">Karte, Orte suchen und Navigation mit Ansagen: „In 200 Metern rechts abbiegen“</string>
+    <string name="map_search">Hier suchen</string>
+    <string name="map_recent">Zuletzt gesucht</string>
+    <string name="map_marked">Markierter Ort</string>
+    <string name="map_away">entfernt</string>
+    <string name="map_route">Route</string>
+    <string name="map_start">Starten</string>
+    <string name="map_preview">Vorschau</string>
+    <string name="map_steps">Schritte</string>
+    <string name="map_car">Auto</string>
+    <string name="map_bike">Fahrrad</string>
+    <string name="map_foot">Zu Fuß</string>
+    <string name="map_arrival">Ankunft %1$s</string>
+    <string name="map_via">über %1$s</string>
+    <string name="map_from_center">Start: Kartenmitte (dein Standort ist nicht bekannt)</string>
+    <string name="map_routing">Route wird berechnet …</string>
+    <string name="map_no_route">Keine Route gefunden.</string>
+    <string name="map_offline">Keine Internetverbindung – Karte, Suche und Routen brauchen Internet.</string>
+    <string name="map_nothing">„%1$s“ nicht gefunden.</string>
+    <string name="map_zoom_in">Vergrößern</string>
+    <string name="map_zoom_out">Verkleinern</string>
+    <string name="map_my_position">Mein Standort</string>
+    <string name="map_no_position">Dein Standort wird gesucht … (draußen klappt es mit GPS am besten)</string>
+    <string name="map_allow_location">Bitte erlaube Nova Karte den Standort.</string>
+    <string name="map_stop">Beenden</string>
+    <string name="map_stop_confirm">Navigation beenden?</string>
+    <string name="map_rerouting">Route wird neu berechnet.</string>
+    <string name="map_arrived">Ziel erreicht</string>
+    <string name="map_preview_start">Vorschau der Route.</string>
+    <string name="nova_navigate">Ich navigiere dich nach %1$s.</string>
+    <string name="nova_map_open">Ich öffne die Karte.</string>
+</resources>

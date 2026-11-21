@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Karte (0.1.1.68) -->
+    <string name="app_map">Nova Maps</string>
+    <string name="card_map_sub">Map and navigation</string>
+    <string name="novaapp_map">Map, place search and navigation with voice: “In 200 metres turn right”</string>
+    <string name="map_search">Search here</string>
+    <string name="map_recent">Recent</string>
+    <string name="map_marked">Dropped pin</string>
+    <string name="map_away">away</string>
+    <string name="map_route">Directions</string>
+    <string name="map_start">Start</string>
+    <string name="map_preview">Preview</string>
+    <string name="map_steps">Steps</string>
+    <string name="map_car">Car</string>
+    <string name="map_bike">Bike</string>
+    <string name="map_foot">Walk</string>
+    <string name="map_arrival">Arrival %1$s</string>
+    <string name="map_via">via %1$s</string>
+    <string name="map_from_center">Start: centre of the map (your position is not known)</string>
+    <string name="map_routing">Finding the route …</string>
+    <string name="map_no_route">No route found.</string>
+    <string name="map_offline">No internet connection – map, search and routes need the internet.</string>
+    <string name="map_nothing">“%1$s” not found.</string>
+    <string name="map_zoom_in">Zoom in</string>
+    <string name="map_zoom_out">Zoom out</string>
+    <string name="map_my_position">My location</string>
+    <string name="map_no_position">Looking for your location … (works best outside with GPS)</string>
+    <string name="map_allow_location">Please allow Nova Maps to use your location.</string>
+    <string name="map_stop">Stop</string>
+    <string name="map_stop_confirm">Stop navigation?</string>
+    <string name="map_rerouting">Finding a new route.</string>
+    <string name="map_arrived">You have arrived</string>
+    <string name="map_preview_start">Route preview.</string>
+    <string name="nova_navigate">Navigating you to %1$s.</string>
+    <string name="nova_map_open">Opening the map.</string>
+</resources>

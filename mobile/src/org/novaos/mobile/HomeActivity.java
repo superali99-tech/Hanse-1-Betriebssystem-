@@ -333,6 +333,16 @@ public class HomeActivity extends Activity {
         LinearLayout.LayoutParams c4 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         c4.topMargin = Ui.dp(this, 12);
         rows.addView(cards4, c4);
+        // Nova Karte and Nova Phone Shop
+        LinearLayout cards5 = new LinearLayout(this);
+        cards5.setOrientation(LinearLayout.HORIZONTAL);
+        cards5.addView(novaCard(R.drawable.ic_map, getString(R.string.app_map), getString(R.string.card_map_sub), false,
+                v -> startActivity(new Intent(this, MapActivity.class))), weight(0, side));
+        cards5.addView(novaCard(R.drawable.ic_phone_shop, getString(R.string.app_shop), getString(R.string.shop_sub), false,
+                v -> startActivity(new Intent(this, ShopActivity.class))), weight(side, 0));
+        LinearLayout.LayoutParams c5 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        c5.topMargin = Ui.dp(this, 12);
+        rows.addView(cards5, c5);
 
         // quick settings
         rows.addView(Ui.section(this, R.string.quick));
