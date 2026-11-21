@@ -193,6 +193,18 @@ final class Updates {
         return Download.file(r.blobUrl(apk), auth, target, progress);
     }
 
+    /** Like download, but can be paused and continued (UpdateEngine). */
+    static String downloadResumable(Context c, UpdateInfo u, File target, Download.Progress progress) throws IOException {
+        if ("release".equals(prefs(c).getString("source", ""))) {
+            return Download.resumable(releaseAsset(c, u.apk), null, target, progress);
+        }
+        Registry r = registry(c);
+        String auth = auth(r);
+        String apk = Registry.digest(Download.text(r.manifestUrl(TAG), auth, Registry.MANIFEST_TYPE), u.apk);
+        if (apk == null || !Registry.hex(apk).equals(u.sha256)) throw new IOException("update changed, check again");
+        return Download.resumable(r.blobUrl(apk), auth, target, progress);
+    }
+
     /** The remembered answer, if it offers a newer version than the installed one. */
     static UpdateInfo pending(Context c) {
         UpdateInfo u = UpdateInfo.parse(prefs(c).getString("last", ""));

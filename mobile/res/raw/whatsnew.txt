@@ -1,7 +1,7 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
-@apps: settings, nova, chat, mail, family, notes, files, gallery
-Neu: Konto und Sicherheit – deine Infos, Bildschirmsperre, Fingerabdruck, Abmelden|New: Account and security – your details, screen lock, fingerprint, sign out
-Nova-Apps geschützt: Chat, Mail, Family, Notizen, Dateien und Galerie fragen nach PIN, Muster oder Fingerabdruck|Nova apps protected: Chat, Mail, Family, Notes, Files and Gallery ask for your PIN, pattern or fingerprint
-Abmelden und Ändern nur nach Bestätigung (Sperre oder Code per E-Mail); Hilfe bei vergessener PIN|Signing out and changes only after confirming (lock or code by e-mail); help for a forgotten PIN
-Nova ist klüger: „Wer ist …?“ mit Wikipedia, „Wie viele Tage bis Weihnachten?“, „5 km in Meilen“, Würfeln|Nova is smarter: "Who is …?" with Wikipedia, "How many days until Christmas?", "5 km in miles", dice
+@apps: settings
+Neue Update-Seite wie bei Samsung: großes Bild, „Download und Installation“ und ein großer Knopf|New update page like on Samsung phones: big picture, "Download and installation" and one big button
+„Pause“ und „Fortsetzen“: das Update macht genau dort weiter, wo es aufgehört hat|"Pause" and "Resume": the update continues exactly where it stopped
+Behoben: Drehen ins Querformat hat das Update abgebrochen – jetzt läuft es weiter, auch in anderen Apps|Fixed: turning the phone sideways stopped the update – now it keeps running, also in other apps
+Fortschritt in zwei Teilen (Download | Bestätigung) und in der Benachrichtigung|Progress in two parts (download | confirmation) and in the notification

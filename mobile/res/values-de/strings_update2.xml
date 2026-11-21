@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- software update page like on Samsung phones (0.1.1.64) -->
+    <string name="update_available_title">Update verfügbar</string>
+    <string name="update_available_text">Das Update dauert etwa 2 Minuten. Du kannst dein Telefon währenddessen ruhig benutzen – zum Abschluss startet NovaOS von selbst neu.</string>
+    <string name="update_ready_text">Das Update ist schon heruntergeladen und bereit zur Installation. Du kannst dein Telefon währenddessen ruhig benutzen – zum Abschluss startet NovaOS von selbst neu.</string>
+    <string name="update_running_title">Download und Installation …</string>
+    <string name="update_running_text">Du kannst dein Telefon während des Updates ruhig benutzen – auch drehen oder andere Apps öffnen. Zum Abschluss startet NovaOS von selbst neu.</string>
+    <string name="update_paused_title">Update angehalten</string>
+    <string name="update_paused_text">Das Update ist pausiert. Mit „Fortsetzen“ geht es genau dort weiter, wo es aufgehört hat.</string>
+    <string name="update_failed_title">Update nicht abgeschlossen</string>
+    <string name="update_none_title">Dein NovaOS ist aktuell</string>
+    <string name="update_error_title">Keine Verbindung zum Update</string>
+    <string name="update_generic">Diese Änderungen können je nach Handy unterschiedlich ausfallen. Um die bestmögliche Leistung deines Geräts zu erreichen, solltest du NovaOS stets auf dem neuesten Stand halten und regelmäßig nach Software-Aktualisierungen suchen.</string>
+    <string name="update_part_download">Download</string>
+    <string name="update_part_confirm">Bestätigung</string>
+    <string name="update_button_pause">Pause</string>
+    <string name="update_button_resume">Fortsetzen</string>
+    <string name="update_button_installing">Wird installiert …</string>
+    <string name="update_checking_button">Suche …</string>
+</resources>

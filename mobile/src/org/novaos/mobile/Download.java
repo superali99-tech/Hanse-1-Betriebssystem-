@@ -88,6 +88,40 @@ final class Download {
         }
     }
 
+    /**
+     * Download that can be paused: the part already loaded stays in target + ".part" when the
+     * progress callback throws (pause) or the connection breaks, and the next call continues
+     * from there (HTTP Range; if the server does not support it, from the beginning).
+     * Returns the SHA-256 (hex) of the whole file.
+     */
+    static String resumable(String url, String auth, File target, Progress progress) throws IOException {
+        File part = new File(target.getPath() + ".part");
+        long have = part.isFile() ? part.length() : 0;
+        HttpURLConnection con = connect(url, auth, null, have);
+        try {
+            boolean append = have > 0 && con.getResponseCode() == 206;
+            if (!append) have = 0;
+            long length = con.getContentLengthLong();
+            long total = length < 0 ? -1 : have + length;
+            try (InputStream in = con.getInputStream(); FileOutputStream out = new FileOutputStream(part, append)) {
+                byte[] buf = new byte[65536];
+                long done = have;
+                int n;
+                if (progress != null) progress.onProgress(done, total);
+                while ((n = in.read(buf)) > 0) {
+                    out.write(buf, 0, n);
+                    done += n;
+                    if (done > MAX_BYTES) throw new IOException("too large");
+                    if (progress != null) progress.onProgress(done, total);
+                }
+            }
+        } finally {
+            con.disconnect();
+        }
+        if (!part.renameTo(target)) throw new IOException("cannot save " + target);
+        return sha256(target);
+    }
+
     /** SHA-256 (hex) of a file. */
     static String sha256(File f) throws IOException {
         try (InputStream in = new java.io.FileInputStream(f)) {
@@ -109,6 +143,11 @@ final class Download {
      * server it redirects to.
      */
     private static HttpURLConnection connect(String url, String auth, String accept) throws IOException {
+        return connect(url, auth, accept, 0);
+    }
+
+    /** from > 0: ask for the rest of the file (HTTP Range); the answer is then 206. */
+    private static HttpURLConnection connect(String url, String auth, String accept, long from) throws IOException {
         String first = null;
         for (int hops = 0; hops < 6; hops++) {
             if (!url.startsWith("https://")) throw new IOException("only https");
@@ -121,6 +160,7 @@ final class Download {
             con.setRequestProperty("User-Agent", "NovaOS-Mobile (https://github.com/superali99-tech/Hanse-1-Betriebssystem-)");  // Wikimedia asks for a contact
             if (auth != null && u.getAuthority().equals(first)) con.setRequestProperty("Authorization", auth);
             if (accept != null) con.setRequestProperty("Accept", accept);
+            if (from > 0) con.setRequestProperty("Range", "bytes=" + from + "-");
             int code = con.getResponseCode();
             if (code >= 300 && code < 400) {
                 String location = con.getHeaderField("Location");
@@ -129,7 +169,7 @@ final class Download {
                 url = new URL(u, location).toString();
                 continue;
             }
-            if (code != 200) {
+            if (code != 200 && !(code == 206 && from > 0)) {
                 con.disconnect();
                 throw new HttpException(code);
             }

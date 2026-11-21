@@ -475,6 +475,23 @@ Android-x86 9 in QEMU, Hochformat, Deutsch; Wikipedia über den Proxy der Testum
 **Nicht getestet:** Fingerabdruck (VM ohne Sensor; auf Android 10+ fragt Android über BiometricPrompt nach
 Fingerabdruck oder PIN), Bestätigungscode per E-Mail mit echtem Postfach, Abmelden.
 
+### Update 0.1.1.64: Update-Seite wie bei Samsung, Drehen bricht nicht mehr ab (21.11.2026)
+
+Android-x86 9, Testversion 0.1.1.62 gegen das echte Update 0.1.1.63 auf ghcr.io. Das Drehen wurde durch Umschalten der
+Bildschirmgröße auf Querformat ausgelöst (dieselbe Neuerstellung der Seite wie beim Drehen). Bilder 79–82.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Seite „Update verfügbar“ | ✅ | Bild, Version und Größe, Neuerungen, Knopf „Aktualisieren“ |
+| Titelbild zu grau | ❌ → behoben | eine Transparenz des Leuchteffekts blieb am Pinsel und dimmte alles |
+| „Aktualisieren“, sofort „Pause“ | ✅ | „Update angehalten“, 74 %, „Fortsetzen“ |
+| Querformat während der Pause | ✅ | Seite neu aufgebaut, Update weiter angehalten bei 74 % (vorher: Update abgebrochen) |
+| Querformat: Navigationsleiste überdeckte den Knopf | ❌ → behoben | Abstände jetzt aus Androids Fensterrändern |
+| „Fortsetzen“ im Querformat, zurück ins Hochformat | ✅ | läuft weiter bis zur Prüfung; die lokal signierte Testversion lehnt das echte Update dort richtig ab, der Zustand bleibt nach dem Drehen erhalten |
+
+**Nicht getestet:** Drehen während „Vorbereiten“ mit einem passend signierten Update (gleiche Hintergrund-Logik), echtes
+Drehen am Handy, langsames Netz mit Fortsetzen mitten im Download (HTTP-Range).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

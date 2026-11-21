@@ -1,6 +1,12 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.63 · 21.11.2026
+Neu: Konto und Sicherheit – deine Infos, Bildschirmsperre, Fingerabdruck, Abmelden|New: Account and security – your details, screen lock, fingerprint, sign out
+Nova-Apps geschützt: Chat, Mail, Family, Notizen, Dateien und Galerie fragen nach PIN, Muster oder Fingerabdruck|Nova apps protected: Chat, Mail, Family, Notes, Files and Gallery ask for your PIN, pattern or fingerprint
+Abmelden und Ändern nur nach Bestätigung (Sperre oder Code per E-Mail); Hilfe bei vergessener PIN|Signing out and changes only after confirming (lock or code by e-mail); help for a forgotten PIN
+Nova ist klüger: „Wer ist …?“ mit Wikipedia, „Wie viele Tage bis Weihnachten?“, „5 km in Meilen“, Würfeln|Nova is smarter: "Who is …?" with Wikipedia, "How many days until Christmas?", "5 km in miles", dice
+
 == NovaOS 0.1.1.62 · 21.11.2026
 Neu: Nova Phone Shop – die Nova-Handys Nova 1, Nova 2, Pro, Pro Max und Lite|New: Nova Phone Shop – the Nova phones Nova 1, Nova 2, Pro, Pro Max and Lite
 Große Bilder zum Drehen (vorne, hinten), alle Farben, Speicher mit Preis von 249 € bis 1.199 €|Big pictures to turn (front, back), all colours, storage with price from €249 to €1,199

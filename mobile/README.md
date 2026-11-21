@@ -136,10 +136,13 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   (über das eigene Nova-Mail-Konto an die eigene Adresse). **„PIN oder Muster vergessen?“**: keine App kann eine
   vergessene Sperre umgehen (Diebstahlschutz) – NovaOS zeigt die echten Wege: neue PIN festlegen, Google „Mein Gerät
   finden“, Samsung „SmartThings Find“, Zurücksetzen auf Werkseinstellungen.
-* **Software-Update** (Einstellungen): ⋮ oben rechts mit „Was ist neu“ (installierte und kommende Version),
-  **Update-Verlauf** aller Versionen und „Nach Updates suchen“; beim Aktualisieren ein **Fortschrittsring**
-  mit Prozent, den **echten MB und der Download-Geschwindigkeit**, Restzeit und den Schritten Herunterladen →
-  Prüfen → Vorbereiten → Installieren (etwa 2 Minuten wie ein System-Update).
+* **Software-Update** (Einstellungen), gestaltet wie bei Samsung: großes Bild oben, „Update verfügbar“ bzw.
+  „Download und Installation …“, was neu ist, ein Balken in zwei Teilen (**Download** mit Prozent | **Bestätigung**:
+  Prüfen, Vorbereiten, Installieren) mit echten MB, Geschwindigkeit und Restzeit, und ein großer Knopf
+  **„Aktualisieren“ → „Pause“ → „Fortsetzen“** (der Download macht genau dort weiter). Das Update läuft im Hintergrund
+  weiter – beim Drehen ins Querformat, beim Verlassen der Seite und in anderen Apps – und zeigt den Fortschritt in der
+  Benachrichtigung; zum Schluss fragt Android einmal, dann startet NovaOS neu (etwa 2 Minuten). ⋮ oben rechts: „Was ist
+  neu“, **Update-Verlauf** aller Versionen, „Nach Updates suchen“.
 * **Suchfelder** in Nova Store, Nova Chat (Chats und Kontakte) und Nova Mail (Mails und Kontakte): jedes
   getippte Wort muss vorkommen, Groß-/Kleinschreibung und Akzente egal, „ae/oe/ue“ findet auch „ä/ö/ü“.
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
@@ -284,5 +287,6 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `tools/make_icons.py` | erzeugt die Symbole der Nova-Apps |
 | `MailContactsActivity.java` | Adressbuch von Nova Mail |
 | `Search.java`, `History.java` (+ `res/raw/history.txt`) | Suchfelder (Vergleich ohne Akzente/Umlaute), Update-Verlauf (getestet) |
-| `RingView.java`, `Page.java` | Fortschrittsring, gemeinsame Seite mit Suchfeld |
+| `RingView.java`, `Page.java` | Fortschrittsring (Nova Store), gemeinsame Seite mit Suchfeld |
+| `UpdateActivity.java`, `UpdateEngine.java`, `UpdateArt.java` | Software-Update: Seite, Ablauf im Hintergrund mit Pause, gezeichnetes Titelbild |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |

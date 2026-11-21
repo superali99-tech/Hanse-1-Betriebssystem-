@@ -96,6 +96,11 @@
   Gerät finden“, Samsung „SmartThings Find“, Zurücksetzen). Nova: Wikipedia-Antworten („Wer ist …“, „Was ist …“),
   „Wie viele Tage bis Weihnachten/Ostern/24.12.“, Einheiten umrechnen (km/Meilen, °C/°F, kg/Pfund, Liter/Gallonen,
   km/h/mph), Würfeln und Münzwurf
+* **NovaOS Mobile 0.1.1.64 – Update-Seite wie bei Samsung**: gezeichnetes Titelbild (`UpdateArt`), „Update verfügbar“ /
+  „Download und Installation …“, Neuerungen, zweiteiliger Balken (Download | Bestätigung), ein großer Knopf
+  „Aktualisieren“ → „Pause“ → „Fortsetzen“; Querformat mit Bild links. Das Update läuft jetzt in `UpdateEngine` unabhängig
+  von der Seite (Drehen, Verlassen, andere Apps brechen es nicht mehr ab), Download mit Pause und Fortsetzen per
+  HTTP-Range (`Download.resumable`), Fortschritt in der Benachrichtigung. Behoben: Drehen ins Querformat brach das Update ab
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 
