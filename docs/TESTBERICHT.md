@@ -556,6 +556,7 @@ dem neuesten Stand.“, „Letztes erfolgreiches Update“). Bilder 96–99.
 | Titelbild | ❌ → behoben | erste Fassung sah eher wie ein Lolli aus; jetzt eine klare „1“ (oranger Bogen, blauer Strich) vor einer Leuchtkugel |
 | „Alle Änderungen“ | ❌ → behoben | im Verlauf standen „{map}“ usw. vor den Punkten (auch schon bei 0.1.1.66 mit „{store}“) |
 | Testversion 0.1.1.65 gegen das echte 0.1.1.70 | ✅ | die Download-Seite „Update verfügbar“ erscheint wie bisher mit den Neuerungen von Nova Karte |
+| Update auf ghcr.io | ✅ | `versionName=0.1.1.72`, `apps=settings` |
 
 **Nicht getestet:** Querformat dieser Seiten, „Erneut versuchen“ ohne Internet.
 
