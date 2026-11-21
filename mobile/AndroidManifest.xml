@@ -165,6 +165,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".StoreDetailActivity"
+            android:exported="false"
+            android:taskAffinity="org.novaos.mobile.store" />
+        <activity
             android:name=".StoreActivity"
             android:exported="true"
             android:icon="@mipmap/ic_nova_store"

@@ -24,7 +24,15 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
 * **Nova Store**: echte Apps – freie Apps (F-Droid) werden **direkt** heruntergeladen und
   installiert/aktualisiert (z. B. Öffi, Organic Maps, Thunderbird, Aegis, AntennaPod,
   Wikipedia); bekannte Apps (WhatsApp, Signal, DB Navigator, Netflix, Spotify …) öffnen ihre
-  Seite im Google Play Store
+  Seite im Google Play Store. Jede App hat eine **Detailseite wie im Play Store**: Entwickler, Größe, Version,
+  benötigte Android-Version, Lizenz, Bildschirmfotos (zum Vergrößern antippen), „Über diese App“, App-Info,
+  Hinweise von F-Droid (z. B. nicht-freie Datenquellen), Website und Quellcode. **Installieren** mit
+  Fortschrittsring um das Symbol und „42 % von 107,3 MB“, **Abbrechen** jederzeit während des Downloads; danach
+  „Deinstallieren“ und „Öffnen“ bzw. „Aktualisieren“. Die Angaben stammen aus F-Droids Index
+  (`tools/store_meta.py` → `res/raw/store_meta.json`); F-Droid hat keine Bewertungen, deshalb zeigt der Store keine.
+  Oben bzw. unten die **Nova-Apps** (Nova, Chat, Mail, Family, Store, Kamera …): sie gehören zu NovaOS und werden
+  mit dem Software-Update erneuert – ändert das nächste Update eine Nova-App, steht dort **„Aktualisieren“**
+  (startet das NovaOS-Update) und die Apps mit Update stehen oben
 * **Nova Kamera**: Fotos mit Vorschau, Blitz (Auto/An/Aus), Vorder-/Rückkamera, letztes Foto als
   Knopf zur Galerie, Symbole drehen sich mit dem Handy; Fotos landen in *DCIM/NovaOS*
 * **Nova Galerie**: alle Fotos und Videos, neueste zuerst; Vollbild mit Wischen, Teilen, Löschen
@@ -219,6 +227,8 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `BootActivity.java` | Start-Animation nach Updates, beim ersten Start und für „NovaOS neu starten“; „Was ist neu“ |
 | `Installer.java`, `InstallReceiver.java`, `Download.java` | Installieren über den Android-PackageInstaller, Downloads mit SHA-256 |
 | `StoreActivity.java`, `StoreApp.java`, `res/raw/store.txt` | Nova Store: Katalog, F-Droid-Versionen, Installieren/Aktualisieren/Öffnen |
+| `StoreDetailActivity.java`, `StoreInstall.java`, `StoreCatalog.java`, `StoreMeta.java`, `NovaApps.java` | Detailseite, gemeinsamer Download mit Fortschritt/Abbrechen, Katalog + F-Droid-Angaben, Nova-Apps |
+| `tools/store_meta.py` | erzeugt `res/raw/store_meta.json` aus F-Droids `index-v2.json` |
 | `CameraActivity.java` | Nova Kamera (Camera2) |
 | `GalleryActivity.java`, `ViewerActivity.java`, `Media.java` | Nova Galerie |
 | `FilesActivity.java`, `FileNames.java`, `NovaFileProvider.java` | Nova Dateien, Öffnen/Teilen mit anderen Apps |

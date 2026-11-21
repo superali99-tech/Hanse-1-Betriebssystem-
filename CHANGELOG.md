@@ -68,6 +68,13 @@
   in jeder Mail), Kontakt speichern direkt aus einem Chat und Umbenennen in Nova Chat; „Neue E-Mail-Adresse
   erstellen“ (GMX, WEB.DE, freenet, Gmail) und richtiger Outlook-Hilfelink; „Hey Nova“ standardmäßig aus –
   dadurch kein Android-Ton mehr nach jedem Tippen auf dem Startbildschirm
+* **NovaOS Mobile 0.1.1.60 – Nova Store wie der Play Store**: Detailseite je App (Entwickler, Größe, Version,
+  Android-Version, Lizenz, echte Bildschirmfotos, „Über diese App“, App-Info, Hinweise von F-Droid, Website und
+  Quellcode; Daten aus F-Droids Index über `mobile/tools/store_meta.py`, keine erfundenen Bewertungen);
+  Installieren mit Fortschrittsring um das Symbol, „42 % von 107,3 MB“ und „Abbrechen“; danach „Deinstallieren“/
+  „Öffnen“; heruntergeladene APKs werden gelöscht. Neuer Bereich **Nova-Apps**: „Aktualisieren“ bei jeder Nova-App,
+  die das wartende NovaOS-Update ändert (`@apps:` in `whatsnew.txt` → `apps=` in `update.properties`).
+  Behoben: hängendes „Wird installiert …“ nach Abbrechen im Android-Installationsfenster
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

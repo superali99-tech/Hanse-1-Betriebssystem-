@@ -405,6 +405,25 @@ Für den Update-Test lief eine Testversion 0.1.1.57 gegen das echte Update 0.1.1
 **Nicht getestet:** Suche und „Als Kontakt speichern“ in Nova Chat mit einem Matrix-Konto (kein Matrix-Server in
 dieser Sitzung), Mail-Suche mit echtem Postfach.
 
+### Update 0.1.1.60: Nova Store wie der Play Store (21.11.2026)
+
+Android-x86 9 in QEMU, Hochformat, Deutsch, Internet über den Proxy der Testumgebung (echtes f-droid.org). Bilder 58–61.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1398 bestanden (neu: `store_meta.json` für alle F-Droid-Apps, nur https-Links und sichere Bildpfade, `@apps:`/`apps=`, unbekannte Nova-App-Namen) |
+| Detailseite Aegis | ✅ | Beem Development, 6,6 MB, 3.4.3, Android 6.0+, GPL-3.0, Bildschirmfotos von F-Droid, „Über diese App“ |
+| Installieren Aegis | ✅ | Ring, „Wird installiert …“, Androids Nachfrage, danach „Deinstallieren“ / „Öffnen“ |
+| Nextcloud (107,3 MB): Fortschritt | ✅ | „7 % von 107,3 MB“ → „21 %“, Ring um das Symbol |
+| „Abbrechen“ während des Downloads | ❌ → behoben | Tipp kam nicht an, weil die Knöpfe bei jedem Fortschritt neu gebaut wurden; jetzt nur bei Zustandswechsel – Abbruch bei 4 %, keine Datei bleibt zurück |
+| Abbrechen im Android-Installationsfenster | ❌ → behoben | Store blieb bei „Wird installiert …“ stehen (Ergebnis kam, während die Seite pausiert war); jetzt wieder „Installieren“ |
+| Heruntergeladene APKs | ❌ → behoben | blieben im Zwischenspeicher (6,9 MB / 107 MB); werden jetzt gelöscht |
+| Nova-Apps mit simuliertem Update `apps=chat,mail` | ✅ | Nova Chat und Nova Mail oben mit „Aktualisieren“ und „Neu im nächsten Update (0.1.1.99)“, die anderen „Öffnen“ |
+| Ohne Nova-Update | ✅ | „Empfohlen“ oben, Nova-Apps am Ende |
+
+**Nicht getestet:** „Aktualisieren“ einer F-Droid-App mit neuerer Version (keine veraltete App installiert),
+Deinstallieren-Dialog, Play-Store-Apps (kein Play Store in der VM).
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

@@ -1,7 +1,6 @@
 package org.novaos.mobile;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -9,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,85 +22,88 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.novaos.tv.ImageLoader;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Nova Store: real apps. Free and open-source apps are installed directly from
- * F-Droid (current version from the F-Droid API, APK from f-droid.org, Android's
- * installer asks for confirmation); popular apps open in the Google Play Store.
+ * Nova Store: the Nova apps (part of NovaOS, "Aktualisieren" when the waiting software
+ * update changes them) and real apps - free and open-source apps installed directly from
+ * F-Droid (Android's installer asks for confirmation), popular apps open in the Google Play
+ * Store. Tapping an app opens its details page (StoreDetailActivity).
  */
-public class StoreActivity extends Activity {
+public class StoreActivity extends Activity implements StoreInstall.Listener {
     private final ExecutorService worker = Executors.newFixedThreadPool(4);
     private final boolean german = Locale.getDefault().getLanguage().equals("de");
     private final Map<String, Long> fdroidCode = new HashMap<>();
     private final Map<String, String> fdroidName = new HashMap<>();
     private final Map<String, List<Button>> buttons = new HashMap<>();
+    private final Map<String, List<RingView>> rings = new HashMap<>();
     private final Map<String, StoreApp> apps = new HashMap<>();
-    private final Map<String, Integer> progress = new HashMap<>();
-    // older F-Droid icon path; a list, because an app can be shown twice (recommended + its category)
-    private final Map<String, List<Runnable>> iconRetry = new HashMap<>();
+    private final List<Object[]> rows = new ArrayList<>();      // {row, searchable text, header}
+    private final List<View> headers = new ArrayList<>();
+    private final Map<String, Button> novaButtons = new HashMap<>();
+    private final Map<String, TextView> novaLines = new HashMap<>();
+    private final Map<String, View> novaRows = new HashMap<>();
+    private TextView none;
+    private LinearLayout novaBox;
     private BroadcastReceiver packages;
+    private String query = "";
 
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
         LinearLayout content = Page.setup(this, R.string.app_store, getString(R.string.store_sub));
-        List<StoreApp> list = StoreApp.parse(raw(R.raw.store));
+        List<StoreApp> list = StoreCatalog.apps(this);
         for (StoreApp a : list) apps.put(a.pkg, a);
-        TextView none = Ui.text(this, getString(R.string.search_none), 15, getColor(R.color.text_muted), false);
+        none = Ui.text(this, getString(R.string.search_none), 15, getColor(R.color.text_muted), false);
         none.setPadding(Ui.dp(this, 4), Ui.dp(this, 18), 0, 0);
         none.setVisibility(View.GONE);
         content.addView(none);
-        List<View[]> headers = new ArrayList<>();  // {header, "recommended"?}
-        List<Object[]> rows = new ArrayList<>();   // {row, app, header}
+
+        // the Nova apps: at the top when an update changes some of them, otherwise at the end
+        novaBox = new LinearLayout(this);
+        novaBox.setOrientation(LinearLayout.VERTICAL);
+        View novaHeader = Ui.section(this, R.string.store_nova_apps);
+        novaBox.addView(novaHeader);
+        headers.add(novaHeader);
+        TextView novaSub = Ui.text(this, getString(R.string.store_nova_sub), 13, getColor(R.color.text_muted), false);
+        novaSub.setPadding(Ui.dp(this, 4), 0, 0, Ui.dp(this, 2));
+        novaBox.addView(novaSub);
+        rows.add(new Object[] {novaSub, "", novaHeader});
+        for (NovaApps.App n : NovaApps.ALL) {
+            View r = novaRow(n);
+            novaBox.addView(r);
+            novaRows.put(n.key, r);
+            rows.add(new Object[] {r, getString(n.name) + " " + getString(n.text), novaHeader});
+        }
+        content.addView(novaBox);
+
+        // F-Droid and Play apps
         for (Map.Entry<String, List<StoreApp>> sec : StoreApp.sections(list).entrySet()) {
-            View header = Ui.section(this, category(sec.getKey()));
+            View header = Ui.section(this, StoreCatalog.category(sec.getKey()));
             header.setTag("empfohlen".equals(sec.getKey()) ? "rec" : null);
             content.addView(header);
-            headers.add(new View[] {header});
+            headers.add(header);
             for (StoreApp a : sec.getValue()) {
                 View r = row(a);
                 content.addView(r);
-                rows.add(new Object[] {r, a, header});
+                rows.add(new Object[] {r, a.name + " " + a.text(german) + " " + getString(StoreCatalog.category(a.category)), header});
             }
         }
-        // search: name, description and category; the "recommended" apps also appear in their category
+        // search: the "recommended" apps also appear in their category, so that section is hidden while searching
         Page.search(this, R.string.store_search, q -> {
-            boolean searching = !q.trim().isEmpty();
-            java.util.Set<View> used = new java.util.HashSet<>();
-            int found = 0;
-            for (Object[] x : rows) {
-                StoreApp a = (StoreApp) x[1];
-                View header = (View) x[2];
-                boolean show = !searching || (!"rec".equals(header.getTag())
-                        && Search.matches(q, a.name, a.text(german), getString(category(a.category))));
-                ((View) x[0]).setVisibility(show ? View.VISIBLE : View.GONE);
-                if (show) {
-                    used.add(header);
-                    found++;
-                }
-            }
-            for (View[] h : headers) h[0].setVisibility(used.contains(h[0]) ? View.VISIBLE : View.GONE);
-            none.setVisibility(found == 0 ? View.VISIBLE : View.GONE);
+            query = q;
+            filter();
         });
-        Installer.setListener((pkg, ok, message) -> runOnUiThread(() -> {
-            progress.remove(pkg);
-            if (!ok && message != null) Toast.makeText(this, getString(R.string.store_failed, message), Toast.LENGTH_LONG).show();
-            refresh(pkg);
-        }));
+
         packages = new BroadcastReceiver() {
             @Override
             public void onReceive(Context c, Intent i) {
@@ -129,8 +130,6 @@ public class StoreActivity extends Activity {
                             fdroidCode.put(a.pkg, code);
                             fdroidName.put(a.pkg, name);
                             refresh(a.pkg);
-                            List<Runnable> retries = iconRetry.get(a.pkg);
-                            if (retries != null) for (Runnable r : retries) r.run();
                         });
                     }
                 } catch (IOException ignored) {
@@ -138,68 +137,170 @@ public class StoreActivity extends Activity {
                 }
             });
         }
+        // is there a newer NovaOS (and which Nova apps does it change)?
+        worker.execute(() -> {
+            Updates.check(getApplicationContext());
+            runOnUiThread(this::refreshNova);
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        StoreInstall.addListener(this);
+        StoreInstall.cleanup(this);
         for (String pkg : apps.keySet()) refresh(pkg);
+        refreshNova();
+    }
+
+    @Override
+    protected void onPause() {
+        StoreInstall.removeListener(this);
+        super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        Installer.setListener(null);
         unregisterReceiver(packages);
         worker.shutdownNow();
         super.onDestroy();
     }
 
-    private int category(String id) {
-        switch (id) {
-            case "empfohlen": return R.string.cat_empfohlen;
-            case "kommunikation": return R.string.cat_kommunikation;
-            case "unterwegs": return R.string.cat_unterwegs;
-            case "multimedia": return R.string.cat_multimedia;
-            case "sicherheit": return R.string.cat_sicherheit;
-            case "unterhaltung": return R.string.cat_unterhaltung;
-            default: return R.string.cat_werkzeuge;
+    @Override
+    public void changed(String pkg, String message) {
+        if (isDestroyed()) return;
+        if (message != null && !message.isEmpty()) Toast.makeText(this, getString(R.string.store_failed, message), Toast.LENGTH_LONG).show();
+        refresh(pkg);
+    }
+
+    private void filter() {
+        boolean searching = !query.trim().isEmpty();
+        Set<View> used = new HashSet<>();
+        int found = 0;
+        for (Object[] x : rows) {
+            View header = (View) x[2];
+            String text = (String) x[1];
+            boolean show = !searching || (!"rec".equals(header.getTag()) && !text.isEmpty() && Search.matches(query, text));
+            ((View) x[0]).setVisibility(show ? View.VISIBLE : View.GONE);
+            if (show) {
+                used.add(header);
+                found++;
+            }
+        }
+        for (View h : headers) h.setVisibility(used.contains(h) ? View.VISIBLE : View.GONE);
+        none.setVisibility(found == 0 ? View.VISIBLE : View.GONE);
+    }
+
+    // ------------------------------------------------------------ Nova apps
+
+    private View novaRow(NovaApps.App n) {
+        LinearLayout r = card();
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(n.icon);
+        r.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
+        LinearLayout texts = new LinearLayout(this);
+        texts.setOrientation(LinearLayout.VERTICAL);
+        texts.addView(Ui.text(this, getString(n.name), 16, Color.WHITE, true));
+        TextView d = Ui.text(this, getString(n.text), 13, getColor(R.color.text_muted), false);
+        d.setMaxLines(2);
+        d.setEllipsize(TextUtils.TruncateAt.END);
+        texts.addView(d);
+        TextView line = Ui.text(this, "", 11, 0xFFB9A8FF, false);
+        texts.addView(line);
+        novaLines.put(n.key, line);
+        LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
+        tl.leftMargin = Ui.dp(this, 12);
+        tl.rightMargin = Ui.dp(this, 8);
+        r.addView(texts, tl);
+        Button b = actionButton();
+        r.addView(b, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Ui.dp(this, 42)));
+        novaButtons.put(n.key, b);
+        r.setOnClickListener(v -> startActivity(new Intent(this, n.activity)));
+        return r;
+    }
+
+    /** "Aktualisieren" for the Nova apps that the waiting NovaOS update changes, otherwise "Öffnen". */
+    private void refreshNova() {
+        UpdateInfo pending = Updates.pending(this);
+        boolean any = false;
+        for (NovaApps.App n : NovaApps.ALL) any |= pending != null && pending.apps.contains(n.key);
+        ViewGroup content = (ViewGroup) novaBox.getParent();
+        int want = any ? content.indexOfChild(none) + 1 : content.getChildCount() - 1;
+        if (content.indexOfChild(novaBox) != want) {
+            content.removeView(novaBox);
+            content.addView(novaBox, any ? content.indexOfChild(none) + 1 : content.getChildCount());
+        }
+        // the apps with an update first (like "Updates available" in other stores)
+        int at = 2;  // after the title and the explanation
+        for (int pass = 0; pass < 2; pass++) {
+            for (NovaApps.App n : NovaApps.ALL) {
+                boolean update = pending != null && pending.apps.contains(n.key);
+                if (update != (pass == 0)) continue;
+                View r = novaRows.get(n.key);
+                if (r == null) continue;
+                novaBox.removeView(r);
+                novaBox.addView(r, at++);
+            }
+        }
+        for (NovaApps.App n : NovaApps.ALL) {
+            Button b = novaButtons.get(n.key);
+            TextView line = novaLines.get(n.key);
+            if (b == null || line == null) continue;
+            boolean update = pending != null && pending.apps.contains(n.key);
+            b.setText(update ? R.string.store_update : R.string.store_open);
+            b.setOnClickListener(v -> {
+                if (update) {
+                    startActivity(new Intent(this, UpdateActivity.class).putExtra(UpdateActivity.EXTRA_INSTALL, true));
+                } else {
+                    startActivity(new Intent(this, n.activity));
+                }
+            });
+            line.setText(update ? getString(R.string.store_nova_new, pending.versionName)
+                    : getString(R.string.store_nova_included, Updates.installedName(this)));
         }
     }
 
-    private View row(StoreApp a) {
+    // ------------------------------------------------------------ F-Droid and Play apps
+
+    private LinearLayout card() {
         LinearLayout r = new LinearLayout(this);
         r.setOrientation(LinearLayout.HORIZONTAL);
         r.setGravity(Gravity.CENTER_VERTICAL);
         r.setBackgroundResource(R.drawable.card_bg);
         int p = Ui.dp(this, 12);
         r.setPadding(p, p, p, p);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = Ui.dp(this, 8);
+        r.setLayoutParams(lp);
+        return r;
+    }
 
-        // icon: F-Droid picture, or a coloured letter (Play apps, while loading)
-        FrameLayout icon = new FrameLayout(this);
-        TextView letter = Ui.text(this, a.name.substring(0, 1), 22, Color.WHITE, true);
-        letter.setGravity(Gravity.CENTER);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setShape(GradientDrawable.OVAL);
-        bg.setColor(Color.HSVToColor(new float[] {Math.abs(a.pkg.hashCode()) % 360, 0.55f, 0.75f}));
-        letter.setBackground(bg);
-        icon.addView(letter, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        if (a.fromFdroid()) {
-            ImageView iv = new ImageView(this);
-            iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            icon.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-            Runnable hide = () -> letter.setVisibility(View.GONE);
-            ImageLoader.load(iv, a.fdroidIcon(), null, hide);
-            // some apps (e.g. Öffi) have their icon only under the older, versioned path
-            List<Runnable> retries = iconRetry.get(a.pkg);
-            if (retries == null) iconRetry.put(a.pkg, retries = new ArrayList<>());
-            retries.add(() -> {
-                Long code = fdroidCode.get(a.pkg);
-                if (code != null && letter.getVisibility() == View.VISIBLE) {
-                    ImageLoader.load(iv, a.fdroidIcon(), a.fdroidIconOld(code), hide);
-                }
-            });
-        }
-        r.addView(icon, new LinearLayout.LayoutParams(Ui.dp(this, 48), Ui.dp(this, 48)));
+    private Button actionButton() {
+        Button b = new Button(this);
+        b.setAllCaps(false);
+        b.setTextColor(Color.WHITE);
+        b.setTextSize(14);
+        b.setMinWidth(Ui.dp(this, 96));
+        b.setBackgroundResource(R.drawable.accent_card_bg);
+        return b;
+    }
+
+    private View row(StoreApp a) {
+        LinearLayout r = card();
+        // icon with a progress ring around it while downloading
+        FrameLayout box = new FrameLayout(this);
+        RingView ring = new RingView(this);
+        ring.setStroke(3);
+        ring.setVisibility(View.INVISIBLE);
+        box.addView(ring, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        FrameLayout.LayoutParams il = new FrameLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 44));
+        il.gravity = Gravity.CENTER;
+        box.addView(StoreCatalog.icon(this, a, 44), il);
+        r.addView(box, new LinearLayout.LayoutParams(Ui.dp(this, 54), Ui.dp(this, 54)));
+        List<RingView> rl = rings.get(a.pkg);
+        if (rl == null) rings.put(a.pkg, rl = new ArrayList<>());
+        rl.add(ring);
 
         LinearLayout texts = new LinearLayout(this);
         texts.setOrientation(LinearLayout.VERTICAL);
@@ -208,31 +309,24 @@ public class StoreActivity extends Activity {
         d.setMaxLines(2);
         d.setEllipsize(TextUtils.TruncateAt.END);
         texts.addView(d);
-        TextView src = Ui.text(this, getString(a.fromFdroid() ? R.string.store_source_fdroid : R.string.store_source_play),
-                11, 0xFFB9A8FF, false);
-        src.setTag("source:" + a.pkg);
-        texts.addView(src);
+        StoreMeta m = StoreCatalog.meta(this, a.pkg);
+        String src = getString(a.fromFdroid() ? R.string.store_source_fdroid : R.string.store_source_play)
+                + (m != null ? " · " + UpdateInfo.size(m.size, german) : "");
+        TextView source = Ui.text(this, src, 11, 0xFFB9A8FF, false);
+        source.setTag("source:" + a.pkg);
+        texts.addView(source);
         LinearLayout.LayoutParams tl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-        tl.leftMargin = Ui.dp(this, 12);
+        tl.leftMargin = Ui.dp(this, 10);
         tl.rightMargin = Ui.dp(this, 8);
         r.addView(texts, tl);
 
-        Button b = new Button(this);
-        b.setAllCaps(false);
-        b.setTextColor(Color.WHITE);
-        b.setTextSize(14);
-        b.setMinWidth(Ui.dp(this, 96));
-        b.setBackgroundResource(R.drawable.accent_card_bg);
+        Button b = actionButton();
         b.setOnClickListener(v -> act(a));
         r.addView(b, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, Ui.dp(this, 42)));
         List<Button> l = buttons.get(a.pkg);
         if (l == null) buttons.put(a.pkg, l = new ArrayList<>());
         l.add(b);
-
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = Ui.dp(this, 8);
-        r.setLayoutParams(lp);
+        r.setOnClickListener(v -> startActivity(new Intent(this, StoreDetailActivity.class).putExtra(StoreDetailActivity.EXTRA_PKG, a.pkg)));
         return r;
     }
 
@@ -246,28 +340,34 @@ public class StoreActivity extends Activity {
         }
     }
 
-    /** Button text: install / update / open / Play Store / progress. */
+    /** Button text: install / update / open / Play Store / progress, and the ring. */
     private void refresh(String pkg) {
         StoreApp a = apps.get(pkg);
         List<Button> l = buttons.get(pkg);
         if (a == null || l == null) return;
         long installed = installedCode(pkg);
         Long latest = fdroidCode.get(pkg);
-        Integer pct = progress.get(pkg);
+        StoreInstall.State s = StoreInstall.state(pkg);
         String text;
-        if (pct != null) text = getString(R.string.store_progress, pct);
+        if (s != null) text = s.installing || s.checking ? "…" : getString(R.string.store_progress, s.percent());
         else if (installed >= 0 && a.fromFdroid() && latest != null && latest > installed) text = getString(R.string.store_update);
         else if (installed >= 0) text = getString(R.string.store_open);
         else text = getString(a.fromFdroid() ? R.string.store_install : R.string.store_play);
         for (Button b : l) {
             b.setText(text);
-            b.setEnabled(pct == null);
+            b.setEnabled(s == null);
         }
-        View root = findViewById(R.id.content);
+        List<RingView> rl = rings.get(pkg);
+        if (rl != null) for (RingView ring : rl) {
+            ring.setVisibility(s == null ? View.INVISIBLE : View.VISIBLE);
+            if (s != null) ring.set(s.installing || s.checking || s.total <= 0 ? -1 : s.done / (float) s.total);
+        }
         String name = fdroidName.get(pkg);
+        StoreMeta m = StoreCatalog.meta(this, pkg);
         if (name != null && !name.isEmpty()) {
-            for (View v : findAll(root, "source:" + pkg)) {
-                ((TextView) v).setText(getString(R.string.store_source_fdroid) + " · " + name);
+            for (View v : findAll(findViewById(R.id.content), "source:" + pkg)) {
+                ((TextView) v).setText(getString(R.string.store_source_fdroid) + " · " + name
+                        + (m != null ? " · " + UpdateInfo.size(m.size, german) : ""));
             }
         }
     }
@@ -303,59 +403,18 @@ public class StoreActivity extends Activity {
             Toast.makeText(this, R.string.update_allow, Toast.LENGTH_LONG).show();
             return;
         }
-        progress.put(a.pkg, 0);
-        refresh(a.pkg);
-        worker.execute(() -> {
-            File dir = new File(getCacheDir(), "apk");
-            //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
-            File apk = new File(dir, a.pkg + ".apk");
-            try {
-                Download.file(a.fdroidApk(latest), apk, (done, total) -> {
-                    int pct = total > 0 ? (int) (done * 100 / total) : 0;
-                    runOnUiThread(() -> {
-                        progress.put(a.pkg, pct);
-                        refresh(a.pkg);
-                    });
-                });
-                PackageInfo info = Installer.info(this, apk);
-                if (info == null || !a.pkg.equals(info.packageName)) throw new IOException(getString(R.string.store_wrong_app));
-                Installer.install(getApplicationContext(), apk, a.pkg);
-            } catch (IOException | RuntimeException e) {
-                //noinspection ResultOfMethodCallIgnored
-                apk.delete();
-                runOnUiThread(() -> {
-                    progress.remove(a.pkg);
-                    refresh(a.pkg);
-                    Toast.makeText(this, getString(R.string.store_failed, String.valueOf(e.getMessage())),
-                            Toast.LENGTH_LONG).show();
-                });
-            }
-        });
+        StoreInstall.start(this, a, latest);
     }
 
     private void openPlay(StoreApp a) {
         try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + a.pkg))
-                    .setPackage("com.android.vending"));
-        } catch (ActivityNotFoundException e) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + a.pkg)).setPackage("com.android.vending"));
+        } catch (android.content.ActivityNotFoundException e) {
             try {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(a.playUrl())));
-            } catch (ActivityNotFoundException ex) {
+            } catch (android.content.ActivityNotFoundException ex) {
                 Toast.makeText(this, R.string.not_available, Toast.LENGTH_LONG).show();
             }
-        }
-    }
-
-    private String raw(int res) {
-        try (InputStream in = getResources().openRawResource(res)) {
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buf = new byte[4096];
-            int n;
-            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
-            return new String(out.toByteArray(), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            return "";
         }
     }
 }

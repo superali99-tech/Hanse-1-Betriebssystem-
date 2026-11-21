@@ -38,6 +38,7 @@ final class Installer {
     }
 
     static void report(String pkg, boolean success, String message) {
+        StoreInstall.result(pkg, success, message);  // always, even while no store page is open
         Listener l = listener;
         if (l != null) l.onResult(pkg, success, message);
     }

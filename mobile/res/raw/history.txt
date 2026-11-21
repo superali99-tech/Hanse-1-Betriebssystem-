@@ -1,6 +1,14 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.59 · 21.11.2026
+Software-Update: oben rechts ⋮ mit „Was ist neu“ und dem ganzen Update-Verlauf|Software update: ⋮ at the top right with "What's new" and the whole update history
+Neue Update-Anzeige: Ring mit Prozent, „x von y MB“, echte Download-Geschwindigkeit und Restzeit|New update progress: ring with percent, "x of y MB", real download speed and time left
+Suchfeld im Nova Store, in Nova Chat, in den Kontakten und in Nova Mail|Search field in Nova Store, Nova Chat, the contacts and Nova Mail
+Kontakte speichern: Adressbuch in Nova Mail, in Nova Chat direkt aus dem Chat|Save contacts: address book in Nova Mail, in Nova Chat straight from a chat
+Nova Mail: „Neue E-Mail-Adresse erstellen“ – kostenlos bei GMX, WEB.DE, freenet oder Gmail|Nova Mail: "Create a new e-mail address" – free at GMX, WEB.DE, freenet or Gmail
+Kein Sprach-Ton mehr beim Tippen: „Hey Nova“ hört nur noch, wenn du es in Nova einschaltest|No more voice beep when tapping: "Hey Nova" only listens when you switch it on in Nova
+
 == NovaOS 0.1.1.58 · 20.11.2026
 Nova Family: Eltern sperren das Kinderhandy sofort, bis zu einer Uhrzeit oder jede Nacht (Ruhezeit)|Nova Family: parents lock their child's phone now, until a time or every night (bedtime)
 Gesperrt: nur Sperrbildschirm – Eltern anrufen, Notruf und Taschenlampe gehen immer|Locked: only the lock screen – calling the parents, emergency calls and the torch always work

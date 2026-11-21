@@ -117,6 +117,10 @@ def esc(t):  # Java properties: ASCII with \\uXXXX (UTF-16 units)
 print("# NovaOS Mobile software update")
 print(f"versionCode={code}\nversionName={name}\napk=novaos-mobile.apk\nsha256={sha}\nsize={size}")
 lines = [l.strip() for l in open(news, encoding="utf-8") if l.strip() and not l.startswith("#")]
+apps = [a.strip() for l in lines if l.startswith("@apps:") for a in l[6:].split(",") if a.strip()]
+if apps:  # the Nova apps this update changes (Nova Store: "Aktualisieren")
+	print("apps=" + ",".join(apps))
+lines = [l for l in lines if not l.startswith("@")]
 for i, line in enumerate(lines[:20], 1):
 	de, _, en = line.partition("|")
 	print(f"note.de.{i}={esc(de.strip())}")

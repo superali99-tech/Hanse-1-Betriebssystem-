@@ -29,6 +29,7 @@ public final class MobileTest {
         weather();
         search();
         history();
+        storeMeta();
         if (args.length > 0) resources(args[0]);
         System.out.println("MobileTest: " + passed + " passed, " + failed + " failed");
         if (failed > 0) System.exit(1);
@@ -66,6 +67,17 @@ public final class MobileTest {
         check(Search.matches("whats", null, "WhatsApp"), "search: null texts are skipped");
     }
 
+    private static void storeMeta() {
+        java.util.Map<String, StoreMeta> m = StoreMeta.parseAll("{\"a.b\":{\"author\":\"X\",\"size\":2021432,\"minSdk\":26,"
+                + "\"web\":\"http://plain.example\",\"source\":\"https://git.example/a\",\"shots\":[\"/a.b/de/phoneScreenshots/1.png\","
+                + "\"/../evil.png\",\"https://other/x.png\",3],\"anti\":[\"Werbung\"]},\"bad\":5}");
+        StoreMeta a = m.get("a.b");
+        check(m.size() == 1 && a != null && a.author.equals("X") && a.size == 2021432 && a.minSdk == 26, "store meta fields");
+        check(a != null && a.web.isEmpty() && a.source.equals("https://git.example/a"), "store meta: only https links");
+        check(a != null && a.shots.equals(java.util.Arrays.asList("/a.b/de/phoneScreenshots/1.png")), "store meta: safe screenshot paths");
+        check(StoreMeta.parseAll("kaputt").isEmpty() && StoreMeta.parseAll("[]").isEmpty(), "store meta broken");
+    }
+
     private static void history() {
         java.util.List<History.Entry> h = History.parse("# comment\n== NovaOS 2 · heute\nNeu A|New A\nnur de\n\n== NovaOS 1\nAlt|Old\n");
         check(h.size() == 2 && h.get(0).title.equals("NovaOS 2 · heute") && h.get(1).title.equals("NovaOS 1"), "history titles");
@@ -85,6 +97,12 @@ public final class MobileTest {
         check(UpdateInfo.parse(ok.replace("ab", "zz")) == null, "sha256 checked");
         check(UpdateInfo.parse("<html>404</html>") == null && UpdateInfo.parse(null) == null, "not an update file");
         check(UpdateInfo.whatsNew("# x\nA|B\nnur de\n", false).equals(java.util.Arrays.asList("B", "nur de")), "whats new");
+        check(UpdateInfo.whatsNew("@apps: chat\nA|B\n", true).equals(java.util.Arrays.asList("A")), "whats new without @apps");
+        check(UpdateInfo.changedApps("# x\n@apps: Chat, mail ,../x, store\nA|B").equals(java.util.Arrays.asList("chat", "mail", "store")),
+                "changed apps from whatsnew");
+        UpdateInfo ua = UpdateInfo.parse(ok + "apps=store,chat,store,b@d\n");
+        check(ua != null && ua.apps.equals(java.util.Arrays.asList("store", "chat")), "update apps");
+        check(u != null && u.apps.isEmpty(), "update without apps");
         check(UpdateInfo.size(2413216, true).equals("2,3 MB") && UpdateInfo.size(2048, false).equals("2 KB"), "size");
     }
 
@@ -167,6 +185,16 @@ public final class MobileTest {
                     java.nio.charset.StandardCharsets.UTF_8);
             java.util.List<String> de = UpdateInfo.whatsNew(news, true), en = UpdateInfo.whatsNew(news, false);
             check(!de.isEmpty() && de.size() == en.size() && de.size() <= 8, "whatsnew.txt: " + de.size() + " points");
+            java.util.Set<String> novaKeys = new java.util.HashSet<>(java.util.Arrays.asList("nova", "chat", "mail", "family", "store",
+                    "camera", "gallery", "files", "notes", "settings", "music", "shop", "update"));
+            for (String key : UpdateInfo.changedApps(news)) check(novaKeys.contains(key), "whatsnew.txt: unknown Nova app " + key);
+            java.util.Map<String, StoreMeta> meta = StoreMeta.parseAll(new String(java.nio.file.Files.readAllBytes(
+                    java.nio.file.Paths.get(res, "raw", "store_meta.json")), java.nio.charset.StandardCharsets.UTF_8));
+            for (StoreApp app : apps) {
+                if (!app.fromFdroid()) continue;
+                StoreMeta m = meta.get(app.pkg);
+                check(m != null && m.size > 0 && m.code > 0 && !m.version.isEmpty(), "store_meta.json: details of " + app.pkg);
+            }
         } catch (java.io.IOException e) {
             check(false, "resources: " + e);
         }

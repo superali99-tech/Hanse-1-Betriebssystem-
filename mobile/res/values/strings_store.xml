@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Store: details page (0.1.1.60) -->
+    <string name="store_detail_free">Free · open-source</string>
+    <string name="store_detail_play">Installed via the Google Play Store</string>
+    <string name="store_detail_size">Size</string>
+    <string name="store_detail_version">Version</string>
+    <string name="store_detail_android">Requires</string>
+    <string name="store_detail_android_short">Android</string>
+    <string name="store_detail_android_value">Android %1$s or newer</string>
+    <string name="store_detail_license">Licence</string>
+    <string name="store_detail_source">Source</string>
+    <string name="store_detail_category">Category</string>
+    <string name="store_detail_about">About this app</string>
+    <string name="store_detail_info">App info</string>
+    <string name="store_detail_updated">Updated on</string>
+    <string name="store_detail_added">On F-Droid since</string>
+    <string name="store_detail_permissions">Permissions</string>
+    <string name="store_detail_developer">Developer</string>
+    <string name="store_detail_website">Developer\'s website</string>
+    <string name="store_detail_code">Source code</string>
+    <string name="store_detail_credit">Details and pictures: F-Droid (f-droid.org). F-Droid has no ratings – so Nova Store shows none.</string>
+    <string name="store_detail_installing">Installing …</string>
+    <string name="store_detail_progress">%1$d %% of %2$s</string>
+    <string name="store_detail_waiting">Download starting …</string>
+    <string name="store_detail_update_ready">Update available: version %1$s</string>
+    <string name="store_detail_checking">Checking …</string>
+    <string name="store_detail_cancelling">Cancelling …</string>
+    <string name="store_uninstall">Uninstall</string>
+    <!-- Nova apps in the store (they come with NovaOS) -->
+    <string name="store_nova_apps">Nova apps</string>
+    <string name="store_nova_sub">Part of NovaOS, updated with the software update</string>
+    <string name="store_nova_included">Included in NovaOS · version %1$s</string>
+    <string name="store_nova_new">New in the next update (%1$s)</string>
+    <string name="store_nova_updates">“Update” installs the NovaOS update – all marked Nova apps are renewed at once.</string>
+    <string name="novaapp_nova">Your assistant: questions, alarms, timers, calls, messages – by voice or text</string>
+    <string name="novaapp_chat">Chats, voice messages, photos and calls over Matrix</string>
+    <string name="novaapp_mail">Real e-mail with your account (GMX, WEB.DE, Gmail …), with address book and Nova</string>
+    <string name="novaapp_family">Parents lock the child\'s phone, bedtime and screen time</string>
+    <string name="novaapp_store">Real apps from F-Droid and the Play Store</string>
+    <string name="novaapp_camera">Take photos and videos</string>
+    <string name="novaapp_gallery">View your photos and videos</string>
+    <string name="novaapp_files">Open, share and sort files</string>
+    <string name="novaapp_notes">Write and search notes</string>
+    <string name="novaapp_settings">Set up NovaOS, software update</string>
+</resources>

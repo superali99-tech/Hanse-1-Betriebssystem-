@@ -19,6 +19,8 @@ public final class UpdateInfo {
     public final String versionName, apk, sha256;
     public final long size;
     public final List<String> notesDe, notesEn;
+    /** Nova apps changed by this update ("apps=chat,mail"): the Nova Store shows "Aktualisieren" for them. */
+    public final List<String> apps = new ArrayList<>();
 
     UpdateInfo(long versionCode, String versionName, String apk, String sha256, long size,
                List<String> notesDe, List<String> notesEn) {
@@ -47,7 +49,12 @@ public final class UpdateInfo {
             String sha = p.getProperty("sha256", "").trim().toLowerCase(java.util.Locale.ROOT);
             long size = Long.parseLong(p.getProperty("size", "0").trim());
             if (code <= 0 || name.isEmpty() || !FILE.matcher(apk).matches() || !SHA256.matcher(sha).matches()) return null;
-            return new UpdateInfo(code, name, apk, sha, size, notes(p, "de"), notes(p, "en"));
+            UpdateInfo u = new UpdateInfo(code, name, apk, sha, size, notes(p, "de"), notes(p, "en"));
+            for (String a : p.getProperty("apps", "").split(",")) {
+                String key = a.trim().toLowerCase(java.util.Locale.ROOT);
+                if (key.matches("[a-z]{1,20}") && !u.apps.contains(key)) u.apps.add(key);
+            }
+            return u;
         } catch (NumberFormatException e) {
             return null;
         }
@@ -76,9 +83,24 @@ public final class UpdateInfo {
         if (text == null) return out;
         for (String raw : text.split("\r?\n")) {
             String line = raw.trim();
-            if (line.isEmpty() || line.startsWith("#")) continue;
+            if (line.isEmpty() || line.startsWith("#") || line.startsWith("@")) continue;  // "@apps: ..." is no text
             String[] f = line.split("\\|", 2);
             out.add((german || f.length < 2 ? f[0] : f[1]).trim());
+        }
+        return out;
+    }
+
+    /** The Nova apps of the "@apps: chat, mail" line of res/raw/whatsnew.txt. */
+    public static List<String> changedApps(String text) {
+        List<String> out = new ArrayList<>();
+        if (text == null) return out;
+        for (String raw : text.split("\r?\n")) {
+            String line = raw.trim();
+            if (!line.startsWith("@apps:")) continue;
+            for (String a : line.substring(6).split(",")) {
+                String key = a.trim().toLowerCase(java.util.Locale.ROOT);
+                if (key.matches("[a-z]{1,20}") && !out.contains(key)) out.add(key);
+            }
         }
         return out;
     }
