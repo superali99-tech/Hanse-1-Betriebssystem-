@@ -1,6 +1,13 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line.
+== NovaOS 0.1.1.70 · 21.11.2026
+{map} Neu: Nova Karte – Karte, Orte und Adressen suchen, Route mit Auto, Fahrrad oder zu Fuß|New: Nova Maps – map, search places and addresses, routes by car, bike or on foot
+{map} Navigation mit Ansagen: „In 200 Metern rechts abbiegen auf …“, „Jetzt links abbiegen“|Navigation with voice: "In 200 metres turn right onto …", "Now turn left"
+{map} Neue Route, wenn du anders fährst, Ankunftszeit und „Du hast dein Ziel erreicht“|New route when you take another way, arrival time and "You have arrived"
+{map} „Vorschau“ fährt die Route vorab ab, im Querformat bleibt die Karte rechts frei|"Preview" drives the route in advance, in landscape the map stays free on the right
+{nova} Sag zu Nova: „Navigiere nach Hamburg Hauptbahnhof“ oder „Wie komme ich zum Rathaus?“|Say to Nova: "Navigate to Hamburg Hauptbahnhof" or "How do I get to the town hall?"
+
 == NovaOS 0.1.1.66 · 21.11.2026
 {store} Nova Store: Nova-Apps antippen zeigt ihre Infoseite wie im Play Store|Nova Store: tapping a Nova app shows its info page like in the Play Store
 {store} „Neuerungen •“ mit blauem Punkt: 3 Stunden nach einem Update und wenn das nächste kommt|"What's new •" with a blue dot: for 3 hours after an update and when the next one comes

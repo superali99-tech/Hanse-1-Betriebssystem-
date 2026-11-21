@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- software update like One UI: "NovaOS 1.0" and "Letztes erfolgreiches Update" -->
+    <string name="update_uptodate">Deine Software ist auf dem neuesten Stand.</string>
+    <string name="update_retry">Erneut versuchen</string>
+    <string name="update_menu_last">Letztes Update</string>
+    <string name="last_title">Letztes erfolgreiches Update</string>
+    <string name="last_heading">Dein Handy, ganz privat</string>
+    <string name="last_text">Mit %1$s hast du Nova, deinen Assistenten direkt auf dem Gerät, Nova Karte mit Sprachnavigation, Nova Chat, Nova Mail, Nova Musik und den Nova Store auf deinem Handy. Ohne Werbung und mit regelmäßigen Updates, die du hier findest.</string>
+    <string name="last_all">Alle Änderungen</string>
+    <string name="last_info">Aktualisierungsinformationen</string>
+</resources>

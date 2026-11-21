@@ -20,7 +20,6 @@ import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -29,7 +28,8 @@ import java.util.Locale;
  * phones: a picture at the top, "Download und Installation", what is new, a bar in two
  * parts (download | confirmation) and one big button - "Aktualisieren", "Pause" or
  * "Fortsetzen". The update itself runs in UpdateEngine, so turning the phone or leaving
- * the page does not stop it.
+ * the page does not stop it. Without an update the page looks like One UI: a dark glow,
+ * "NovaOS 1.0" and "Deine Software ist auf dem neuesten Stand." (tap: LastUpdateActivity).
  */
 public class UpdateActivity extends Activity implements UpdateEngine.Listener {
     static final String EXTRA_INSTALL = "install";  // "Aktualisieren" in the notification
@@ -45,6 +45,11 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
     private View bar1, bar2;
     private LinearLayout bars;
     private TextView button;
+    // up to date (like One UI): dark page, glow, "NovaOS 1.0", "Deine Software ist auf dem neuesten Stand."
+    private LinearLayout main;
+    private FrameLayout current;
+    private UpdateGlow glow;
+    private TextView currentText, retry;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -99,7 +104,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         int statusBar = statusBarHeight();
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(NAVY);
-        LinearLayout main = new LinearLayout(this);
+        main = new LinearLayout(this);
         main.setOrientation(landscape ? LinearLayout.HORIZONTAL : LinearLayout.VERTICAL);
         root.addView(main, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -185,13 +190,81 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         bp.rightMargin = inset;
         bottom.addView(button, bp);
         right.addView(bottom, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        buildCurrent(root, statusBar);
         // keep text and button clear of the navigation bar (below in portrait, at the side in landscape)
         root.setOnApplyWindowInsetsListener((v, insets) -> {
             right.setPadding(0, 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
             main.setPadding(insets.getSystemWindowInsetLeft(), 0, 0, 0);
+            current.setPadding(insets.getSystemWindowInsetLeft(), 0, insets.getSystemWindowInsetRight(), insets.getSystemWindowInsetBottom());
             return insets;
         });
         setContentView(root);
+    }
+
+    /** The page when there is no update: like One UI - only the glow, the version and one sentence. */
+    private void buildCurrent(FrameLayout root, int statusBar) {
+        current = new FrameLayout(this);
+        glow = new UpdateGlow(this);
+        current.addView(glow, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        LinearLayout middle = new LinearLayout(this);
+        middle.setOrientation(LinearLayout.VERTICAL);
+        middle.setGravity(Gravity.CENTER_HORIZONTAL);
+        int side = Ui.dp(this, 28);
+        middle.setPadding(side, 0, side, 0);
+        TextView name = Ui.text(this, UpdateFacts.title(), 44, Color.WHITE, true);
+        name.setTypeface(Typeface.create("sans-serif-medium", Typeface.BOLD));
+        name.setGravity(Gravity.CENTER);
+        middle.addView(name);
+        currentText = Ui.text(this, "", 17, 0xFFB9B9C0, false);
+        currentText.setGravity(Gravity.CENTER);
+        currentText.setPadding(0, Ui.dp(this, 4), 0, 0);
+        middle.addView(currentText);
+        retry = Ui.text(this, getString(R.string.update_retry), 16, Color.WHITE, true);
+        retry.setGravity(Gravity.CENTER);
+        GradientDrawable rb = new GradientDrawable();
+        rb.setCornerRadius(Ui.dp(this, 22));
+        rb.setStroke(Ui.dp(this, 1), 0x66FFFFFF);
+        retry.setBackground(rb);
+        retry.setPadding(Ui.dp(this, 22), Ui.dp(this, 10), Ui.dp(this, 22), Ui.dp(this, 10));
+        retry.setOnClickListener(v -> {
+            if (!checking) check();
+        });
+        LinearLayout.LayoutParams rl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rl.topMargin = Ui.dp(this, 22);
+        middle.addView(retry, rl);
+        // the version opens "Letztes erfolgreiches Update"
+        name.setOnClickListener(v -> lastUpdate());
+        currentText.setOnClickListener(v -> lastUpdate());
+        FrameLayout.LayoutParams mid = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        mid.gravity = Gravity.CENTER;
+        current.addView(middle, mid);
+        // top: back and ⋮, without circles (on the dark page)
+        ImageButton back = plain(R.drawable.ic_back, R.string.back);
+        back.setOnClickListener(v -> finish());
+        FrameLayout.LayoutParams bl = new FrameLayout.LayoutParams(Ui.dp(this, 52), Ui.dp(this, 52));
+        bl.setMargins(Ui.dp(this, 10), statusBar + Ui.dp(this, 8), 0, 0);
+        current.addView(back, bl);
+        ImageButton more = plain(R.drawable.ic_more, R.string.more_options);
+        more.setOnClickListener(this::menu);
+        FrameLayout.LayoutParams ml = new FrameLayout.LayoutParams(Ui.dp(this, 52), Ui.dp(this, 52));
+        ml.gravity = Gravity.END;
+        ml.setMargins(0, statusBar + Ui.dp(this, 8), Ui.dp(this, 10), 0);
+        current.addView(more, ml);
+        current.setVisibility(View.GONE);
+        root.addView(current, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private ImageButton plain(int icon, int label) {
+        ImageButton b = new ImageButton(this);
+        b.setImageResource(icon);
+        android.util.TypedValue tv = new android.util.TypedValue();
+        getTheme().resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, tv, true);
+        b.setBackgroundResource(tv.resourceId);
+        b.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int p = Ui.dp(this, 14);
+        b.setPadding(p, p, p, p);
+        b.setContentDescription(getString(label));
+        return b;
     }
 
     private ImageButton round(int icon, int label) {
@@ -247,6 +320,9 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         button.setEnabled(true);
         button.setAlpha(1f);
         if (running) {
+            current.setVisibility(View.GONE);
+            main.setVisibility(View.VISIBLE);
+            glow.setBusy(false);
             UpdateInfo u = engine.update();
             title.setText(paused ? R.string.update_paused_title : R.string.update_running_title);
             subtitle.setText(getString(R.string.update_version, u.versionName, UpdateInfo.size(u.size, german)));
@@ -274,6 +350,22 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             return;
         }
         getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        if (update == null) {
+            // looking for updates, up to date, or no connection: the One UI page
+            current.setVisibility(View.VISIBLE);
+            main.setVisibility(View.GONE);
+            glow.setBusy(checking);
+            boolean failed = !checking && checkStatus != -1 && checkStatus != Updates.OK;
+            currentText.setText(checking ? getString(R.string.update_checking)
+                    : !failed ? getString(R.string.update_uptodate)
+                    : getString(checkStatus == Updates.NOT_PUBLIC ? R.string.update_not_public
+                    : checkStatus == Updates.INVALID ? R.string.update_invalid : R.string.update_unreachable));
+            retry.setVisibility(failed ? View.VISIBLE : View.GONE);
+            return;
+        }
+        current.setVisibility(View.GONE);
+        main.setVisibility(View.VISIBLE);
+        glow.setBusy(false);
         String error = engine.error();
         if (!error.isEmpty() && update != null) {
             title.setText(R.string.update_failed_title);
@@ -282,16 +374,6 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             notes.setText(notesText(update));
             hint.setText(version);
             button.setText(R.string.update_install);
-        } else if (checking) {
-            title.setText(R.string.update_checking);
-            subtitle.setText(version);
-            subtitle.setLineSpacing(0, 1.2f);
-            description.setText("");
-            notes.setText("");
-            hint.setText(generic);
-            button.setText(R.string.update_checking_button);
-            button.setEnabled(false);
-            button.setAlpha(0.5f);
         } else if (update != null) {
             boolean ready = Updates.readyApk(this, update) != null;
             title.setText(R.string.update_available_title);
@@ -301,16 +383,6 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             hint.setText(version + "\n\n" + generic);
             button.setText(R.string.update_install);
             subtitle.setText(getString(R.string.update_version, update.versionName, UpdateInfo.size(update.size, german)));
-        } else {
-            title.setText(checkStatus == Updates.OK ? R.string.update_none_title : R.string.update_error_title);
-            subtitle.setText(version);
-            subtitle.setLineSpacing(0, 1.2f);
-            description.setText(checkStatus == Updates.OK ? R.string.update_none
-                    : checkStatus == Updates.NOT_PUBLIC ? R.string.update_not_public
-                    : checkStatus == Updates.INVALID ? R.string.update_invalid : R.string.update_unreachable);
-            notes.setText(notesText(null));
-            hint.setText(generic);
-            button.setText(R.string.update_check);
         }
     }
 
@@ -318,22 +390,14 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
     private String installedLine() {
         StringBuilder b = new StringBuilder(getString(R.string.update_current, Updates.installedName(this)));
         long at = Updates.installedAt(this), checked = Updates.lastChecked(this);
-        if (at > 0) b.append('\n').append(getString(R.string.update_last_installed, when(at)));
-        if (checked > 0) b.append('\n').append(getString(R.string.update_last_checked, when(checked)));
+        if (at > 0) b.append('\n').append(getString(R.string.update_last_installed, UpdateNotes.when(this, at)));
+        if (checked > 0) b.append('\n').append(getString(R.string.update_last_checked, UpdateNotes.when(this, checked)));
         return b.toString();
-    }
-
-    /** "21. November 2026, 09:30" (today: "Heute, 09:30"). */
-    private String when(long ms) {
-        String time = android.text.format.DateFormat.getTimeFormat(this).format(new java.util.Date(ms));
-        if (android.text.format.DateUtils.isToday(ms)) return getString(R.string.update_today, time);
-        return android.text.format.DateUtils.formatDateTime(this, ms, android.text.format.DateUtils.FORMAT_SHOW_DATE
-                | android.text.format.DateUtils.FORMAT_SHOW_YEAR) + ", " + time;
     }
 
     /** "• Neu …" lines of the update (or of the installed version when there is none). */
     private String notesText(UpdateInfo u) {
-        List<String> lines = u != null ? u.notes(german) : UpdateInfo.whatsNew(raw(R.raw.whatsnew), german);
+        List<String> lines = u != null ? u.notes(german) : UpdateInfo.whatsNew(UpdateNotes.raw(this, R.raw.whatsnew), german);
         if (lines.isEmpty()) return "";
         StringBuilder b = new StringBuilder(u != null ? getString(R.string.update_menu_coming, u.versionName)
                 : getString(R.string.update_whatsnew_installed, Updates.installedName(this))).append('\n');
@@ -398,92 +462,25 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         }).start();
     }
 
-    // ------------------------------------------------------------ ⋮ : what's new, version history, check again
+    // ------------------------------------------------------------ ⋮ : last update, what's new, version history, check again
+
+    private void lastUpdate() {
+        startActivity(new android.content.Intent(this, LastUpdateActivity.class));
+    }
 
     private void menu(View anchor) {
         PopupMenu m = new PopupMenu(this, anchor);
-        m.getMenu().add(0, 1, 0, R.string.update_menu_whatsnew);
-        m.getMenu().add(0, 2, 1, R.string.update_menu_history);
-        m.getMenu().add(0, 3, 2, R.string.update_check);
+        m.getMenu().add(0, 4, 0, R.string.update_menu_last);
+        m.getMenu().add(0, 1, 1, R.string.update_menu_whatsnew);
+        m.getMenu().add(0, 2, 2, R.string.update_menu_history);
+        m.getMenu().add(0, 3, 3, R.string.update_check);
         m.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == 1) whatsNew();
-            else if (item.getItemId() == 2) history();
+            if (item.getItemId() == 4) lastUpdate();
+            else if (item.getItemId() == 1) UpdateNotes.whatsNew(this);
+            else if (item.getItemId() == 2) UpdateNotes.history(this, R.string.update_menu_history);
             else if (!checking && !engine.running()) check();
             return true;
         });
         m.show();
-    }
-
-    private String raw(int id) {
-        try (java.io.InputStream in = getResources().openRawResource(id)) {
-            java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
-            byte[] buf = new byte[8192];
-            int n;
-            while ((n = in.read(buf)) > 0) b.write(buf, 0, n);
-            return new String(b.toByteArray(), java.nio.charset.StandardCharsets.UTF_8);
-        } catch (java.io.IOException e) {
-            return "";
-        }
-    }
-
-    /** Dialog with titled blocks of bullet points. */
-    private void notesDialog(int title, List<String[]> blocks) {
-        LinearLayout list = new LinearLayout(this);
-        list.setOrientation(LinearLayout.VERTICAL);
-        int p = Ui.dp(this, 22);
-        list.setPadding(p, Ui.dp(this, 8), p, p);
-        for (String[] b : blocks) {
-            if (!b[0].isEmpty()) {
-                TextView h = Ui.text(this, b[0], 16, getColor(R.color.text), true);
-                h.setPadding(0, Ui.dp(this, 14), 0, Ui.dp(this, 4));
-                list.addView(h);
-            }
-            TextView t = Ui.text(this, b[1], 15, getColor(R.color.text), false);
-            t.setLineSpacing(0, 1.15f);
-            list.addView(t);
-        }
-        ScrollView sv = new ScrollView(this);
-        sv.addView(list);
-        new AlertDialog.Builder(this).setTitle(title).setView(sv).setPositiveButton(R.string.ok, null).show();
-    }
-
-    private static String bullets(List<String> lines) {
-        StringBuilder b = new StringBuilder();
-        for (String l : lines) b.append(b.length() == 0 ? "" : "\n").append("•  ").append(l);
-        return b.toString();
-    }
-
-    private void whatsNew() {
-        List<String[]> blocks = new ArrayList<>();
-        UpdateInfo pending = Updates.pending(this);
-        if (pending != null && !pending.notes(german).isEmpty()) {
-            blocks.add(new String[] {getString(R.string.update_menu_coming, pending.versionName), bullets(pending.notes(german))});
-        }
-        blocks.add(new String[] {getString(R.string.update_menu_installed, Updates.installedName(this)),
-                dated(Updates.installedAt(this), 0) + bullets(UpdateInfo.whatsNew(raw(R.raw.whatsnew), german))});
-        notesDialog(R.string.update_menu_whatsnew, blocks);
-    }
-
-    private void history() {
-        List<String[]> blocks = new ArrayList<>();
-        java.util.Map<String, Long> log = Updates.installLog(this);
-        blocks.add(new String[] {getString(R.string.update_menu_installed, Updates.installedName(this)),
-                dated(Updates.installedAt(this), 0) + bullets(UpdateInfo.whatsNew(raw(R.raw.whatsnew), german))});
-        for (History.Entry e : History.parse(raw(R.raw.history))) {
-            if (e.version().equals(Updates.installedName(this))) continue;
-            Long installed = log.get(e.version());
-            blocks.add(new String[] {"NovaOS " + e.version(), dated(installed == null ? 0 : installed, e.released()) + bullets(e.lines(german))});
-        }
-        notesDialog(R.string.update_menu_history, blocks);
-    }
-
-    /** "📅 Erschienen am …  ·  installiert am …" above the points of a version. */
-    private String dated(long installed, long released) {
-        StringBuilder b = new StringBuilder();
-        if (released > 0) b.append(getString(R.string.update_released_on,
-                android.text.format.DateUtils.formatDateTime(this, released, android.text.format.DateUtils.FORMAT_SHOW_DATE
-                        | android.text.format.DateUtils.FORMAT_SHOW_YEAR)));
-        if (installed > 0) b.append(b.length() > 0 ? "\n" : "").append(getString(R.string.update_installed_on, when(installed)));
-        return b.length() == 0 ? "" : "📅 " + b.toString().replace("\n", "\n📅 ") + "\n\n";
     }
 }

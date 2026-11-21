@@ -48,6 +48,7 @@ public final class History {
                 continue;
             }
             if (cur == null) continue;
+            line = News.strip(line);  // "{map} …": which Nova app a point belongs to, not shown
             int bar = line.indexOf('|');
             cur.de.add(bar < 0 ? line : line.substring(0, bar).trim());
             cur.en.add(bar < 0 ? line : line.substring(bar + 1).trim());

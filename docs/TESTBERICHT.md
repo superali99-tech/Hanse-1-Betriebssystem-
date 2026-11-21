@@ -542,6 +542,23 @@ Kartenmitte, Navigation als „Vorschau“). Hochformat 720×1280 (Bilder 89–9
 Start und die Neuberechnung beim Abweichen (beides nur als Logik bzw. Code geprüft), die hörbare Sprachausgabe (keine
 Sprach-Engine im Emulator; die Texte und Zeitpunkte sind im Protokoll geprüft).
 
+### Update 0.1.1.72: Software-Update wie bei One UI (21.11.2026)
+
+Android-x86 9, Hochformat 720×1280, Deutsch. Vorlage: Bilder von Samsung One UI 9 („One UI 9.0 – Deine Software ist auf
+dem neuesten Stand.“, „Letztes erfolgreiches Update“). Bilder 96–99.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1759 bestanden (neu: „NovaOS 1.0“, „31. Oktober 2026 um 16:37“, Sicherheitspatch „5. Oktober 2026“, Liste der Aktualisierungsinformationen, Markierungen im Verlauf) |
+| Software-Update ohne neues Update | ✅ | dunkle Seite, Leuchten blau oben / warm unten, „NovaOS 1.0“, „Deine Software ist auf dem neuesten Stand.“, ← und ⋮ |
+| ⋮ | ✅ | „Letztes Update“, „Was ist neu“, „Update-Verlauf“, „Nach Updates suchen“ |
+| „NovaOS 1.0“ antippen | ✅ | „Letztes erfolgreiches Update – 21. November 2026 um 18:07“, Text, „Alle Änderungen“, Aktualisierungsinformationen: NovaOS-Version 1.0, Android-Version 9, Version 0.1.1.71, Größe 2,9 MB, Sicherheitspatch-Ebene 5. August 2018 (die des Emulators), zuletzt gesucht |
+| Titelbild | ❌ → behoben | erste Fassung sah eher wie ein Lolli aus; jetzt eine klare „1“ (oranger Bogen, blauer Strich) vor einer Leuchtkugel |
+| „Alle Änderungen“ | ❌ → behoben | im Verlauf standen „{map}“ usw. vor den Punkten (auch schon bei 0.1.1.66 mit „{store}“) |
+| Testversion 0.1.1.65 gegen das echte 0.1.1.70 | ✅ | die Download-Seite „Update verfügbar“ erscheint wie bisher mit den Neuerungen von Nova Karte |
+
+**Nicht getestet:** Querformat dieser Seiten, „Erneut versuchen“ ohne Internet.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

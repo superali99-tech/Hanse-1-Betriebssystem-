@@ -158,10 +158,15 @@ selbst „One UI Home“ oder andere Hersteller ihre Oberflächen über Android 
   Prüfen, Vorbereiten, Installieren) mit echten MB, Geschwindigkeit und Restzeit, und ein großer Knopf
   **„Aktualisieren“ → „Pause“ → „Fortsetzen“** (der Download macht genau dort weiter). Das Update läuft im Hintergrund
   weiter – beim Drehen ins Querformat, beim Verlassen der Seite und in anderen Apps – und zeigt den Fortschritt in der
-  Benachrichtigung; zum Schluss fragt Android einmal, dann startet NovaOS neu (etwa 2 Minuten). Die Seite zeigt
-  „Zuletzt aktualisiert“ und „Zuletzt nach Updates gesucht“ mit Datum und Uhrzeit. ⋮ oben rechts: „Was ist neu“ und
-  **Update-Verlauf** aller Versionen – jeweils mit Erscheinungsdatum und, wenn bekannt, wann sie auf diesem Handy
-  installiert wurde –, „Nach Updates suchen“.
+  Benachrichtigung; zum Schluss fragt Android einmal, dann startet NovaOS neu (etwa 2 Minuten). Ohne neues Update
+  sieht die Seite aus wie bei **One UI**: dunkel mit leuchtender Kugel, groß **„NovaOS 1.0“** und „Deine Software ist
+  auf dem neuesten Stand.“ (beim Suchen bewegt sich das Leuchten; ohne Verbindung „Erneut versuchen“). „NovaOS 1.0“
+  antippen öffnet **„Letztes erfolgreiches Update“**: großes gezeichnetes „1“, Datum und Uhrzeit der Installation,
+  was NovaOS bringt, „Alle Änderungen“ und **Aktualisierungsinformationen** (NovaOS-Version 1.0, Android-Version des
+  Handys, Version = Build-Nummer 0.1.1.N, Größe, Sicherheitspatch-Ebene des Handys, zuletzt nach Updates gesucht).
+  „NovaOS 1.0“ ist der Name dieser Generation; die Build-Nummer zählt für Updates weiter. ⋮ oben rechts: „Letztes
+  Update“, „Was ist neu“ und **Update-Verlauf** aller Versionen – jeweils mit Erscheinungsdatum und, wenn bekannt, wann
+  sie auf diesem Handy installiert wurde –, „Nach Updates suchen“.
 * **Suchfelder** in Nova Store, Nova Chat (Chats und Kontakte) und Nova Mail (Mails und Kontakte): jedes
   getippte Wort muss vorkommen, Groß-/Kleinschreibung und Akzente egal, „ae/oe/ue“ findet auch „ä/ö/ü“.
 * Die Nova-Apps haben eigene Symbole und erscheinen in der App-Übersicht (und in jedem anderen
@@ -312,4 +317,5 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `Search.java`, `History.java` (+ `res/raw/history.txt`) | Suchfelder (Vergleich ohne Akzente/Umlaute), Update-Verlauf (getestet) |
 | `RingView.java`, `Page.java` | Fortschrittsring (Nova Store), gemeinsame Seite mit Suchfeld |
 | `UpdateActivity.java`, `UpdateEngine.java`, `UpdateArt.java` | Software-Update: Seite, Ablauf im Hintergrund mit Pause, gezeichnetes Titelbild |
+| `LastUpdateActivity.java`, `UpdateFacts.java`, `UpdateGlow.java`, `ReleaseArt.java`, `UpdateNotes.java` | „NovaOS 1.0 – auf dem neuesten Stand“ (Leuchten), „Letztes erfolgreiches Update“ (Bild „1“, Datum, Aktualisierungsinformationen), Dialoge „Was ist neu“/„Update-Verlauf“ |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |

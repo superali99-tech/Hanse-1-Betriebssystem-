@@ -318,6 +318,9 @@ public final class MobileTest {
     }
 
     private static void history() {
+        java.util.List<History.Entry> tagged = History.parse("== NovaOS 0.1.1.70 · 21.11.2026\n{map} Neu: Nova Karte|New: Nova Maps\n{map,nova} Navigiere|Navigate\n");
+        check(tagged.size() == 1 && tagged.get(0).lines(true).get(0).equals("Neu: Nova Karte") && tagged.get(0).lines(false).get(1).equals("Navigate"),
+                "history: app tags like {map} are not shown");
         java.util.List<History.Entry> h = History.parse("# comment\n== NovaOS 2 · heute\nNeu A|New A\nnur de\n\n== NovaOS 1\nAlt|Old\n");
         check(h.size() == 2 && h.get(0).title.equals("NovaOS 2 · heute") && h.get(1).title.equals("NovaOS 1"), "history titles");
         check(h.get(0).lines(true).equals(java.util.Arrays.asList("Neu A", "nur de"))
@@ -331,6 +334,21 @@ public final class MobileTest {
     }
 
     private static void update() {
+        // like One UI: "NovaOS 1.0", "31. Oktober 2026 um 16:37", the update facts
+        check(UpdateFacts.title().equals("NovaOS 1.0"), "facts: NovaOS 1.0");
+        java.util.TimeZone berlin = java.util.TimeZone.getTimeZone("Europe/Berlin");
+        long oct31 = 1793461020000L;  // 31.10.2026 15:37 UTC = 16:37 in Berlin (winter time)
+        check(UpdateFacts.dateTime(oct31, berlin, true).equals("31. Oktober 2026 um 16:37"), "facts: date " + UpdateFacts.dateTime(oct31, berlin, true));
+        check(UpdateFacts.dateTime(oct31, berlin, false).equals("31 October 2026 at 16:37"), "facts: date in English");
+        check(UpdateFacts.dateTime(0, berlin, true).isEmpty(), "facts: unknown date");
+        check(UpdateFacts.patch("2026-10-05", true).equals("5. Oktober 2026") && UpdateFacts.patch("2026-03-01", false).equals("1 March 2026"),
+                "facts: security patch level");
+        check(UpdateFacts.patch("kaputt", true).equals("kaputt") && UpdateFacts.patch(null, true).isEmpty(), "facts: odd patch level");
+        java.util.List<String> facts = UpdateFacts.info("9", "0.1.1.71", 3_040_000, "2026-10-05", true);
+        check(facts.size() == 5 && facts.get(0).equals("NovaOS-Version: 1.0") && facts.get(1).equals("Android-Version: 9")
+                && facts.get(2).equals("Version: 0.1.1.71") && facts.get(3).equals("Größe: 2,9 MB")
+                && facts.get(4).equals("Sicherheitspatch-Ebene: 5. Oktober 2026"), "facts: list " + facts);
+        check(UpdateFacts.info("", "0.1.1.71", 0, "", false).size() == 2, "facts: unknown values are left out");
         String ok = "versionCode=10100031\nversionName=0.1.1.31\napk=novaos-mobile.apk\n"
                 + "sha256=" + "ab".repeat(32) + "\nsize=2413216\nnote.de.1=Neu: Store\nnote.de.2=Kamera\nnote.en.1=New: store\n";
         UpdateInfo u = UpdateInfo.parse(ok);

@@ -1,9 +1,7 @@
 # "What's new" after an update (shown once after the restart animation). de|en per line.
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
 # "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
-@apps: map, nova
-{map} Neu: Nova Karte – Karte, Orte und Adressen suchen, Route mit Auto, Fahrrad oder zu Fuß|New: Nova Maps – map, search places and addresses, routes by car, bike or on foot
-{map} Navigation mit Ansagen: „In 200 Metern rechts abbiegen auf …“, „Jetzt links abbiegen“|Navigation with voice: "In 200 metres turn right onto …", "Now turn left"
-{map} Neue Route, wenn du anders fährst, Ankunftszeit und „Du hast dein Ziel erreicht“|New route when you take another way, arrival time and "You have arrived"
-{map} „Vorschau“ fährt die Route vorab ab, im Querformat bleibt die Karte rechts frei|"Preview" drives the route in advance, in landscape the map stays free on the right
-{nova} Sag zu Nova: „Navigiere nach Hamburg Hauptbahnhof“ oder „Wie komme ich zum Rathaus?“|Say to Nova: "Navigate to Hamburg Hauptbahnhof" or "How do I get to the town hall?"
+@apps: settings
+{settings} Software-Update wie bei Samsung One UI: „NovaOS 1.0 – Deine Software ist auf dem neuesten Stand.“|Software update like Samsung One UI: "NovaOS 1.0 – Your software is up to date."
+{settings} Neue Seite „Letztes erfolgreiches Update“ mit Datum, „Alle Änderungen“ und Aktualisierungsinformationen|New page "Last successful update" with date, "All changes" and update information
+{settings} Zu finden über „NovaOS 1.0“ antippen oder ⋮ → „Letztes Update“|Open it by tapping "NovaOS 1.0" or ⋮ → "Last update"

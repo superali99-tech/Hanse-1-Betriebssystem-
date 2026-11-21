@@ -427,6 +427,10 @@
         <activity
             android:name=".UpdateActivity"
             android:exported="false" />
+        <!-- "Letztes erfolgreiches Update" (from the software update) -->
+        <activity
+            android:name=".LastUpdateActivity"
+            android:exported="false" />
         <!-- setting up NovaOS on the first start -->
         <activity
             android:name=".SetupActivity"

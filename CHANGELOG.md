@@ -120,6 +120,12 @@
   und „Öffne die Karte“; `geo:`-Links öffnen Nova Karte. Neuer Vertrauensanker ISRG Root X2 (Let's Encrypt) in der
   Netzwerk-Sicherheitskonfiguration, falls ein Server die kurze Kette ohne X1-Gegenzeichnung schickt (Android < 14 kennt
   X2 nicht); Nutzer-Zertifikate und unverschlüsseltes http bleiben verboten
+* **NovaOS Mobile 0.1.1.72 – Software-Update wie bei One UI**: ohne neues Update eine dunkle Seite mit leuchtender
+  Kugel, groß „NovaOS 1.0“ und „Deine Software ist auf dem neuesten Stand.“ (← und ⋮ oben); „NovaOS 1.0“ antippen oder
+  ⋮ → „Letztes Update“ öffnet „Letztes erfolgreiches Update“ mit gezeichnetem „1“, Datum „… um 16:37“, Beschreibung,
+  „Alle Änderungen“ und Aktualisierungsinformationen (NovaOS-Version 1.0, Android-Version, Build 0.1.1.N, Größe,
+  Sicherheitspatch-Ebene). „NovaOS 1.0“ ist der Anzeigename; die Build-Nummer zählt für Updates weiter. Behoben: im
+  Update-Verlauf standen Markierungen wie „{map}“ vor den Punkten
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 
