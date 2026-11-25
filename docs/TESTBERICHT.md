@@ -634,6 +634,16 @@ Android-x86 9, Hochformat 720×1280, Standort Mölln über die Test-App. Bilder 
 Terminen (die Berechtigung kommt erst beim Antippen), Nova Wetter mit frischen Daten (Tageslimit in der Testumgebung),
 Tablet-Querformat.
 
+### Update 0.1.1.80: Nova AI – Chat, Modelle, Nova Pro 5 (21.11.2026)
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1816 bestanden (neu: Pro 5 nur mit Abo, Vision 5 noch nicht wählbar, 30 Fragen am Tag, neuer Tag beginnt bei 0, Restfragen, Modelle) |
+| Bauen | ✅ | alle neuen Seiten übersetzt und im Paket |
+
+**Nicht getestet:** im Emulator (die Testumgebung startete währenddessen neu, das Test-Handy war weg) – Chat-Ansicht,
+Modell-Auswahl, Abo-Seite mit Handy-Sperre und das schnelle Aktualisieren im Nova Store sind nur gebaut, nicht angesehen.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm

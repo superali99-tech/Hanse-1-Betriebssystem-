@@ -14,6 +14,6 @@
     <string name="store_update_all">Update all</string>
     <string name="store_upd_download">Downloading … %1$d %%</string>
     <string name="store_upd_install">Installing … %1$d %%</string>
-    <string name="store_upd_finish">Installing … NovaOS restarts in a moment</string>
+    <string name="store_upd_finish">Installing …</string>
     <string name="store_upd_paused">Paused – %1$d %%</string>
 </resources>

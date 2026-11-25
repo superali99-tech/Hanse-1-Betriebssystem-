@@ -60,6 +60,10 @@ public class NovaActivity extends Activity {
     private final boolean german = Locale.getDefault().getLanguage().equals("de");
     private TextView heard, answer;
     private View orb;
+    // Nova AI: the chat (bubbles), "Nova denkt nach …" and the model at the top
+    private LinearLayout chat;
+    private View thinking;
+    private android.widget.ScrollView scroller;
     private ValueAnimator pulse;
     private EditText input;
     private ImageButton mic;
@@ -155,6 +159,23 @@ public class NovaActivity extends Activity {
         LinearLayout.LayoutParams ml = new LinearLayout.LayoutParams(Ui.dp(this, 56), Ui.dp(this, 56));
         ml.leftMargin = Ui.dp(this, 10);
         bar.addView(mic, ml);
+        ImageButton send = new ImageButton(this);
+        send.setImageResource(R.drawable.ic_send);
+        send.setBackgroundResource(R.drawable.accent_round_bg);
+        send.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        int sp = Ui.dp(this, 15);
+        send.setPadding(sp, sp, sp, sp);
+        send.setContentDescription(getString(R.string.chat_send));
+        send.setOnClickListener(v -> {
+            String t = input.getText().toString().trim();
+            if (!t.isEmpty()) {
+                input.setText("");
+                handle(t);
+            }
+        });
+        LinearLayout.LayoutParams sl2 = new LinearLayout.LayoutParams(Ui.dp(this, 56), Ui.dp(this, 56));
+        sl2.leftMargin = Ui.dp(this, 8);
+        bar.addView(send, sl2);
         LinearLayout.LayoutParams bl = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         bl.topMargin = Ui.dp(this, wide ? 10 : 18);
         content.addView(bar, bl);
@@ -173,6 +194,13 @@ public class NovaActivity extends Activity {
         content.addView(hey, sl);
         TextView heyHint = Ui.text(this, getString(R.string.nova_hey_hint), 12, getColor(R.color.text_muted), false);
         content.addView(heyHint, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        chat = new LinearLayout(this);
+        chat.setOrientation(LinearLayout.VERTICAL);
+        content.addView(chat, 0, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+        scroller = findViewById(R.id.scroller);
+        // the model at the top (tap: choose), how many questions are left (tap: Nova Pro 5)
+        findViewById(R.id.page_title).setOnClickListener(v -> startActivity(new Intent(this, NovaModelsActivity.class)));
+        findViewById(R.id.page_subtitle).setOnClickListener(v -> startActivity(new Intent(this, NovaProActivity.class)));
 
         if (!SpeechRecognizer.isRecognitionAvailable(this)) {
             mic.setVisibility(View.GONE);
@@ -317,6 +345,8 @@ public class NovaActivity extends Activity {
 
     private void speak(String text) {
         answer.setText(text);
+        thinking(false);
+        bubble(text, false);
         if (!ttsReady) {
             pendingSpeech = text;
             return;
@@ -329,9 +359,108 @@ public class NovaActivity extends Activity {
 
     private void handle(String spoken) {
         heard.setText("„" + spoken + "“");
+        bubble(spoken, true);
         List<String> names = new ArrayList<>();
         for (Channel ch : Channels.get(this)) names.add(ch.name);
-        execute(NovaBrain.understand(spoken, german, names, seed++));
+        NovaBrain.Command c = NovaBrain.understand(spoken, german, names, seed++);
+        NovaAi.Model model = NovaPlan.model(this);
+        boolean pro = NovaPlan.pro(this);
+        if (!NovaAi.allowed(model, pro, NovaPlan.usedToday(this))) {
+            // the free questions of today are used up: Nova Pro 5 (free while testing) or Nova Mini
+            speak(getString(R.string.ai_limit, NovaAi.FREE_PER_DAY));
+            proButton();
+            return;
+        }
+        if (model == NovaAi.Model.MINI && c.kind == NovaBrain.Kind.WIKI) {
+            speak(getString(R.string.ai_mini_no_wiki));
+            return;
+        }
+        if (model != NovaAi.Model.MINI) NovaPlan.count(this);
+        showModel();
+        execute(c);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        showModel();
+    }
+
+    /** "Nova 5" (or Pro 5, Mini) at the top, and how many questions are left today. */
+    private void showModel() {
+        NovaAi.Model m = NovaPlan.model(this);
+        int name = m == NovaAi.Model.MINI ? R.string.ai_m_mini : m == NovaAi.Model.PRO5 ? R.string.ai_m_pro5 : R.string.ai_m_nova5;
+        ((TextView) findViewById(R.id.page_title)).setText(getString(name) + "  ⌄");
+        boolean pro = NovaPlan.pro(this);
+        ((TextView) findViewById(R.id.page_subtitle)).setText(pro ? getString(R.string.ai_sub_pro)
+                : m == NovaAi.Model.MINI ? getString(R.string.ai_sub_mini)
+                : getString(R.string.ai_sub_left, NovaAi.left(false, NovaPlan.usedToday(this))));
+    }
+
+    /** A bubble in the chat: mine on the right (purple), Nova's on the left (glass). */
+    private void bubble(String text, boolean mine) {
+        if (chat == null || text == null || text.isEmpty()) return;
+        orb.setVisibility(View.GONE);  // the chat replaces the big welcome
+        heard.setVisibility(View.GONE);
+        answer.setVisibility(View.GONE);
+        TextView b = Ui.text(this, text, 16, Color.WHITE, false);
+        b.setLineSpacing(0, 1.15f);
+        b.setTextIsSelectable(!mine);
+        GradientDrawable bg = new GradientDrawable(mine ? GradientDrawable.Orientation.TL_BR : GradientDrawable.Orientation.TOP_BOTTOM,
+                mine ? new int[] {0xFF6D3BEF, 0xFF4B1FB8} : new int[] {0x47FFFFFF, 0x2EFFFFFF});
+        float r = Ui.dp(this, 20), small = Ui.dp(this, 6);
+        bg.setCornerRadii(mine ? new float[] {r, r, r, r, small, small, r, r} : new float[] {r, r, r, r, r, r, small, small});
+        if (!mine) bg.setStroke(Math.max(1, Ui.dp(this, 1)), 0x40FFFFFF);
+        b.setBackground(bg);
+        b.setPadding(Ui.dp(this, 16), Ui.dp(this, 11), Ui.dp(this, 16), Ui.dp(this, 11));
+        b.setMaxWidth((int) (getResources().getDisplayMetrics().widthPixels * 0.8f));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.gravity = mine ? Gravity.END : Gravity.START;
+        lp.topMargin = Ui.dp(this, 10);
+        if (thinking != null && thinking.getParent() == chat) chat.removeView(thinking);
+        chat.addView(b, lp);
+        if (thinking != null && thinking.getTag() != null) chat.addView(thinking);
+        toBottom();
+    }
+
+    private void toBottom() {
+        if (scroller != null) scroller.post(() -> scroller.smoothScrollTo(0, chat.getBottom() - scroller.getHeight() / 2));
+    }
+
+    /** "Nova denkt nach …" with the glowing sphere while Nova looks something up. */
+    private void thinking(boolean on) {
+        if (chat == null) return;
+        if (on) {
+            if (thinking == null) {
+                LinearLayout box = new LinearLayout(this);
+                box.setOrientation(LinearLayout.VERTICAL);
+                box.setGravity(Gravity.CENTER_HORIZONTAL);
+                box.addView(new NovaOrb(this), new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, Ui.dp(this, 220)));
+                box.addView(Ui.text(this, getString(R.string.ai_thinking), 16, 0xFF7CE0F5, false));
+                thinking = box;
+            }
+            thinking.setTag("on");
+            if (thinking.getParent() == null) chat.addView(thinking);
+            toBottom();
+        } else if (thinking != null) {
+            thinking.setTag(null);
+            if (thinking.getParent() == chat) chat.removeView(thinking);
+        }
+    }
+
+    /** Under the limit message: open Nova Pro 5. */
+    private void proButton() {
+        TextView b = Ui.text(this, getString(R.string.ai_get_pro), 15, Color.WHITE, true);
+        b.setGravity(Gravity.CENTER);
+        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[] {0xFFA34CF0, 0xFF22D3EE});
+        g.setCornerRadius(Ui.dp(this, 18));
+        b.setBackground(g);
+        b.setPadding(Ui.dp(this, 18), Ui.dp(this, 10), Ui.dp(this, 18), Ui.dp(this, 10));
+        b.setOnClickListener(v -> startActivity(new Intent(this, NovaProActivity.class)));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = Ui.dp(this, 8);
+        chat.addView(b, lp);
+        toBottom();
     }
 
     private void execute(NovaBrain.Command c) {
@@ -879,6 +1008,8 @@ public class NovaActivity extends Activity {
     /** Knowledge question: the first two sentences of the Wikipedia article; otherwise a web search. */
     private void wiki(NovaBrain.Command c) {
         answer.setText(R.string.loading);
+        thinking(true);
+        NovaAi.Model model = NovaPlan.model(this);
         boolean de = java.util.Locale.getDefault().getLanguage().equals("de");
         new Thread(() -> {
             Wiki.Summary found = null;
@@ -901,7 +1032,8 @@ public class NovaActivity extends Activity {
                     if (!quietStart(web)) start(new Intent(Intent.ACTION_VIEW, Uri.parse("https://duckduckgo.com/?q=" + Uri.encode(c.text))));
                     speak(getString(R.string.nova_search, c.text));
                 } else {
-                    speak(Wiki.sentences(s.text, 2));
+                    String said = Wiki.sentences(s.text, Math.max(2, model.sentences));
+                    speak(model == NovaAi.Model.PRO5 ? said + "\n\n" + getString(R.string.ai_source, s.title) : said);
                     if (!s.url.isEmpty()) {
                         android.widget.Toast.makeText(this, getString(R.string.nova_wiki_source, s.title), android.widget.Toast.LENGTH_LONG).show();
                     }

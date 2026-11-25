@@ -74,6 +74,17 @@ public final class MobileTest {
 
     /** Nova Karte with real answers of the routing and place servers (test/*.json). */
     private static void navigation(java.io.File mobile) {
+        // Nova AI: models, subscription, daily limit
+        check(NovaAi.effective(NovaAi.Model.PRO5, false) == NovaAi.Model.NOVA5 && NovaAi.effective(NovaAi.Model.PRO5, true) == NovaAi.Model.PRO5,
+                "nova ai: Pro 5 only with the subscription");
+        check(NovaAi.effective(NovaAi.Model.VISION5, true) == NovaAi.Model.NOVA5 && NovaAi.effective(NovaAi.Model.MINI, false) == NovaAi.Model.MINI,
+                "nova ai: Vision 5 not ready yet, Mini always");
+        check(NovaAi.allowed(NovaAi.Model.NOVA5, false, 29) && !NovaAi.allowed(NovaAi.Model.NOVA5, false, 30)
+                && NovaAi.allowed(NovaAi.Model.NOVA5, true, 500) && NovaAi.allowed(NovaAi.Model.MINI, false, 999), "nova ai: 30 questions a day without the subscription");
+        check(NovaAi.usedToday("2026-11-20", 30, "2026-11-21") == 0 && NovaAi.usedToday("2026-11-21", 12, "2026-11-21") == 12, "nova ai: a new day starts at 0");
+        check(NovaAi.left(false, 25) == 5 && NovaAi.left(false, 40) == 0 && NovaAi.left(true, 40) == Integer.MAX_VALUE, "nova ai: questions left");
+        check(NovaAi.Model.of("pro5") == NovaAi.Model.PRO5 && NovaAi.Model.of("x") == NovaAi.Model.NOVA5
+                && NovaAi.Model.PRO5.sentences > NovaAi.Model.NOVA5.sentences && NovaAi.Model.MINI.sentences == 0, "nova ai: models");
         // Nova Wetter: the forecast (Open-Meteo format)
         try {
             String wj = new String(java.nio.file.Files.readAllBytes(new java.io.File(mobile, "test/weather_forecast.json").toPath()), java.nio.charset.StandardCharsets.UTF_8);

@@ -7,7 +7,8 @@ import android.content.Context;
 /**
  * "Aktualisieren" for a Nova app right in the Nova Store (NovaOS 1.5): the update runs there,
  * with a ring around the icon and "Wird heruntergeladen … 45 %", like in other app stores.
- * The Nova apps live in NovaOS itself, so the update brings every Nova app it changes.
+ * It is quick (no system-update stages) and NovaOS starts again quietly afterwards. The Nova
+ * apps live in NovaOS itself, so the update brings every Nova app it changes.
  */
 final class NovaUpdate {
     private NovaUpdate() {}
@@ -21,7 +22,7 @@ final class NovaUpdate {
             new AlertDialog.Builder(a).setMessage(R.string.update_allow).setPositiveButton(R.string.ok, null).show();
             return;
         }
-        e.start(u);
+        e.start(u, true);  // an app update: fast, no software-update stages, no start animation
     }
 
     /** Whether the update for this Nova app is running now. */

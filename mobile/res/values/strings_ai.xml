@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova AI: models, Nova Pro 5 (free while testing), chat -->
+    <string name="ai_models_title">Choose a model</string>
+    <string name="ai_models_sub">Choose a model for Nova</string>
+    <string name="ai_models_confirm">Confirm model</string>
+    <string name="ai_m_nova5">Nova 5</string>
+    <string name="ai_m_nova5_sub">Commands and knowledge from Wikipedia – 30 questions a day</string>
+    <string name="ai_m_pro5">Nova Pro 5</string>
+    <string name="ai_m_pro5_sub">Longer answers with the source, unlimited</string>
+    <string name="ai_m_vision5">Nova Vision 5</string>
+    <string name="ai_m_vision5_sub">Pictures and documents – coming soon</string>
+    <string name="ai_m_mini">Nova Mini</string>
+    <string name="ai_m_mini_sub">Only commands – instant, also offline, unlimited</string>
+    <string name="ai_badge_active">ACTIVE</string>
+    <string name="ai_badge_pro">👑 PRO</string>
+    <string name="ai_badge_soon">SOON</string>
+    <string name="ai_soon_toast">Nova Vision 5 is coming soon.</string>
+    <string name="ai_pro_title">Nova Pro 5 subscription</string>
+    <string name="ai_pro_sub">More Nova: longer answers and no daily limit</string>
+    <string name="ai_f1">Nova Pro 5 and Nova 5</string>
+    <string name="ai_f1_sub">Both models, switch any time</string>
+    <string name="ai_f2">Unlimited questions</string>
+    <string name="ai_f2_sub">Instead of 30 questions a day</string>
+    <string name="ai_f3">Longer answers</string>
+    <string name="ai_f3_sub">More from Wikipedia, with the source</string>
+    <string name="ai_f4">New Nova features first</string>
+    <string name="ai_f4_sub">For example Nova Vision 5 when it is ready</string>
+    <string name="ai_month">Monthly</string>
+    <string name="ai_year">Yearly</string>
+    <string name="ai_per_month">/ month</string>
+    <string name="ai_per_year">/ year</string>
+    <string name="ai_month_sub">Free while testing – end any time</string>
+    <string name="ai_year_sub">Free while testing – end any time</string>
+    <string name="ai_popular">POPULAR</string>
+    <string name="ai_pro_start">Unlock now</string>
+    <string name="ai_pro_end">End subscription</string>
+    <string name="ai_pro_note">No payment: NovaOS is being tested, nothing is charged and no payment details are asked for. You only confirm with the lock of your phone (face, fingerprint or PIN).</string>
+    <string name="ai_pro_ended">Nova Pro 5 has ended – Nova 5 answers again (30 questions a day).</string>
+    <string name="ai_pro_confirm">Unlock Nova Pro 5 (free while testing)</string>
+    <string name="ai_pro_on">Nova Pro 5 is active – unlimited and more detailed.</string>
+    <string name="ai_limit">You have asked Nova 5 your %1$d questions for today. With Nova Pro 5 you ask without limit (free while testing) – or use Nova Mini for commands.</string>
+    <string name="ai_mini_no_wiki">Nova Mini only does commands (alarms, timers, apps, weather …). For knowledge questions tap the model at the top and choose Nova 5.</string>
+    <string name="ai_sub_pro">👑 Nova Pro 5 active · unlimited</string>
+    <string name="ai_sub_mini">Only commands · unlimited</string>
+    <string name="ai_sub_left">%1$d questions left today · get Nova Pro 5 ›</string>
+    <string name="ai_thinking">Nova is thinking …</string>
+    <string name="ai_get_pro">👑 Get Nova Pro 5</string>
+    <string name="ai_source">Source: Wikipedia – %1$s</string>
+    <string name="store_apps_updated">Nova apps updated ✓</string>
+</resources>

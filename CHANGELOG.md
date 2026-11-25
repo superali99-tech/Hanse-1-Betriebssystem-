@@ -157,6 +157,14 @@
   Musik-Widget während Musik läuft, Apps darunter (`DrawerOrder.fill`, getestet). Nova Musik: Glas-Leiste, großer
   Player (`NowPlayingActivity`) mit Hintergrund in den Cover-Farben. Nova Chat: bunter Verlauf, blaue eigene und
   Glas-Blasen. „Letztes erfolgreiches Update“ zeigt die Neuerungen. Kleines/mittleres Update: lange Nummer
+* **NovaOS Mobile 0.1.1.80 – Nova AI**: Nova als Chat (Blasen, `NovaOrb` „Nova denkt nach …“, Senden-Knopf), Modell
+  auswählen (`NovaModelsActivity`): Nova 5 (Befehle und Wikipedia, 30 Fragen am Tag), Nova Pro 5 (6 Sätze mit Quelle,
+  unbegrenzt, nur mit Abo), Nova Mini (nur Befehle, ohne Internet, unbegrenzt), Nova Vision 5 („kommt bald“, nicht
+  wählbar) – ehrlich beschrieben, Nova bleibt ohne Cloud-KI (`NovaAi`, getestet). **Nova Pro 5 Abo**
+  (`NovaProActivity`): keine Zahlung – Preise durchgestrichen, „0,00 €“, in der Testphase kostenlos, bestätigt mit
+  der Sperre des Handys (Gesicht/Fingerabdruck/PIN über `ConfirmActivity`), jederzeit beendbar; eine Prüfung per
+  Personalausweis gibt es bewusst nicht. Nova Store: Nova-Apps aktualisieren im Schnellmodus (`UpdateEngine.start(u,
+  true)`: kurze Stufen) und ohne Start-Animation danach (nur „Nova-Apps aktualisiert ✓“)
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

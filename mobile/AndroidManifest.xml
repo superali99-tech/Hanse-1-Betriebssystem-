@@ -467,6 +467,13 @@
             android:name=".NowPlayingActivity"
             android:exported="false"
             android:theme="@style/Theme.NovaMobile.Drawer" />
+        <!-- Nova AI: choosing the model, Nova Pro 5 (free while testing, confirmed with the phone's lock) -->
+        <activity
+            android:name=".NovaModelsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NovaProActivity"
+            android:exported="false" />
         <!-- "Letztes erfolgreiches Update" (from the software update) -->
         <activity
             android:name=".LastUpdateActivity"

@@ -120,7 +120,13 @@ public class HomeActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (Updates.justUpdated(this) && !bootShown) {
+        if (Updates.justUpdated(this) && Updates.prefs(this).getBoolean("quiet", false)) {
+            // a Nova app was updated in the Nova Store: no start animation, only a short note
+            Updates.markSeen(this);
+            Updates.prefs(this).edit().putBoolean("quiet", false).apply();
+            android.widget.Toast.makeText(this, R.string.store_apps_updated, android.widget.Toast.LENGTH_LONG).show();
+            heyNova.start();
+        } else if (Updates.justUpdated(this) && !bootShown) {
             bootShown = true;  // start animation after an update or on the first start
             startActivity(new Intent(this, BootActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

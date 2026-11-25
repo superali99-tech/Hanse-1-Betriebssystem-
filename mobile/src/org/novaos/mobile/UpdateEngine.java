@@ -28,6 +28,28 @@ final class UpdateEngine {
     static final int IDLE = 0, DOWNLOAD = 1, VERIFY = 2, PREPARE = 3, INSTALL = 4;
     /** How long the stages take at least (the download as long as it really needs). */
     private static final long DOWNLOAD_MS = 8_000, PRELOADED_MS = 3_000, VERIFY_MS = 30_000, PREPARE_MS = 70_000, INSTALL_MS = 4_000;
+    /** A Nova app from the Nova Store: no long system-update stages, no start animation afterwards. */
+    private boolean quick;
+
+    private long dlMs() {
+        return quick ? 1_500 : DOWNLOAD_MS;
+    }
+
+    private long preMs() {
+        return quick ? 500 : PRELOADED_MS;
+    }
+
+    private long vfMs() {
+        return quick ? 1_500 : VERIFY_MS;
+    }
+
+    private long prMs() {
+        return quick ? 1_000 : PREPARE_MS;
+    }
+
+    boolean quick() {
+        return quick;
+    }
     private static final String CHANNEL = "update_progress";
     private static final int NOTIFICATION = 2;
     private static UpdateEngine instance;
@@ -124,28 +146,28 @@ final class UpdateEngine {
         if (stage > DOWNLOAD) return 1;
         long size = sizeOf();
         float real = preloaded ? 1f : size > 0 ? Math.min(1f, bytes / (float) size) : 0f;
-        return Math.min(real, active() / (float) (preloaded ? PRELOADED_MS : DOWNLOAD_MS));
+        return Math.min(real, active() / (float) (preloaded ? preMs() : dlMs()));
     }
 
     /** Second part: confirmation (check, prepare, install), 0..1. */
     float confirmation() {
         if (stage <= DOWNLOAD) return 0;
-        long before = stage == VERIFY ? 0 : stage == PREPARE ? VERIFY_MS : VERIFY_MS + PREPARE_MS;
-        long span = stage == VERIFY ? VERIFY_MS : stage == PREPARE ? PREPARE_MS : INSTALL_MS;
-        float f = (before + Math.min(active(), span)) / (float) (VERIFY_MS + PREPARE_MS + INSTALL_MS);
+        long before = stage == VERIFY ? 0 : stage == PREPARE ? vfMs() : vfMs() + prMs();
+        long span = stage == VERIFY ? vfMs() : stage == PREPARE ? prMs() : INSTALL_MS;
+        float f = (before + Math.min(active(), span)) / (float) (vfMs() + prMs() + INSTALL_MS);
         return Math.min(stage == INSTALL ? 0.99f : 0.98f, f);
     }
 
     /** About how long it still takes (ms). */
     long left() {
-        long rest = VERIFY_MS + PREPARE_MS + INSTALL_MS;
+        long rest = vfMs() + prMs() + INSTALL_MS;
         if (stage == DOWNLOAD) {
             long size = sizeOf();
             long download = bytesPerSecond > 0 && size > bytes ? (long) ((size - bytes) * 1000 / bytesPerSecond) : 0;
-            return Math.max(download, (preloaded ? PRELOADED_MS : DOWNLOAD_MS) - active()) + rest;
+            return Math.max(download, (preloaded ? preMs() : dlMs()) - active()) + rest;
         }
-        if (stage == VERIFY) return VERIFY_MS - Math.min(active(), VERIFY_MS) + PREPARE_MS + INSTALL_MS;
-        if (stage == PREPARE) return PREPARE_MS - Math.min(active(), PREPARE_MS) + INSTALL_MS;
+        if (stage == VERIFY) return vfMs() - Math.min(active(), vfMs()) + prMs() + INSTALL_MS;
+        if (stage == PREPARE) return prMs() - Math.min(active(), prMs()) + INSTALL_MS;
         if (stage == INSTALL) return Math.max(0, INSTALL_MS - active());
         return 0;
     }
@@ -153,7 +175,14 @@ final class UpdateEngine {
     // ------------------------------------------------------------ control
 
     void start(UpdateInfo u) {
+        start(u, false);
+    }
+
+    /** quick: the update of a Nova app in the Nova Store - fast, and NovaOS starts again quietly. */
+    void start(UpdateInfo u, boolean quick) {
         if (running() || u == null) return;
+        this.quick = quick;
+        Updates.prefs(app).edit().putBoolean("quiet", quick).apply();
         update = u;
         error = "";
         paused = false;
@@ -243,7 +272,7 @@ final class UpdateEngine {
                     }
                 }
             }
-            hold(preloaded ? PRELOADED_MS : DOWNLOAD_MS);
+            hold(preloaded ? preMs() : dlMs());
             // 2. confirmation: exactly the described file, signed with the NovaOS key
             setStage(VERIFY);
             if (!sha.equals(u.sha256)) {
@@ -254,7 +283,7 @@ final class UpdateEngine {
                 fail(app.getString(R.string.update_other_key), apk);
                 return;
             }
-            hold(VERIFY_MS);
+            hold(vfMs());
             // 3. prepare: tidy up old preview pictures, the app list for the restart
             setStage(PREPARE);
             File[] thumbs = new File(app.getCacheDir(), "thumbs").listFiles();
@@ -262,7 +291,7 @@ final class UpdateEngine {
             if (thumbs != null) for (File t : thumbs) if (t.lastModified() < old) //noinspection ResultOfMethodCallIgnored
                 t.delete();
             Apps.load(app);
-            hold(PREPARE_MS);
+            hold(prMs());
             // 4. install: Android asks once, then NovaOS restarts
             setStage(INSTALL);
             Installer.install(app, apk, app.getPackageName());

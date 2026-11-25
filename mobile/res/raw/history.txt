@@ -1,6 +1,14 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line. A big update: "== NovaOS 1.5 (0.1.1.75) · date" (name, then the build).
+== NovaOS 0.1.1.78 · 21.11.2026
+Neues Glas-Design: durchscheinende Karten und Knöpfe und eine neue Schrift (Inter) in allen Nova-Apps|New glass design: see-through cards and buttons and a new typeface (Inter) in all Nova apps
+Startbildschirm: Glas-Widgets für Wetter und Kalender (mit dem nächsten Termin), dazu die Musik, die gerade läuft|Home screen: glass widgets for weather and calendar (with the next appointment), plus the music playing
+{weather} Neu: Nova Wetter – Wetter-Widget antippen: jetzt, die nächsten 24 Stunden und 7 Tage|New: Nova Weather – tap the weather widget: now, the next 24 hours and 7 days
+{music} Nova Musik: großer Player mit Cover, Zeitleiste und großen Knöpfen – die Leiste unten antippen|Nova Music: big player with cover, time bar and big buttons – tap the bar at the bottom
+{chat} Nova Chat: bunter Hintergrund, blaue eigene Nachrichten und Glas-Blasen|Nova Chat: colourful background, blue own messages and glass bubbles
+{settings} „Letztes erfolgreiches Update“ zeigt jetzt auch, was neu ist|"Last successful update" now also shows what is new
+
 == NovaOS 1.5 (0.1.1.77) · 21.11.2026
 NovaOS 1.5: neuer Startbildschirm wie bei Samsung – Wetter-Widget, Apps im Raster, Suchleiste und Dock|NovaOS 1.5: new home screen like on Samsung phones – weather widget, apps in a grid, search bar and dock
 Hochwischen öffnet alle Apps: Seiten zum Seitwärts-Wischen, „Suchen“ unten, eigene Reihenfolge (neue Apps hinten)|Swipe up for all apps: pages to swipe sideways, "Search" at the bottom, your own order (new apps at the end)

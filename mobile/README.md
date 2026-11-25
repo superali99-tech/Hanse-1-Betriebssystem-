@@ -329,6 +329,7 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `RingView.java`, `Page.java` | Fortschrittsring (Nova Store), gemeinsame Seite mit Suchfeld |
 | `HomeActivity.java`, `HomeWeather.java`, `AppsActivity.java`, `Pager.java`, `DrawerOrder.java` | Startbildschirm und alle Apps wie bei One UI: Seiten zum Wischen mit Punkten, Wetter-Widget, Raster, eigene Reihenfolge (getestet) |
 | `HomeWidgets.java`, `WeatherActivity.java`, `NowPlayingActivity.java`, `Fonts.java` | Glas-Widgets (Wetter, Kalender, Musik), Nova Wetter, großer Player, Schrift Inter |
+| `NovaAi.java`, `NovaPlan.java`, `NovaModelsActivity.java`, `NovaProActivity.java`, `NovaOrb.java` | Nova AI: Modelle (Nova 5, Pro 5, Mini, Vision 5 bald), Tagesgrenze, Nova Pro 5 (kostenlos in der Testphase, Bestätigung mit der Handy-Sperre), „Nova denkt nach …“ |
 | `NovaUpdate.java`, `Where.java` | Nova-App im Store aktualisieren (Ring und Fortschritt); bester bekannter Standort |
 | `UpdateActivity.java`, `UpdateEngine.java`, `UpdateArt.java` | Software-Update: Seite, Ablauf im Hintergrund mit Pause, gezeichnetes Titelbild |
 | `LastUpdateActivity.java`, `UpdateFacts.java`, `UpdateGlow.java`, `ReleaseArt.java`, `UpdateNotes.java` | „NovaOS 1.0 – auf dem neuesten Stand“ (Leuchten), „Letztes erfolgreiches Update“ (Bild „1“, Datum, Aktualisierungsinformationen), Dialoge „Was ist neu“/„Update-Verlauf“ |
