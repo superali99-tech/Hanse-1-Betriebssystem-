@@ -640,6 +640,7 @@ Tablet-Querformat.
 |---|---|---|
 | Logik-Tests | ✅ | 1816 bestanden (neu: Pro 5 nur mit Abo, Vision 5 noch nicht wählbar, 30 Fragen am Tag, neuer Tag beginnt bei 0, Restfragen, Modelle) |
 | Bauen | ✅ | alle neuen Seiten übersetzt und im Paket |
+| Update auf ghcr.io | ✅ | `versionName=0.1.1.80`, `apps=nova,store` |
 
 **Nicht getestet:** im Emulator (die Testumgebung startete währenddessen neu, das Test-Handy war weg) – Chat-Ansicht,
 Modell-Auswahl, Abo-Seite mit Handy-Sperre und das schnelle Aktualisieren im Nova Store sind nur gebaut, nicht angesehen.
