@@ -39,4 +39,12 @@ APT::Periodic::AutocleanInterval "7";
 EOT
 	fi
 fi
+
+# An update of novaos-base (login screen, start screen, desktop, system settings) takes
+# effect after a restart: set Debian's "restart required" flag, so Nova Updates
+# offers "Restart now" (not on the first installation).
+if [ "$1" = configure ] && [ -n "$2" ] && [ -d /run ]; then
+	touch /run/reboot-required 2>/dev/null || true
+	echo novaos-base >> /run/reboot-required.pkgs 2>/dev/null || true
+fi
 exit 0

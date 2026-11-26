@@ -19,4 +19,12 @@ if [ "$1" = configure ]; then
 	# Desktop shortcuts must be executable to be trusted by Plasma
 	chmod 0755 /etc/skel/Desktop/*.desktop 2>/dev/null || true
 fi
+
+# An update of novaos-desktop (login screen, start screen, desktop, system settings) takes
+# effect after a restart: set Debian's "restart required" flag, so Nova Updates
+# offers "Restart now" (not on the first installation).
+if [ "$1" = configure ] && [ -n "$2" ] && [ -d /run ]; then
+	touch /run/reboot-required 2>/dev/null || true
+	echo novaos-desktop >> /run/reboot-required.pkgs 2>/dev/null || true
+fi
 exit 0

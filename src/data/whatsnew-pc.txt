@@ -1,4 +1,5 @@
 # What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
+Nach dem Update fragt NovaOS „Jetzt neu starten?“ – wie am Handy, mit „Fertig – bitte neu starten“|After an update NovaOS asks "Restart now?" – like on a phone, with "Done – please restart"
 Nova Updates im neuen Look: Version oben, „Alles ist aktuell“ statt leerer Liste, „Was ist neu“|Nova Updates in a new look: version at the top, "Everything is up to date" instead of an empty list, "What's new"
 Glas-Design: schwebende, durchsichtige Taskleiste, leicht durchsichtige Menüs, große weiche Fensterschatten|Glass design: floating see-through taskbar, slightly see-through menus, large soft window shadows
 Neuer Anmeldebildschirm, „Willkommen“-Glaskarte nach der Anmeldung und Leuchten beim Einschalten|New login screen, "Welcome" glass card after signing in and a glow while starting

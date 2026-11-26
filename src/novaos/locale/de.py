@@ -4,6 +4,11 @@ Check completeness with:  python3 tools/extract-strings.py --missing de
 """
 
 MESSAGES = {
+    'NovaOS needs a restart so that everything new is used. Save your work first.': 'NovaOS muss neu starten, damit alles Neue übernommen wird. Speichere vorher deine Arbeit.',
+    'Later': 'Später',
+    'Done – please restart': 'Fertig – bitte neu starten',
+    'The updates are installed. Restart the computer so that everything new is used.': 'Die Updates sind installiert. Starte den PC neu, damit alles Neue übernommen wird.',
+    'Updates installed – restart to finish': 'Updates installiert – zum Abschließen neu starten',
     'Everything is up to date': 'Alles ist aktuell',
     'NovaOS {v} · based on Debian 13': 'NovaOS {v} · basiert auf Debian 13',
     'NovaOS {v} – last search: {when}.': 'NovaOS {v} – zuletzt gesucht: {when}.',

@@ -192,6 +192,10 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Neustart nach dem Update (0.1.1.89):** Update von `novaos-base` im Debian-13-System setzt `/run/reboot-required`
+(+ `.pkgs`) ✅; Nova Updates offscreen: „Fertig – bitte neu starten“, „Jetzt neu starten“ als Hauptknopf, Frage
+„Jetzt neu starten / Später“ nach der Installation ✅ (`docs/screenshots/glass/07`); 96 Tests ✅.
+
 **Nova Updates (0.1.1.88):** offscreen im Debian-13-System gerendert – „Alles ist aktuell“ und „3 Updates
 verfügbar“ (`docs/screenshots/glass/05`, `06`); erster Versuch zeigte „Neu in …“ nicht (Pfad zu früh gelesen) und
 eine zu hohe Karte → behoben; Unit-Test für die Neuerungen-Datei; 96 Tests ✅.

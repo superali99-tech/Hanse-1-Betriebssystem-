@@ -14,6 +14,9 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **„Jetzt neu starten“ nach dem Update (0.1.1.89):** `novaos-base`/`novaos-desktop` setzen bei einem Update
+  Debians Merker `/run/reboot-required`; Nova Updates fragt danach „Updates installiert – zum Abschließen neu
+  starten“ mit „Jetzt neu starten“ / „Später“ und zeigt bis zum Neustart „Fertig – bitte neu starten“.
 * **Nova Updates im neuen Look (0.1.1.88):** oben die installierte NovaOS-Version, bei nichts zu tun die Karte
   „Alles ist aktuell“ statt einer leeren Tabelle, „Neu in NovaOS …“ (`/usr/share/novaos/whatsnew-pc.txt`),
   „Nach Updates suchen“ als Hauptknopf, „Alle Updates installieren“ nur wenn es etwas gibt.

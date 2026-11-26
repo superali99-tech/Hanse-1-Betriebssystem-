@@ -308,13 +308,20 @@ class UpdatesWindow(QMainWindow):
         self.btn_install.setVisible(total > 0)
         self.btn_install.setEnabled(total > 0)
         # with nothing to install, searching is the main action
-        self.btn_check.setObjectName("" if total else "NovaPrimary")
+        self.btn_check.setObjectName("" if total or apt.reboot_required() else "NovaPrimary")
         self.btn_check.style().unpolish(self.btn_check)
         self.btn_check.style().polish(self.btn_check)
         self.btn_reboot.setText(_("Restart now"))
         self.btn_reboot.setVisible(apt.reboot_required())
+        self.btn_reboot.setObjectName("NovaPrimary" if apt.reboot_required() and not total else "")
+        self.btn_reboot.style().unpolish(self.btn_reboot)
+        self.btn_reboot.style().polish(self.btn_reboot)
         if apt.reboot_required():
             self.subline.setText(self.subline.text() + " " + _("A restart is required to finish previous updates."))
+            if not total:
+                self.headline.setText(_("Done – please restart"))
+                self.subline.setText(_("Package lists from {when}.").format(when=checked))
+                self.uptodate_text.setText(_("The updates are installed. Restart the computer so that everything new is used."))
         prepared = scheduled.pending()
         if prepared:
             self.headline.setText(_("Update available – please restart"))
@@ -375,6 +382,22 @@ class UpdatesWindow(QMainWindow):
             subprocess.Popen(["notify-send", "-a", _("Nova Updates"), "-i", "nova-updates",
                               _("Updates installed"), _("Your system is up to date.")])
         self.check_local()
+        if not self._errors and apt.reboot_required():
+            self.ask_restart()
+
+    def ask_restart(self) -> None:
+        """After installing: "Restart now" or "Later", like on a phone."""
+        box = QMessageBox(self)
+        box.setWindowTitle(_("Updates installed"))
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setText("<b>" + _("Updates installed – restart to finish") + "</b>")
+        box.setInformativeText(_("NovaOS needs a restart so that everything new is used. Save your work first."))
+        now = box.addButton(_("Restart now"), QMessageBox.ButtonRole.AcceptRole)
+        now.setObjectName("NovaPrimary")
+        box.addButton(_("Later"), QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        if box.clickedButton() is now:
+            subprocess.Popen(["systemctl", "reboot"])
 
     def _run_helper(self, args: list[str], then=None) -> None:
         if not os.path.exists(apt.HELPER):
