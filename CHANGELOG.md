@@ -14,6 +14,9 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **Nova Updates im neuen Look (0.1.1.88):** oben die installierte NovaOS-Version, bei nichts zu tun die Karte
+  „Alles ist aktuell“ statt einer leeren Tabelle, „Neu in NovaOS …“ (`/usr/share/novaos/whatsnew-pc.txt`),
+  „Nach Updates suchen“ als Hauptknopf, „Alle Updates installieren“ nur wenn es etwas gibt.
 * **Glas-Design für den PC (0.1.1.87):** Taskleiste schwebend und durchsichtig mit Unschärfe dahinter
   (`panel.opacity = "translucent"`), Menüs leicht durchsichtig (Breeze `MenuOpacity=82`), größere Fensterschatten,
   zarter Fensterrand, Fenstertitel in der Mitte, stärkere Unschärfe (KWin). Nova-Apps: Glas-Karten mit hellerer

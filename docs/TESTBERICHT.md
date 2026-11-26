@@ -192,6 +192,10 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Nova Updates (0.1.1.88):** offscreen im Debian-13-System gerendert – „Alles ist aktuell“ und „3 Updates
+verfügbar“ (`docs/screenshots/glass/05`, `06`); erster Versuch zeigte „Neu in …“ nicht (Pfad zu früh gelesen) und
+eine zu hohe Karte → behoben; Unit-Test für die Neuerungen-Datei; 96 Tests ✅.
+
 **Glas-Design (0.1.1.87):** Willkommens-Splash (QML) im Debian-13-System offscreen gerendert – Glas-Karte mit Logo,
 „Willkommen“ und Balken ✅ (`docs/screenshots/glass/01-anmelde-splash-glas.jpg`); Nova Welcome mit neuem Stylesheet
 ✅ (02–04); `nova-look-update` mit simuliertem `busctl`: wartet auf Plasma (2 Fehlversuche), setzt die Leiste,

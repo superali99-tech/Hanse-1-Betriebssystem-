@@ -1,0 +1,7 @@
+# What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
+Nova Updates im neuen Look: Version oben, „Alles ist aktuell“ statt leerer Liste, „Was ist neu“|Nova Updates in a new look: version at the top, "Everything is up to date" instead of an empty list, "What's new"
+Glas-Design: schwebende, durchsichtige Taskleiste, leicht durchsichtige Menüs, große weiche Fensterschatten|Glass design: floating see-through taskbar, slightly see-through menus, large soft window shadows
+Neuer Anmeldebildschirm, „Willkommen“-Glaskarte nach der Anmeldung und Leuchten beim Einschalten|New login screen, "Welcome" glass card after signing in and a glow while starting
+WLAN-App: Netzwerk wählen, Passwort eingeben, fertig – auch in den Systemeinstellungen|WLAN app: choose a network, enter the password, done – also in the system settings
+Software-Update in den Systemeinstellungen; Updates werden beim Neustart installiert|Software update in the system settings; updates are installed when you restart
+Der Mauszeiger wird beim schnellen Bewegen nicht mehr riesig|The mouse pointer no longer grows huge when moved quickly

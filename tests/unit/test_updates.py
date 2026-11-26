@@ -19,3 +19,12 @@ def test_helper_lines():
     assert parse_helper_line("ERROR broken")[0] == "error"
     assert parse_helper_line("DONE")[0] == "done"
     assert parse_helper_line("LOG Get:1 http://deb.debian.org")[0] == "log"
+
+
+def test_whatsnew_reads_german_or_english(tmp_path):
+    from novaos.updates.main import whatsnew
+    f = tmp_path / "whatsnew-pc.txt"
+    f.write_text("# comment\nGlas-Design|Glass design\n\nNur Deutsch\n", encoding="utf-8")
+    assert whatsnew(str(f), german=True) == ["Glas-Design", "Nur Deutsch"]
+    assert whatsnew(str(f), german=False) == ["Glass design", "Nur Deutsch"]
+    assert whatsnew(str(tmp_path / "missing.txt"), german=True) == []

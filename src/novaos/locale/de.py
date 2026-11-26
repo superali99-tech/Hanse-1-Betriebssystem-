@@ -4,6 +4,10 @@ Check completeness with:  python3 tools/extract-strings.py --missing de
 """
 
 MESSAGES = {
+    'Everything is up to date': 'Alles ist aktuell',
+    'NovaOS {v} · based on Debian 13': 'NovaOS {v} · basiert auf Debian 13',
+    'NovaOS {v} – last search: {when}.': 'NovaOS {v} – zuletzt gesucht: {when}.',
+    "What's new in NovaOS {v}": 'Neu in NovaOS {v}',
     'WLAN': 'WLAN',
     'Searching for networks…': 'Suche nach Netzwerken …',
     'Refresh': 'Aktualisieren',

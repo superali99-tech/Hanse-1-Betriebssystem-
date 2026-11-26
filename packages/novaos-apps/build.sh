@@ -24,6 +24,7 @@ done
 install -Dm0755 "$SRC/data/libexec/nova-apt-helper" "$STAGE/usr/libexec/novaos/nova-apt-helper"
 install -Dm0755 "$SRC/data/libexec/nova-scheduled-update" "$STAGE/usr/libexec/novaos/nova-scheduled-update"
 install -Dm0644 "$SRC/data/etc/novaos/updates.conf" "$STAGE/etc/novaos/updates.conf"
+install -Dm0644 "$SRC/data/whatsnew-pc.txt" "$STAGE/usr/share/novaos/whatsnew-pc.txt"
 install -Dm0644 -t "$STAGE/usr/share/applications" "$SRC"/data/applications/*.desktop
 # "Software-Update" in the KDE System Settings (category System), opens Nova Updates
 install -Dm0644 -t "$STAGE/usr/share/plasma/systemsettings/externalmodules" "$SRC"/data/systemsettings/*.desktop

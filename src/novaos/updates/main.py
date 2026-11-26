@@ -22,6 +22,7 @@ from PyQt6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QScrollArea,
+    QSizePolicy,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -57,6 +58,42 @@ def flatpak_update_all(progress):
     return len(ups)
 
 
+WHATSNEW = "/usr/share/novaos/whatsnew-pc.txt"
+
+
+def novaos_build() -> str:
+    """The installed NovaOS version, e.g. 0.1.1.88 (the version of the Nova apps package)."""
+    try:
+        out = subprocess.run(["dpkg-query", "-W", "-f=${Version}", "novaos-apps"],
+                             capture_output=True, text=True, timeout=10).stdout.strip()
+        if out:
+            return out
+    except (OSError, subprocess.SubprocessError):
+        pass
+    from novaos import __version__
+    return __version__
+
+
+def whatsnew(path: str | None = None, german: bool | None = None) -> list[str]:
+    """Lines "Deutsch|English" of the newest NovaOS changes (comments start with #)."""
+    path = path or WHATSNEW
+    if german is None:
+        german = (os.environ.get("LANGUAGE") or os.environ.get("LC_ALL") or os.environ.get("LC_MESSAGES")
+                  or os.environ.get("LANG") or "").startswith("de")
+    items = []
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                de, _sep, en = line.partition("|")
+                items.append((de if german or not en else en).strip())
+    except OSError:
+        pass
+    return items
+
+
 class UpdatesWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -80,6 +117,7 @@ class UpdatesWindow(QMainWindow):
         # Status hero
         hero = QFrame()
         hero.setObjectName("NovaHero")
+        hero.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
         hl = QHBoxLayout(hero)
         hl.setContentsMargins(26, 22, 26, 22)
         icon = QLabel()
@@ -90,6 +128,10 @@ class UpdatesWindow(QMainWindow):
         self.headline.setStyleSheet("font-size: 20pt; font-weight: 800;")
         self.subline = QLabel("")
         self.subline.setWordWrap(True)
+        self.build = novaos_build()
+        self.version_label = QLabel(_("NovaOS {v} · based on Debian 13").format(v=self.build))
+        self.version_label.setStyleSheet("font-size: 10pt; color: rgba(255,255,255,0.78);")
+        tl.addWidget(self.version_label)
         tl.addWidget(self.headline)
         tl.addWidget(self.subline)
         hl.addLayout(tl, 1)
@@ -129,9 +171,55 @@ class UpdatesWindow(QMainWindow):
         self.tree.setColumnWidth(0, 300)
         lay.addWidget(self.tree, 1)
 
+        # nothing to update: a calm card instead of an empty table
+        self.uptodate = QFrame()
+        self.uptodate.setObjectName("NovaPanel")
+        ul = QHBoxLayout(self.uptodate)
+        ul.setContentsMargins(22, 18, 22, 18)
+        ul.setSpacing(16)
+        check = QLabel("✓")
+        check.setFixedSize(52, 52)
+        check.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        check.setStyleSheet("background: #22A06B; color: white; border-radius: 26px; font-size: 24pt; font-weight: 800;")
+        ul.addWidget(check)
+        ut = QVBoxLayout()
+        t1 = QLabel(_("Everything is up to date"))
+        t1.setObjectName("NovaSubtitle")
+        self.uptodate_text = QLabel("")
+        self.uptodate_text.setObjectName("NovaMuted")
+        self.uptodate_text.setWordWrap(True)
+        ut.addWidget(t1)
+        ut.addWidget(self.uptodate_text)
+        ul.addLayout(ut, 1)
+        self.uptodate.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
+        self.uptodate.hide()
+        lay.addWidget(self.uptodate)
+
+        news = whatsnew()
+        if news:
+            np_ = QFrame()
+            np_.setObjectName("NovaPanel")
+            nl = QVBoxLayout(np_)
+            nl.setContentsMargins(20, 14, 20, 14)
+            nh = QLabel(_("What's new in NovaOS {v}").format(v=self.build))
+            nh.setObjectName("NovaSubtitle")
+            nl.addWidget(nh)
+            body = QLabel("<ul style='margin-left:-18px'>" + "".join(
+                "<li style='margin-bottom:4px'>" + html.escape(n) + "</li>" for n in news) + "</ul>")
+            body.setTextFormat(Qt.TextFormat.RichText)
+            body.setWordWrap(True)
+            nl.addWidget(body)
+            np_.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
+            lay.addWidget(np_)
+        # takes the free space while the table is hidden (nothing to update)
+        self.filler = QWidget()
+        self.filler.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Expanding)
+        lay.addWidget(self.filler, 1)
+
         # Settings
         panel = QFrame()
         panel.setObjectName("NovaPanel")
+        panel.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
         pl = QVBoxLayout(panel)
         pl.setContentsMargins(16, 12, 16, 12)
         h = QLabel(_("Automatic updates"))
@@ -213,7 +301,16 @@ class UpdatesWindow(QMainWindow):
         else:
             self.headline.setText(_("Your system is up to date"))
             self.subline.setText(_("Package lists from {when}.").format(when=checked))
+        self.tree.setVisible(total > 0)
+        self.uptodate.setVisible(total == 0)
+        self.filler.setVisible(total == 0)
+        self.uptodate_text.setText(_("NovaOS {v} – last search: {when}.").format(v=self.build, when=checked))
+        self.btn_install.setVisible(total > 0)
         self.btn_install.setEnabled(total > 0)
+        # with nothing to install, searching is the main action
+        self.btn_check.setObjectName("" if total else "NovaPrimary")
+        self.btn_check.style().unpolish(self.btn_check)
+        self.btn_check.style().polish(self.btn_check)
         self.btn_reboot.setText(_("Restart now"))
         self.btn_reboot.setVisible(apt.reboot_required())
         if apt.reboot_required():
@@ -270,6 +367,8 @@ class UpdatesWindow(QMainWindow):
 
     def _finished(self) -> None:
         self._busy(False)
+        self.build = novaos_build()  # a NovaOS update changes the version shown at the top
+        self.version_label.setText(_("NovaOS {v} · based on Debian 13").format(v=self.build))
         if self._errors:
             QMessageBox.warning(self, _("Nova Updates"), _("Some updates failed:") + "\n\n" + "\n".join(self._errors[:5]))
         else:
