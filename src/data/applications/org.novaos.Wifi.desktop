@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Nova WLAN
+Name[de]=WLAN
+GenericName=Wireless network
+GenericName[de]=Drahtlosnetzwerk
+Comment=Connect to a WLAN with just the password
+Comment[de]=Mit einem WLAN verbinden – nur das Passwort eingeben
+Exec=nova-wifi
+Icon=network-wireless
+Terminal=false
+Categories=Qt;Settings;Network;
+Keywords=wlan;wifi;wireless;internet;network;
+Keywords[de]=WLAN;WiFi;Internet;Netzwerk;Funknetz;

@@ -187,6 +187,11 @@ Getestet in einem Debian-13-System (debootstrap, chroot) mit den Paketen `novaos
 | Unit-Tests (im Debian-13-System) | ✅ | 91 bestanden |
 | Echter Kanal auf GitHub (0.1.1.84, Schlüssel aus dem Workflow) | ✅ | genau die Schritte aus der Anleitung: `wget` + `sudo apt install` von `novaos-update-einrichten.deb`, dann Update mit dem Helfer von 0.1.0 → alle drei Pakete 0.1.1.84, Signatur geprüft, tägliche Sicherheitsupdates an, „Software-Update“ installiert |
 
+**Nova WLAN (0.1.1.86):** Unit-Tests für die `nmcli`-Ausgabe (Doppelpunkte im Namen, gleiche Netze mehrfach,
+versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten Netzen: Liste, Passwortfeld erst nach
+Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
+keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
+
 **Nicht getestet:** echter Neustart in `system-update.target` mit Plymouth (nur im chroot, ohne systemd) und
 der Eintrag in den echten KDE-Systemeinstellungen (Ort laut Quelltext von Plasma 6.3:
 `/usr/share/plasma/systemsettings/externalmodules/`).

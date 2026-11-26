@@ -14,6 +14,12 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **WLAN wie am Handy:** neue App **Nova WLAN** (auch Systemeinstellungen → Netzwerk → „Mit WLAN verbinden“ und
+  neuer Schritt „Mit dem Internet verbinden“ im Willkommensassistenten): Netzwerke mit Signalstärke und Schloss,
+  antippen, Passwort eingeben, „Verbinden“ – keine IP-Adressen oder anderen Einstellungen. Klare Meldungen bei
+  falschem Passwort, außer Reichweite oder ohne WLAN-Gerät (`novaos.common.wifi` über `nmcli`, getestet).
+* **Mauszeiger wird nicht mehr groß:** KWins „Zeiger durch Schütteln finden“ (`shakecursor`) ist aus – der Zeiger
+  wurde bei schnellen Mausbewegungen plötzlich riesig.
 * Boot-Bildschirm: Meldungen werden jetzt angezeigt (falscher Plymouth-Funktionsname korrigiert)
 * Status: Unit-Tests bestanden; Test im installierten System **noch nicht abgeschlossen**
 * **NovaOS TV:** App für Google TV / Android TV (Startseite mit Favoriten, allen Apps, Suche,

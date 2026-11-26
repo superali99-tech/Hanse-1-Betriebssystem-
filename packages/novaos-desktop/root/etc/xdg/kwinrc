@@ -8,6 +8,8 @@ wobblywindowsEnabled=false
 glideEnabled=false
 scaleEnabled=true
 dimscreenEnabled=true
+# "Shake cursor to find it" made the pointer big whenever the mouse moved quickly
+shakecursorEnabled=false
 
 [Effect-blur]
 BlurStrength=8

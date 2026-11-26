@@ -10,7 +10,7 @@ rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/novaos" "$PY/"
 
 mkdir -p "$STAGE/usr/bin"
 for app in store:store updates:updates notes:notes calendar:calendar taskmanager:taskmanager \
-           welcome:welcome help:help about:about; do
+           welcome:welcome help:help about:about wifi:wifi; do
 	name="${app%%:*}"; mod="${app##*:}"
 	cat > "$STAGE/usr/bin/nova-$name" <<EOT
 #!/usr/bin/python3

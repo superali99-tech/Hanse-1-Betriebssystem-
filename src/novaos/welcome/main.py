@@ -1,8 +1,8 @@
 """Nova Welcome – first-run assistant of NovaOS.
 
 Shown once after the first login (autostart) and in every live session.
-Lets the user pick light/dark mode, find apps, learn about privacy and –
-in the live system – start the installer.
+Lets the user connect to the WLAN, pick light/dark mode, find apps, learn
+about privacy and – in the live system – start the installer.
 """
 
 from __future__ import annotations
@@ -29,6 +29,7 @@ from novaos.common.app import create_app, nova_icon
 from novaos.common.i18n import _
 from novaos.common.sysinfo import is_live_session, os_release
 from novaos.common.widgets import Card
+from novaos.wifi.main import WifiPanel
 
 WALLPAPER = "/usr/share/wallpapers/NovaAurora/contents/{}/3840x2160.png"
 SETTINGS = QSettings("NovaOS", "nova-welcome")
@@ -87,6 +88,8 @@ class WelcomeWindow(QWidget):
         root.addLayout(nav)
 
         self.stack.addWidget(self.page_intro())
+        self.wifi_page = self.page_wifi()
+        self.stack.addWidget(self.wifi_page)
         self.stack.addWidget(self.page_theme())
         self.stack.addWidget(self.page_apps())
         self.stack.addWidget(self.page_privacy())
@@ -154,6 +157,14 @@ class WelcomeWindow(QWidget):
             body.addLayout(box)
         body.addStretch(1)
         lay.addLayout(body, 1)
+        return w
+
+    def page_wifi(self) -> QWidget:
+        w, lay = self._page(_("Connect to the internet"),
+                            _("Choose your WLAN and enter the password – that's all. With a network cable "
+                              "you are already connected."))
+        self.wifi = WifiPanel()
+        lay.addWidget(self.wifi, 1)
         return w
 
     def page_theme(self) -> QWidget:
@@ -284,6 +295,8 @@ class WelcomeWindow(QWidget):
             return
         idx = max(0, idx)
         self.stack.setCurrentIndex(idx)
+        if self.stack.currentWidget() is self.wifi_page:
+            self.wifi.start()  # search for networks only when the page is shown
         self.back.setVisible(idx > 0)
         self.next.setText(_("Finish") if idx == n - 1 else _("Next"))
         self.dots.setText("  ".join("●" if i == idx else "○" for i in range(n)))

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Connect to WLAN
+Name[de]=Mit WLAN verbinden
+Comment=Choose a network and enter the password
+Comment[de]=Netzwerk wählen und Passwort eingeben
+Exec=nova-wifi
+Icon=network-wireless
+X-KDE-System-Settings-Parent-Category=network
+X-KDE-Weight=1
