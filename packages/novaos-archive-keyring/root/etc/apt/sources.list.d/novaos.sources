@@ -1,0 +1,7 @@
+# NovaOS update channel: Nova apps, desktop and system settings of NovaOS.
+# Signed with the NovaOS archive key (only valid for this source).
+# Debian packages and security updates still come from Debian.
+Types: deb
+URIs: https://github.com/superali99-tech/Hanse-1-Betriebssystem-/releases/download/pc-update/
+Suites: /
+Signed-By: /usr/share/keyrings/novaos-archive-keyring.gpg

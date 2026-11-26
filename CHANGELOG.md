@@ -7,6 +7,13 @@
   nächsten Neustart (systemd offline updates, Fortschritt im Boot-Bildschirm). Alle
   Benutzer erhalten „Update verfügbar – bitte neu starten“ (bei Anmeldung, alle 4 Stunden).
   Einstellungen: `/etc/novaos/updates.conf`. Tägliche Sicherheitsupdates optional.
+* **PC-Update-Kanal:** installierte PCs bekommen die NovaOS-Pakete (Nova-Apps, Desktop, Einstellungen) als
+  Update – signierte apt-Quelle im GitHub-Release `pc-update` (Version 0.1.1.N, N = Anzahl der Commits, Workflow
+  `build-pc-update.yml`, Schlüssel wie bei NovaOS Mobile einmal erzeugt und im Entwurf „NovaOS PC archive key“
+  verwahrt). Paket `novaos-archive-keyring` (Quelle + Schlüssel, gilt nur für diese Quelle); PCs mit 0.1.0
+  richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
+  KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
+  Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
 * Boot-Bildschirm: Meldungen werden jetzt angezeigt (falscher Plymouth-Funktionsname korrigiert)
 * Status: Unit-Tests bestanden; Test im installierten System **noch nicht abgeschlossen**
 * **NovaOS TV:** App für Google TV / Android TV (Startseite mit Favoriten, allen Apps, Suche,

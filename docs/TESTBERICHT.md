@@ -172,6 +172,24 @@ erschien erneut, wenn er per X geschlossen wurde → Schließen zählt ab Build 
 | Nova Store: echte App-Installation (Tux Paint) mit Fortschritt, danach „Öffnen“ startet die App | ✅ |
 | Hell → dunkel im laufenden Betrieb | ⚠️ → behoben: bereits geöffnete Nova-Apps behielten die hellen Farben (dunkle Schrift auf dunklem Grund). Die Apps berechnen ihr Stylesheet jetzt bei `ApplicationPaletteChange` neu (Unit-Test `test_style.py`). Im ISO `build-2` ist dieser Fehler noch enthalten. |
 
+### PC-Update-Kanal: Update von 0.1.0 (26.11.2026)
+
+Getestet in einem Debian-13-System (debootstrap, chroot) mit den Paketen `novaos-base` und `novaos-apps`
+**0.1.0** aus dem Commit des ISO `build-2`, der Kanal mit einem Testschlüssel lokal bereitgestellt.
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Kanal einrichten (`novaos-update-einrichten.deb`) | ✅ | Quelle `Suites: /` + Schlüssel, `apt-get update` prüft die Signatur, NovaOS-Pakete erscheinen als Update |
+| Update mit dem Helfer von 0.1.0 (`nova-apt-helper refresh/upgrade`, wie „Alle Updates installieren“) | ✅ | keine Fehler, `dpkg --audit` leer, os-release „NovaOS 0.1.1“, 14-Tage-Timer aktiviert, „Software-Update“ für die Systemeinstellungen installiert |
+| Tägliche Sicherheitsupdates nach dem Update | ⚠️ → behoben | 0.1.1 hätte sie ausgeschaltet (neue Voreinstellung) → `novaos-base` lässt sie bei Updates von 0.1.0 an; erneut getestet ✅ |
+| Suche + Installation beim Neustart (`nova-scheduled-update check --force`, dann `offline`) | ✅ | 3 Pakete geladen, `/system-update` gesetzt, „offline“ installiert, Marker entfernt, `last-result` ok |
+| Nova Updates (offscreen) | ✅ | startet, „Sicherheitsupdates zusätzlich täglich“ angehakt; Knopf heißt jetzt „Nach Updates suchen“ |
+| Unit-Tests (im Debian-13-System) | ✅ | 91 bestanden |
+
+**Nicht getestet:** echter Neustart in `system-update.target` mit Plymouth (nur im chroot, ohne systemd) und
+der Eintrag in den echten KDE-Systemeinstellungen (Ort laut Quelltext von Plasma 6.3:
+`/usr/share/plasma/systemsettings/externalmodules/`).
+
 ## NovaOS Mobile (Startbildschirm für Android-Handys)
 
 Getestet am 19.11.2026 mit **Android-x86 9.0-r2** in QEMU als Handy (Bildschirm per `wm size

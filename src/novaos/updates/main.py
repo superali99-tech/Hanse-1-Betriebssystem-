@@ -97,7 +97,7 @@ class UpdatesWindow(QMainWindow):
 
         # Actions
         row = QHBoxLayout()
-        self.btn_check = QPushButton(themed_icon("view-refresh"), _("Check now"))
+        self.btn_check = QPushButton(themed_icon("view-refresh"), _("Check for updates"))
         self.btn_check.clicked.connect(self.check_online)
         self.btn_install = QPushButton(themed_icon("system-software-update"), _("Install all updates"))
         self.btn_install.setObjectName("NovaPrimary")

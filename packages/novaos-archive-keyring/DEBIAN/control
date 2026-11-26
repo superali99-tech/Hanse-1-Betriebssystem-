@@ -1,0 +1,12 @@
+Package: novaos-archive-keyring
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: apt
+Description: NovaOS update channel (signing key and package source)
+ Lets apt and Nova Updates receive the NovaOS packages (Nova apps, desktop
+ and system settings) from the NovaOS update channel on GitHub. The packages
+ there are signed with the NovaOS archive key, which this package installs to
+ /usr/share/keyrings/novaos-archive-keyring.gpg (used only for this source).

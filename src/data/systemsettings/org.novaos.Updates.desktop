@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Software Update
+Name[de]=Software-Update
+Comment=Search for updates and install them
+Comment[de]=Nach Updates suchen und sie installieren
+Exec=nova-updates
+Icon=nova-updates
+X-KDE-System-Settings-Parent-Category=system-administration
+X-KDE-Weight=5

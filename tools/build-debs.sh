@@ -9,11 +9,17 @@
 #                                       staging root as $1 (e.g. to copy src/)
 #
 # Usage: ./tools/build-debs.sh [OUTDIR]   (default: build/debs)
+# Env:   NOVAOS_DEB_VERSION  package version (default: NOVAOS_VERSION from VERSION.sh;
+#                            the PC update channel uses 0.1.1.<commits>, see
+#                            .github/workflows/build-pc-update.yml)
+#        NOVAOS_DEB_SKIP     package names to leave out, separated by spaces
+# A package whose build.sh exits with 77 is skipped (e.g. no archive key given).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$ROOT/VERSION.sh"
 OUT="${1:-$ROOT/build/debs}"
+DEB_VERSION="${NOVAOS_DEB_VERSION:-$NOVAOS_VERSION}"
 STAGE_BASE="$ROOT/build/deb-stage"
 
 mkdir -p "$OUT"
@@ -24,6 +30,7 @@ mkdir -p "$STAGE_BASE"
 for src in "$ROOT"/packages/*/; do
 	[ -f "$src/DEBIAN/control" ] || continue
 	name="$(basename "$src")"
+	case " ${NOVAOS_DEB_SKIP:-} " in *" $name "*) echo "==> $name (skipped)"; continue ;; esac
 	stage="$STAGE_BASE/$name"
 	echo "==> $name"
 	mkdir -p "$stage"
@@ -31,11 +38,17 @@ for src in "$ROOT"/packages/*/; do
 		cp -a "$src/root/." "$stage/"
 	fi
 	if [ -x "$src/build.sh" ]; then
-		NOVAOS_ROOT="$ROOT" "$src/build.sh" "$stage"
+		rc=0
+		NOVAOS_ROOT="$ROOT" "$src/build.sh" "$stage" || rc=$?
+		if [ "$rc" = 77 ]; then
+			echo "    (skipped by build.sh)"
+			continue
+		fi
+		[ "$rc" = 0 ] || exit "$rc"
 	fi
 	mkdir -p "$stage/DEBIAN"
 	cp -a "$src/DEBIAN/." "$stage/DEBIAN/"
-	sed -i "s/@VERSION@/${NOVAOS_VERSION}/g" "$stage/DEBIAN/control"
+	sed -i "s/@VERSION@/${DEB_VERSION}/g" "$stage/DEBIAN/control"
 	# Installed-Size in KiB
 	size=$(du -sk --exclude=DEBIAN "$stage" | cut -f1)
 	echo "Installed-Size: $size" >> "$stage/DEBIAN/control"
@@ -53,8 +66,8 @@ for src in "$ROOT"/packages/*/; do
 	( cd "$stage" && find . -path ./DEBIAN -prune -o -type f -print0 | sort -z | \
 		xargs -0 -r md5sum | sed 's| \./| |' > DEBIAN/md5sums )
 	arch=$(awk -F': *' '$1=="Architecture"{print $2}' "$stage/DEBIAN/control")
-	dpkg-deb --root-owner-group -Zxz --build "$stage" "$OUT/${name}_${NOVAOS_VERSION}_${arch}.deb" >/dev/null
-	echo "    -> $OUT/${name}_${NOVAOS_VERSION}_${arch}.deb"
+	dpkg-deb --root-owner-group -Zxz --build "$stage" "$OUT/${name}_${DEB_VERSION}_${arch}.deb" >/dev/null
+	echo "    -> $OUT/${name}_${DEB_VERSION}_${arch}.deb"
 done
 
 echo "Built $(ls "$OUT"/novaos-*.deb 2>/dev/null | wc -l) package(s) in $OUT"

@@ -25,6 +25,8 @@ install -Dm0755 "$SRC/data/libexec/nova-apt-helper" "$STAGE/usr/libexec/novaos/n
 install -Dm0755 "$SRC/data/libexec/nova-scheduled-update" "$STAGE/usr/libexec/novaos/nova-scheduled-update"
 install -Dm0644 "$SRC/data/etc/novaos/updates.conf" "$STAGE/etc/novaos/updates.conf"
 install -Dm0644 -t "$STAGE/usr/share/applications" "$SRC"/data/applications/*.desktop
+# "Software-Update" in the KDE System Settings (category System), opens Nova Updates
+install -Dm0644 -t "$STAGE/usr/share/plasma/systemsettings/externalmodules" "$SRC"/data/systemsettings/*.desktop
 install -Dm0644 -t "$STAGE/etc/xdg/autostart" "$SRC"/data/autostart/*.desktop
 install -Dm0644 -t "$STAGE/usr/share/polkit-1/actions" "$SRC"/data/polkit/*.policy
 install -Dm0644 -t "$STAGE/usr/lib/systemd/user" "$SRC"/data/systemd/*

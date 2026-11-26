@@ -90,7 +90,21 @@ ISO selbst – eine Internetverbindung ist während der Installation nicht nöti
 ## 5. Nach der Installation
 
 * Der **Willkommensassistent** erscheint bei der ersten Anmeldung.
-* **Nova Updates** öffnen und aktuelle Updates installieren.
+* **Nova Updates** öffnen (auch: Systemeinstellungen → System → **Software-Update**) und aktuelle Updates
+  installieren. NovaOS sucht außerdem alle 14 Tage selbst und installiert beim nächsten Neustart.
+
+### PCs mit NovaOS 0.1.0: Update-Kanal einmal einrichten
+
+0.1.0 bekommt Debian-Sicherheitsupdates, aber noch keine NovaOS-Updates. Einmal im Terminal:
+
+```
+wget -O /tmp/novaos-update-einrichten.deb https://github.com/superali99-tech/Hanse-1-Betriebssystem-/releases/download/pc-update/novaos-update-einrichten.deb
+sudo apt install /tmp/novaos-update-einrichten.deb
+```
+
+Dann **Nova Updates** → **Jetzt prüfen** → **Alle Updates installieren** → neu starten. Danach gibt es
+„Software-Update“ in den Systemeinstellungen, und weitere Updates kommen automatisch (beim Neustart).
+Die täglichen Sicherheitsupdates von 0.1.0 bleiben an.
 * Apps über den **Nova Store** installieren.
 * Für Dual-Boot erkennt GRUB Windows automatisch (os-prober).
 

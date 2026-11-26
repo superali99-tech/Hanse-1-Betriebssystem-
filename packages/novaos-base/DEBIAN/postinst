@@ -22,5 +22,21 @@ if [ "$1" = configure ]; then
 	fi
 
 	mkdir -p /var/log/journal
+
+	# Upgrade from NovaOS 0.1.0: it installed security updates every day. Since 0.1.1
+	# the default is the update every 14 days (at restart); keep the daily security
+	# updates on for these PCs (the same switch as in Nova Updates). A setting the
+	# user changed in Nova Updates is left alone.
+	P=/etc/apt/apt.conf.d/20novaos-periodic
+	if [ -n "$2" ] && dpkg --compare-versions "$2" lt 0.1.1 && [ -f "$P" ] && \
+	   grep -q "NovaOS updates run every 14 days" "$P"; then
+		cat > "$P" <<'EOT'
+// Managed by Nova Updates: daily security updates in addition to the
+// NovaOS update every 14 days (installed at restart)
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Unattended-Upgrade "1";
+APT::Periodic::AutocleanInterval "7";
+EOT
+	fi
 fi
 exit 0

@@ -1,0 +1,120 @@
+# Build the NovaOS packages for installed PCs and publish them as the signed NovaOS
+# update channel (the GitHub release "pc-update"). Installed PCs with the package
+# novaos-archive-keyring get them through Nova Updates / "Software-Update" in the system
+# settings - every 14 days and installed at the next restart, or right away by hand.
+# Debian packages and security updates keep coming from Debian.
+#
+# Triggers:
+#   * manually: Actions -> "Build NovaOS PC update" -> "Run workflow"
+#   * every change of the NovaOS packages on the default branch
+#
+# Version: 0.1.1.<number of commits> (always higher than the 0.1.0/0.1.1 of an ISO).
+# Signing: tools/pc_archive_key.sh - the key is created once and kept in the draft
+# release "NovaOS PC archive key" (visible only with write access).
+name: Build NovaOS PC update
+
+on:
+  push:
+    branches: ["**"]  # the job runs only for the default branch, see "if" below
+    paths:
+      - "src/**"
+      - "packages/**"
+      - "tools/build-debs.sh"
+      - "tools/pc_*.sh"
+      - "VERSION.sh"
+      - ".github/workflows/build-pc-update.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+# one build at a time: the archive key is created only once
+concurrency:
+  group: novaos-pc-update
+  cancel-in-progress: false
+
+jobs:
+  debs:
+    if: github.event_name != 'push' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # version = number of commits
+
+      - name: Tools
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q apt-utils rsync gnupg jq python3-pytest python3-yaml python3-icalendar python3-pyqt6 desktop-file-utils
+
+      - name: Tests
+        run: python3 -m pytest -q tests/unit
+
+      - name: Archive key (always the same)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./tools/pc_archive_key.sh "$RUNNER_TEMP/archive"
+
+      - name: Build packages
+        run: |
+          . ./VERSION.sh
+          V="${NOVAOS_VERSION}.$(git rev-list --count HEAD)"
+          echo "V=$V" >> "$GITHUB_ENV"
+          mkdir -p build/pc-update
+          # the installer is only needed on the ISO
+          NOVAOS_DEB_VERSION="$V" NOVAOS_DEB_SKIP="novaos-installer" ./tools/build-debs.sh build/pc-update
+          test -f "build/pc-update/novaos-archive-keyring_${V}_all.deb"
+
+      - name: Signed apt source
+        run: |
+          GNUPGHOME="$NOVAOS_ARCHIVE_GNUPGHOME" ./tools/pc_update_repo.sh build/pc-update "$V"
+          # first installation: the same package under a name that never changes
+          cp "build/pc-update/novaos-archive-keyring_${V}_all.deb" "$RUNNER_TEMP/novaos-update-einrichten.deb"
+          cp "$RUNNER_TEMP/archive/novaos-archive-key.asc" "$RUNNER_TEMP/novaos-archive-key.asc"
+          FPR=$(gpg --show-keys --with-colons "$RUNNER_TEMP/novaos-archive-key.asc" | awk -F: '$1=="fpr"{print $10; exit}')
+          LINK="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/pc-update/novaos-update-einrichten.deb"
+          cat > notes.md <<NOTES
+          **NovaOS ${V}** – Update-Kanal für installierte NovaOS-PCs (Nova-Apps, Desktop, Systemeinstellungen).
+          Debian-Pakete und Sicherheitsupdates kommen weiter direkt von Debian.
+
+          **Einmal einrichten** (PCs mit NovaOS 0.1.0; neuere haben den Kanal schon) – im Terminal:
+
+          \`\`\`
+          wget -O /tmp/novaos-update-einrichten.deb ${LINK}
+          sudo apt install /tmp/novaos-update-einrichten.deb
+          \`\`\`
+
+          Danach: **Nova Updates** öffnen → **Jetzt prüfen** → **Alle Updates installieren** → PC neu starten.
+          Ab dann: Systemeinstellungen → System → **Software-Update**; NovaOS sucht alle 14 Tage selbst und
+          installiert beim nächsten Neustart.
+
+          Signiert mit dem NovaOS-Archivschlüssel \`${FPR}\` (gilt nur für diese Quelle). Gebaut aus Commit ${GITHUB_SHA}.
+          NOTES
+
+      - name: Publish (GitHub release "pc-update")
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          R=pc-update
+          if ! gh release view "$R" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$R" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "NovaOS PC-Update ${V}" --notes-file notes.md --latest=false
+          fi
+          old=$(gh release view "$R" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name')
+          # packages first, then the index that lists them, the signed Release last
+          gh release upload "$R" build/pc-update/*.deb --clobber --repo "$GITHUB_REPOSITORY"
+          gh release upload "$R" build/pc-update/Packages build/pc-update/Packages.gz --clobber --repo "$GITHUB_REPOSITORY"
+          gh release upload "$R" build/pc-update/Release build/pc-update/Release.gpg build/pc-update/InRelease \
+            "$RUNNER_TEMP/novaos-update-einrichten.deb" "$RUNNER_TEMP/novaos-archive-key.asc" --clobber --repo "$GITHUB_REPOSITORY"
+          gh release edit "$R" --repo "$GITHUB_REPOSITORY" --title "NovaOS PC-Update ${V}" --notes-file notes.md
+          # packages of older versions are no longer listed: remove them
+          for a in $old; do
+            case "$a" in
+              *.deb) [ -e "build/pc-update/$a" ] || [ "$a" = novaos-update-einrichten.deb ] || \
+                gh release delete-asset "$R" "$a" --yes --repo "$GITHUB_REPOSITORY" ;;
+            esac
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' -L "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/download/$R/InRelease")
+          echo "InRelease: HTTP $code"
+          echo "### NovaOS PC-Update ${V}" >> "$GITHUB_STEP_SUMMARY"
+          ls build/pc-update >> "$GITHUB_STEP_SUMMARY"

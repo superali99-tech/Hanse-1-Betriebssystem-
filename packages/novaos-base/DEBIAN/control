@@ -5,7 +5,7 @@ Priority: optional
 Architecture: all
 Maintainer: NovaOS Project <novaos@localhost>
 Depends: base-files, flatpak, ufw, unattended-upgrades, systemd-zram-generator
-Recommends: grub-common
+Recommends: grub-common, novaos-archive-keyring
 Description: NovaOS base system configuration
  Identity (os-release), security defaults and system configuration of
  NovaOS, a desktop operating system based on Debian 13 "trixie":
