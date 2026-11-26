@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Galerie: zoom, photo editor, shortening videos -->
+    <string name="edit_title">Edit</string>
+    <string name="edit_save">Save</string>
+    <string name="edit_crop">Crop</string>
+    <string name="edit_rotate">Rotate</string>
+    <string name="edit_adjust">Adjust</string>
+    <string name="edit_filter">Filters</string>
+    <string name="edit_free">Free</string>
+    <string name="edit_apply">Apply</string>
+    <string name="edit_rotate_right">Right</string>
+    <string name="edit_rotate_left">Left</string>
+    <string name="edit_mirror">Mirror</string>
+    <string name="edit_brightness">Brightness</string>
+    <string name="edit_contrast">Contrast</string>
+    <string name="edit_saturation">Saturation</string>
+    <string name="edit_warmth">Warmth</string>
+    <string name="edit_f0">Original</string>
+    <string name="edit_f1">B/W</string>
+    <string name="edit_f2">Sepia</string>
+    <string name="edit_f3">Vivid</string>
+    <string name="edit_f4">Warm</string>
+    <string name="edit_f5">Cool</string>
+    <string name="edit_f6">Dramatic</string>
+    <string name="edit_suffix">edited</string>
+    <string name="edit_saved">Saved as a copy – the original stays.</string>
+    <string name="trim_title">Shorten video</string>
+    <string name="trim_mute">Save without sound</string>
+    <string name="trim_times">From %1$s to %2$s · length %3$s</string>
+    <string name="trim_short">The part is too short.</string>
+    <string name="trim_suffix">shortened</string>
+    <string name="trim_working">Saving …</string>
+    <string name="trim_saved">Shortened video saved as a copy – the original stays.</string>
+    <string name="notify_store_title">App updates in the Nova Store</string>
+    <string name="notify_store_text">New version for %1$s – update in the Nova Store, no restart.</string>
+</resources>

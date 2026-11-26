@@ -165,6 +165,15 @@
   der Sperre des Handys (Gesicht/Fingerabdruck/PIN über `ConfirmActivity`), jederzeit beendbar; eine Prüfung per
   Personalausweis gibt es bewusst nicht. Nova Store: Nova-Apps aktualisieren im Schnellmodus (`UpdateEngine.start(u,
   true)`: kurze Stufen) und ohne Start-Animation danach (nur „Nova-Apps aktualisiert ✓“)
+* **NovaOS Mobile 0.1.1.81 – Zoomen und Bearbeiten (nur Nova-Store-Update für Kamera und Galerie)**: Fotos und
+  Videos zoomen (`ZoomLayout`: zwei Finger, Doppeltippen 2,5×, im Zoom verschieben bis zum Bildrand; Videos jetzt in
+  `VideoPane` auf einer TextureView mit eigenen Knöpfen). **Fotos bearbeiten** (`PhotoEditActivity`): zuschneiden
+  (frei, 1:1, 4:3, 16:9, 9:16), drehen, spiegeln, Helligkeit, Kontrast, Sättigung, Wärme, 7 Filter – gespeichert als
+  Kopie „…_bearbeitet.jpg“ in DCIM/NovaOS (`MediaSave`). **Videos kürzen** (`VideoTrimActivity`): Anfang/Ende ziehen,
+  auf Wunsch ohne Ton, ohne neu zu kodieren (MediaExtractor/MediaMuxer), Kopie „…_gekürzt.mp4“. **Kamera-Zoom**: zwei
+  Finger oder 0,5×/1×/2×/5× (je nach Handy, `CONTROL_ZOOM_RATIO` oder Bildausschnitt). Rechenteil in `Zoom` (getestet).
+  Neu: **`@store-only`** in den Neuerungen → `storeOnly=true` – das Update erscheint nur im Nova Store, nicht als
+  Software-Update und ohne Neustart-Animation (`Updates.systemPending`, Benachrichtigung „App-Updates im Nova Store“)
 * Nova-Apps übernehmen einen Wechsel hell/dunkel jetzt auch, wenn sie schon geöffnet sind
 * Trailer-Werkzeuge (`tools/trailer/`) und Full-HD-Screenshots
 

@@ -23,6 +23,8 @@ public final class UpdateInfo {
     public final List<String> apps = new ArrayList<>();
     /** The name of a big update ("1.5"); "" for small and medium updates (they show versionName). */
     public String release = "";
+    /** Only Nova apps change (e.g. Kamera, Galerie): shown only in the Nova Store, not as a software update. */
+    public boolean storeOnly;
     private final java.util.Map<String, List<String>> appNotesDe = new java.util.HashMap<>(), appNotesEn = new java.util.HashMap<>();
 
     UpdateInfo(long versionCode, String versionName, String apk, String sha256, long size,
@@ -76,6 +78,7 @@ public final class UpdateInfo {
                 String key = a.trim().toLowerCase(java.util.Locale.ROOT);
                 if (key.matches("[a-z]{1,20}") && !u.apps.contains(key)) u.apps.add(key);
             }
+            u.storeOnly = "true".equals(p.getProperty("storeOnly", "").trim()) && !u.apps.isEmpty();
             for (String key : u.apps) {  // "appnote.chat.de.1=…": what is new in this app
                 java.util.List<String> de = notes(p, "de", "appnote." + key + "."), en = notes(p, "en", "appnote." + key + ".");
                 if (!de.isEmpty()) u.appNotesDe.put(key, de);

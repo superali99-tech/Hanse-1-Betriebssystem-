@@ -40,6 +40,9 @@ public class ViewerActivity extends Activity {
     private LinearLayout bar;
     private TextView name;
     private GestureDetector gestures;
+    private ZoomLayout zoom;   // the photo shown (zoom with two fingers, double tap)
+    private VideoPane video;   // the video shown (zoomable too)
+    private static final int EDIT = 6;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -69,6 +72,7 @@ public class ViewerActivity extends Activity {
         LinearLayout.LayoutParams nl = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1);
         nl.leftMargin = Ui.dp(this, 10);
         bar.addView(name, nl);
+        bar.addView(button(R.drawable.ic_edit, R.string.edit_title, v -> edit()));
         bar.addView(button(R.drawable.ic_share, R.string.share, v -> share()));
         bar.addView(button(R.drawable.ic_delete, R.string.delete, v -> confirmDelete()));
         root.addView(bar, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -78,12 +82,15 @@ public class ViewerActivity extends Activity {
         gestures = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                bar.setVisibility(bar.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                boolean show = bar.getVisibility() != View.VISIBLE;
+                bar.setVisibility(show ? View.VISIBLE : View.GONE);
+                if (video != null) video.showControls(show);
                 return true;
             }
 
             @Override
             public boolean onFling(MotionEvent e1, MotionEvent e2, float vx, float vy) {
+                if (zoomed() || e2.getPointerCount() > 1) return false;  // zoomed: the finger moves the picture
                 if (e1 == null || Math.abs(vx) < Math.abs(vy) || Math.abs(vx) < 700) return false;
                 go(e2.getX() < e1.getX() ? 1 : -1);
                 return true;
@@ -100,9 +107,26 @@ public class ViewerActivity extends Activity {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
-        boolean video = stage.getChildCount() > 0 && stage.getChildAt(0) instanceof VideoView;
-        if (gestures.onTouchEvent(ev) && !video) return true;
+        gestures.onTouchEvent(ev);
         return super.dispatchTouchEvent(ev);
+    }
+
+    private boolean zoomed() {
+        return (zoom != null && zoom.zoomed()) || (video != null && video.zoomed());
+    }
+
+    @Override
+    protected void onPause() {
+        if (video != null) video.pause();
+        super.onPause();
+    }
+
+    /** Photo: the editor; video: shortening. Both save a copy. */
+    private void edit() {
+        Media.Item it = items.get(pos);
+        Intent i = new Intent(this, it.video ? VideoTrimActivity.class : PhotoEditActivity.class)
+                .putExtra(PhotoEditActivity.EXTRA_URI, it.uri()).putExtra(PhotoEditActivity.EXTRA_NAME, it.name);
+        startActivityForResult(i, EDIT);
     }
 
     private View button(int icon, int label, View.OnClickListener click) {
@@ -128,30 +152,30 @@ public class ViewerActivity extends Activity {
     }
 
     private void show() {
+        if (video != null) video.release();
         stage.removeAllViews();
+        zoom = null;
+        video = null;
         Media.Item it = items.get(pos);
         name.setText(it.name);
         if (it.video) {
-            VideoView vv = new VideoView(this);
-            MediaController mc = new MediaController(this);
-            mc.setAnchorView(vv);
-            vv.setMediaController(mc);
-            vv.setVideoURI(it.uri());
-            vv.setOnPreparedListener(mp -> vv.start());
-            stage.addView(vv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+            video = new VideoPane(this, it.uri(), true);
+            video.showControls(bar.getVisibility() == View.VISIBLE);
+            stage.addView(video, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             return;
         }
         ImageView iv = new ImageView(this);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        stage.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        zoom = new ZoomLayout(this);
+        zoom.addView(iv, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        stage.addView(zoom, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         Media.thumbnail(iv, it);  // preview first, then the full picture
         int max = Math.max(getResources().getDisplayMetrics().widthPixels, getResources().getDisplayMetrics().heightPixels);
         Uri uri = it.uri();
         new Thread(() -> {
             Bitmap b = Media.picture(getApplicationContext(), uri, max);
             runOnUiThread(() -> {
-                if (b != null && !isDestroyed() && iv.getParent() == stage) iv.setImageBitmap(b);
+                if (b != null && !isDestroyed() && iv.getParent() != null && iv.getParent().getParent() == stage) iv.setImageBitmap(b);
             });
         }).start();
     }
@@ -198,6 +222,7 @@ public class ViewerActivity extends Activity {
     @Override
     protected void onActivityResult(int code, int result, Intent data) {
         super.onActivityResult(code, result, data);
+        if (code == EDIT) return;  // the copy appears when going back to the gallery (it reloads)
         if (code != DELETE || result != RESULT_OK) return;
         if (Build.VERSION.SDK_INT == 29) {
             try {

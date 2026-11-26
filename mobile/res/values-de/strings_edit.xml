@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nova Galerie: zoom, photo editor, shortening videos -->
+    <string name="edit_title">Bearbeiten</string>
+    <string name="edit_save">Speichern</string>
+    <string name="edit_crop">Zuschneiden</string>
+    <string name="edit_rotate">Drehen</string>
+    <string name="edit_adjust">Anpassen</string>
+    <string name="edit_filter">Filter</string>
+    <string name="edit_free">Frei</string>
+    <string name="edit_apply">Übernehmen</string>
+    <string name="edit_rotate_right">Rechts</string>
+    <string name="edit_rotate_left">Links</string>
+    <string name="edit_mirror">Spiegeln</string>
+    <string name="edit_brightness">Helligkeit</string>
+    <string name="edit_contrast">Kontrast</string>
+    <string name="edit_saturation">Sättigung</string>
+    <string name="edit_warmth">Wärme</string>
+    <string name="edit_f0">Original</string>
+    <string name="edit_f1">S/W</string>
+    <string name="edit_f2">Sepia</string>
+    <string name="edit_f3">Lebendig</string>
+    <string name="edit_f4">Warm</string>
+    <string name="edit_f5">Kühl</string>
+    <string name="edit_f6">Drama</string>
+    <string name="edit_suffix">bearbeitet</string>
+    <string name="edit_saved">Als Kopie gespeichert – das Original bleibt.</string>
+    <string name="trim_title">Video kürzen</string>
+    <string name="trim_mute">Ohne Ton speichern</string>
+    <string name="trim_times">Von %1$s bis %2$s · Länge %3$s</string>
+    <string name="trim_short">Der Ausschnitt ist zu kurz.</string>
+    <string name="trim_suffix">gekürzt</string>
+    <string name="trim_working">Wird gespeichert …</string>
+    <string name="trim_saved">Gekürztes Video als Kopie gespeichert – das Original bleibt.</string>
+    <string name="notify_store_title">App-Updates im Nova Store</string>
+    <string name="notify_store_text">Neue Version für %1$s – im Nova Store aktualisieren, ohne Neustart.</string>
+</resources>

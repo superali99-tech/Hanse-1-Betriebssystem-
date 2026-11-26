@@ -2,8 +2,10 @@
 # "@apps:" = the Nova apps this update changes (the Nova Store shows "Aktualisieren" for them).
 # "{store} …" at the start of a line: this point belongs to these Nova apps ("Neuerungen" in the store).
 # "@release: 1.5": a big update - shown as "NovaOS 1.5" instead of the long number (leave out for small ones).
-@apps: nova, store
-{nova} Nova ist jetzt ein Chat: Sprechblasen und „Nova denkt nach …“ mit leuchtender Kugel|Nova is now a chat: bubbles and "Nova is thinking …" with a glowing sphere
-{nova} Modell auswählen (oben antippen): Nova 5, Nova Pro 5, Nova Mini – Nova Vision 5 kommt bald|Choose the model (tap at the top): Nova 5, Nova Pro 5, Nova Mini – Nova Vision 5 is coming
-{nova} Nova Pro 5 Abo: unbegrenzt und ausführlicher – in der Testphase kostenlos, bestätigt mit Gesicht, Fingerabdruck oder PIN|Nova Pro 5 subscription: unlimited and more detailed – free while testing, confirmed with face, fingerprint or PIN
-{store} Nova-Apps im Nova Store aktualisieren geht jetzt schnell wie ein App-Update – ohne Software-Update-Ablauf|Updating Nova apps in the Nova Store is now quick like an app update – without the software update steps
+# "@store-only": only the Nova apps of "@apps:" change - the update appears in the Nova Store, not as a software update.
+@store-only
+@apps: camera, gallery
+{gallery} Fotos und Videos zoomen: zwei Finger, Doppeltippen, im Zoom verschieben|Zoom photos and videos: two fingers, double tap, move while zoomed
+{gallery} Fotos bearbeiten: zuschneiden, drehen, spiegeln, Helligkeit, Kontrast, Sättigung, Wärme und Filter – als Kopie|Edit photos: crop, rotate, mirror, brightness, contrast, saturation, warmth and filters – as a copy
+{gallery} Videos kürzen, auf Wunsch ohne Ton – als Kopie, das Original bleibt|Shorten videos, without sound if you like – as a copy, the original stays
+{camera} Kamera zoomen: mit zwei Fingern oder den Knöpfen 0,5× · 1× · 2× · 5× (je nach Handy)|Camera zoom: with two fingers or the buttons 0.5× · 1× · 2× · 5× (depending on the phone)

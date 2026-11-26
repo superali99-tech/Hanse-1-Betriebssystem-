@@ -333,4 +333,6 @@ NovaOS Mobile **teilt Code und Grafiken mit NovaOS TV** (`tv/`): Senderliste und
 | `NovaUpdate.java`, `Where.java` | Nova-App im Store aktualisieren (Ring und Fortschritt); bester bekannter Standort |
 | `UpdateActivity.java`, `UpdateEngine.java`, `UpdateArt.java` | Software-Update: Seite, Ablauf im Hintergrund mit Pause, gezeichnetes Titelbild |
 | `LastUpdateActivity.java`, `UpdateFacts.java`, `UpdateGlow.java`, `ReleaseArt.java`, `UpdateNotes.java` | „NovaOS 1.0 – auf dem neuesten Stand“ (Leuchten), „Letztes erfolgreiches Update“ (Bild „1“, Datum, Aktualisierungsinformationen), Dialoge „Was ist neu“/„Update-Verlauf“ |
+| `Zoom.java`, `ZoomLayout.java`, `VideoPane.java` | Zoomen in Fotos, Videos und Kamera (zwei Finger, Doppeltippen, verschieben), Video mit eigenen Knöpfen, Farbmatrizen des Editors (`Zoom` getestet) |
+| `PhotoEditActivity.java`, `VideoTrimActivity.java`, `MediaSave.java` | Foto bearbeiten (zuschneiden, drehen, spiegeln, anpassen, Filter), Video kürzen (ohne neu zu kodieren, auf Wunsch ohne Ton), Kopie speichern in DCIM/NovaOS |
 | `Greeting.java`, `StoreApp.java`, `UpdateInfo.java`, `FileNames.java` (+ `test/MobileTest.java`) | Logik ohne Android – getestet, auch der echte Store-Katalog |

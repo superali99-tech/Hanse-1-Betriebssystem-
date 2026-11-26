@@ -474,6 +474,14 @@
         <activity
             android:name=".NovaProActivity"
             android:exported="false" />
+        <!-- Nova Galerie: editing photos and shortening videos (copies, the original stays) -->
+        <activity
+            android:name=".PhotoEditActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VideoTrimActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:exported="false" />
         <!-- "Letztes erfolgreiches Update" (from the software update) -->
         <activity
             android:name=".LastUpdateActivity"

@@ -121,6 +121,8 @@ apps = [a.strip() for l in lines if l.startswith("@apps:") for a in l[6:].split(
 rel = [l[9:].strip() for l in lines if l.startswith("@release:")]
 if rel:  # a big update with a name ("1.5"): shown instead of the long number
 	print("release=" + rel[0])
+if any(l.startswith("@store-only") for l in lines) and apps:  # only Nova apps change: in the Nova Store, no software update
+	print("storeOnly=true")
 if apps:  # the Nova apps this update changes (Nova Store: "Aktualisieren")
 	print("apps=" + ",".join(apps))
 lines = [l for l in lines if not l.startswith("@")]

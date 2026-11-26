@@ -30,8 +30,25 @@ final class UpdateNotice {
         }
         if (Build.VERSION.SDK_INT >= 33 && c.checkSelfPermission(POST) != PackageManager.PERMISSION_GRANTED) return;
         PendingIntent open = PendingIntent.getActivity(c, 0,
-                new Intent(c, UpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
+                new Intent(c, u.storeOnly ? StoreActivity.class : UpdateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP),
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        if (u.storeOnly) {
+            // only Nova apps change: "App-Updates im Nova Store", no software update
+            StringBuilder names = new StringBuilder();
+            for (String app : u.apps) {
+                NovaApps.App a = NovaApps.get(app);
+                if (a != null) names.append(names.length() == 0 ? "" : ", ").append(c.getString(a.name));
+            }
+            @SuppressWarnings("deprecation")
+            Notification.Builder sb = Build.VERSION.SDK_INT >= 26 ? new Notification.Builder(c, CHANNEL) : new Notification.Builder(c);
+            String st = c.getString(R.string.notify_store_text, names.toString());
+            sb.setSmallIcon(R.drawable.ic_refresh).setColor(c.getColor(R.color.nova_violet))
+                    .setContentTitle(c.getString(R.string.notify_store_title)).setContentText(st)
+                    .setStyle(new Notification.BigTextStyle().bigText(st)).setContentIntent(open).setAutoCancel(true).setShowWhen(true);
+            nm.notify(ID, sb.build());
+            Updates.prefs(c).edit().putLong("notified", key).apply();
+            return;
+        }
         // button "Aktualisieren": opens the update page and starts the installation
         PendingIntent update = PendingIntent.getActivity(c, 1,
                 new Intent(c, UpdateActivity.class).putExtra(UpdateActivity.EXTRA_INSTALL, true)

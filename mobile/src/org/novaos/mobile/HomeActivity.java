@@ -372,7 +372,7 @@ public class HomeActivity extends Activity {
     }
 
     private void rebuild() {
-        UpdateInfo update = Updates.pending(this);
+        UpdateInfo update = Updates.systemPending(this);  // only Nova apps: shown in the Nova Store
         if (update != null) {
             boolean ready = Updates.readyApk(this, update) != null;
             updatePill.setText("⟳  " + getString(ready ? R.string.home_update_ready : R.string.home_update_sub, update.label()));
@@ -394,7 +394,7 @@ public class HomeActivity extends Activity {
         UpdateInfo u = Updates.pending(this);
         if (u == null) return 0;
         if (cls.equals(StoreActivity.class.getName())) return Math.max(1, u.apps.size());
-        if (cls.equals(SettingsActivity.class.getName())) return -1;
+        if (cls.equals(SettingsActivity.class.getName())) return u.storeOnly ? 0 : -1;
         return 0;
     }
 

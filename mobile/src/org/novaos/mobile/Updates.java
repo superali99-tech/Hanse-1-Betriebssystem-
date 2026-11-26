@@ -53,6 +53,12 @@ final class Updates {
 
     private static String installedRelease;
 
+    /** A waiting software update - not one that only changes Nova apps (those are in the Nova Store). */
+    static UpdateInfo systemPending(Context c) {
+        UpdateInfo u = pending(c);
+        return u == null || u.storeOnly ? null : u;
+    }
+
     /**
      * How the installed NovaOS is called: a big update by its name ("1.5"), small and medium
      * updates by their long number ("0.1.1.76") - "@release:" in res/raw/whatsnew.txt.

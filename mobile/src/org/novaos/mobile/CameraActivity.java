@@ -86,6 +86,13 @@ public class CameraActivity extends Activity {
     private ImageReader reader;
     private CaptureRequest.Builder request;
     private CameraCharacteristics chars;
+    // zoom: two fingers on the picture or the buttons (0,5× … 5×, what this camera can)
+    private volatile float zoom = 1f;
+    private float zoomMin = 1f, zoomMax = 1f;
+    private boolean zoomRatio;  // Android 11+: the camera's zoom ratio (also wide-angle below 1×)
+    private android.graphics.Rect sensor;
+    private LinearLayout zoomRow;
+    private TextView zoomLabel;
     private Size previewSize;
     private String[] ids = new String[0];
     private int which;  // index into ids
@@ -158,6 +165,36 @@ public class CameraActivity extends Activity {
         bottom.addView(switchButton);
         root.addView(bottom, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM));
+
+        // zoom: buttons above the shutter, the current zoom while pinching
+        zoomRow = new LinearLayout(this);
+        zoomRow.setGravity(Gravity.CENTER);
+        FrameLayout.LayoutParams zl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
+        zl.bottomMargin = Ui.dp(this, 140);
+        root.addView(zoomRow, zl);
+        zoomLabel = Ui.text(this, "", 22, Color.WHITE, true);
+        zoomLabel.setShadowLayer(Ui.dp(this, 4), 0, 0, 0xCC000000);
+        zoomLabel.setVisibility(View.GONE);
+        root.addView(zoomLabel, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        android.view.ScaleGestureDetector pinch = new android.view.ScaleGestureDetector(this,
+                new android.view.ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    @Override
+                    public boolean onScale(android.view.ScaleGestureDetector d) {
+                        setZoom(zoom * d.getScaleFactor());
+                        return true;
+                    }
+
+                    @Override
+                    public void onScaleEnd(android.view.ScaleGestureDetector d) {
+                        zoomLabel.postDelayed(() -> zoomLabel.setVisibility(View.GONE), 800);
+                    }
+                });
+        root.setOnTouchListener((v, e) -> {
+            pinch.onTouchEvent(e);
+            return true;
+        });
 
         LinearLayout info = new LinearLayout(this);
         info.setOrientation(LinearLayout.VERTICAL);
@@ -314,6 +351,7 @@ public class CameraActivity extends Activity {
             }
             if (which >= ids.length) which = 0;
             chars = cm.getCameraCharacteristics(ids[which]);
+            readZoom();
             StreamConfigurationMap map = chars.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
             if (map == null) throw new IllegalStateException("no stream configuration");
             Size photo = pickPhoto(map.getOutputSizes(ImageFormat.JPEG));
@@ -444,7 +482,73 @@ public class CameraActivity extends Activity {
         }
     }
 
+    /** What this camera can zoom: Android 11+ the zoom ratio (wide-angle too), before a crop of the sensor. */
+    private void readZoom() {
+        zoom = 1f;
+        zoomMin = 1f;
+        zoomMax = 1f;
+        zoomRatio = false;
+        sensor = chars.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+        if (Build.VERSION.SDK_INT >= 30) {
+            android.util.Range<Float> r = chars.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE);
+            if (r != null && r.getUpper() > 1f) {
+                zoomRatio = true;
+                zoomMin = r.getLower();
+                zoomMax = r.getUpper();
+            }
+        }
+        if (!zoomRatio) {
+            Float max = chars.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
+            zoomMax = max == null || sensor == null ? 1f : max;
+        }
+        zoomMax = Math.min(zoomMax, 30f);
+        runOnUiThread(this::showZoomButtons);
+    }
+
+    private void showZoomButtons() {
+        zoomRow.removeAllViews();
+        if (zoomMax <= 1.01f) return;
+        java.util.List<Float> steps = new java.util.ArrayList<>();
+        if (zoomMin < 0.95f) steps.add(Math.max(zoomMin, 0.5f));
+        steps.add(1f);
+        if (zoomMax >= 2f) steps.add(2f);
+        if (zoomMax >= 5f) steps.add(5f);
+        boolean german = java.util.Locale.getDefault().getLanguage().equals("de");
+        for (float st : steps) {
+            boolean on = Math.abs(zoom - st) < 0.05f;
+            TextView b = Ui.text(this, Zoom.label(st, german), 13, on ? 0xFFFFD36B : Color.WHITE, true);
+            b.setGravity(Gravity.CENTER);
+            android.graphics.drawable.GradientDrawable g = new android.graphics.drawable.GradientDrawable();
+            g.setShape(android.graphics.drawable.GradientDrawable.OVAL);
+            g.setColor(0x80000000);
+            b.setBackground(g);
+            b.setOnClickListener(v -> setZoom(st));
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(Ui.dp(this, 44), Ui.dp(this, 44));
+            lp.setMargins(Ui.dp(this, 6), 0, Ui.dp(this, 6), 0);
+            zoomRow.addView(b, lp);
+        }
+    }
+
+    private void setZoom(float z) {
+        if (zoomMax <= 1.01f) return;
+        zoom = Zoom.clamp(z, zoomMin, zoomMax);
+        zoomLabel.setText(Zoom.label(zoom, java.util.Locale.getDefault().getLanguage().equals("de")));
+        zoomLabel.setVisibility(View.VISIBLE);
+        zoomLabel.removeCallbacks(hideZoomLabel);
+        zoomLabel.postDelayed(hideZoomLabel, 1200);
+        showZoomButtons();
+        background.post(this::repeatPreview);
+    }
+
+    private final Runnable hideZoomLabel = () -> zoomLabel.setVisibility(View.GONE);
+
     private void setModes(CaptureRequest.Builder b) {
+        if (zoomRatio && Build.VERSION.SDK_INT >= 30) {
+            b.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoom);
+        } else if (sensor != null && zoomMax > 1.01f) {
+            int[] c = Zoom.crop(sensor.width(), sensor.height(), zoom);
+            b.set(CaptureRequest.SCALER_CROP_REGION, new android.graphics.Rect(sensor.left + c[0], sensor.top + c[1], sensor.left + c[2], sensor.top + c[3]));
+        }
         if (hasFocus) b.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
         b.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
         if (!hasFlash || flash == FLASH_OFF) {

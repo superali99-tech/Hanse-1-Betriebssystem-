@@ -58,7 +58,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
         engine = UpdateEngine.get(this);
         Updates.logInstalled(this);
         build();
-        UpdateInfo known = Updates.pending(this);
+        UpdateInfo known = Updates.systemPending(this);  // app-only updates are in the Nova Store
         if (engine.running()) {
             update = engine.update();
         } else if (known != null) {
@@ -451,7 +451,7 @@ public class UpdateActivity extends Activity implements UpdateEngine.Listener {
             runOnUiThread(() -> {
                 checking = false;
                 if (isDestroyed()) return;
-                if (u != null && u.newerThan(Updates.installedCode(this))) {
+                if (u != null && u.newerThan(Updates.installedCode(this)) && !u.storeOnly) {
                     update = u;
                 } else {
                     update = null;

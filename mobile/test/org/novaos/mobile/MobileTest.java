@@ -74,6 +74,23 @@ public final class MobileTest {
 
     /** Nova Karte with real answers of the routing and place servers (test/*.json). */
     private static void navigation(java.io.File mobile) {
+        // zoom (photos, videos, camera) and the photo editor colours
+        check(Zoom.maxShift(1f, 1000) == 0 && Math.abs(Zoom.maxShift(3f, 1000) - 1000) < 1e-3, "zoom: how far a zoomed picture may move");
+        check(Zoom.maxShift(1.5f, 540, 1050) == 0 && Math.abs(Zoom.maxShift(2.5f, 540, 1050) - 150) < 1e-3
+                && Math.abs(Zoom.maxShift(3f, 540, 1050) - 285) < 1e-3, "zoom: a letterboxed photo moves only to its own edge");
+        check(Zoom.doubleTap(1f) == 2.5f && Zoom.doubleTap(2.5f) == 1f, "zoom: double tap in and out");
+        check(Zoom.label(2f, true).equals("2×") && Zoom.label(2.34f, true).equals("2,3×") && Zoom.label(0.5f, false).equals("0.5×"), "zoom: label");
+        int[] cr = Zoom.crop(4000, 3000, 2f);
+        check(cr[0] == 1000 && cr[1] == 750 && cr[2] == 3000 && cr[3] == 2250 && Zoom.crop(4000, 3000, 0.5f)[0] == 0, "zoom: camera crop");
+        int[] grey = Zoom.apply(Zoom.filter(1), 255, 0, 0);
+        check(grey[0] == grey[1] && grey[1] == grey[2], "editor: black and white");
+        check(java.util.Arrays.equals(Zoom.apply(Zoom.filter(0), 12, 200, 99), new int[] {12, 200, 99}), "editor: original unchanged");
+        int[] bright = Zoom.apply(Zoom.brightness(0.5f), 100, 100, 100);
+        check(bright[0] == 150 && Zoom.apply(Zoom.brightness(1f), 250, 250, 250)[0] == 255, "editor: brightness, clamped at 255");
+        int[] warm = Zoom.apply(Zoom.warmth(1f), 100, 100, 100);
+        check(warm[0] > 100 && warm[2] < 100, "editor: warmer = more red, less blue");
+        int[] both = Zoom.apply(Zoom.concat(Zoom.brightness(0.2f), Zoom.contrast(0.5f)), 100, 100, 100);
+        check(both[0] == Math.round(128 + 1.5f * (120 - 128)), "editor: brightness then contrast");
         // Nova AI: models, subscription, daily limit
         check(NovaAi.effective(NovaAi.Model.PRO5, false) == NovaAi.Model.NOVA5 && NovaAi.effective(NovaAi.Model.PRO5, true) == NovaAi.Model.PRO5,
                 "nova ai: Pro 5 only with the subscription");
@@ -405,6 +422,9 @@ public final class MobileTest {
         UpdateInfo noRel = UpdateInfo.parse(withRelease.replace("release=1.5", "release=<b>"));
         check(noRel != null && noRel.release.isEmpty() && noRel.label().equals("0.1.1.75"), "update: odd release name ignored");
         check(UpdateInfo.parse(withRelease.replace("release=1.5\n", "")).label().equals("0.1.1.75"), "update: a small update keeps the long number");
+        UpdateInfo appsOnly = UpdateInfo.parse(withRelease.replace("release=1.5\n", "storeOnly=true\napps=camera,gallery\n"));
+        check(appsOnly != null && appsOnly.storeOnly && appsOnly.apps.contains("camera"), "update: only Nova apps (Nova Store, no software update)");
+        check(!UpdateInfo.parse(withRelease.replace("release=1.5\n", "storeOnly=true\n")).storeOnly, "update: store-only needs the apps it changes");
         check(UpdateInfo.release("# x\n@release: 1.5\n@apps: map\nNeu|New").equals("1.5") && UpdateInfo.release("@apps: map\nNeu|New").isEmpty()
                 && UpdateInfo.release("@release: eins").isEmpty(), "update: @release in the notes");
         History.Entry big = History.parse("== NovaOS 1.5 (0.1.1.75) · 21.11.2026\nNeu|New\n").get(0);

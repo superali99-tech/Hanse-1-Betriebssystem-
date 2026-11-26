@@ -30,7 +30,7 @@ public class SettingsActivity extends Activity {
         content.addView(row(R.drawable.ic_account, R.string.account_title, who.isEmpty() ? getString(R.string.settings_profile_none)
                         : (Profile.name(this).isEmpty() ? "" : Profile.name(this) + " · ") + who,
                 v -> startActivity(new android.content.Intent(this, AccountActivity.class))));
-        UpdateInfo update = Updates.pending(this);
+        UpdateInfo update = Updates.systemPending(this);
         content.addView(row(R.drawable.ic_refresh, R.string.update_title, update != null
                         ? getString(R.string.update_available) + " · NovaOS " + update.label()
                         : getString(R.string.update_current, Updates.displayName(this)),

@@ -645,6 +645,25 @@ Tablet-Querformat.
 **Nicht getestet:** im Emulator (die Testumgebung startete währenddessen neu, das Test-Handy war weg) – Chat-Ansicht,
 Modell-Auswahl, Abo-Seite mit Handy-Sperre und das schnelle Aktualisieren im Nova Store sind nur gebaut, nicht angesehen.
 
+### Update 0.1.1.81: Zoomen, Fotos bearbeiten, Videos kürzen – nur im Nova Store (26.11.2026)
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Logik-Tests | ✅ | 1834 bestanden (neu: Zoom-Grenzen auch für Fotos mit Rand, Doppeltippen, Zoom-Anzeige „2,3×“, Kamera-Bildausschnitt, Farbmatrizen für Helligkeit/Kontrast/Sättigung/Wärme/Filter, Dateiname der Kopie, `storeOnly` nur mit Apps) |
+| Foto zoomen (Emulator) | ✅ | zwei Finger (simuliert, das Test-Handy hat keinen Touchscreen), verschieben, Doppeltippen rein/raus; verschieben stoppt jetzt am Fotorand statt am schwarzen Rand (Fehler gefunden und behoben) |
+| Foto bearbeiten | ✅ | Sepia + rechts drehen → Kopie `nova_test_bearbeitet.jpg` 1200×1600 im Ordner DCIM/NovaOS, Original unverändert, Kopie erscheint in der Galerie; Leiste unten mittig mit gelb markiertem Werkzeug, Knöpfe „Rechts/Links/Spiegeln“ einzeilig (gefunden und behoben) |
+| Video zoomen | ✅ | Video im Zoom mit Knöpfen und Zeitleiste |
+| Video kürzen | ✅ | 0:03–0:09 ohne Ton → `nova_clip_gekürzt.mp4`: 6,04 s, nur Videospur (ffprobe); erstes Bild ist jetzt vor dem Abspielen sichtbar (vorher schwarz, behoben) |
+| Kamera | ⚠️ | Test-Handy hat keine Kamera: „Keine Kamera gefunden“ ohne Absturz; Zoom-Knöpfe und Zoomen mit zwei Fingern **nicht** an einer echten Kamera getestet |
+| Nur-Store-Update | ✅ | `update.properties` enthält `storeOnly=true`, `apps=camera,gallery` |
+
+Bilder: `docs/screenshots/mobile/115-galerie-foto-zoom.jpg`, `116-foto-bearbeiten-filter.jpg`, `117-video-kuerzen.jpg`,
+`118-video-zoom.jpg`.
+
+**Hinweis:** NovaOS 0.1.1.80 kennt `storeOnly` noch nicht – auf so einem Handy kann dieses eine Update noch als
+Software-Update angezeigt werden. Über Nova Store → Nova Kamera/Galerie → „Aktualisieren“ läuft es schon jetzt schnell
+und ohne Start-Animation; ab 0.1.1.81 erscheinen solche Updates nur noch im Store.
+
 ## NovaOS TV (App für Google TV / Android TV)
 
 Getestet am 18.11.2026 mit **Android-x86 9.0-r2** in QEMU (TCG, ohne Netzwerk), Bildschirm
