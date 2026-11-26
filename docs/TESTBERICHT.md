@@ -645,7 +645,7 @@ Tablet-Querformat.
 **Nicht getestet:** im Emulator (die Testumgebung startete währenddessen neu, das Test-Handy war weg) – Chat-Ansicht,
 Modell-Auswahl, Abo-Seite mit Handy-Sperre und das schnelle Aktualisieren im Nova Store sind nur gebaut, nicht angesehen.
 
-### Update 0.1.1.81: Zoomen, Fotos bearbeiten, Videos kürzen – nur im Nova Store (26.11.2026)
+### Update 0.1.1.82: Zoomen, Fotos bearbeiten, Videos kürzen – nur im Nova Store (26.11.2026)
 
 | Test | Ergebnis | Details |
 |---|---|---|
@@ -655,14 +655,14 @@ Modell-Auswahl, Abo-Seite mit Handy-Sperre und das schnelle Aktualisieren im Nov
 | Video zoomen | ✅ | Video im Zoom mit Knöpfen und Zeitleiste |
 | Video kürzen | ✅ | 0:03–0:09 ohne Ton → `nova_clip_gekürzt.mp4`: 6,04 s, nur Videospur (ffprobe); erstes Bild ist jetzt vor dem Abspielen sichtbar (vorher schwarz, behoben) |
 | Kamera | ⚠️ | Test-Handy hat keine Kamera: „Keine Kamera gefunden“ ohne Absturz; Zoom-Knöpfe und Zoomen mit zwei Fingern **nicht** an einer echten Kamera getestet |
-| Nur-Store-Update | ✅ | `update.properties` enthält `storeOnly=true`, `apps=camera,gallery` |
+| Nur-Store-Update | ✅ | auf ghcr.io: `versionName=0.1.1.82`, `storeOnly=true`, `apps=camera,gallery` |
 
 Bilder: `docs/screenshots/mobile/115-galerie-foto-zoom.jpg`, `116-foto-bearbeiten-filter.jpg`, `117-video-kuerzen.jpg`,
 `118-video-zoom.jpg`.
 
 **Hinweis:** NovaOS 0.1.1.80 kennt `storeOnly` noch nicht – auf so einem Handy kann dieses eine Update noch als
 Software-Update angezeigt werden. Über Nova Store → Nova Kamera/Galerie → „Aktualisieren“ läuft es schon jetzt schnell
-und ohne Start-Animation; ab 0.1.1.81 erscheinen solche Updates nur noch im Store.
+und ohne Start-Animation; ab 0.1.1.82 erscheinen solche Updates nur noch im Store.
 
 ## NovaOS TV (App für Google TV / Android TV)
 

@@ -165,7 +165,7 @@
   der Sperre des Handys (Gesicht/Fingerabdruck/PIN über `ConfirmActivity`), jederzeit beendbar; eine Prüfung per
   Personalausweis gibt es bewusst nicht. Nova Store: Nova-Apps aktualisieren im Schnellmodus (`UpdateEngine.start(u,
   true)`: kurze Stufen) und ohne Start-Animation danach (nur „Nova-Apps aktualisiert ✓“)
-* **NovaOS Mobile 0.1.1.81 – Zoomen und Bearbeiten (nur Nova-Store-Update für Kamera und Galerie)**: Fotos und
+* **NovaOS Mobile 0.1.1.82 – Zoomen und Bearbeiten (nur Nova-Store-Update für Kamera und Galerie)**: Fotos und
   Videos zoomen (`ZoomLayout`: zwei Finger, Doppeltippen 2,5×, im Zoom verschieben bis zum Bildrand; Videos jetzt in
   `VideoPane` auf einer TextureView mit eigenen Knöpfen). **Fotos bearbeiten** (`PhotoEditActivity`): zuschneiden
   (frei, 1:1, 4:3, 16:9, 9:16), drehen, spiegeln, Helligkeit, Kontrast, Sättigung, Wärme, 7 Filter – gespeichert als
