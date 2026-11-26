@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=My account
+Name[de]=Mein Konto
+Comment=Add your e-mail address and confirm it with a code
+Comment[de]=E-Mail-Adresse hinzufügen und mit einem Code bestätigen
+Exec=nova-account
+Icon=user-identity
+Terminal=false
+Categories=Qt;Settings;
+Keywords=account;email;e-mail;verify;code;
+Keywords[de]=Konto;E-Mail;Mail;bestätigen;Code;verifizieren;

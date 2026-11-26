@@ -14,6 +14,12 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **Mein Konto (0.1.1.90):** neue App (auch Systemeinstellungen → System → „Mein Konto“): E-Mail-Adresse
+  hinzufügen und mit einem 6-stelligen Code bestätigen. Der Code kommt als echte E-Mail – verschickt über das
+  eigene E-Mail-Konto (SMTP mit TLS und Zertifikatsprüfung, Anbieter wie GMX, WEB.DE, Gmail, T-Online, Outlook
+  erkannt, Hinweise zu App-Passwort/POP3-IMAP); das Passwort wird nicht gespeichert. Code 10 Minuten gültig,
+  5 Versuche, erneut senden nach 60 s. Gespeichert nur Adresse + „bestätigt“ (`~/.config/novaos/account.json`).
+  Telefonnummer per SMS gibt es bewusst nicht: ein PC kann keine SMS senden (bräuchte einen bezahlten Dienst).
 * **„Jetzt neu starten“ nach dem Update (0.1.1.89):** `novaos-base`/`novaos-desktop` setzen bei einem Update
   Debians Merker `/run/reboot-required`; Nova Updates fragt danach „Updates installiert – zum Abschließen neu
   starten“ mit „Jetzt neu starten“ / „Später“ und zeigt bis zum Neustart „Fertig – bitte neu starten“.

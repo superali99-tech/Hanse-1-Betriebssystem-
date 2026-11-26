@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=My account
+Name[de]=Mein Konto
+Comment=E-mail address, confirmed with a code
+Comment[de]=E-Mail-Adresse, mit Code bestätigt
+Exec=nova-account
+Icon=user-identity
+X-KDE-System-Settings-Parent-Category=system-administration
+X-KDE-Weight=3

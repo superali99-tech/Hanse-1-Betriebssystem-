@@ -192,6 +192,14 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Mein Konto (0.1.1.90):** Versand gegen einen lokalen Mailserver mit eigenem Zertifikat (aiosmtpd): STARTTLS und
+SSL – Code kommt an (Betreff und Text) ✅; falsches Passwort → „Passwort nicht angenommen“ (erst als „keine
+Verbindung“ gemeldet, weil der Testserver hängen blieb → Fehler jetzt nach Schritt eingeordnet, behoben) ✅;
+nicht vertrauenswürdiges Zertifikat und kein Server → „keine Verbindung“ ✅. Oberfläche offscreen: Übersicht →
+E-Mail (WEB.DE-Hinweis) → falscher Code abgelehnt → richtiger Code → „✓ bestätigt“, gespeichert ohne Passwort ✅
+(`docs/screenshots/glass/08–10`); Unit-Tests für Adressen, Anbieter, Code (falsch/abgelaufen/gesperrt),
+Speicherung. **Nicht getestet:** Versand über ein echtes Konto (GMX, WEB.DE, Gmail …).
+
 **Neustart nach dem Update (0.1.1.89):** Update von `novaos-base` im Debian-13-System setzt `/run/reboot-required`
 (+ `.pkgs`) ✅; Nova Updates offscreen: „Fertig – bitte neu starten“, „Jetzt neu starten“ als Hauptknopf, Frage
 „Jetzt neu starten / Später“ nach der Installation ✅ (`docs/screenshots/glass/07`); 96 Tests ✅.
