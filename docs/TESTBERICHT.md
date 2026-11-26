@@ -185,6 +185,7 @@ Getestet in einem Debian-13-System (debootstrap, chroot) mit den Paketen `novaos
 | Suche + Installation beim Neustart (`nova-scheduled-update check --force`, dann `offline`) | ✅ | 3 Pakete geladen, `/system-update` gesetzt, „offline“ installiert, Marker entfernt, `last-result` ok |
 | Nova Updates (offscreen) | ✅ | startet, „Sicherheitsupdates zusätzlich täglich“ angehakt; Knopf heißt jetzt „Nach Updates suchen“ |
 | Unit-Tests (im Debian-13-System) | ✅ | 91 bestanden |
+| Echter Kanal auf GitHub (0.1.1.84, Schlüssel aus dem Workflow) | ✅ | genau die Schritte aus der Anleitung: `wget` + `sudo apt install` von `novaos-update-einrichten.deb`, dann Update mit dem Helfer von 0.1.0 → alle drei Pakete 0.1.1.84, Signatur geprüft, tägliche Sicherheitsupdates an, „Software-Update“ installiert |
 
 **Nicht getestet:** echter Neustart in `system-update.target` mit Plymouth (nur im chroot, ohne systemd) und
 der Eintrag in den echten KDE-Systemeinstellungen (Ort laut Quelltext von Plasma 6.3:
