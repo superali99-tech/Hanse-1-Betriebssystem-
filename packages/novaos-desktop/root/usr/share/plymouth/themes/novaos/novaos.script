@@ -6,9 +6,18 @@ sw = Window.GetWidth();
 sh = Window.GetHeight();
 
 logo.image = Image("logo.png");
+
+# glass design: soft violet light behind the logo (glow.png, artwork/generate_glass.py)
+glow.image = Image("glow.png");
+glow.sprite = Sprite(glow.image);
+glow.sprite.SetX(sw / 2 - glow.image.GetWidth() / 2);
+glow.sprite.SetY(sh / 2 - 40 - glow.image.GetHeight() / 2);
+glow.sprite.SetZ(-1);
+
 logo.sprite = Sprite(logo.image);
 logo.sprite.SetX(sw / 2 - logo.image.GetWidth() / 2);
 logo.sprite.SetY(sh / 2 - logo.image.GetHeight() / 2 - 40);
+logo.sprite.SetZ(1);
 
 word.image = Image("wordmark.png");
 word.sprite = Sprite(word.image);
@@ -26,6 +35,7 @@ for (i = 0; i < 5; i++) {
 t = 0;
 fun refresh_callback() {
     t++;
+    glow.sprite.SetOpacity(0.75 + 0.25 * Math.Sin(t / 25));
     for (i = 0; i < 5; i++) {
         phase = (t / 6 - i) % 5;
         if (phase < 0) phase += 5;
@@ -65,7 +75,7 @@ fun hide_message_callback(text) {
 Plymouth.SetHideMessageFunction(hide_message_callback);
 
 # Offline updates ("plymouth system-update --progress=N"): progress bar
-bar.w = 360;
+bar.w = 420;
 bar.h = 6;
 bar.x = sw / 2 - bar.w / 2;
 bar.y = sh * 0.80 + 36;

@@ -69,8 +69,8 @@ class WifiPanel(QWidget):
         lay.addLayout(top)
 
         self.list = QListWidget()
+        self.list.setObjectName("NovaList")  # round glass list (novaos.common.style)
         self.list.setMinimumHeight(180)
-        self.list.setStyleSheet("QListWidget { font-size: 12pt; } QListWidget::item { padding: 8px; }")
         self.list.currentRowChanged.connect(self._selected)
         self.list.itemDoubleClicked.connect(lambda _i: self._connect_clicked())
         lay.addWidget(self.list, 1)
@@ -81,6 +81,7 @@ class WifiPanel(QWidget):
         self.password = QLineEdit()
         self.password.setEchoMode(QLineEdit.EchoMode.Password)
         self.password.setPlaceholderText(_("WLAN password"))
+        self.password.setObjectName("NovaField")
         self.password.setMinimumHeight(38)
         self.password.returnPressed.connect(self._connect_clicked)
         fl.addWidget(self.password, 1)

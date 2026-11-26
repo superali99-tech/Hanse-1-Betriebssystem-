@@ -192,6 +192,14 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Glas-Design (0.1.1.87):** Willkommens-Splash (QML) im Debian-13-System offscreen gerendert – Glas-Karte mit Logo,
+„Willkommen“ und Balken ✅ (`docs/screenshots/glass/01-anmelde-splash-glas.jpg`); Nova Welcome mit neuem Stylesheet
+✅ (02–04); `nova-look-update` mit simuliertem `busctl`: wartet auf Plasma (2 Fehlversuche), setzt die Leiste,
+merkt sich die Version, zweiter Lauf ohne Aufruf ✅; 95 Unit-Tests ✅. Einstellungsnamen geprüft im Quelltext von
+Plasma 6.3 (`Panel.opacity`, Breeze `MenuOpacity`/`ShadowSize`/`OutlineIntensity`/`TitleAlignment`, SDDM-Breeze
+`showlogo`/`logo`/`background`). **Nicht getestet:** echter Plasma-Desktop, Anmeldebildschirm und Plymouth beim
+Booten (keine grafische Sitzung in der Testumgebung).
+
 **Nicht getestet:** echter Neustart in `system-update.target` mit Plymouth (nur im chroot, ohne systemd) und
 der Eintrag in den echten KDE-Systemeinstellungen (Ort laut Quelltext von Plasma 6.3:
 `/usr/share/plasma/systemsettings/externalmodules/`).

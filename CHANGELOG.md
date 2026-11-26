@@ -14,6 +14,14 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **Glas-Design für den PC (0.1.1.87):** Taskleiste schwebend und durchsichtig mit Unschärfe dahinter
+  (`panel.opacity = "translucent"`), Menüs leicht durchsichtig (Breeze `MenuOpacity=82`), größere Fensterschatten,
+  zarter Fensterrand, Fenstertitel in der Mitte, stärkere Unschärfe (KWin). Nova-Apps: Glas-Karten mit hellerer
+  Oberkante, Knöpfe und Auswahl im Verlauf Violett → Blau, runde Listen und Felder. Anmeldebildschirm (SDDM) mit
+  weichem, unscharfem Hintergrund, NovaOS-Logo und Uhr; Start nach der Anmeldung (KSplash) als Glas-Karte mit
+  „Willkommen“ und Verlaufsbalken; Startbildschirm (Plymouth) mit violettem Leuchten hinter dem Logo. PCs, die
+  vorher eingerichtet wurden, bekommen die Glas-Taskleiste einmalig bei der nächsten Anmeldung
+  (`nova-look-update`). Bilder: `artwork/generate_glass.py`.
 * **WLAN wie am Handy:** neue App **Nova WLAN** (auch Systemeinstellungen → Netzwerk → „Mit WLAN verbinden“ und
   neuer Schritt „Mit dem Internet verbinden“ im Willkommensassistenten): Netzwerke mit Signalstärke und Schloss,
   antippen, Passwort eingeben, „Verbinden“ – keine IP-Adressen oder anderen Einstellungen. Klare Meldungen bei

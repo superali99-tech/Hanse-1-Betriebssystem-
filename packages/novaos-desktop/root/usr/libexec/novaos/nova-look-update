@@ -1,0 +1,29 @@
+#!/bin/sh
+# NovaOS glass design for desktops that were set up before it: once per user and
+# design version, at login, make the NovaOS taskbar (bottom panel) floating and
+# see-through, and let KWin reload its settings (blur, shadows, no shake cursor).
+# New users get all of this from the NovaOS layout directly. Never blocks the login.
+VERSION=2
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/novaos"
+[ "$(cat "$STATE/look-version" 2>/dev/null)" = "$VERSION" ] && exit 0
+command -v busctl >/dev/null 2>&1 || exit 0
+SCRIPT='var ps = panels();
+for (var i = 0; i < ps.length; i++) {
+    var p = ps[i];
+    if (p.location == "bottom") {
+        p.floating = true;
+        p.opacity = "translucent";
+    }
+}'
+# Plasma may still be starting: try for about a minute
+i=0
+while [ $i -lt 30 ]; do
+	if busctl --user call org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell evaluateScript s "$SCRIPT" >/dev/null 2>&1; then
+		busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure >/dev/null 2>&1 || true
+		mkdir -p "$STATE" && echo "$VERSION" > "$STATE/look-version"
+		exit 0
+	fi
+	i=$((i + 1))
+	sleep 2
+done
+exit 0

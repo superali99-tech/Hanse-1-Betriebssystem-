@@ -35,9 +35,13 @@ for (var i = 0; i < desktops.length; i++) {
 // ---- Floating bottom panel, centred start button + pinned apps ----
 var panel = new Panel;
 panel.location = "bottom";
-panel.height = 2 * Math.floor(gridUnit * 2.6 / 2);
+panel.height = 2 * Math.floor(gridUnit * 2.8 / 2);
 if ("floating" in panel) {
     panel.floating = true;
+}
+// glass: see-through with blur behind (NovaOS glass design)
+if ("opacity" in panel) {
+    panel.opacity = "translucent";
 }
 panel.hiding = "none";
 

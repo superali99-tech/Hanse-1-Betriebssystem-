@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=NovaOS glass design
+Name[de]=NovaOS-Glas-Design
+Comment=Brings the NovaOS glass design to desktops set up before it (once)
+Exec=/usr/libexec/novaos/nova-look-update
+OnlyShowIn=KDE;
+NoDisplay=true
+X-KDE-autostart-phase=2

@@ -1,0 +1,13 @@
+# NovaOS glass design (Breeze defaults for every user who has not changed them)
+[Style]
+# menus and context menus slightly see-through with blur behind (needs KWin blur)
+MenuOpacity=82
+
+[Common]
+ShadowSize=ShadowVeryLarge
+OutlineIntensity=OutlineLow
+
+[Windeco]
+# window titles in the middle, a calm title bar without gradient
+TitleAlignment=AlignCenterFullWidth
+DrawBackgroundGradient=false

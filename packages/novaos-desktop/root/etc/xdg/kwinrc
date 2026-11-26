@@ -12,7 +12,7 @@ dimscreenEnabled=true
 shakecursorEnabled=false
 
 [Effect-blur]
-BlurStrength=8
+BlurStrength=10
 NoiseStrength=2
 
 [Desktops]

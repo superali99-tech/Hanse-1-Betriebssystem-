@@ -40,30 +40,45 @@ def card_color() -> QColor:
 
 
 def stylesheet() -> str:
+    """NovaOS glass design: soft glassy cards (light top edge), violet-blue gradients
+    for the main actions, round lists and fields - like NovaOS Mobile."""
     pal = QApplication.palette()
-    card = card_color().name()
-    border = mix(pal.color(QPalette.ColorRole.Window), pal.color(QPalette.ColorRole.Text), 0.12).name()
-    hover = mix(QColor(card), QColor(ACCENT), 0.10).name()
-    muted = mix(pal.color(QPalette.ColorRole.Text), pal.color(QPalette.ColorRole.Window), 0.40).name()
+    dark = is_dark(pal)
+    window = pal.color(QPalette.ColorRole.Window)
+    text = pal.color(QPalette.ColorRole.Text)
+    card_c = card_color()
+    card = card_c.name()
+    # the "glass" edge: a little lighter at the top of every card
+    top = mix(card_c, QColor("white"), 0.06 if dark else 0.55).name()
+    border = mix(window, text, 0.12).name()
+    edge = mix(window, text, 0.07 if dark else 0.05).name()
+    hover = mix(card_c, QColor(ACCENT), 0.10).name()
+    hover_top = mix(QColor(top), QColor(ACCENT), 0.08).name()
+    muted = mix(text, window, 0.40).name()
+    field = mix(window, text, 0.05 if dark else 0.03).name()
+    acc_hi = QColor(ACCENT).lighter(112).name()
+    acc2_hi = QColor(ACCENT_2).lighter(112).name()
+    acc_lo = QColor(ACCENT).darker(110).name()
+    acc2_lo = QColor(ACCENT_2).darker(110).name()
     return f"""
     QFrame#NovaCard {{
-        background: {card};
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {top}, stop:1 {card});
         border: 1px solid {border};
-        border-radius: {RADIUS}px;
+        border-radius: {RADIUS + 4}px;
     }}
     QFrame#NovaCard:hover {{
-        background: {hover};
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {hover_top}, stop:1 {hover});
         border-color: {ACCENT};
     }}
     QFrame#NovaPanel {{
-        background: {card};
-        border: 1px solid {border};
-        border-radius: {RADIUS}px;
+        background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 {top}, stop:1 {card});
+        border: 1px solid {edge};
+        border-radius: {RADIUS + 4}px;
     }}
     QFrame#NovaHero {{
-        border-radius: {RADIUS + 4}px;
+        border-radius: {RADIUS + 8}px;
         background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-            stop:0 {ACCENT}, stop:1 {ACCENT_2});
+            stop:0 {ACCENT}, stop:0.55 #5A6BFF, stop:1 {ACCENT_2});
     }}
     QFrame#NovaHero QLabel {{ color: white; background: transparent; }}
     QLabel#NovaTitle {{ font-size: 22pt; font-weight: 700; }}
@@ -71,48 +86,68 @@ def stylesheet() -> str:
     QLabel#NovaMuted {{ color: {muted}; }}
     QLabel#NovaChip {{
         border: 1px solid {border};
-        border-radius: 9px;
-        padding: 2px 8px;
+        border-radius: 10px;
+        padding: 2px 9px;
         color: {muted};
     }}
     QLabel#NovaBadgeOk {{
-        background: {SUCCESS}; color: white; border-radius: 8px; padding: 1px 7px; font-weight: 600;
+        background: {SUCCESS}; color: white; border-radius: 9px; padding: 1px 8px; font-weight: 600;
     }}
     QLabel#NovaBadgeWarn {{
-        background: {WARNING}; color: white; border-radius: 8px; padding: 1px 7px; font-weight: 600;
+        background: {WARNING}; color: white; border-radius: 9px; padding: 1px 8px; font-weight: 600;
     }}
     QLabel#NovaBadgeDanger {{
-        background: {DANGER}; color: white; border-radius: 8px; padding: 1px 7px; font-weight: 600;
+        background: {DANGER}; color: white; border-radius: 9px; padding: 1px 8px; font-weight: 600;
     }}
     QPushButton#NovaPrimary {{
-        background: {ACCENT}; color: white; border: none;
-        border-radius: 10px; padding: 7px 18px; font-weight: 600;
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+        color: white; border: none;
+        border-radius: 12px; padding: 8px 20px; font-weight: 600;
     }}
-    QPushButton#NovaPrimary:hover {{ background: {QColor(ACCENT).lighter(112).name()}; }}
+    QPushButton#NovaPrimary:hover {{
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {acc_hi}, stop:1 {acc2_hi});
+    }}
+    QPushButton#NovaPrimary:pressed {{
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {acc_lo}, stop:1 {acc2_lo});
+    }}
     QPushButton#NovaPrimary:disabled {{ background: {muted}; }}
     QPushButton#NovaDanger {{
         background: transparent; color: {DANGER}; border: 1px solid {DANGER};
-        border-radius: 10px; padding: 6px 16px; font-weight: 600;
+        border-radius: 12px; padding: 7px 18px; font-weight: 600;
     }}
     QPushButton#NovaDanger:hover {{ background: {DANGER}; color: white; }}
     QListWidget#NovaSidebar {{
         background: transparent; border: none; outline: none; font-size: 11pt;
     }}
     QListWidget#NovaSidebar::item {{
-        padding: 8px 10px; border-radius: 9px; margin: 1px 4px;
+        padding: 9px 12px; border-radius: 12px; margin: 2px 6px;
     }}
     QListWidget#NovaSidebar::item:selected {{
-        background: {ACCENT}; color: white;
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+        color: white;
     }}
     QListWidget#NovaSidebar::item:hover:!selected {{ background: {hover}; }}
-    QLineEdit#NovaSearch {{
-        border: 1px solid {border}; border-radius: 12px; padding: 7px 12px; font-size: 11pt;
+    QListWidget#NovaList {{
+        background: {field}; border: 1px solid {edge}; border-radius: {RADIUS + 4}px;
+        outline: none; padding: 6px; font-size: 12pt;
     }}
-    QLineEdit#NovaSearch:focus {{ border-color: {ACCENT}; }}
+    QListWidget#NovaList::item {{ padding: 10px 12px; border-radius: 12px; margin: 1px 0px; }}
+    QListWidget#NovaList::item:selected {{
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+        color: white;
+    }}
+    QListWidget#NovaList::item:hover:!selected {{ background: {hover}; }}
+    QLineEdit#NovaSearch, QLineEdit#NovaField {{
+        background: {field}; border: 1px solid {border}; border-radius: 14px; padding: 8px 14px; font-size: 11pt;
+    }}
+    QLineEdit#NovaSearch:focus, QLineEdit#NovaField:focus {{ border-color: {ACCENT}; }}
     QProgressBar {{
         border: none; border-radius: 4px; background: {border}; max-height: 8px; text-align: center;
     }}
-    QProgressBar::chunk {{ border-radius: 4px; background: {ACCENT}; }}
+    QProgressBar::chunk {{
+        border-radius: 4px;
+        background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {ACCENT}, stop:1 {ACCENT_2});
+    }}
     QScrollArea {{ background: transparent; border: none; }}
     QScrollArea > QWidget#qt_scrollarea_viewport > QWidget {{ background: transparent; }}
     """
