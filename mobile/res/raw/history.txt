@@ -1,6 +1,12 @@
 # Earlier versions for "Update-Verlauf" in the software update (newest first). The current
 # version is in whatsnew.txt; on a release its lines move here. "== title" starts a version,
 # then "German|English" per line. A big update: "== NovaOS 1.5 (0.1.1.75) · date" (name, then the build).
+== NovaOS 0.1.1.82 · 26.11.2026
+{gallery} Fotos und Videos zoomen: zwei Finger, Doppeltippen, im Zoom verschieben|Zoom photos and videos: two fingers, double tap, move while zoomed
+{gallery} Fotos bearbeiten: zuschneiden, drehen, spiegeln, Helligkeit, Kontrast, Sättigung, Wärme und Filter – als Kopie|Edit photos: crop, rotate, mirror, brightness, contrast, saturation, warmth and filters – as a copy
+{gallery} Videos kürzen, auf Wunsch ohne Ton – als Kopie, das Original bleibt|Shorten videos, without sound if you like – as a copy, the original stays
+{camera} Kamera zoomen: mit zwei Fingern oder den Knöpfen 0,5× · 1× · 2× · 5× (je nach Handy)|Camera zoom: with two fingers or the buttons 0.5× · 1× · 2× · 5× (depending on the phone)
+
 == NovaOS 0.1.1.80 · 25.11.2026
 {nova} Nova ist jetzt ein Chat: Sprechblasen und „Nova denkt nach …“ mit leuchtender Kugel|Nova is now a chat: bubbles and "Nova is thinking …" with a glowing sphere
 {nova} Modell auswählen (oben antippen): Nova 5, Nova Pro 5, Nova Mini – Nova Vision 5 kommt bald|Choose the model (tap at the top): Nova 5, Nova Pro 5, Nova Mini – Nova Vision 5 is coming

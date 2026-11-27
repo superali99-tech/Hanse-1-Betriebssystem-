@@ -23,6 +23,9 @@ done
 
 install -Dm0755 "$SRC/data/libexec/nova-apt-helper" "$STAGE/usr/libexec/novaos/nova-apt-helper"
 install -Dm0755 "$SRC/data/libexec/nova-scheduled-update" "$STAGE/usr/libexec/novaos/nova-scheduled-update"
+install -Dm0755 "$SRC/data/libexec/nova-webapp" "$STAGE/usr/libexec/novaos/nova-webapp"
+# icons of the Nova Store web apps (own designs, no company logos)
+install -Dm0644 -t "$STAGE/usr/share/icons/hicolor/scalable/apps" "$SRC"/data/icons/novaos-webapp-*.svg
 install -Dm0644 "$SRC/data/etc/novaos/updates.conf" "$STAGE/etc/novaos/updates.conf"
 install -Dm0644 "$SRC/data/whatsnew-pc.txt" "$STAGE/usr/share/novaos/whatsnew-pc.txt"
 install -Dm0644 -t "$STAGE/usr/share/applications" "$SRC"/data/applications/*.desktop

@@ -1,0 +1,10 @@
+#!/usr/bin/python3 -I
+"""Start a Nova Store web app (Claude, ChatGPT, WhatsApp) in its own window: nova-webapp ID."""
+import sys
+
+from novaos.store import webapps
+
+app = webapps.get(sys.argv[1]) if len(sys.argv) > 1 else None
+if app is None:
+    sys.exit("usage: nova-webapp " + "|".join(w.id for w in webapps.WEBAPPS))
+sys.exit(0 if webapps.launch(app) else 1)

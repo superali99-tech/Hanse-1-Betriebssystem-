@@ -192,6 +192,12 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Web-Apps im Nova Store (PC 0.1.1.91):** Unit-Tests (drei offizielle HTTPS-Adressen, Startmenü-Eintrag mit
+`StartupWMClass`, Hinzufügen/Entfernen, Startbefehl mit eigenem Profil); Kacheln offscreen: „Hinzufügen“ →
+Eintrag angelegt, Knopf wird „Öffnen“ + „Entfernen“ ✅ (`docs/screenshots/glass/11`). Ein erstes WhatsApp-Symbol
+ähnelte dem echten Logo → durch neutrale Sprechblasen ersetzt. **Nicht getestet:** Start in Firefox auf einem
+echten Desktop. **Handy:** Claude und ChatGPT im Katalog, 1840 Logik-Tests ✅.
+
 **Mein Konto (0.1.1.90):** Versand gegen einen lokalen Mailserver mit eigenem Zertifikat (aiosmtpd): STARTTLS und
 SSL – Code kommt an (Betreff und Text) ✅; falsches Passwort → „Passwort nicht angenommen“ (erst als „keine
 Verbindung“ gemeldet, weil der Testserver hängen blieb → Fehler jetzt nach Schritt eingeordnet, behoben) ✅;

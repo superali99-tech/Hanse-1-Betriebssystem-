@@ -30,6 +30,12 @@ class FlowLayout(QLayout):
     def addItem(self, item):  # noqa: N802 (Qt API)
         self._items.append(item)
 
+    def insertWidget(self, index: int, widget: QWidget) -> None:  # noqa: N802 (Qt naming)
+        """Put a widget at a position (e.g. official web apps before the other results)."""
+        self.addChildWidget(widget)
+        self._items.insert(max(0, min(index, len(self._items))), QWidgetItem(widget))
+        self.invalidate()
+
     def count(self):
         return len(self._items)
 

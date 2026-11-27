@@ -30,7 +30,8 @@ from novaos.common.i18n import _
 from novaos.store.appstream import AppInfo
 from novaos.store.details import DetailsPage
 from novaos.store.images import ImageLoader
-from novaos.store.tiles import AppTile, InstalledRow, Section, app_pixmap
+from novaos.store import webapps
+from novaos.store.tiles import AppTile, InstalledRow, Section, WebAppTile, app_pixmap
 
 CATEGORY_ITEMS = [
     ("games", _("Games"), "applications-games"),
@@ -45,6 +46,12 @@ CATEGORY_ITEMS = [
 ]
 
 PAGE_SIZE = 48
+
+
+def _german() -> bool:
+    import os
+    lang = os.environ.get("LANGUAGE") or os.environ.get("LC_ALL") or os.environ.get("LC_MESSAGES") or os.environ.get("LANG") or ""
+    return lang.startswith("de")
 
 
 def scroll_page() -> tuple[QScrollArea, QVBoxLayout]:
@@ -364,8 +371,12 @@ class StoreWindow(QMainWindow):
         if not len(self.c.catalog):
             return
         results = self.c.catalog.search(q)
-        sub = _("{n} results").format(n=len(results)) if results else _("No apps found. Try a different search term.")
+        web = webapps.search(q)
+        n = len(results) + len(web)
+        sub = _("{n} results").format(n=n) if n else _("No apps found. Try a different search term.")
         self._show_list(f"“{q}”", sub, results)
+        for w in reversed(web):  # the official web apps first
+            self.list_section.flow.insertWidget(0, WebAppTile(w, _german()))
 
     # ------------------------------------------------------------ controller
     def _show_loading(self, text: str) -> None:
@@ -430,6 +441,13 @@ class StoreWindow(QMainWindow):
         hl.addSpacing(10)
         hl.addLayout(chips)
         lay.addWidget(hero)
+
+        # Claude, ChatGPT, WhatsApp: no Linux apps exist - the official web versions in their own window
+        sec = Section(_("Web apps"), _("No Linux app exists for these – NovaOS opens the official website in its own "
+                                       "window, with its own entry in the start menu and taskbar."))
+        for w in webapps.WEBAPPS:
+            sec.add(WebAppTile(w, _german()))
+        lay.addWidget(sec)
 
         rec = self.c.catalog.recommended()
         if rec:

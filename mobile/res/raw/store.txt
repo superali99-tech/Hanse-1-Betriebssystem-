@@ -18,6 +18,8 @@ fdroid|org.fossify.calendar|Fossify Kalender|werkzeuge|Kalender ohne Werbung und
 fdroid|dev.patrickgold.florisboard|FlorisBoard|werkzeuge|Tastatur, die nichts mitliest|Keyboard that does not read along|
 fdroid|org.fdroid.fdroid|F-Droid|werkzeuge|Der Store für über 4000 freie Apps|The store for more than 4000 free apps|
 play|com.whatsapp|WhatsApp|kommunikation|Nachrichten, Sprach- und Videoanrufe|Messages, voice and video calls|*
+play|com.anthropic.claude|Claude|werkzeuge|KI-Assistent von Anthropic: fragen, schreiben, lernen|AI assistant by Anthropic: ask, write, learn|*
+play|com.openai.chatgpt|ChatGPT|werkzeuge|KI-Chat von OpenAI|AI chat by OpenAI|*
 play|org.thoughtcrime.securesms|Signal|kommunikation|Verschlüsselte Nachrichten und Anrufe|Encrypted messages and calls|*
 play|org.telegram.messenger|Telegram|kommunikation|Nachrichten und Kanäle|Messages and channels|
 play|de.hafas.android.db|DB Navigator|unterwegs|Bahntickets, Verbindungen und Verspätungen|Train tickets, connections and delays|*

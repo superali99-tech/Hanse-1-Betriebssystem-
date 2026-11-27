@@ -4,8 +4,5 @@
 # "@release: 1.5": a big update - shown as "NovaOS 1.5" instead of the long number (leave out for small ones).
 # "@store-only": only the Nova apps of "@apps:" change - the update appears in the Nova Store, not as a software update.
 @store-only
-@apps: camera, gallery
-{gallery} Fotos und Videos zoomen: zwei Finger, Doppeltippen, im Zoom verschieben|Zoom photos and videos: two fingers, double tap, move while zoomed
-{gallery} Fotos bearbeiten: zuschneiden, drehen, spiegeln, Helligkeit, Kontrast, Sättigung, Wärme und Filter – als Kopie|Edit photos: crop, rotate, mirror, brightness, contrast, saturation, warmth and filters – as a copy
-{gallery} Videos kürzen, auf Wunsch ohne Ton – als Kopie, das Original bleibt|Shorten videos, without sound if you like – as a copy, the original stays
-{camera} Kamera zoomen: mit zwei Fingern oder den Knöpfen 0,5× · 1× · 2× · 5× (je nach Handy)|Camera zoom: with two fingers or the buttons 0.5× · 1× · 2× · 5× (depending on the phone)
+@apps: store
+{store} Neu im Nova Store: Claude und ChatGPT – die offiziellen Apps aus dem Play Store (WhatsApp ist schon dabei)|New in Nova Store: Claude and ChatGPT – the official apps from the Play Store (WhatsApp is already there)

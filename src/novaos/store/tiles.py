@@ -164,3 +164,63 @@ class InstalledRow(QFrame):
             btn.setIcon(QIcon.fromTheme(icon))
         self.buttons.addWidget(btn)
         return btn
+
+
+class WebAppTile(Card):
+    """A Nova Store web app (Claude, ChatGPT, WhatsApp): "Add" / "Open" + "Remove"."""
+
+    WIDTH, HEIGHT = 300, 120
+
+    def __init__(self, app, german: bool, parent: QWidget | None = None):
+        super().__init__(parent, clickable=False)
+        from novaos.store import webapps
+        self.app, self.webapps = app, webapps
+        self.setFixedSize(self.WIDTH, self.HEIGHT)
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(14, 12, 14, 12)
+        lay.setSpacing(12)
+        icon = QLabel()
+        icon.setFixedSize(60, 60)
+        icon.setPixmap(QIcon.fromTheme(app.icon, QIcon.fromTheme("internet-web-browser")).pixmap(60, 60))
+        lay.addWidget(icon, 0, Qt.AlignmentFlag.AlignTop)
+        text = QVBoxLayout()
+        text.setSpacing(2)
+        name = QLabel(app.name)
+        f = name.font()
+        f.setBold(True)
+        f.setPointSizeF(f.pointSizeF() * 1.08)
+        name.setFont(f)
+        text.addWidget(name)
+        summary = QLabel(app.summary(german))
+        summary.setObjectName("NovaMuted")
+        summary.setWordWrap(True)
+        summary.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        text.addWidget(summary, 1)
+        row = QHBoxLayout()
+        row.setSpacing(6)
+        self.btn = QPushButton()
+        self.btn.setObjectName("NovaPrimary")
+        self.btn.clicked.connect(self._main)
+        self.remove = QPushButton(_("Remove"))
+        self.remove.clicked.connect(self._remove)
+        row.addWidget(self.btn)
+        row.addWidget(self.remove)
+        row.addStretch(1)
+        text.addLayout(row)
+        lay.addLayout(text, 1)
+        self._update()
+
+    def _update(self) -> None:
+        on = self.webapps.installed(self.app)
+        self.btn.setText(_("Open") if on else _("Add"))
+        self.remove.setVisible(on)
+
+    def _main(self) -> None:
+        if not self.webapps.installed(self.app):
+            self.webapps.install(self.app)
+            self._update()
+        self.webapps.launch(self.app)
+
+    def _remove(self) -> None:
+        self.webapps.uninstall(self.app)
+        self._update()

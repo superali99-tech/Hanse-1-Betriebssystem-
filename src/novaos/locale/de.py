@@ -4,6 +4,8 @@ Check completeness with:  python3 tools/extract-strings.py --missing de
 """
 
 MESSAGES = {
+    'Web apps': 'Web-Apps',
+    'No Linux app exists for these – NovaOS opens the official website in its own window, with its own entry in the start menu and taskbar.': 'Für diese gibt es keine Linux-App – NovaOS öffnet die offizielle Webseite in einem eigenen Fenster, mit eigenem Eintrag im Startmenü und in der Taskleiste.',
     'My account': 'Mein Konto',
     'E-mail address': 'E-Mail-Adresse',
     'Add e-mail': 'E-Mail hinzufügen',
