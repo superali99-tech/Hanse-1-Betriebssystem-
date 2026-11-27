@@ -1,5 +1,21 @@
 # Changelog
 
+## Runde Taskleiste und neue NovaOS-2-Karte (PC 0.1.1.99)
+
+* **Runde Taskleiste:** eigenes Plasma-Design `novaos` (`/usr/share/plasma/desktoptheme/novaos`, erzeugt mit
+  `artwork/generate_plasma_theme.py`, alles andere kommt weiter von Breeze über `FallbackTheme`/`FallbackImageSet`):
+  Leiste mit 22 px Eckenradius (fast eine Pille), Glasfüllung, feiner Rand, weicher Schatten (16 px) und
+  Blur-Maske in derselben Form; hinter den Apps runde Pillen mit Abstand zum Rand statt eckiger Kästen (aktive
+  App in der Akzentfarbe, laufende Apps dezent, Hover heller). Dock 58 px hoch. Neue Benutzer über
+  `/etc/xdg/plasmarc` und die Look-and-Feel-Voreinstellungen; eingerichtete PCs einmal bei der nächsten Anmeldung
+  (`nova-look-update` Version 4 – nur wenn noch Breeze oder nichts eingestellt ist, über
+  `plasma-apply-desktoptheme`).
+* **NovaOS-2-Karte neu:** randlose, runde Karte mit Nebula-Bild, großem „NovaOS 2“ und vier Kacheln (Nova Disk,
+  neuer Nova Store, runde Taskleiste, Design „Nebula“ – Klick öffnet), Animationen kurz und schnell (220 ms je
+  Element, 70 ms versetzt, alles in unter 0,8 s), mit der Maus verschiebbar, Esc/Enter schließt. Erscheint einmal
+  nach dem Update – auch bei allen, die die erste Karte schon gesehen haben (`TOUR_VERSION`). Der Satz
+  „… genau wie bisher“ ist weg.
+
 ## NovaOS 2 „Nebula“ (PC 0.1.1.98)
 
 NovaOS 2 kommt als **freiwilliges Upgrade** über den PC-Update-Kanal – installierte PCs bleiben bei NovaOS 1,

@@ -192,6 +192,24 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Runde Taskleiste und NovaOS-2-Karte (0.1.1.99):** Element-Namen und ihre Rollen im Quelltext von Plasma 6.3
+geprüft (libplasma `theme_p.cpp`: `FallbackTheme`, KSvg `imageset_p.cpp`: `FallbackImageSet` und Suchreihenfolge –
+das eigene Design wird vor Breezes `translucent/` gefunden; plasma-desktop `Panel.qml`, Taskmanager `Task.qml`,
+`tools.js`, `layoutmetrics.js`; plasma-workspace `panelshadows.cpp`).
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Alle Elemente vorhanden (Leiste, Maske, Schatten, Abstände, „thick“; Pillen für normal/aktiv/Hover/Aufmerksamkeit/minimiert/Fortschritt) | ✅ | Unit-Test `test_plasma_theme.py`; Größen mit QtSvg gemessen: Ecken 22 px, Schatten-Ecken 38 px, Pillen-Ecken 15 px |
+| Vorschau: Leiste aus den Elementen zusammengesetzt wie KSvg/KWin, hell und dunkel | ✅ | `docs/screenshots/nova2/09`; erst war die Pille kaum größer als das Symbol und der Schatten zu schwach → Abstände und Schatten vergrößert |
+| `nova-look-update` 3 → 4 mit simuliertem Plasma | ✅ | Dock 58 px, `plasma-apply-desktoptheme novaos` bei Breeze, Version 4 gemerkt, zweiter Lauf ohne Aufruf; ohne installiertes Design kein Umschalten |
+| Paket `novaos-desktop` 0.1.1.99 im Debian-13-System | ✅ | Design installiert, `/etc/xdg/plasmarc` → `novaos` |
+| NovaOS-2-Karte offscreen (fertig und mitten in der Animation) | ✅ | `docs/screenshots/nova2/03`; Kacheln erst unterschiedlich breit und eine harte Kante unter dem Bild → behoben |
+| Karte erscheint einmal pro Version (auch nach der ersten Karte), nicht bei NovaOS 1 | ✅ | Unit-Test `test_welcome.py` |
+| Unit-Tests | ✅ | 135 bestanden |
+
+**Nicht getestet:** die Leiste auf einem echten Plasma-Desktop (Blur, Schatten und Pillen zeichnen dort KWin und
+Plasma selbst), die Karte unter Wayland (randloses Fenster).
+
 **NovaOS 2 „Nebula“ (0.1.1.98):** im Debian-13-System (chroot) mit den neu gebauten Paketen:
 
 | Test | Ergebnis | Details |

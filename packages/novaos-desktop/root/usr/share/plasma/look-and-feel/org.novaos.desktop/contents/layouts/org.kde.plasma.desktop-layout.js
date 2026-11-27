@@ -36,7 +36,7 @@ for (var i = 0; i < desktops.length; i++) {
 // start button, pinned apps, (separator), status icons, clock - no spacers, no pager
 var panel = new Panel;
 panel.location = "bottom";
-panel.height = 2 * Math.floor(gridUnit * 3.1 / 2);
+panel.height = 2 * Math.floor(gridUnit * 3.3 / 2);
 if ("floating" in panel) {
     panel.floating = true;
 }

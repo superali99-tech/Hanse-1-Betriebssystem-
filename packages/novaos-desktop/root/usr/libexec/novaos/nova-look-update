@@ -3,11 +3,13 @@
 # version, at login. Version 2: the NovaOS taskbar (bottom panel) floating and
 # see-through. Version 3: a modern dock - in the middle, as wide as its content,
 # a little higher, without spacers, desktop pager and "show desktop" button.
+# Version 4: the round NovaOS dock - Plasma theme "novaos" (large rounded corners,
+# rounded pills behind the apps) and a dock height of 58 px.
 # KWin reloads its settings (blur, shadows, no shake cursor).
 # NovaOS 2 (edition file says 2): the "Nebula" wallpaper on the desktop and the lock
 # screen, once per user - only where the NovaOS default wallpaper is still set.
 # New users get the taskbar from the NovaOS layout directly. Never blocks the login.
-VERSION=3
+VERSION=4
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/novaos"
 EDITION=$(cat /usr/share/novaos/edition 2>/dev/null || echo 1)
 NEBULA="file:///usr/share/wallpapers/NovaNebula/"
@@ -50,7 +52,7 @@ for (var i = 0; i < ps.length; i++) {
     p.lengthMode = "fit";
     p.alignment = "center";
     var gu = (typeof gridUnit !== "undefined") ? gridUnit : 18;
-    p.height = 2 * Math.floor(gu * 3.1 / 2);
+    p.height = 2 * Math.floor(gu * 3.3 / 2);
 }'
 SCRIPT=""
 [ $need_look = 1 ] && SCRIPT="$LOOK_SCRIPT"
@@ -72,12 +74,32 @@ lockscreen_nebula() {
 	return 0
 }
 
+# the Plasma theme "novaos" - unless the user picked another one (Breeze = "default" counts as
+# the old NovaOS look)
+round_dock_theme() {
+	[ -d /usr/share/plasma/desktoptheme/novaos ] || return 0
+	for r in kreadconfig6 kreadconfig5; do command -v $r >/dev/null 2>&1 && break; r=""; done
+	[ -n "$r" ] || return 0
+	cur=$($r --file plasmarc --group Theme --key name 2>/dev/null)
+	case "$cur" in
+		""|default)
+			if command -v plasma-apply-desktoptheme >/dev/null 2>&1; then
+				plasma-apply-desktoptheme novaos >/dev/null 2>&1 || true
+			else
+				for w in kwriteconfig6 kwriteconfig5; do command -v $w >/dev/null 2>&1 && break; w=""; done
+				[ -n "$w" ] && $w --file plasmarc --group Theme --key name novaos 2>/dev/null
+			fi ;;
+	esac
+	return 0
+}
+
 # Plasma may still be starting: try for about a minute
 i=0
 while [ $i -lt 30 ]; do
 	if busctl --user call org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell evaluateScript s "$SCRIPT" >/dev/null 2>&1; then
 		mkdir -p "$STATE"
 		if [ $need_look = 1 ]; then
+			round_dock_theme
 			busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure >/dev/null 2>&1 || true
 			echo "$VERSION" > "$STATE/look-version"
 		fi

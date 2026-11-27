@@ -12,14 +12,26 @@ import shutil
 import subprocess
 import sys
 
-from PyQt6.QtCore import QSettings, Qt
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtCore import (
+    QEasingCurve,
+    QParallelAnimationGroup,
+    QPoint,
+    QPropertyAnimation,
+    QRectF,
+    QSequentialAnimationGroup,
+    QSettings,
+    Qt,
+    QTimer,
+)
+from PyQt6.QtGui import QColor, QLinearGradient, QPainter, QPainterPath, QPen, QPixmap
 from PyQt6.QtWidgets import (
     QCheckBox,
     QFrame,
+    QGraphicsOpacityEffect,
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QSizePolicy,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
@@ -310,115 +322,228 @@ class WelcomeWindow(QWidget):
         # unless the user asked to see the assistant again.
         SETTINGS.setValue("done", not self.cb_again.isChecked())
         SETTINGS.setValue("seen_edition", edition())
+        if edition() >= 2:
+            SETTINGS.setValue("nova2_tour", TOUR_VERSION)
         SETTINGS.sync()
         super().closeEvent(event)
 
 
-class Nova2Tour(QWidget):
-    """Shown once after the upgrade to NovaOS 2: what is new, with buttons to try it."""
+TOUR_VERSION = 2   # raise to show the NovaOS 2 card once more after an update
 
-    FEATURES = (
-        ("nova-disk", "nova-disk",
-         lambda: _("Nova Disk"),
-         lambda: _("See at a glance what fills your disk, check the health of your drives and rescue deleted "
-                   "photos, videos and documents – even from USB sticks and SD cards."),
-         lambda: _("Open Nova Disk")),
-        ("nova-store", "nova-store",
-         lambda: _("The new Nova Store"),
-         lambda: _("A fresh start page with the app of the day and colourful categories, NovaOS apps and web "
-                   "apps like Claude, ChatGPT and WhatsApp."),
-         lambda: _("Open Nova Store")),
-        ("preferences-desktop-wallpaper", "systemsettings kcm_wallpaper",
-         lambda: _("Design “Nebula”"),
-         lambda: _("A new wallpaper in light and dark, a new start screen and a new login screen."),
-         lambda: _("Change wallpaper")),
-    )
+
+class FadeIn:
+    """Quick entrance: fade in and glide up a few pixels, one element after the other."""
+
+    DURATION = 220   # ms per element
+    STAGGER = 70     # ms between two elements
+
+    def __init__(self) -> None:
+        self.group = QParallelAnimationGroup()
+        self.items: list[QWidget] = []
+
+    def add(self, w: QWidget) -> QWidget:
+        eff = QGraphicsOpacityEffect(w)
+        eff.setOpacity(0.0)
+        w.setGraphicsEffect(eff)
+        self.items.append(w)
+        return w
+
+    def start(self) -> None:
+        for i, w in enumerate(self.items):
+            seq = QSequentialAnimationGroup(self.group)
+            seq.addPause(i * self.STAGGER)
+            par = QParallelAnimationGroup(seq)
+            fade = QPropertyAnimation(w.graphicsEffect(), b"opacity", par)
+            fade.setDuration(self.DURATION)
+            fade.setStartValue(0.0)
+            fade.setEndValue(1.0)
+            fade.setEasingCurve(QEasingCurve.Type.OutCubic)
+            glide = QPropertyAnimation(w, b"pos", par)
+            glide.setDuration(self.DURATION)
+            glide.setStartValue(w.pos() + QPoint(0, 14))
+            glide.setEndValue(w.pos())
+            glide.setEasingCurve(QEasingCurve.Type.OutCubic)
+            self.group.addAnimation(seq)
+        self.group.finished.connect(self._clear)
+        self.group.start()
+
+    def _clear(self) -> None:
+        for w in self.items:   # no effect left: sharp text, no extra painting
+            w.setGraphicsEffect(None)
+
+
+class FeatureTile(QFrame):
+    """A tile on the NovaOS 2 card: coloured icon, title, text; click opens it."""
+
+    def __init__(self, icon: str, colors: tuple[str, str], title: str, text: str, cmd: str, parent=None):
+        super().__init__(parent)
+        self.cmd = cmd
+        self.setObjectName("Nova2Tile")
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setStyleSheet(
+            "QFrame#Nova2Tile { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);"
+            " border-radius: 22px; }"
+            "QFrame#Nova2Tile:hover { background: rgba(255,255,255,0.13); border-color: rgba(165,243,252,0.55); }"
+            "QFrame#Nova2Tile QLabel { background: transparent; border: none; color: white; }")
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(20, 20, 20, 18)
+        lay.setSpacing(8)
+        badge = QLabel()
+        badge.setFixedSize(54, 54)
+        badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        badge.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 %s, stop:1 %s);"
+                            " border-radius: 16px;" % colors)
+        badge.setPixmap(nova_icon(icon).pixmap(34, 34))
+        lay.addWidget(badge)
+        lay.addSpacing(4)
+        t = QLabel(title)
+        t.setWordWrap(True)
+        t.setStyleSheet("font-size: 14pt; font-weight: 800;")
+        lay.addWidget(t)
+        d = QLabel(text)
+        d.setWordWrap(True)
+        d.setStyleSheet("font-size: 10pt; color: rgba(255,255,255,0.78);")
+        lay.addWidget(d)
+        lay.addStretch(1)
+        more = QLabel(_("Open") + "  →")
+        more.setStyleSheet("font-size: 10pt; font-weight: 700; color: #A5F3FC;")
+        lay.addWidget(more)
+
+    def mouseReleaseEvent(self, event):  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton and self.rect().contains(event.position().toPoint()):
+            run_detached(*self.cmd.split())
+        super().mouseReleaseEvent(event)
+
+
+class Nova2Tour(QWidget):
+    """The big NovaOS 2 card, once after the upgrade: a frameless rounded card with the Nebula
+    picture, what is new as tiles, quick animations."""
+
+    W, H, RADIUS, HERO = 1040, 620, 30, 300
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle(_("Welcome to NovaOS 2"))
-        self.resize(980, 680)
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-        hero = QLabel()
-        hero.setFixedHeight(270)
-        hero.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        pix = QPixmap(NEBULA)
-        if not pix.isNull():
-            pix = pix.scaled(980, 270, Qt.AspectRatioMode.KeepAspectRatioByExpanding,
-                             Qt.TransformationMode.SmoothTransformation)
-            hero.setPixmap(pix.copy((pix.width() - 980) // 2, (pix.height() - 270) // 2, 980, 270))
-            hero.setScaledContents(True)
-        hero.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0F0C29, stop:0.5 #4C1D95,"
-                           " stop:1 #0891B2);")
-        over = QVBoxLayout(hero)
-        over.setContentsMargins(48, 40, 48, 36)
-        tag = QLabel(_("WELCOME TO"))
-        tag.setStyleSheet("color: #A5F3FC; font-size: 10pt; font-weight: 800; letter-spacing: 4px;"
-                          " background: transparent;")
-        title = QLabel("NovaOS <span style='color:#67E8F9'>2</span>")
-        title.setStyleSheet("color: white; font-size: 46pt; font-weight: 900; background: transparent;")
-        sub = QLabel(_("“Nebula” is here. Your files, apps and settings are all still there – "
-                       "here is what is new."))
-        sub.setWordWrap(True)
-        sub.setStyleSheet("color: rgba(255,255,255,0.92); font-size: 13pt; background: transparent;")
-        over.addStretch(1)
-        over.addWidget(tag)
-        over.addWidget(title)
-        over.addWidget(sub)
-        root.addWidget(hero)
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.Window)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setFixedSize(self.W, self.H)
+        self.hero = QPixmap(NEBULA)
+        self.anim = FadeIn()
 
-        body = QVBoxLayout()
-        body.setContentsMargins(40, 28, 40, 24)
-        body.setSpacing(18)
-        cards = QHBoxLayout()
-        cards.setSpacing(18)
-        for icon, cmd, name, text, button in self.FEATURES:
-            card = Card()
-            cl = QVBoxLayout(card)
-            cl.setContentsMargins(20, 20, 20, 18)
-            cl.setSpacing(10)
-            ic = QLabel()
-            ic.setPixmap(nova_icon(icon).pixmap(52, 52))
-            cl.addWidget(ic)
-            t = QLabel(name())
-            t.setStyleSheet("font-size: 14pt; font-weight: 800;")
-            cl.addWidget(t)
-            d = QLabel(text())
-            d.setWordWrap(True)
-            d.setObjectName("NovaMuted")
-            cl.addWidget(d)
-            cl.addStretch(1)
-            b = QPushButton(button())
-            b.clicked.connect(lambda _c=False, c=cmd: run_detached(*c.split()))
-            cl.addWidget(b)
-            cards.addWidget(card, 1)
-        body.addLayout(cards, 1)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(48, 0, 48, 34)
+        root.setSpacing(0)
+
+        top = QVBoxLayout()
+        top.setContentsMargins(0, 52, 0, 0)
+        top.setSpacing(2)
+        tag = QLabel(_("WELCOME TO"))
+        tag.setStyleSheet("color: #A5F3FC; font-size: 10pt; font-weight: 800; letter-spacing: 5px;")
+        title = QLabel("NovaOS <span style='color:#67E8F9'>2</span>")
+        title.setStyleSheet("color: white; font-size: 58pt; font-weight: 900;")
+        sub = QLabel(_("Faster, more beautiful and full of new ideas – your files, apps and settings are all here."))
+        sub.setWordWrap(True)
+        sub.setStyleSheet("color: rgba(255,255,255,0.92); font-size: 13pt;")
+        for w in (tag, title, sub):
+            top.addWidget(self.anim.add(w))
+        root.addLayout(top)
+        root.addSpacing(self.HERO - 52 - 210)
+
+        tiles = QHBoxLayout()
+        tiles.setSpacing(16)
+        for icon, colors, name, text, cmd in (
+            ("nova-disk", ("#06B6D4", "#3B82F6"), _("Nova Disk"),
+             _("Analyse your disk, check your drives and rescue deleted files."), "nova-disk"),
+            ("nova-store", ("#8B5CF6", "#EC4899"), _("The new Nova Store"),
+             _("App of the day, colourful categories and web apps."), "nova-store"),
+            ("preferences-desktop-theme", ("#22C55E", "#06B6D4"), _("Round taskbar"),
+             _("Floating glass dock with round corners – the active app glows."), "systemsettings kcm_desktoptheme"),
+            ("preferences-desktop-wallpaper", ("#F59E0B", "#EF4444"), _("Design “Nebula”"),
+             _("New wallpaper, start screen and login screen."), "systemsettings kcm_wallpaper"),
+        ):
+            tile = FeatureTile(icon, colors, name, text, cmd)
+            tile.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)   # all equally wide
+            tiles.addWidget(self.anim.add(tile), 1)
+        root.addSpacing(26)
+        root.addLayout(tiles, 1)
+        root.addSpacing(24)
+
         row = QHBoxLayout()
-        note = QLabel(_("Nova Updates keeps NovaOS 2 up to date – just like before."))
-        note.setObjectName("NovaMuted")
-        row.addWidget(note, 1)
+        foot = QLabel("NovaOS 2 · Nebula")
+        foot.setStyleSheet("color: rgba(255,255,255,0.55); font-size: 10pt; font-weight: 600;")
+        row.addWidget(foot, 1)
         go = QPushButton(_("Let's go"))
-        go.setObjectName("NovaPrimary")
-        go.setMinimumWidth(160)
+        go.setCursor(Qt.CursorShape.PointingHandCursor)
+        go.setMinimumSize(190, 50)
+        go.setStyleSheet("QPushButton { color: white; font-size: 12pt; font-weight: 800; border: none;"
+                         " border-radius: 25px; background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+                         " stop:0 #7C5CFF, stop:1 #06B6D4); }"
+                         "QPushButton:hover { background: qlineargradient(x1:0, y1:0, x2:1, y2:0,"
+                         " stop:0 #8F75FF, stop:1 #22D3EE); }")
         go.clicked.connect(self.close)
-        row.addWidget(go)
-        body.addLayout(row)
-        root.addLayout(body, 1)
+        row.addWidget(self.anim.add(go))
+        root.addLayout(row)
+        self._started = False
+
+    def showEvent(self, event):  # noqa: N802
+        super().showEvent(event)
+        if not self._started:
+            self._started = True
+            QTimer.singleShot(0, self.anim.start)   # after the layout has placed everything
+
+    def paintEvent(self, event):  # noqa: N802
+        p = QPainter(self)
+        p.setRenderHint(QPainter.RenderHint.Antialiasing)
+        card = QPainterPath()
+        card.addRoundedRect(QRectF(self.rect()), self.RADIUS, self.RADIUS)
+        p.setClipPath(card)
+        # deep space background
+        base = QColor("#0D0B22")   # where the picture fades out: no visible edge
+        bg = QLinearGradient(0, 0, 0, self.height())
+        bg.setColorAt(0.0, base)
+        bg.setColorAt(min(1.0, (self.HERO + 120) / self.height()), base)
+        bg.setColorAt(1.0, QColor("#07071A"))
+        p.fillRect(self.rect(), bg)
+        # the Nebula picture at the top, fading into the card
+        if not self.hero.isNull():
+            pix = self.hero.scaled(self.width(), self.HERO + 120, Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                                   Qt.TransformationMode.SmoothTransformation)
+            p.drawPixmap(0, 0, pix, (pix.width() - self.width()) // 2, (pix.height() - self.HERO - 120) // 2,
+                         self.width(), self.HERO + 120)
+        fade = QLinearGradient(0, 0, 0, self.HERO + 120)
+        fade.setColorAt(0.0, QColor(11, 11, 30, 40))
+        fade.setColorAt(0.55, QColor(15, 12, 41, 110))
+        fade.setColorAt(1.0, base)
+        p.fillRect(QRectF(0, 0, self.width(), self.HERO + 121), fade)
+        p.setClipping(False)
+        p.setPen(QPen(QColor(255, 255, 255, 40), 1))
+        p.setBrush(Qt.BrushStyle.NoBrush)
+        p.drawRoundedRect(QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5), self.RADIUS, self.RADIUS)
+
+    def mousePressEvent(self, event):  # noqa: N802
+        if event.button() == Qt.MouseButton.LeftButton and self.windowHandle() is not None:
+            self.windowHandle().startSystemMove()   # drag the card anywhere
+
+    def keyPressEvent(self, event):  # noqa: N802
+        if event.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.close()
+        else:
+            super().keyPressEvent(event)
 
     def closeEvent(self, event):  # noqa: N802
         SETTINGS.setValue("seen_edition", edition())
+        SETTINGS.setValue("nova2_tour", TOUR_VERSION)
         SETTINGS.sync()
         super().closeEvent(event)
 
 
 def show_nova2_tour(live: bool) -> bool:
-    """After the upgrade to NovaOS 2 (assistant already done): the NovaOS 2 tour, once."""
+    """After the upgrade to NovaOS 2 (assistant already done): the NovaOS 2 card, once per
+    TOUR_VERSION."""
     if live or "--nova2" in sys.argv:
         return "--nova2" in sys.argv
     return (edition() >= 2 and SETTINGS.value("done", False, type=bool)
-            and SETTINGS.value("seen_edition", 1, type=int) < 2)
+            and SETTINGS.value("nova2_tour", 0, type=int) < TOUR_VERSION)
 
 
 def main() -> int:
