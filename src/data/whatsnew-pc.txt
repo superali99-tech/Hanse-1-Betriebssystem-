@@ -1,4 +1,5 @@
 # What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
+Runde Taskleiste wird jetzt sicher eingeschaltet – auch wenn vorher das KDE-Standarddesign eingestellt war|The round taskbar is now switched on reliably – also where the KDE default design was set
 Runde Taskleiste: eigenes NovaOS-Design – große runde Ecken, weicher Schatten, runde Pillen statt eckiger Kästen hinter den Apps|Round taskbar: own NovaOS design – large round corners, soft shadow, round pills instead of square boxes behind the apps
 NovaOS 2: die große Willkommenskarte neu – randlos, rund, mit schnellen Animationen (erscheint einmal nach dem Update)|NovaOS 2: the big welcome card redone – frameless, round, with quick animations (appears once after the update)
 NovaOS 2 „Nebula“ ist da: in Software-Update „NovaOS 2 holen“ – wird beim nächsten Neustart installiert, Dateien und Apps bleiben|NovaOS 2 "Nebula" is here: "Get NovaOS 2" in Software update – installed at the next restart, files and apps stay

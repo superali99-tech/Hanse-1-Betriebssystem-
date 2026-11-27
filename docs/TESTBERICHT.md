@@ -192,6 +192,22 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Runde Taskleiste wird sicher eingeschaltet (0.1.1.100):** Foto vom Benutzer nach 0.1.1.99: weiter eckige Leiste
+mit Strich über der aktiven App – genau Breeze. Nachgestellt mit den **echten** Bibliotheken von Debian 13
+(libplasma 6.3.5, KSvg, Breeze-Design `plasma-desktoptheme`), Leiste und App-Pillen als `KSvg.FrameSvgItem`
+gezeichnet: mit `name=default` exakt das Bild vom Foto, mit `name=novaos` runde Leiste und runde Pillen
+(`docs/screenshots/nova2/10`) – das Design funktioniert, es war nur nicht eingeschaltet.
+
+| Test (`nova-look-update`, Debian-13-System) | Ergebnis |
+|---|---|
+| Benutzer mit `name=default` (andere Gruppen bleiben erhalten) | ✅ → `novaos` |
+| keine `plasmarc` | ✅ → angelegt mit `novaos` |
+| `breeze-dark` | ✅ → `novaos` |
+| selbst gewähltes Design („Sweet“) | ✅ bleibt |
+| `kwriteconfig6` meldet Erfolg, schreibt aber nichts (Attrappe) | ✅ erkannt, Datei direkt geändert (erster Test zeigte die Lücke → Prüfung eingebaut) |
+| ohne `kwriteconfig6` (nur awk) | ✅ mit und ohne vorhandene `[Theme]`-Gruppe |
+| zweiter Lauf, Benutzer hat wieder Breeze gewählt | ✅ bleibt Breeze |
+
 **Runde Taskleiste und NovaOS-2-Karte (0.1.1.99):** Element-Namen und ihre Rollen im Quelltext von Plasma 6.3
 geprüft (libplasma `theme_p.cpp`: `FallbackTheme`, KSvg `imageset_p.cpp`: `FallbackImageSet` und Suchreihenfolge –
 das eigene Design wird vor Breezes `translucent/` gefunden; plasma-desktop `Panel.qml`, Taskmanager `Task.qml`,

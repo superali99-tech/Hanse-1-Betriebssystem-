@@ -1,5 +1,14 @@
 # Changelog
 
+## Runde Taskleiste wird sicher eingeschaltet (PC 0.1.1.100)
+
+* Auf einem PC blieb nach 0.1.1.99 die eckige Breeze-Leiste: das Design `novaos` war installiert, aber nicht
+  eingeschaltet. `nova-look-update` setzt das Design jetzt in einem eigenen Schritt (Marker `look-theme`),
+  **unabhängig** davon, ob Plasma schon bereit ist, schreibt es in die eigene `plasmarc` des Benutzers und
+  **prüft das Ergebnis** (erst `plasma-apply-desktoptheme`, dann `kwriteconfig6 --notify`, zuletzt direkt in der
+  Datei). Umgestellt wird von Breeze (`default`, `breeze-light`, `breeze-dark`) oder keiner Einstellung; ein selbst
+  gewähltes Design bleibt, und wer danach wieder Breeze wählt, behält es.
+
 ## Runde Taskleiste und neue NovaOS-2-Karte (PC 0.1.1.99)
 
 * **Runde Taskleiste:** eigenes Plasma-Design `novaos` (`/usr/share/plasma/desktoptheme/novaos`, erzeugt mit

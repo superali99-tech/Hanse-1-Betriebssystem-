@@ -3,14 +3,52 @@
 # version, at login. Version 2: the NovaOS taskbar (bottom panel) floating and
 # see-through. Version 3: a modern dock - in the middle, as wide as its content,
 # a little higher, without spacers, desktop pager and "show desktop" button.
-# Version 4: the round NovaOS dock - Plasma theme "novaos" (large rounded corners,
-# rounded pills behind the apps) and a dock height of 58 px.
+# Version 4: the round NovaOS dock - a dock height of 58 px; the Plasma theme "novaos"
+# (large rounded corners, rounded pills behind the apps) is set right below, on its own.
 # KWin reloads its settings (blur, shadows, no shake cursor).
 # NovaOS 2 (edition file says 2): the "Nebula" wallpaper on the desktop and the lock
 # screen, once per user - only where the NovaOS default wallpaper is still set.
 # New users get the taskbar from the NovaOS layout directly. Never blocks the login.
 VERSION=4
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/novaos"
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
+
+# --- round NovaOS dock: Plasma theme "novaos", once per user (marker look-theme) ---
+# Switched from any Breeze variant (default, breeze-light, breeze-dark) or nothing; a theme
+# the user picked himself stays. Written into the user's own plasmarc, so it holds even
+# where the system default would not; needs no running Plasma.
+theme_of_user() {
+	[ -f "$CONF/plasmarc" ] || return 0
+	awk '/^\[/{s=($0=="[Theme]")} s&&/^name=/{sub(/^name=/,""); v=$0} END{print v}' "$CONF/plasmarc"
+}
+write_theme() {
+	mkdir -p "$CONF"
+	if command -v kwriteconfig6 >/dev/null 2>&1; then
+		kwriteconfig6 --notify --file plasmarc --group Theme --key name "$1" 2>/dev/null
+		[ "$(theme_of_user)" = "$1" ] && return 0   # checked, not just trusted
+	fi
+	tmp="$CONF/plasmarc.nova-tmp"
+	if [ -f "$CONF/plasmarc" ]; then
+		awk -v t="$1" '
+			/^\[/ { if (s && !done) { print "name=" t; done = 1 } s = ($0 == "[Theme]") }
+			s && /^name=/ { if (!done) { print "name=" t; done = 1 } next }
+			{ print }
+			END { if (!done) { if (!s) print "[Theme]"; print "name=" t } }' "$CONF/plasmarc" > "$tmp" && mv "$tmp" "$CONF/plasmarc"
+	else
+		printf '[Theme]\nname=%s\n' "$1" > "$CONF/plasmarc"
+	fi
+}
+if [ -d /usr/share/plasma/desktoptheme/novaos ] && [ "$(cat "$STATE/look-theme" 2>/dev/null)" != novaos ]; then
+	case "$(theme_of_user)" in
+		""|default|breeze-light|breeze-dark)
+			if command -v plasma-apply-desktoptheme >/dev/null 2>&1; then
+				plasma-apply-desktoptheme novaos >/dev/null 2>&1 || true
+			fi
+			[ "$(theme_of_user)" = novaos ] || write_theme novaos ;;
+	esac
+	mkdir -p "$STATE" && echo novaos > "$STATE/look-theme"
+fi
+
 EDITION=$(cat /usr/share/novaos/edition 2>/dev/null || echo 1)
 NEBULA="file:///usr/share/wallpapers/NovaNebula/"
 need_look=1
@@ -74,32 +112,12 @@ lockscreen_nebula() {
 	return 0
 }
 
-# the Plasma theme "novaos" - unless the user picked another one (Breeze = "default" counts as
-# the old NovaOS look)
-round_dock_theme() {
-	[ -d /usr/share/plasma/desktoptheme/novaos ] || return 0
-	for r in kreadconfig6 kreadconfig5; do command -v $r >/dev/null 2>&1 && break; r=""; done
-	[ -n "$r" ] || return 0
-	cur=$($r --file plasmarc --group Theme --key name 2>/dev/null)
-	case "$cur" in
-		""|default)
-			if command -v plasma-apply-desktoptheme >/dev/null 2>&1; then
-				plasma-apply-desktoptheme novaos >/dev/null 2>&1 || true
-			else
-				for w in kwriteconfig6 kwriteconfig5; do command -v $w >/dev/null 2>&1 && break; w=""; done
-				[ -n "$w" ] && $w --file plasmarc --group Theme --key name novaos 2>/dev/null
-			fi ;;
-	esac
-	return 0
-}
-
 # Plasma may still be starting: try for about a minute
 i=0
 while [ $i -lt 30 ]; do
 	if busctl --user call org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell evaluateScript s "$SCRIPT" >/dev/null 2>&1; then
 		mkdir -p "$STATE"
 		if [ $need_look = 1 ]; then
-			round_dock_theme
 			busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure >/dev/null 2>&1 || true
 			echo "$VERSION" > "$STATE/look-version"
 		fi
