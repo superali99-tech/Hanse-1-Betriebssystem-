@@ -41,6 +41,18 @@
       "browser.tabs.min_inactive_duration_before_unload": {
         "Value": 300000,
         "Status": "default"
+      },
+      "browser.newtabpage.activity-stream.showSponsored": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.newtabpage.activity-stream.showSponsoredTopSites": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.urlbar.suggest.trending": {
+        "Value": false,
+        "Status": "default"
       }
     }
   }

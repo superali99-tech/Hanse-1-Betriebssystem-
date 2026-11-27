@@ -1,4 +1,5 @@
 # What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
+Nova Browser: Optimierung und Stabilitätsverbesserung – neuer Tab schneller und ohne gesponserte Inhalte (im Nova Store aktualisieren)|Nova Browser: optimisation and stability improvements – faster new tab without sponsored content (update in Nova Store)
 Nova Browser steht jetzt fest im Nova Store (NovaOS-Apps): Optimierung und Stabilitätsverbesserung, weicheres Scrollen – dort mit „Aktualisieren“|Nova Browser is now in Nova Store (NovaOS apps): optimisation and stability improvements, smoother scrolling – with "Update" there
 Nova Store: Claude, ChatGPT und WhatsApp als Web-Apps (offizielle Webseiten im eigenen Fenster)|Nova Store: Claude, ChatGPT and WhatsApp as web apps (official websites in their own window)
 Mein Konto: E-Mail-Adresse hinzufügen und mit einem Code per E-Mail bestätigen (Systemeinstellungen → System)|My account: add your e-mail address and confirm it with a code by e-mail (System Settings → System)
