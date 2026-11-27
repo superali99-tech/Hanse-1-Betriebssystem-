@@ -9,9 +9,8 @@
 #                                       staging root as $1 (e.g. to copy src/)
 #
 # Usage: ./tools/build-debs.sh [OUTDIR]   (default: build/debs)
-# Env:   NOVAOS_DEB_VERSION  package version (default: NOVAOS_VERSION from VERSION.sh;
-#                            the PC update channel uses 0.1.1.<commits>, see
-#                            .github/workflows/build-pc-update.yml)
+# Env:   NOVAOS_DEB_VERSION  package version (default: NOVAOS_VERSION.<number of commits>,
+#                            the same as the PC update channel, build-pc-update.yml)
 #        NOVAOS_DEB_SKIP     package names to leave out, separated by spaces
 # A package whose build.sh exits with 77 is skipped (e.g. no archive key given).
 set -euo pipefail
@@ -19,7 +18,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$ROOT/VERSION.sh"
 OUT="${1:-$ROOT/build/debs}"
-DEB_VERSION="${NOVAOS_DEB_VERSION:-$NOVAOS_VERSION}"
+# 0.1.1.<number of commits>: the same scheme for the ISO and the PC update channel, so that
+# package relations (e.g. novaos-browser Breaks novaos-desktop << 0.1.1.92) fit both
+DEB_VERSION="${NOVAOS_DEB_VERSION:-$NOVAOS_VERSION.$(git -C "$ROOT" rev-list --count HEAD 2>/dev/null || echo 0)}"
 STAGE_BASE="$ROOT/build/deb-stage"
 
 mkdir -p "$OUT"

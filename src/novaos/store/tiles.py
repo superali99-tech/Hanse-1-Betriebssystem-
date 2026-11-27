@@ -146,6 +146,7 @@ class InstalledRow(QFrame):
         text.addWidget(t)
         s = QLabel(subtitle)
         s.setObjectName("NovaMuted")
+        self.subtitle = s
         text.addWidget(s)
         lay.addLayout(text, 1)
         if size:

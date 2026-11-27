@@ -14,6 +14,14 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **Nova Browser im Nova Store aktualisieren (0.1.1.92):** neues Paket `novaos-browser` (übernimmt die
+  Firefox-Richtlinien von `novaos-desktop`, Breaks/Replaces `<< 0.1.1.92`): **Optimierung und
+  Stabilitätsverbesserung** – inaktive Tabs werden bei knappem Speicher entladen, Hardware-Videodekodierung
+  (VA-API), Sitzung nur noch jede Minute gespeichert. Der Nova Store zeigt NovaOS-Apps aus Systempaketen unter
+  „Updates“ mit „Neu: …“ (Felder `Nova-News`/`Nova-News-En` des Pakets) und „Aktualisieren“ (über
+  `nova-apt-helper install`, zusammen mit den anderen NovaOS-Paketen); auch ein noch nicht installiertes neues
+  NovaOS-Paket zählt als Update. „Nach Updates suchen“ im Store frischt auch die Paketlisten auf.
+  `build-debs.sh`: Paketversion jetzt auch für das ISO 0.1.1.<Commits>.
 * **Claude, ChatGPT, WhatsApp im Nova Store:** PC (0.1.1.91): neuer Bereich „Web-Apps“ – für diese Dienste gibt es
   keine Linux-App; „Hinzufügen“ legt einen Startmenü-Eintrag an, der die offizielle Webseite (claude.ai, chatgpt.com,
   web.whatsapp.com) in einem eigenen Firefox-Fenster mit eigenem Profil und Taskleisten-Eintrag öffnet

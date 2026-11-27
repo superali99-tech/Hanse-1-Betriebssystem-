@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import datetime
+import os
 
-from PyQt6.QtCore import QSize, Qt, QTimer
+from PyQt6.QtCore import QProcess, QSize, Qt, QTimer
 from PyQt6.QtGui import QIcon, QKeySequence, QShortcut
 from PyQt6.QtWidgets import (
     QButtonGroup,
@@ -30,7 +31,8 @@ from novaos.common.i18n import _
 from novaos.store.appstream import AppInfo
 from novaos.store.details import DetailsPage
 from novaos.store.images import ImageLoader
-from novaos.store import webapps
+from novaos.store import system_apps, webapps, worker
+from novaos.updates import apt as sysapt
 from novaos.store.tiles import AppTile, InstalledRow, Section, WebAppTile, app_pixmap
 
 CATEGORY_ITEMS = [
@@ -165,6 +167,11 @@ class StoreWindow(QMainWindow):
         c.op_progress.connect(self._queue_progress)
         c.op_finished.connect(self._op_finished)
         c.op_queued.connect(lambda k: self._queue_progress(k, 0, _("Waiting…")))
+        # NovaOS apps that are system packages (Nova Browser): their updates appear in "Updates" too
+        self.sys_updates: list = []
+        self.sys_busy: str | None = None
+        self.sys_proc: QProcess | None = None
+        QTimer.singleShot(1500, self._load_system_updates)
 
     # ------------------------------------------------------------------ pages
     def _build_pages(self) -> None:
@@ -476,10 +483,52 @@ class StoreWindow(QMainWindow):
         if self.stack.currentWidget() is self.installed_page:
             self._fill_installed()
 
-    def _updates_changed(self, n: int) -> None:
+    def _updates_changed(self, n: int = 0) -> None:
+        n = len(self.c.updates) + len(self.sys_updates)
         self.updates_item.setText(_("Updates") + (f"  ({n})" if n else ""))
         if self.stack.currentWidget() is self.updates_page:
             self._fill_updates()
+
+    # ------------------------------------------------- NovaOS apps (Nova Browser)
+    def _load_system_updates(self) -> None:
+        worker.run(lambda: system_apps.load(_german()), on_done=self._system_loaded, on_error=lambda e: None)
+
+    def _system_loaded(self, items) -> None:
+        self.sys_updates = items or []
+        self._updates_changed()
+
+    def _check_all(self) -> None:
+        """"Check for updates": refresh the package lists (password), then apps and NovaOS apps."""
+        if os.path.exists(sysapt.HELPER) and self.sys_proc is None:
+            self.sys_proc = QProcess(self)
+            self.sys_proc.finished.connect(lambda *_a: self._check_done())
+            self.sys_proc.start("/usr/bin/pkexec", [sysapt.HELPER, "refresh"])
+        self.c.check_updates()
+
+    def _check_done(self) -> None:
+        self.sys_proc = None
+        self._load_system_updates()
+
+    def _update_system(self, pending) -> None:
+        if self.sys_proc is not None:
+            return
+        self.sys_busy = pending.app.key
+        self._fill_updates()
+        self.sys_proc = QProcess(self)
+        self.sys_proc.finished.connect(lambda code, _st, p=pending: self._system_updated(p, code))
+        self.sys_proc.start("/usr/bin/pkexec", [sysapt.HELPER, "install", *pending.packages])
+
+    def _system_updated(self, pending, code: int) -> None:
+        self.sys_proc = None
+        self.sys_busy = None
+        if code == 0:
+            import subprocess
+            subprocess.Popen(["notify-send", "-a", "Nova Store", "-i", pending.app.icon,
+                              _("{app} is up to date").format(app=pending.app.name)])
+        elif code not in (126, 127):  # 126/127: the password question was cancelled
+            QMessageBox.warning(self, "Nova Store", _("{app} could not be updated (code {c}).").format(
+                app=pending.app.name, c=code))
+        self._load_system_updates()
 
     def _fill_installed(self) -> None:
         lay = self.installed_lay
@@ -538,7 +587,7 @@ class StoreWindow(QMainWindow):
         lay.addWidget(sub)
         bar = QHBoxLayout()
         check = QPushButton(QIcon.fromTheme("view-refresh"), _("Check for updates"))
-        check.clicked.connect(self.c.check_updates)
+        check.clicked.connect(self._check_all)
         bar.addWidget(check)
         if self.c.updates:
             all_btn = QPushButton(QIcon.fromTheme("system-software-update"), _("Update all"))
@@ -548,7 +597,16 @@ class StoreWindow(QMainWindow):
             bar.addWidget(all_btn)
         bar.addStretch(1)
         lay.addLayout(bar)
-        if not self.c.updates:
+        for p, news in self.sys_updates:
+            busy = self.sys_busy == p.app.key
+            row = InstalledRow(QIcon.fromTheme(p.app.icon, QIcon.fromTheme("internet-web-browser")).pixmap(48, 48),
+                               p.app.name, _("New: {news}").format(news=news) + "\n" + _("Version {v}").format(v=p.version), 0)
+            row.subtitle.setWordWrap(True)
+            b = row.add_button(_("Updating…") if busy else _("Update"), "NovaPrimary")
+            b.setEnabled(not busy and self.sys_busy is None)
+            b.clicked.connect(lambda _c=False, pp=p: self._update_system(pp))
+            lay.addWidget(row)
+        if not self.c.updates and not self.sys_updates:
             ok = QLabel("✔ " + _("All apps are up to date."))
             ok.setObjectName("NovaSubtitle")
             lay.addWidget(ok)

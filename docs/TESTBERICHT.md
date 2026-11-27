@@ -192,6 +192,15 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Nova Browser im Store (0.1.1.92):** Im Debian-13-System: `novaos-desktop` 0.1.1.91 → 0.1.1.92 +
+`novaos-browser` 0.1.1.92 – die Datei `/etc/firefox/policies/policies.json` wechselt ohne Konflikt zu
+`novaos-browser`, mit den neuen Einstellungen ✅. Lokaler Kanal: die Store-Logik findet „Nova Browser“ mit
+„Neu: Optimierung und Stabilitätsverbesserung …“, Version 0.1.1.92 ✅; erst ging das neue Paket unter (nicht
+„aktualisierbar“, weil noch nicht installiert) → behoben; apt-Simulation von „Aktualisieren“: installiert
+novaos-browser und aktualisiert novaos-desktop im selben Schritt ✅. Zeile im Store offscreen ✅
+(`docs/screenshots/glass/12`). Unit-Tests ✅. **Nicht getestet:** Firefox mit den neuen Einstellungen auf echter
+Hardware (Video über die Grafikkarte hängt vom Treiber ab).
+
 **Web-Apps im Nova Store (PC 0.1.1.91):** Unit-Tests (drei offizielle HTTPS-Adressen, Startmenü-Eintrag mit
 `StartupWMClass`, Hinzufügen/Entfernen, Startbefehl mit eigenem Profil); Kacheln offscreen: „Hinzufügen“ →
 Eintrag angelegt, Knopf wird „Öffnen“ + „Entfernen“ ✅ (`docs/screenshots/glass/11`). Ein erstes WhatsApp-Symbol

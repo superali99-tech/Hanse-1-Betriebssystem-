@@ -4,7 +4,7 @@ Section: kde
 Priority: optional
 Architecture: all
 Maintainer: NovaOS Project <novaos@localhost>
-Depends: novaos-base, plasma-desktop, plasma-workspace, kwin-wayland | kwin-x11, sddm, sddm-theme-breeze, plymouth, plymouth-label, fonts-inter, fonts-hack, python3, dpkg (>= 1.17.14)
+Depends: novaos-base, novaos-browser, plasma-desktop, plasma-workspace, kwin-wayland | kwin-x11, sddm, sddm-theme-breeze, plymouth, plymouth-label, fonts-inter, fonts-hack, python3, dpkg (>= 1.17.14)
 Recommends: firefox-esr, dolphin, konsole, kcalc, haruna, gwenview, plasma-widgets-addons, kdeplasma-addons-data
 Description: NovaOS desktop design (KDE Plasma 6)
  The NovaOS look and feel for KDE Plasma 6:

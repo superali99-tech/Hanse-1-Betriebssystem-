@@ -1,0 +1,17 @@
+Package: novaos-browser
+Version: @VERSION@
+Section: web
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: firefox-esr | firefox
+Breaks: novaos-desktop (<< 0.1.1.92)
+Replaces: novaos-desktop (<< 0.1.1.92)
+Nova-App: Nova Browser
+Nova-News: Optimierung und Stabilitätsverbesserung: Tabs werden bei knappem Speicher schlafen gelegt, Videos nutzen die Grafikkarte, weniger Schreibzugriffe auf die Festplatte
+Nova-News-En: Optimisation and stability improvements: tabs sleep when memory is low, videos use the graphics card, fewer disk writes
+Description: Nova Browser - Firefox with the NovaOS settings
+ Privacy, speed and stability settings of Nova Browser (Firefox ESR): tracker
+ blocking, HTTPS-only mode, no telemetry, inactive tabs unloaded when memory is
+ low, hardware video decoding and fewer disk writes. The Nova Store shows
+ updates of this package as "Nova Browser" with "Aktualisieren".
