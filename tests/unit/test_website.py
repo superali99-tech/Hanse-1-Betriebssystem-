@@ -31,7 +31,7 @@ def test_site_builds_and_links_work(tmp_path):
         # no scripts, styles, images or fonts from elsewhere (works offline, nothing tracked)
         assert not re.search(r'<(script|link|img)[^>]+(src|href)="https?:', text), page
         for ref in re.findall(r'(?:href|src)="([^"]+)"', text):
-            if ref.startswith(("http://", "https://", "#", "mailto:")):
+            if ref.startswith(("http://", "https://", "#", "mailto:", "novaos-app:")):
                 continue
             target = os.path.normpath(os.path.join(out, os.path.dirname(page), ref.split("#")[0]))
             assert os.path.isfile(target), f"{page}: broken link {ref}"
@@ -43,7 +43,9 @@ def test_browser_start_page_points_into_the_site(tmp_path):
                            "policies.json"), encoding="utf-8") as fh:
         pol = json.load(fh)["policies"]
     prefix = "file:///usr/share/novaos/website/"
-    urls = [pol["Homepage"]["URL"]] + [m["url"] for m in pol["ManagedBookmarks"] if "url" in m]
+    urls = [pol["Homepage"]["URL"]] + [m["url"] for m in pol["ManagedBookmarks"]
+                                       if "url" in m and not m["url"].startswith("novaos-app:")]
+    assert pol["Handlers"]["schemes"]["novaos-app"]["ask"] is False   # "als App installieren" without a question
     b = load_builder()
     out = tmp_path / "site"
     b.build(str(out), "")

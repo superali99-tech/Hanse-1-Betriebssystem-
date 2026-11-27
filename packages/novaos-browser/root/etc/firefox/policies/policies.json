@@ -45,9 +45,21 @@
       {
         "name": "Anleitungen",
         "url": "file:///usr/share/novaos/website/anleitungen/index.html"
+      },
+      {
+        "name": "NovaOS als App installieren",
+        "url": "novaos-app:install-website"
       }
     ],
     "DisplayBookmarksToolbar": "newtab",
+    "Handlers": {
+      "schemes": {
+        "novaos-app": {
+          "action": "useSystemDefault",
+          "ask": false
+        }
+      }
+    },
     "Preferences": {
       "browser.tabs.unloadOnLowMemory": {
         "Value": true,

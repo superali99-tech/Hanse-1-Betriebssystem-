@@ -23,10 +23,11 @@ class WebApp:
     summary_de: str
     summary_en: str
     categories: str = "Network;"
+    icon_name: str = ""
 
     @property
     def icon(self) -> str:
-        return "novaos-webapp-" + self.id
+        return self.icon_name or "novaos-webapp-" + self.id
 
     @property
     def wm_class(self) -> str:
@@ -49,8 +50,15 @@ WEBAPPS = (
 )
 
 
+# the NovaOS website (built into Nova Browser) as an app of its own: "NovaOS als App installieren"
+# in Nova Browser (bookmarks -> NovaOS) or on the website opens novaos-app:install-website
+NOVAOS_SITE = WebApp("novaos", "NovaOS", "file:///usr/share/novaos/website/index.html",
+                     "Neuigkeiten, Update-Details und Anleitungen von NovaOS",
+                     "News, update details and guides of NovaOS", "System;Documentation;", "novaos")
+
+
 def get(app_id: str) -> WebApp | None:
-    return next((w for w in WEBAPPS if w.id == app_id), None)
+    return next((w for w in (*WEBAPPS, NOVAOS_SITE) if w.id == app_id), None)
 
 
 def search(query: str) -> list[WebApp]:
@@ -103,6 +111,31 @@ def uninstall(app: WebApp) -> None:
     except FileNotFoundError:
         pass
     _refresh_menu()
+
+
+def pin_script(app: WebApp) -> str:
+    """Plasma script: put the app into the NovaOS taskbar (the task manager's launchers)."""
+    launcher = f"applications:novaos-webapp-{app.id}.desktop"
+    return ("var ps = panels();\n"
+            "for (var i = 0; i < ps.length; i++) {\n"
+            "    var ws = ps[i].widgets();\n"
+            "    for (var j = 0; j < ws.length; j++) {\n"
+            "        var t = ws[j].type;\n"
+            "        if (t != 'org.kde.plasma.icontasks' && t != 'org.kde.plasma.taskmanager') { continue; }\n"
+            "        ws[j].currentConfigGroup = ['General'];\n"
+            "        var l = ws[j].readConfig('launchers', []);\n"
+            "        if (typeof l === 'string') { l = l ? l.split(',') : []; }\n"
+            f"        if (l.indexOf('{launcher}') < 0) {{ l.push('{launcher}'); ws[j].writeConfig('launchers', l); }}\n"
+            "    }\n"
+            "}\n")
+
+
+def pin_to_taskbar(app: WebApp) -> bool:
+    if not shutil.which("busctl"):
+        return False
+    res = subprocess.run(["busctl", "--user", "call", "org.kde.plasmashell", "/PlasmaShell", "org.kde.PlasmaShell",
+                          "evaluateScript", "s", pin_script(app)], capture_output=True, timeout=20)
+    return res.returncode == 0
 
 
 def _refresh_menu() -> None:

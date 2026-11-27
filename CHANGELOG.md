@@ -1,5 +1,14 @@
 # Changelog
 
+## NovaOS als App (PC 0.1.1.102)
+
+* **„Als App installieren“:** Knopf auf der NovaOS-Website (nur sichtbar, wenn sie in NovaOS läuft) und
+  Lesezeichen „NovaOS als App installieren“ im Nova Browser (Menü → Lesezeichen → NovaOS; in das Firefox-Menü
+  selbst lassen sich keine eigenen Punkte einbauen). Beide öffnen den Link `novaos-app:install-website`:
+  `nova-app-link` (Handler für `x-scheme-handler/novaos-app`, Firefox-Richtlinie `Handlers` ohne Rückfrage) legt
+  die App „NovaOS“ an (eigenes Fenster wie die Web-Apps), heftet sie an die Taskleiste (Plasma-Skript:
+  Starter des Taskmanagers), meldet „NovaOS ist installiert“ und öffnet sie.
+
 ## NovaOS-Website (PC 0.1.1.101)
 
 * **Neue NovaOS-Website** (`website/`, erzeugt mit `website/build.py`): Startseite im Nebula-Design (Glas,

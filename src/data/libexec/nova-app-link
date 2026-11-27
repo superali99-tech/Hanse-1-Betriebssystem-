@@ -1,0 +1,34 @@
+#!/usr/bin/python3 -I
+"""Handler of novaos-app: links (Nova Browser bookmark "NovaOS als App installieren", button on
+the NovaOS website): novaos-app:install-website makes the NovaOS website an app of its own -
+in the start menu, pinned to the taskbar, opened right away."""
+import shutil
+import subprocess
+import sys
+
+from novaos.store import webapps
+
+
+def notify(title: str, text: str) -> None:
+    if shutil.which("notify-send"):
+        subprocess.run(["notify-send", "-a", "NovaOS", "-i", "novaos", title, text], check=False)
+
+
+def main() -> int:
+    link = sys.argv[1] if len(sys.argv) > 1 else ""
+    action = link.split(":", 1)[-1].strip("/") if link.startswith("novaos-app:") else ""
+    if action != "install-website":
+        print("usage: nova-app-link novaos-app:install-website", file=sys.stderr)
+        return 2
+    app = webapps.NOVAOS_SITE
+    webapps.install(app)
+    pinned = webapps.pin_to_taskbar(app)
+    notify("NovaOS ist installiert",
+           "Du findest NovaOS jetzt in der Taskleiste und im Startmenü." if pinned
+           else "Du findest NovaOS jetzt im Startmenü.")
+    webapps.launch(app)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

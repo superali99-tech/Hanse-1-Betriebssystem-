@@ -1,4 +1,5 @@
 # What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
+NovaOS als App: auf der Website „Als App installieren“ oder im Nova Browser unter Lesezeichen → NovaOS – dann immer in der Taskleiste|NovaOS as an app: "Install as app" on the website or in Nova Browser under Bookmarks → NovaOS – then always in the taskbar
 NovaOS-Website im Nova Browser: Neuigkeiten, alle Update-Details und Anleitungen – „Alle Details ansehen“ führt direkt hin|NovaOS website in Nova Browser: news, all update details and guides – "See all details" takes you there
 Runde Taskleiste wird jetzt sicher eingeschaltet – auch wenn vorher das KDE-Standarddesign eingestellt war|The round taskbar is now switched on reliably – also where the KDE default design was set
 Runde Taskleiste: eigenes NovaOS-Design – große runde Ecken, weicher Schatten, runde Pillen statt eckiger Kästen hinter den Apps|Round taskbar: own NovaOS design – large round corners, soft shadow, round pills instead of square boxes behind the apps

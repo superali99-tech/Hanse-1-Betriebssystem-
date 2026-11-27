@@ -49,6 +49,22 @@ UPDATES = [
     {
         "version": "auto",
         "date": "27.11.2026",
+        "title": "NovaOS als App",
+        "tagline": "Die NovaOS-Website mit einem Klick als App – immer in der Taskleiste.",
+        "tags": ["Neue Funktion", "Nova Browser"],
+        "highlights": [
+            ("novaos", "Als App installieren", "Auf der Website oben „Als App installieren“ – oder im Nova Browser: Menü → Lesezeichen → NovaOS → „NovaOS als App installieren“."),
+            ("browser", "Eigenes Fenster", "NovaOS öffnet sich als eigene App mit eigenem Symbol in der Taskleiste und im Startmenü."),
+        ],
+        "changes": [
+            "„Als App installieren“ auf der NovaOS-Website (nur in NovaOS sichtbar)",
+            "Nova Browser: Lesezeichen „NovaOS als App installieren“",
+            "Die App kommt in die Taskleiste und ins Startmenü und öffnet sich gleich",
+        ],
+    },
+    {
+        "version": "0.1.1.101",
+        "date": "27.11.2026",
         "title": "Die NovaOS-Website ist da",
         "tagline": "Neuigkeiten, Update-Details und Anleitungen – direkt im Nova Browser.",
         "tags": ["Neue Funktion", "Nova Browser"],

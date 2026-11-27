@@ -318,3 +318,16 @@ p { margin: 0 0 1em; }
   .ico-xl { width: 64px; height: 64px; }
   .steps li { padding: 18px; gap: 14px; }
 }
+
+/* "Als App installieren" - only inside NovaOS */
+.nova-only { display: none !important; }
+.is-nova .nova-only { display: inline-flex !important; }
+.nav-install { align-items: center; height: 40px; padding: 0 16px; border-radius: 999px; font-weight: 750; font-size: 14px; color: #fff;
+  background: linear-gradient(110deg, var(--a1), var(--a2)); box-shadow: var(--glow); }
+.install-app { align-items: center; gap: 14px; margin-top: 22px; padding: 14px 20px 14px 14px; border-radius: 20px;
+  background: var(--card); border: 1px solid var(--line); backdrop-filter: blur(12px); transition: transform .2s, border-color .2s; }
+.install-app:hover { transform: translateY(-2px); border-color: rgba(34, 211, 238, .5); }
+.install-app .ico { width: 42px; height: 42px; }
+.install-app span { display: block; font-size: 14px; color: var(--muted); line-height: 1.35; }
+.install-app b { display: block; color: var(--fg); font-size: 16px; }
+@media (max-width: 720px) { .is-nova .nav-install { display: none !important; } }

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=NovaOS app installer
+Name[de]=NovaOS-App-Installation
+Comment=Installs the NovaOS website as an app (novaos-app: links)
+Comment[de]=Installiert die NovaOS-Website als App (Links novaos-app:)
+Exec=/usr/libexec/novaos/nova-app-link %u
+Icon=novaos
+NoDisplay=true
+Terminal=false
+MimeType=x-scheme-handler/novaos-app;

@@ -79,6 +79,7 @@ def page(title: str, body: str, rel: str, active: str, description: str) -> str:
   <a class="brand" href="{rel}index.html">{icon("novaos", rel, "brand-ico")}<span>Nova<b>OS</b></span></a>
   <nav class="links" id="links">{links}</nav>
   <div class="nav-actions">
+    <a class="nav-install nova-only" href="novaos-app:install-website" title="NovaOS als App installieren – immer in der Taskleiste">Als App installieren</a>
     <button class="theme" id="theme" type="button" aria-label="Hell oder dunkel">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg>
     </button>
@@ -129,6 +130,8 @@ def build_index(updates: list[dict]) -> str:
         <a class="btn primary" href="updates/aktuell.html">Was ist neu</a>
         <a class="btn ghost" href="anleitungen/novaos-2.html">NovaOS 2 holen</a>
       </div>
+      <a class="install-app nova-only reveal" href="novaos-app:install-website">{icon("novaos", rel)}<span><b>Als App installieren</b>
+        Immer in der Taskleiste – ein Klick, fertig</span></a>
     </div>
     <div class="hero-visual reveal">
       <div class="window">{shot("card", rel, "Willkommen bei NovaOS 2")}</div>

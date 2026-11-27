@@ -192,6 +192,12 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**NovaOS als App (0.1.1.102):** `nova-app-link novaos-app:install-website` im Debian-13-System mit simuliertem
+Plasma: Startmenü-Eintrag „NovaOS“ (`nova-webapp novaos`, Symbol `novaos`) angelegt, Plasma-Skript fügt
+`applications:novaos-webapp-novaos.desktop` zu den Startern hinzu, Meldung „NovaOS ist installiert“ ✅. Knopf auf
+der Website erscheint nur unter `/usr/share/novaos/website` (Chromium) ✅. 141 Unit-Tests ✅. **Nicht getestet:**
+Firefox öffnet den Link ohne Rückfrage (Richtlinie `Handlers`) und das Anheften an einer echten Plasma-Taskleiste.
+
 **NovaOS-Website (0.1.1.101):**
 
 | Test | Ergebnis | Details |

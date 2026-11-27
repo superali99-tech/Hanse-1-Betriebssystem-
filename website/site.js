@@ -3,6 +3,11 @@
   "use strict";
   var root = document.documentElement;
 
+  // opened from NovaOS itself (Nova Browser): show "Als App installieren" (novaos-app: link)
+  if (location.protocol === "file:" && location.pathname.indexOf("/usr/share/novaos/website/") === 0) {
+    root.classList.add("is-nova");
+  }
+
   // fade elements in when they come into view (short and quick)
   var items = document.querySelectorAll(".reveal");
   if ("IntersectionObserver" in window) {
