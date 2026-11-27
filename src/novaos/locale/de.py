@@ -545,4 +545,5 @@ MESSAGES = {
     'Round taskbar': 'Runde Taskleiste',
     'Floating glass dock with round corners – the active app glows.': 'Schwebendes Glas-Dock mit runden Ecken – die aktive App leuchtet.',
     'New wallpaper, start screen and login screen.': 'Neues Hintergrundbild, neuer Start- und Anmeldebildschirm.',
+    'See all details': 'Alle Details ansehen',
 }

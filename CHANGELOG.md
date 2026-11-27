@@ -1,5 +1,23 @@
 # Changelog
 
+## NovaOS-Website (PC 0.1.1.101)
+
+* **Neue NovaOS-Website** (`website/`, erzeugt mit `website/build.py`): Startseite im Nebula-Design (Glas,
+  Hell/Dunkel, PC und Handy, kurze Einblend-Animationen), **Neuigkeiten** mit allen Updates als Zeitleiste und
+  einer Seite pro Update wie bei Samsung (Highlights, alle Änderungen, „So installierst du das Update“,
+  Blättern zwischen Updates), **Anleitungen** (NovaOS installieren, aktualisieren, NovaOS 2 holen, WLAN,
+  Dateien retten, Speicher frei machen, Apps installieren, E-Mail bestätigen) und häufige Fragen. Lädt nichts
+  aus dem Internet nach, keine Cookies.
+* **Im Nova Browser eingebaut:** `novaos-browser` bringt die Website mit (`/usr/share/novaos/website`, auch
+  ohne Internet) – Startseite des Browsers und Lesezeichen-Ordner „NovaOS“ (Start, Was ist neu, Alle Updates,
+  Anleitungen).
+* **Software-Update:** unter „Neu in NovaOS“ die fünf wichtigsten Punkte und **Alle Details ansehen** – öffnet
+  die Seite des Updates im Nova Browser.
+* **Online:** Workflow „NovaOS website (GitHub Pages)“ veröffentlicht die Website kostenlos unter
+  `superali99-tech.github.io/Hanse-1-Betriebssystem-/` (NovaOS TV Web unter `/tv/`), sobald GitHub Pages
+  einmal eingeschaltet ist.
+* `build-debs.sh` gibt `build.sh` der Pakete die Paketversion mit (`NOVAOS_DEB_VERSION`).
+
 ## Runde Taskleiste wird sicher eingeschaltet (PC 0.1.1.100)
 
 * Auf einem PC blieb nach 0.1.1.99 die eckige Breeze-Leiste: das Design `novaos` war installiert, aber nicht

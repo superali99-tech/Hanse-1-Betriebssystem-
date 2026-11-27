@@ -192,6 +192,21 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**NovaOS-Website (0.1.1.101):**
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| Website bauen, alle Seiten und alle Links innen | ✅ | 47 Dateien, 1,5 MB; Unit-Test `test_website.py` prüft jede Seite, jeden Link und dass nichts von außen geladen wird |
+| Chromium (Playwright) über `file://`: Startseite, Update-Seite, Zeitleiste, Anleitung, hell, Handy (390 px) | ✅ | keine Skriptfehler, keine Anfragen ins Internet; `docs/screenshots/website/` |
+| Korrekturen nach den ersten Bildern | ✅ | Zurück-Link stieß an die Versionszeile, Knopf „Alle Anleitungen“ unterstrichen, lila Rand um das Kartenbild, leere Store-Kachel, blasse türkise Schrift im hellen Modus → behoben |
+| Paket `novaos-browser` 0.1.1.101 im Debian-13-System | ✅ | Website unter `/usr/share/novaos/website`, Startseite in den Firefox-Richtlinien, alle Lesezeichen zeigen auf vorhandene Seiten (Unit-Test) |
+| Nova Updates: „Alle Details ansehen“ | ✅ | offscreen gerendert; Link führt zu `file:///usr/share/novaos/website/updates/aktuell.html` (vorhanden), ohne Website zur Online-Version (Unit-Test) |
+| Unit-Tests | ✅ | 139 bestanden |
+
+**Nicht getestet:** Firefox selbst mit den neuen Richtlinien (in der Testumgebung kein Firefox; Werte nach dem
+Richtlinien-Schema von Firefox: `Homepage.StartPage = homepage`, `ManagedBookmarks`,
+`DisplayBookmarksToolbar = newtab`), die Online-Version (GitHub Pages ist noch nicht eingeschaltet).
+
 **Runde Taskleiste wird sicher eingeschaltet (0.1.1.100):** Foto vom Benutzer nach 0.1.1.99: weiter eckige Leiste
 mit Strich über der aktiven App – genau Breeze. Nachgestellt mit den **echten** Bibliotheken von Debian 13
 (libplasma 6.3.5, KSvg, Breeze-Design `plasma-desktoptheme`), Leiste und App-Pillen als `KSvg.FrameSvgItem`

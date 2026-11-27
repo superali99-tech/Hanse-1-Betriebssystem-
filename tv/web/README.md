@@ -18,7 +18,7 @@ YouTube-Kanälen, direkt auf der Seite abgespielt). Nichts muss installiert werd
 ## Öffnen auf dem Fernseher
 
 1. Auf dem Fernseher die App **„Internet“** (Samsung) bzw. den **Browser** öffnen.
-2. Die Adresse eingeben: **`https://superali99-tech.github.io/Hanse-1-Betriebssystem-/`**
+2. Die Adresse eingeben: **`https://superali99-tech.github.io/Hanse-1-Betriebssystem-/tv/`**
    (die Adresse zeigt GitHub nach der Einrichtung unter *Settings → Pages* an).
 3. Als **Lesezeichen / Favorit** speichern – beim nächsten Mal genügt ein Klick.
 
@@ -59,7 +59,7 @@ tv/web/build.sh        # -> build/tv-web/  (index.html, app.js, style.css, hls.m
 * Filme laufen im **offiziellen eingebetteten YouTube-Player** (Datenschutzmodus
   `youtube-nocookie.com`); nach den YouTube-Regeln liegt nichts über dem Bild – die NovaOS-Leiste mit
   Titel, Zeit und Schaltflächen ist unter dem Video.
-* GitHub Actions (`.github/workflows/tv-web.yml`) baut die Seite **alle 3 Stunden neu** und
+* GitHub Actions (`.github/workflows/tv-web.yml`, „NovaOS website“) baut die Seite **alle 3 Stunden neu** (unter `/tv/` der NovaOS-Website) und
   veröffentlicht sie auf **GitHub Pages**. Einmalig nötig: *Settings → Pages → Source: GitHub Actions*
   (für private Repositories braucht GitHub Pages ein kostenpflichtiges GitHub-Konto – sonst das
   Repository öffentlich machen). Die Seite wird aus dem Standard-Branch veröffentlicht.

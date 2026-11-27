@@ -1,15 +1,19 @@
-# NovaOS TV Web: builds the website (TV channels + Nova Filme for the browser of
-# Samsung, Philips, LG ... TVs) and publishes it on GitHub Pages. Runs every 3 hours
-# so the Nova Filme rows stay current (the TV browsers may not read YouTube's feeds
-# themselves; the data is built here with the logic of the Android app).
+# NovaOS website on GitHub Pages: the NovaOS website (start page, all updates with their
+# details, guides - the same pages Nova Browser has built in) at the root, NovaOS TV Web
+# (TV channels + Nova Filme for the browsers of Samsung, Philips, LG ... TVs) under /tv/.
+# Runs every 3 hours so the Nova Filme rows stay current.
 #
-# One-time setup in the repository: Settings -> Pages -> Source: "GitHub Actions".
-# (GitHub Pages for private repositories needs a paid GitHub plan.)
-name: NovaOS TV Web (GitHub Pages)
+# Free address: https://superali99-tech.github.io/Hanse-1-Betriebssystem-/
+# One-time setup in the repository: Settings -> Pages -> Source: "GitHub Actions"
+# (and, to publish from a branch other than the default one, allow that branch under
+# Settings -> Environments -> github-pages).
+name: NovaOS website (GitHub Pages)
 
 on:
   push:
     paths:
+      - "website/**"
+      - "docs/screenshots/**"
       - "tv/web/**"
       - "tv/res/raw/sender.m3u"
       - "tv/src/org/novaos/tv/Catalog.java"
@@ -36,11 +40,20 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Build website and data
-        run: ./tv/web/build.sh
+        with:
+          fetch-depth: 0  # build number = number of commits
+      - name: NovaOS website
+        run: |
+          . ./VERSION.sh
+          python3 website/build.py build/site --version "${NOVAOS_VERSION}.$(git rev-list --count HEAD)"
+      - name: NovaOS TV Web (under /tv/)
+        continue-on-error: true  # the main website is published even if the TV data cannot be built
+        run: |
+          ./tv/web/build.sh
+          cp -r build/tv-web build/site/tv
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: build/tv-web
+          path: build/site
 
   deploy:
     needs: build

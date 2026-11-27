@@ -5,12 +5,13 @@ from __future__ import annotations
 import datetime
 import html
 import os
+import shutil
 import subprocess
 import sys
 import time
 
-from PyQt6.QtCore import QProcess, Qt, QTimer
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QProcess, Qt, QTimer, QUrl
+from PyQt6.QtGui import QDesktopServices, QIcon
 from PyQt6.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -60,6 +61,32 @@ def flatpak_update_all(progress):
 
 
 WHATSNEW = "/usr/share/novaos/whatsnew-pc.txt"
+WEBSITE = "/usr/share/novaos/website"   # built into Nova Browser (package novaos-browser)
+WEBSITE_ONLINE = "https://superali99-tech.github.io/Hanse-1-Betriebssystem-/"
+
+
+def update_details_url(website: str | None = None) -> str:
+    """The page of the current update on the NovaOS website: the copy built into Nova Browser
+    (works offline), else the online version."""
+    website = website or WEBSITE
+    for rel in ("updates/aktuell.html", "index.html"):
+        path = os.path.join(website, rel)
+        if os.path.exists(path):
+            return "file://" + path
+    return WEBSITE_ONLINE + "updates/aktuell.html"
+
+
+def open_in_browser(url: str) -> None:
+    """Nova Browser (Firefox) when it is there, otherwise the default browser."""
+    for b in ("firefox-esr", "firefox"):
+        if shutil.which(b):
+            try:
+                subprocess.Popen([b, "--new-tab", url], start_new_session=True,
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                return
+            except OSError:
+                break
+    QDesktopServices.openUrl(QUrl(url))
 
 
 def novaos_build() -> str:
@@ -199,7 +226,7 @@ class UpdatesWindow(QMainWindow):
         self.uptodate.hide()
         lay.addWidget(self.uptodate)
 
-        news = whatsnew()
+        news = whatsnew()[:5]   # the most important points - everything else on the website ("See all details")
         if news:
             np_ = QFrame()
             np_.setObjectName("NovaPanel")
@@ -213,6 +240,15 @@ class UpdatesWindow(QMainWindow):
             body.setTextFormat(Qt.TextFormat.RichText)
             body.setWordWrap(True)
             nl.addWidget(body)
+            more = QPushButton(_("See all details") + "  →")
+            more.setObjectName("NovaLink")
+            more.setCursor(Qt.CursorShape.PointingHandCursor)
+            more.setFlat(True)
+            more.setStyleSheet("QPushButton { color: #7C5CFF; font-weight: 700; border: none; padding: 2px 0;"
+                               " text-align: left; background: transparent; }"
+                               "QPushButton:hover { color: #22B8D9; text-decoration: underline; }")
+            more.clicked.connect(lambda: open_in_browser(update_details_url()))
+            nl.addWidget(more, 0, Qt.AlignmentFlag.AlignLeft)
             np_.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
             lay.addWidget(np_)
         # takes the free space while the table is hidden (nothing to update)

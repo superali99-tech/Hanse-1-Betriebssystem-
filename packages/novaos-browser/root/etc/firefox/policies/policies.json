@@ -21,6 +21,33 @@
     "HttpsOnlyMode": "enabled",
     "PasswordManagerEnabled": true,
     "OfferToSaveLogins": true,
+    "Homepage": {
+      "URL": "file:///usr/share/novaos/website/index.html",
+      "StartPage": "homepage",
+      "Locked": false
+    },
+    "ManagedBookmarks": [
+      {
+        "toplevel_name": "NovaOS"
+      },
+      {
+        "name": "NovaOS – Start",
+        "url": "file:///usr/share/novaos/website/index.html"
+      },
+      {
+        "name": "Was ist neu",
+        "url": "file:///usr/share/novaos/website/updates/aktuell.html"
+      },
+      {
+        "name": "Alle Updates",
+        "url": "file:///usr/share/novaos/website/updates/index.html"
+      },
+      {
+        "name": "Anleitungen",
+        "url": "file:///usr/share/novaos/website/anleitungen/index.html"
+      }
+    ],
+    "DisplayBookmarksToolbar": "newtab",
     "Preferences": {
       "browser.tabs.unloadOnLowMemory": {
         "Value": true,

@@ -8,10 +8,11 @@ Depends: firefox-esr | firefox
 Breaks: novaos-desktop (<< 0.1.1.92)
 Replaces: novaos-desktop (<< 0.1.1.92)
 Nova-App: Nova Browser
-Nova-News: Optimierung und Stabilitätsverbesserung: neuer Tab schneller und ohne gesponserte Inhalte, weniger Anfragen beim Tippen in der Adressleiste
-Nova-News-En: Optimisation and stability improvements: faster new tab without sponsored content, fewer requests while typing in the address bar
+Nova-News: NovaOS-Website eingebaut: Startseite mit Neuigkeiten, allen Update-Details und Anleitungen – auch ohne Internet
+Nova-News-En: NovaOS website built in: start page with news, all update details and guides – also offline
 Description: Nova Browser - Firefox with the NovaOS settings
  Privacy, speed and stability settings of Nova Browser (Firefox ESR): tracker
  blocking, HTTPS-only mode, no telemetry, inactive tabs unloaded when memory is
- low, hardware video decoding and fewer disk writes. The Nova Store shows
- updates of this package as "Nova Browser" with "Aktualisieren".
+ low, hardware video decoding and fewer disk writes. With the NovaOS website
+ built in (/usr/share/novaos/website: start page, update details, guides). The
+ Nova Store shows updates of this package as "Nova Browser" with "Aktualisieren".

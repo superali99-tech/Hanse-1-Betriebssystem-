@@ -40,7 +40,7 @@ for src in "$ROOT"/packages/*/; do
 	fi
 	if [ -x "$src/build.sh" ]; then
 		rc=0
-		NOVAOS_ROOT="$ROOT" "$src/build.sh" "$stage" || rc=$?
+		NOVAOS_ROOT="$ROOT" NOVAOS_DEB_VERSION="$DEB_VERSION" "$src/build.sh" "$stage" || rc=$?
 		if [ "$rc" = 77 ]; then
 			echo "    (skipped by build.sh)"
 			continue
