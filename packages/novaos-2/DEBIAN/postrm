@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+if [ "$1" = remove ] || [ "$1" = purge ]; then
+	# back to the NovaOS 1 name and boot screen
+	[ -e /usr/lib/novaos/os-release ] && ln -sf /usr/lib/novaos/os-release /usr/lib/os-release || true
+	if command -v plymouth-set-default-theme >/dev/null 2>&1 && [ -d /usr/share/plymouth/themes/novaos ]; then
+		plymouth-set-default-theme novaos || true
+		dpkg-trigger --no-await update-initramfs 2>/dev/null || true
+	fi
+fi
+exit 0

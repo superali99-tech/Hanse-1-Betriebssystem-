@@ -4,12 +4,35 @@
 # see-through. Version 3: a modern dock - in the middle, as wide as its content,
 # a little higher, without spacers, desktop pager and "show desktop" button.
 # KWin reloads its settings (blur, shadows, no shake cursor).
-# New users get all of this from the NovaOS layout directly. Never blocks the login.
+# NovaOS 2 (edition file says 2): the "Nebula" wallpaper on the desktop and the lock
+# screen, once per user - only where the NovaOS default wallpaper is still set.
+# New users get the taskbar from the NovaOS layout directly. Never blocks the login.
 VERSION=3
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/novaos"
-[ "$(cat "$STATE/look-version" 2>/dev/null)" = "$VERSION" ] && exit 0
+EDITION=$(cat /usr/share/novaos/edition 2>/dev/null || echo 1)
+NEBULA="file:///usr/share/wallpapers/NovaNebula/"
+need_look=1
+[ "$(cat "$STATE/look-version" 2>/dev/null)" = "$VERSION" ] && need_look=0
+need_wall=0
+if [ "$EDITION" = 2 ] && [ -d /usr/share/wallpapers/NovaNebula ] && \
+		[ "$(cat "$STATE/look-edition" 2>/dev/null)" != 2 ]; then
+	need_wall=1
+fi
+[ $need_look = 1 ] || [ $need_wall = 1 ] || exit 0
 command -v busctl >/dev/null 2>&1 || exit 0
-SCRIPT='var ps = panels();
+WALL_SCRIPT='var ds = desktops();
+for (var i = 0; i < ds.length; i++) {
+    var d = ds[i];
+    if (d.wallpaperPlugin != "org.kde.image") {
+        continue;
+    }
+    d.currentConfigGroup = ["Wallpaper", "org.kde.image", "General"];
+    var img = String(d.readConfig("Image", ""));
+    if (img == "" || img.indexOf("NovaAurora") >= 0 || img.indexOf("/wallpapers/Next") >= 0) {
+        d.writeConfig("Image", "'"$NEBULA"'");
+    }
+}'
+LOOK_SCRIPT='var ps = panels();
 for (var i = 0; i < ps.length; i++) {
     var p = ps[i];
     if (p.location != "bottom") {
@@ -29,12 +52,39 @@ for (var i = 0; i < ps.length; i++) {
     var gu = (typeof gridUnit !== "undefined") ? gridUnit : 18;
     p.height = 2 * Math.floor(gu * 3.1 / 2);
 }'
+SCRIPT=""
+[ $need_look = 1 ] && SCRIPT="$LOOK_SCRIPT"
+[ $need_wall = 1 ] && SCRIPT="$SCRIPT
+$WALL_SCRIPT"
+
+lockscreen_nebula() {
+	for r in kreadconfig6 kreadconfig5; do command -v $r >/dev/null 2>&1 && break; r=""; done
+	for w in kwriteconfig6 kwriteconfig5; do command -v $w >/dev/null 2>&1 && break; w=""; done
+	[ -n "$r" ] && [ -n "$w" ] || return 0
+	cur=$($r --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General --key Image 2>/dev/null)
+	case "$cur" in
+		""|*NovaAurora*|*/wallpapers/Next*)
+			$w --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General \
+				--key Image "$NEBULA" 2>/dev/null
+			$w --file kscreenlockerrc --group Greeter --group Wallpaper --group org.kde.image --group General \
+				--key PreviewImage "${NEBULA}contents/images_dark/3840x2160.jpg" 2>/dev/null ;;
+	esac
+	return 0
+}
+
 # Plasma may still be starting: try for about a minute
 i=0
 while [ $i -lt 30 ]; do
 	if busctl --user call org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell evaluateScript s "$SCRIPT" >/dev/null 2>&1; then
-		busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure >/dev/null 2>&1 || true
-		mkdir -p "$STATE" && echo "$VERSION" > "$STATE/look-version"
+		mkdir -p "$STATE"
+		if [ $need_look = 1 ]; then
+			busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure >/dev/null 2>&1 || true
+			echo "$VERSION" > "$STATE/look-version"
+		fi
+		if [ $need_wall = 1 ]; then
+			lockscreen_nebula
+			echo 2 > "$STATE/look-edition"
+		fi
 		exit 0
 	fi
 	i=$((i + 1))

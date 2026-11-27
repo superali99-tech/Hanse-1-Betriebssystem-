@@ -192,6 +192,26 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**NovaOS 2 „Nebula“ (0.1.1.98):** im Debian-13-System (chroot) mit den neu gebauten Paketen:
+
+| Test | Ergebnis | Details |
+|---|---|---|
+| `novaos-2` installieren / entfernen | ✅ | „NovaOS 2 (Nebula)“, Edition 2, Anmeldehintergrund NovaOS 2; nach dem Entfernen wieder „NovaOS 0.1.1 (Aurora)“ und der alte Hintergrund |
+| Update von `novaos-base` bei NovaOS 2 | ✅ | Name bleibt „NovaOS 2 (Nebula)“ |
+| „NovaOS 2 holen“ über den echten Helfer (`nova-apt-helper novaos2`), lokaler Kanal | ✅ | lädt `novaos-2`, `novaos-disk` und ein Browser-Update, `prepared` mit Titel „NovaOS 2“, `/system-update` gesetzt |
+| Installation beim Neustart (`nova-scheduled-update offline`) | ✅ | „NovaOS 2 wird installiert – … %“ → „NovaOS 2 ist installiert – Neustart …“, alle drei Pakete installiert, Marker entfernt, `last-result` ok. Erster Versuch mit einer `file:`-Quelle scheiterte (apt kann `--no-download` damit nicht – nur im Test; der echte Kanal ist HTTPS) → mit `copy:` wiederholt ✅; dabei geprüft: bei Fehlern startet der PC normal, Fehler steht in `last-result` |
+| Nova Updates offscreen: Karte „NovaOS 2“, „NovaOS 2 ist bereit – bitte neu starten“ | ✅ | `docs/screenshots/nova2/01`, `02`; erst lief die Karte über den Fensterrand (Zeilen ohne Umbruch) → behoben |
+| Tour „Willkommen bei NovaOS 2“ offscreen | ✅ | `03`; Texte standen erst mitten in den Karten → oben ausgerichtet |
+| `nova-look-update` mit simuliertem Plasma | ✅ | Nebula-Skript (Syntax mit Node geprüft) und Sperrbildschirm nur bei Standardbild, Marker `look-edition`, zweiter Lauf ohne Aufruf |
+| Nova Disk: Dateien retten auf einem Laufwerks-Abbild mit 4 gelöschten Dateien | ✅ | alle 4 Dateien byteweise gleich zurück. Erst 0 Funde: PhotoRec 7.2 lehnte Dateitypen wie `heic`, `mp4`, `docx` ab („Syntax error“) → jeden Namen einzeln geprüft, nur gültige Familien (`jpg`, `mov`, `doc`, `zip` …) ✅ |
+| Nova Disk: gleiches Laufwerk als Ziel | ✅ | Warnung; erste Prüfung über den Pfad war bei „/“ falsch → jetzt über die Gerätenummer (`st_dev`) |
+| Nova Disk offscreen (Übersicht, Speicher, Papierkorb, Retten) | ✅ | `05`–`08`; USB-Stick steht beim Retten zuerst, Boot-Partitionen ausgeblendet |
+| Neuer Nova Store offscreen | ✅ | `04`; Kachel „System & Werkzeuge“ war abgeschnitten → breiter |
+| Unit-Tests | ✅ | 125 bestanden (neu: Edition, „NovaOS 2 holen“ bei ausgeschalteter Suche, Nova Disk) |
+
+**Nicht getestet:** echter Neustart mit Plymouth-Fortschritt, das Aussehen auf einem echten Plasma-Desktop
+(Hintergrund, Anmeldebildschirm), Datenrettung von echten USB-Sticks/SD-Karten und SMART echter Laufwerke.
+
 **Moderne Taskleiste (0.1.1.97):** Plasma-Skripte mit einem Nachbau der Plasma-Skript-Schnittstelle in Node
 geprüft (Namen geprüft im Quelltext von Plasma 6.3: `Panel.lengthMode/alignment/floating/opacity/height`,
 `Widget.type/remove()`): alte NovaOS-Leiste → „Start, Apps, Statussymbole, Uhr“, mittig, schwebend, Glas,

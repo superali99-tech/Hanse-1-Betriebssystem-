@@ -32,6 +32,7 @@ from PyQt6.QtWidgets import (
 from novaos.common.app import create_app, nova_icon, themed_icon
 from novaos.common.i18n import _
 from novaos.store import worker
+from novaos.common.sysinfo import edition
 from novaos.updates import apt, scheduled
 
 PKEXEC = "/usr/bin/pkexec"
@@ -129,13 +130,16 @@ class UpdatesWindow(QMainWindow):
         self.subline = QLabel("")
         self.subline.setWordWrap(True)
         self.build = novaos_build()
-        self.version_label = QLabel(_("NovaOS {v} · based on Debian 13").format(v=self.build))
+        self.version_label = QLabel(self._version_text())
         self.version_label.setStyleSheet("font-size: 10pt; color: rgba(255,255,255,0.78);")
         tl.addWidget(self.version_label)
         tl.addWidget(self.headline)
         tl.addWidget(self.subline)
         hl.addLayout(tl, 1)
         lay.addWidget(hero)
+        self.nova2_card = self._nova2_card()
+        self.nova2_card.hide()
+        lay.addWidget(self.nova2_card)
 
         # Actions
         row = QHBoxLayout()
@@ -253,20 +257,118 @@ class UpdatesWindow(QMainWindow):
 
         QTimer.singleShot(50, self.check_local)
 
+    def _version_text(self) -> str:
+        if edition() >= 2:
+            return _("NovaOS 2 “Nebula” · build {v} · based on Debian 13").format(v=self.build)
+        return _("NovaOS {v} · based on Debian 13").format(v=self.build)
+
+    # ------------------------------------------------------------- NovaOS 2
+    def _nova2_card(self) -> QFrame:
+        card = QFrame()
+        card.setObjectName("Nova2Card")
+        card.setStyleSheet("QFrame#Nova2Card { border-radius: 24px; background: qlineargradient(x1:0, y1:0, x2:1, y2:1,"
+                           " stop:0 #0F0C29, stop:0.45 #4C1D95, stop:1 #0891B2); }"
+                           "QFrame#Nova2Card QLabel { color: white; background: transparent; }")
+        cl = QHBoxLayout(card)
+        cl.setContentsMargins(30, 24, 30, 24)
+        cl.setSpacing(24)
+        text = QVBoxLayout()
+        tag = QLabel(_("NEW"))
+        tag.setStyleSheet("font-size: 9pt; font-weight: 800; letter-spacing: 3px; color: #A5F3FC;")
+        title = QLabel("NovaOS <span style='color:#67E8F9'>2</span>")
+        title.setStyleSheet("font-size: 34pt; font-weight: 900;")
+        sub = QLabel(_("“Nebula” – the biggest NovaOS update so far."))
+        sub.setStyleSheet("font-size: 12pt; color: rgba(255,255,255,0.9);")
+        feats = QLabel("<br>".join("✦ " + f for f in (
+            _("Nova Disk: see what fills your disk and rescue deleted files"),
+            _("The new Nova Store with the app of the day and colourful categories"),
+            _("“Nebula” design: new wallpaper, start and login screen"))))
+        feats.setStyleSheet("font-size: 11pt; color: rgba(255,255,255,0.92);")
+        feats.setWordWrap(True)
+        sub.setWordWrap(True)
+        text.addWidget(tag)
+        text.addWidget(title)
+        text.addWidget(sub)
+        text.addSpacing(6)
+        text.addWidget(feats)
+        cl.addLayout(text, 1)
+        right = QVBoxLayout()
+        right.addStretch(1)
+        self.btn_nova2 = QPushButton(_("Get NovaOS 2"))
+        self.btn_nova2.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_nova2.setStyleSheet("QPushButton { background: white; color: #4C1D95; border: none; border-radius: 18px;"
+                                     " padding: 12px 30px; font-weight: 800; font-size: 12pt; }"
+                                     "QPushButton:hover { background: #EDE9FE; } QPushButton:disabled { color: #8B8B9E; }")
+        self.btn_nova2.clicked.connect(self.get_nova2)
+        right.addWidget(self.btn_nova2)
+        note = QLabel(_("Free · your files and apps stay"))
+        note.setStyleSheet("font-size: 9pt; color: rgba(255,255,255,0.75);")
+        note.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        right.addWidget(note)
+        right.addStretch(1)
+        cl.addLayout(right)
+        return card
+
+    def _nova2_available(self) -> bool:
+        if edition() >= 2:
+            return False
+        from novaos.store.system_apps import policy
+        installed, candidate = policy("novaos-2")
+        return bool(candidate) and not installed
+
+    def get_nova2(self) -> None:
+        box = QMessageBox(self)
+        box.setWindowTitle("NovaOS 2")
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setText("<b>" + _("Get NovaOS 2 now?") + "</b>")
+        box.setInformativeText(_("NovaOS now downloads NovaOS 2 in the background – this can take a few minutes. "
+                                 "At the next restart NovaOS 2 is installed, with progress on the start screen; "
+                                 "that takes a while, like installing NovaOS. Your files, settings and apps stay."))
+        go = box.addButton(_("Get NovaOS 2"), QMessageBox.ButtonRole.AcceptRole)
+        box.addButton(_("Not now"), QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        if box.clickedButton() is not go:
+            return
+        self._errors = []
+        self.btn_nova2.setEnabled(False)
+        self.btn_nova2.setText(_("Downloading…"))
+        self._run_helper(["novaos2"], then=self._nova2_prepared)
+
+    def _nova2_prepared(self) -> None:
+        self._busy(False)
+        self.btn_nova2.setEnabled(True)
+        self.btn_nova2.setText(_("Get NovaOS 2"))
+        if self._errors:
+            QMessageBox.warning(self, "NovaOS 2", _("NovaOS 2 could not be prepared:") + "\n\n" + "\n".join(self._errors[:5]))
+            return
+        self.check_local()
+        box = QMessageBox(self)
+        box.setWindowTitle("NovaOS 2")
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setText("<b>" + _("NovaOS 2 is ready") + "</b>")
+        box.setInformativeText(_("Restart now to install NovaOS 2. Please do not turn off the computer while it is "
+                                 "being installed. Save your work first."))
+        now = box.addButton(_("Restart and install"), QMessageBox.ButtonRole.AcceptRole)
+        box.addButton(_("Later"), QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+        if box.clickedButton() is now:
+            subprocess.Popen(["systemctl", "reboot"])
+
     # --------------------------------------------------------------- checking
     def check_local(self) -> None:
         """List updates from the current package lists (no password needed)."""
         self.headline.setText(_("Checking for updates…"))
         self._busy(True, _("Reading package lists…"), indeterminate=True)
-        worker.run(lambda: (apt.list_upgradable(), flatpak_updates()), on_done=self._loaded,
-                   on_error=lambda e: self._loaded(([], [])))
+        worker.run(lambda: (apt.list_upgradable(), flatpak_updates(), self._nova2_available()), on_done=self._loaded,
+                   on_error=lambda e: self._loaded(([], [], False)))
 
     def check_online(self) -> None:
         """Refresh the Debian package lists (needs administrator rights)."""
         self._run_helper(["refresh"], then=self.check_local)
 
     def _loaded(self, result) -> None:
-        self.pkg_updates, self.app_updates = result
+        self.pkg_updates, self.app_updates = result[0], result[1]
+        nova2 = len(result) > 2 and result[2]
         self._busy(False)
         self.tree.clear()
         sec = sum(1 for p in self.pkg_updates if p.security)
@@ -323,7 +425,14 @@ class UpdatesWindow(QMainWindow):
                 self.subline.setText(_("Package lists from {when}.").format(when=checked))
                 self.uptodate_text.setText(_("The updates are installed. Restart the computer so that everything new is used."))
         prepared = scheduled.pending()
-        if prepared:
+        self.nova2_card.setVisible(bool(nova2) and not (prepared and prepared.get("title")))
+        if prepared and prepared.get("title"):
+            self.headline.setText(_("{title} is ready – please restart").format(title=prepared["title"]))
+            self.subline.setText(_("{title} has been downloaded and will be installed when you restart the computer.")
+                                 .format(title=prepared["title"]))
+            self.btn_reboot.setText(_("Restart and install"))
+            self.btn_reboot.show()
+        elif prepared:
             self.headline.setText(_("Update available – please restart"))
             self.subline.setText(_("{n} updates have been downloaded and will be installed when you restart the "
                                    "computer.").format(n=prepared.get("count", 0)))
@@ -375,7 +484,7 @@ class UpdatesWindow(QMainWindow):
     def _finished(self) -> None:
         self._busy(False)
         self.build = novaos_build()  # a NovaOS update changes the version shown at the top
-        self.version_label.setText(_("NovaOS {v} · based on Debian 13").format(v=self.build))
+        self.version_label.setText(self._version_text())
         if self._errors:
             QMessageBox.warning(self, _("Nova Updates"), _("Some updates failed:") + "\n\n" + "\n".join(self._errors[:5]))
         else:

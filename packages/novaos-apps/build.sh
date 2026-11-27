@@ -6,7 +6,8 @@ SRC="$NOVAOS_ROOT/src"
 
 PY="$STAGE/usr/lib/python3/dist-packages"
 mkdir -p "$PY"
-rsync -a --exclude '__pycache__' --exclude '*.pyc' "$SRC/novaos" "$PY/"
+# Nova Disk (novaos/disk) is its own package, novaos-disk (NovaOS 2)
+rsync -a --exclude '__pycache__' --exclude '*.pyc' --exclude 'novaos/disk' "$SRC/novaos" "$PY/"
 
 mkdir -p "$STAGE/usr/bin"
 for app in store:store updates:updates notes:notes calendar:calendar taskmanager:taskmanager \

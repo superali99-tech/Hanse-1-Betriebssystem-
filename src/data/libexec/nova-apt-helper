@@ -13,6 +13,7 @@ Usage:
     nova-apt-helper install PKG...
     nova-apt-helper remove PKG...
     nova-apt-helper auto-updates on|off
+    nova-apt-helper novaos2          (download NovaOS 2, install it at the next restart)
 """
 
 import os
@@ -87,6 +88,19 @@ def main() -> int:
         out("ERROR missing command")
         return 2
     cmd, args = sys.argv[1], sys.argv[2:]
+    if cmd == "novaos2":
+        # "NovaOS 2 holen": download everything now, install it at the next restart
+        out("PROGRESS 3 Preparing NovaOS 2")
+        rc = subprocess.run(["/usr/libexec/novaos/nova-scheduled-update", "novaos2"], env=ENV,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        for line in rc.stdout.splitlines():
+            out("LOG " + line)
+        if rc.returncode != 0:
+            out("ERROR NovaOS 2 could not be prepared (exit code %d)" % rc.returncode)
+            return rc.returncode
+        out("PROGRESS 100 NovaOS 2 is ready")
+        out("DONE")
+        return 0
     if cmd == "refresh":
         out("PROGRESS 5 Refreshing package lists")
         rc = subprocess.run(["apt-get", "-q", "update"], env=ENV, stdout=subprocess.PIPE,

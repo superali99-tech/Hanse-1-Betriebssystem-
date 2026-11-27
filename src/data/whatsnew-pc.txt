@@ -1,4 +1,6 @@
 # What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
+NovaOS 2 „Nebula“ ist da: in Software-Update „NovaOS 2 holen“ – wird beim nächsten Neustart installiert, Dateien und Apps bleiben|NovaOS 2 "Nebula" is here: "Get NovaOS 2" in Software update – installed at the next restart, files and apps stay
+Nova Disk (mit NovaOS 2): sehen, was die Festplatte füllt, Laufwerke prüfen, gelöschte Dateien retten|Nova Disk (with NovaOS 2): see what fills your disk, check drives, rescue deleted files
 Moderne Taskleiste: schwebendes Glas-Dock in der Mitte – Start, Apps, Symbole und Uhr, größere Symbole, aufgeräumt|Modern taskbar: floating glass dock in the middle – start, apps, status icons and clock, bigger icons, tidy
 Nova Browser: Optimierung und Stabilitätsverbesserung – neuer Tab schneller und ohne gesponserte Inhalte (im Nova Store aktualisieren)|Nova Browser: optimisation and stability improvements – faster new tab without sponsored content (update in Nova Store)
 Nova Browser steht jetzt fest im Nova Store (NovaOS-Apps): Optimierung und Stabilitätsverbesserung, weicheres Scrollen – dort mit „Aktualisieren“|Nova Browser is now in Nova Store (NovaOS apps): optimisation and stability improvements, smoother scrolling – with "Update" there

@@ -1,0 +1,15 @@
+Package: novaos-disk
+Version: @VERSION@
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: novaos-apps, python3-pyqt6, pkexec, testdisk, smartmontools, util-linux
+Nova-App: Nova Disk
+Nova-News: Neu in NovaOS 2: Festplattenanalyse und Datenrettung
+Nova-News-En: New in NovaOS 2: disk analysis and file rescue
+Description: Nova Disk - disk analysis and file rescue (NovaOS 2)
+ See how full every drive is and whether it is healthy (SMART), what fills the
+ disk (biggest folders, file types, largest files), restore files from the
+ trash, and rescue deleted photos, videos and documents from USB sticks, memory
+ cards and disks with PhotoRec - read-only, saved onto another drive.

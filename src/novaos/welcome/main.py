@@ -27,11 +27,12 @@ from PyQt6.QtWidgets import (
 
 from novaos.common.app import create_app, nova_icon
 from novaos.common.i18n import _
-from novaos.common.sysinfo import is_live_session, os_release
+from novaos.common.sysinfo import edition, is_live_session, os_release
 from novaos.common.widgets import Card
 from novaos.wifi.main import WifiPanel
 
 WALLPAPER = "/usr/share/wallpapers/NovaAurora/contents/{}/3840x2160.png"
+NEBULA = "/usr/share/wallpapers/NovaNebula/contents/images_dark/3840x2160.jpg"
 SETTINGS = QSettings("NovaOS", "nova-welcome")
 
 
@@ -308,12 +309,125 @@ class WelcomeWindow(QWidget):
         # Closing the window (also via the title bar) counts as "seen",
         # unless the user asked to see the assistant again.
         SETTINGS.setValue("done", not self.cb_again.isChecked())
+        SETTINGS.setValue("seen_edition", edition())
         SETTINGS.sync()
         super().closeEvent(event)
 
 
+class Nova2Tour(QWidget):
+    """Shown once after the upgrade to NovaOS 2: what is new, with buttons to try it."""
+
+    FEATURES = (
+        ("nova-disk", "nova-disk",
+         lambda: _("Nova Disk"),
+         lambda: _("See at a glance what fills your disk, check the health of your drives and rescue deleted "
+                   "photos, videos and documents – even from USB sticks and SD cards."),
+         lambda: _("Open Nova Disk")),
+        ("nova-store", "nova-store",
+         lambda: _("The new Nova Store"),
+         lambda: _("A fresh start page with the app of the day and colourful categories, NovaOS apps and web "
+                   "apps like Claude, ChatGPT and WhatsApp."),
+         lambda: _("Open Nova Store")),
+        ("preferences-desktop-wallpaper", "systemsettings kcm_wallpaper",
+         lambda: _("Design “Nebula”"),
+         lambda: _("A new wallpaper in light and dark, a new start screen and a new login screen."),
+         lambda: _("Change wallpaper")),
+    )
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle(_("Welcome to NovaOS 2"))
+        self.resize(980, 680)
+        root = QVBoxLayout(self)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(0)
+        hero = QLabel()
+        hero.setFixedHeight(270)
+        hero.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        pix = QPixmap(NEBULA)
+        if not pix.isNull():
+            pix = pix.scaled(980, 270, Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                             Qt.TransformationMode.SmoothTransformation)
+            hero.setPixmap(pix.copy((pix.width() - 980) // 2, (pix.height() - 270) // 2, 980, 270))
+            hero.setScaledContents(True)
+        hero.setStyleSheet("background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #0F0C29, stop:0.5 #4C1D95,"
+                           " stop:1 #0891B2);")
+        over = QVBoxLayout(hero)
+        over.setContentsMargins(48, 40, 48, 36)
+        tag = QLabel(_("WELCOME TO"))
+        tag.setStyleSheet("color: #A5F3FC; font-size: 10pt; font-weight: 800; letter-spacing: 4px;"
+                          " background: transparent;")
+        title = QLabel("NovaOS <span style='color:#67E8F9'>2</span>")
+        title.setStyleSheet("color: white; font-size: 46pt; font-weight: 900; background: transparent;")
+        sub = QLabel(_("“Nebula” is here. Your files, apps and settings are all still there – "
+                       "here is what is new."))
+        sub.setWordWrap(True)
+        sub.setStyleSheet("color: rgba(255,255,255,0.92); font-size: 13pt; background: transparent;")
+        over.addStretch(1)
+        over.addWidget(tag)
+        over.addWidget(title)
+        over.addWidget(sub)
+        root.addWidget(hero)
+
+        body = QVBoxLayout()
+        body.setContentsMargins(40, 28, 40, 24)
+        body.setSpacing(18)
+        cards = QHBoxLayout()
+        cards.setSpacing(18)
+        for icon, cmd, name, text, button in self.FEATURES:
+            card = Card()
+            cl = QVBoxLayout(card)
+            cl.setContentsMargins(20, 20, 20, 18)
+            cl.setSpacing(10)
+            ic = QLabel()
+            ic.setPixmap(nova_icon(icon).pixmap(52, 52))
+            cl.addWidget(ic)
+            t = QLabel(name())
+            t.setStyleSheet("font-size: 14pt; font-weight: 800;")
+            cl.addWidget(t)
+            d = QLabel(text())
+            d.setWordWrap(True)
+            d.setObjectName("NovaMuted")
+            cl.addWidget(d)
+            cl.addStretch(1)
+            b = QPushButton(button())
+            b.clicked.connect(lambda _c=False, c=cmd: run_detached(*c.split()))
+            cl.addWidget(b)
+            cards.addWidget(card, 1)
+        body.addLayout(cards, 1)
+        row = QHBoxLayout()
+        note = QLabel(_("Nova Updates keeps NovaOS 2 up to date – just like before."))
+        note.setObjectName("NovaMuted")
+        row.addWidget(note, 1)
+        go = QPushButton(_("Let's go"))
+        go.setObjectName("NovaPrimary")
+        go.setMinimumWidth(160)
+        go.clicked.connect(self.close)
+        row.addWidget(go)
+        body.addLayout(row)
+        root.addLayout(body, 1)
+
+    def closeEvent(self, event):  # noqa: N802
+        SETTINGS.setValue("seen_edition", edition())
+        SETTINGS.sync()
+        super().closeEvent(event)
+
+
+def show_nova2_tour(live: bool) -> bool:
+    """After the upgrade to NovaOS 2 (assistant already done): the NovaOS 2 tour, once."""
+    if live or "--nova2" in sys.argv:
+        return "--nova2" in sys.argv
+    return (edition() >= 2 and SETTINGS.value("done", False, type=bool)
+            and SETTINGS.value("seen_edition", 1, type=int) < 2)
+
+
 def main() -> int:
     live = is_live_session()
+    if show_nova2_tour(live):
+        app = create_app("org.novaos.Welcome", _("Welcome to NovaOS 2"), "nova-welcome")
+        tour = Nova2Tour()
+        tour.show()
+        return app.exec()
     if "--autostart" in sys.argv and not live and SETTINGS.value("done", False, type=bool):
         return 0
     app = create_app("org.novaos.Welcome", _("Welcome to NovaOS"), "nova-welcome")

@@ -1,0 +1,15 @@
+#!/bin/sh
+set -e
+if [ "$1" = configure ]; then
+	# the system is called NovaOS 2 now (novaos-base keeps it like that on its updates)
+	ln -sf /usr/lib/novaos/os-release-2 /usr/lib/os-release
+	# boot screen of NovaOS 2
+	if command -v plymouth-set-default-theme >/dev/null 2>&1; then
+		plymouth-set-default-theme novaos2 || true
+		dpkg-trigger --no-await update-initramfs 2>/dev/null || true
+	fi
+	# login screen background of NovaOS 2
+	update-alternatives --install /usr/share/novaos/artwork/login-background-current.jpg \
+		novaos-login-background /usr/share/novaos/artwork/login-background-2.jpg 20 >/dev/null 2>&1 || true
+fi
+exit 0

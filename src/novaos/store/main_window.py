@@ -31,6 +31,7 @@ from novaos.common.i18n import _
 from novaos.store.appstream import AppInfo
 from novaos.store.details import DetailsPage
 from novaos.store.images import ImageLoader
+from novaos.common.sysinfo import edition
 from novaos.store import system_apps, webapps, worker
 from novaos.updates import apt as sysapt
 from novaos.store.tiles import AppTile, InstalledRow, Section, SystemAppTile, WebAppTile, app_pixmap
@@ -450,7 +451,11 @@ class StoreWindow(QMainWindow):
         chips.addStretch(1)
         hl.addSpacing(10)
         hl.addLayout(chips)
-        lay.addWidget(hero)
+        if edition() >= 2:
+            hero.hide()   # NovaOS 2: the app of the day and the category tiles instead
+            self._home_v2(lay)
+        else:
+            lay.addWidget(hero)
 
         # NovaOS apps that are part of the system (Nova Browser): always here, "Update" when one is waiting
         sec = Section(_("NovaOS apps"), _("Part of NovaOS – updates appear here and under “Updates”."))
@@ -499,6 +504,68 @@ class StoreWindow(QMainWindow):
             self._fill_updates()
 
     # ------------------------------------------------- NovaOS apps (Nova Browser)
+    # ------------------------------------------------------------- NovaOS 2 home
+    CAT_GRADIENTS = {
+        "games": ("#FF6B6B", "#C9184A"), "office": ("#4D96FF", "#2952CC"), "internet": ("#2FD3C6", "#1B7FA6"),
+        "music": ("#B983FF", "#7C3AED"), "video": ("#FF9F45", "#E4572E"), "graphics": ("#F9C74F", "#F3722C"),
+        "education": ("#43AA8B", "#277DA1"), "development": ("#6C757D", "#343A40"), "system": ("#577590", "#2B3A55"),
+    }
+
+    def _home_v2(self, lay: QVBoxLayout) -> None:
+        """NovaOS 2: a big "app of the day" card and colourful category tiles."""
+        rec = self.c.catalog.recommended()
+        if rec:
+            app = rec[datetime.date.today().timetuple().tm_yday % len(rec)]
+            card = QFrame()
+            card.setObjectName("NovaHero")
+            card.setMinimumHeight(220)
+            card.setStyleSheet("QFrame#NovaHero { border-radius: 26px; background: qlineargradient(x1:0, y1:0, x2:1, y2:1,"
+                               " stop:0 #8B5CF6, stop:0.5 #6366F1, stop:1 #06B6D4); }")
+            cl = QHBoxLayout(card)
+            cl.setContentsMargins(36, 30, 36, 30)
+            cl.setSpacing(28)
+            text = QVBoxLayout()
+            tag = QLabel(_("APP OF THE DAY"))
+            tag.setStyleSheet("font-size: 10pt; font-weight: 800; letter-spacing: 2px; color: rgba(255,255,255,0.8);")
+            name = QLabel(app.name)
+            name.setStyleSheet("font-size: 30pt; font-weight: 800;")
+            summ = QLabel(app.summary)
+            summ.setWordWrap(True)
+            summ.setStyleSheet("font-size: 13pt; color: rgba(255,255,255,0.92);")
+            btn = QPushButton(_("Take a look"))
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            btn.setStyleSheet("QPushButton { background: white; color: #4C1D95; border: none; border-radius: 16px;"
+                              " padding: 9px 26px; font-weight: 800; font-size: 11pt; }"
+                              "QPushButton:hover { background: #EDE9FE; }")
+            btn.clicked.connect(lambda _c=False, a=app.id: self.open_app(a))
+            text.addWidget(tag)
+            text.addWidget(name)
+            text.addWidget(summ)
+            text.addSpacing(10)
+            text.addWidget(btn, 0, Qt.AlignmentFlag.AlignLeft)
+            text.addStretch(1)
+            cl.addLayout(text, 1)
+            icon = QLabel()
+            icon.setPixmap(app_pixmap(app, 150))
+            icon.setStyleSheet("background: rgba(255,255,255,0.18); border-radius: 34px; padding: 18px;")
+            cl.addWidget(icon, 0, Qt.AlignmentFlag.AlignVCenter)
+            lay.addWidget(card)
+        # category tiles
+        sec = Section(_("Categories"))
+        for i, (key, text, icon) in enumerate(CATEGORY_ITEMS):
+            c1, c2 = self.CAT_GRADIENTS.get(key, ("#7C5CFF", "#3D7BFF"))
+            b = QPushButton(QIcon.fromTheme(icon), "  " + text.replace("&", "&&"))
+            b.setIconSize(QSize(30, 30))
+            b.setFixedSize(236, 76)
+            b.setCursor(Qt.CursorShape.PointingHandCursor)
+            b.setStyleSheet(f"QPushButton {{ background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 {c1}, stop:1 {c2});"
+                            f" color: white; border: none; border-radius: 20px; font-size: 12pt; font-weight: 800;"
+                            f" text-align: left; padding-left: 18px; }}"
+                            f"QPushButton:hover {{ border: 2px solid rgba(255,255,255,0.7); }}")
+            b.clicked.connect(lambda _c=False, row=i + 2: self.nav.setCurrentRow(row))
+            sec.add(b)
+        lay.addWidget(sec)
+
     def _system_tile(self, a) -> SystemAppTile:
         pend = next((p for p, _n in self.sys_updates if p.app.key == a.key), None)
         news = next((n for p, n in self.sys_updates if p.app.key == a.key), "")

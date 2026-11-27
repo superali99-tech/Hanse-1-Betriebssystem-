@@ -97,3 +97,34 @@ def test_units_reference_existing_paths():
     with open(os.path.join(root, "systemd", "nova-update-notifier.path")) as fh:
         assert "PathChanged=/var/lib/novaos/updates/prepared" in fh.read()
     assert scheduled.PREPARED == "/var/lib/novaos/updates/prepared"
+
+
+def test_check_with_extra_install(state, monkeypatch):
+    """"NovaOS 2 holen": the extra package is downloaded and noted for the restart, even when
+    the automatic search is off and nothing else is to update."""
+    (state / "updates.conf").write_text("ENABLED=no\nFLATPAK=no\n")
+    ran = []
+    monkeypatch.setattr(scheduled, "_run", lambda cmd: ran.append(cmd) or 0)
+
+    class Res:
+        returncode = 0
+        stderr = ""
+
+        def __init__(self, out):
+            self.stdout = out
+
+    def fake_run(cmd, **kw):
+        if "install" in cmd:
+            return Res("Inst novaos-2 (0.1.1.98 NovaOS [all])\nInst testdisk (7.2-1 Debian:13.3/stable [amd64])\n")
+        return Res("0 upgraded, 0 newly installed")
+
+    monkeypatch.setattr(scheduled.subprocess, "run", fake_run)
+    assert scheduled.check(install=["novaos-2"], title="NovaOS 2") == 0
+    info = scheduled.pending()
+    assert info["install"] == ["novaos-2"] and info["title"] == "NovaOS 2"
+    assert [p["name"] for p in info["packages"]] == ["novaos-2", "testdisk"]
+    assert any("--download-only" in c and "novaos-2" in c for c in ran)
+    assert os.readlink(scheduled.SYSTEM_UPDATE) == scheduled.PREPARED
+    # without the extra package a disabled search does nothing
+    scheduled.clear_prepared()
+    assert scheduled.check() == 0 and scheduled.pending() is None

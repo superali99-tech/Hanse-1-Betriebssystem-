@@ -201,16 +201,19 @@ def _system_flatpak_updates() -> list[str]:
         return []
 
 
-def check(force: bool = False) -> int:
+def check(force: bool = False, install: list[str] | None = None, title: str = "") -> int:
+    """Search, download, prepare for the next restart. install: extra packages to put on the
+    system at that restart (e.g. ["novaos-2"] for "NovaOS 2 holen"); title for the boot screen."""
+    install = list(install or [])
     cfg = read_config()
-    if not is_yes(cfg["ENABLED"]) and not force:
+    if not is_yes(cfg["ENABLED"]) and not force and not install:
         print("automatic update check is disabled in", CONF)
         return 0
     if os.path.exists("/run/live/medium"):
         print("live system - not checking for updates")
         return 0
     os.makedirs(STATE_DIR, mode=0o755, exist_ok=True)
-    if os.path.exists(PREPARED):
+    if os.path.exists(PREPARED) and not install:
         link_system_update()
         print("updates are already downloaded and wait for a restart")
         return 0
@@ -233,6 +236,16 @@ def check(force: bool = False) -> int:
     if packages and _run(["apt-get", *APT_OPTS, "--download-only", "full-upgrade"]) != 0:
         print("downloading the updates failed - trying again tomorrow", flush=True)
         return 1
+    if install:
+        sim2 = subprocess.run(["apt-get", "-s", *APT_OPTS, "install", *install], env=_env(), capture_output=True, text=True)
+        if sim2.returncode != 0:
+            print(sim2.stdout, sim2.stderr, flush=True)
+            return 1
+        extra = [p for p in parse_simulation(sim2.stdout) if p["name"] not in {q["name"] for q in packages}]
+        packages += extra
+        if _run(["apt-get", *APT_OPTS, "--download-only", "install", *install]) != 0:
+            print("downloading failed", flush=True)
+            return 1
     apps: list[str] = []
     if is_yes(cfg["FLATPAK"]) and shutil.which("flatpak"):
         apps = _system_flatpak_updates()
@@ -240,7 +253,7 @@ def check(force: bool = False) -> int:
             print("flatpak: download failed - apps are updated next time", flush=True)
             apps = []
     write_timestamp(LAST_CHECK, now)
-    if not packages and not apps:
+    if not packages and not apps and not install:
         print("the system is up to date")
         return 0
     write_json(PREPARED, {
@@ -249,6 +262,8 @@ def check(force: bool = False) -> int:
         "security": sum(1 for p in packages if p["security"]),
         "packages": packages,
         "apps": apps,
+        "install": install,
+        "title": title,
     })
     link_system_update()
     print(f"{len(packages)} package and {len(apps)} app updates downloaded - installed at the next restart")
@@ -258,10 +273,11 @@ def check(force: bool = False) -> int:
 class Splash:
     """Progress on the Plymouth boot splash (silently does nothing without it)."""
 
-    def __init__(self) -> None:
+    def __init__(self, title: str = "") -> None:
         self.ok = bool(shutil.which("plymouth")) and \
             subprocess.run(["plymouth", "--ping"], capture_output=True).returncode == 0
         self.last = -1
+        self.title = title
 
     def _cmd(self, *args: str) -> None:
         if self.ok:
@@ -277,7 +293,11 @@ class Splash:
             return
         self.last = pct
         self._cmd("system-update", f"--progress={pct}")
-        self.message(_("Installing updates – {p} % – please do not turn off the computer").format(p=pct))
+        if self.title:
+            self.message(_("{title} is being installed – {p} % – please do not turn off the computer").format(
+                title=self.title, p=pct))
+        else:
+            self.message(_("Installing updates – {p} % – please do not turn off the computer").format(p=pct))
 
 
 def _apt_with_progress(args: list[str], splash: Splash, lo: int, hi: int) -> int:
@@ -304,11 +324,18 @@ def install_offline() -> int:
     except OSError:
         pass
     info = pending() or {}
-    splash = Splash()
+    splash = Splash(info.get("title", ""))
     splash.progress(0)
     errors: list[str] = []
-    rc = _apt_with_progress(["--no-download", "--ignore-missing", "full-upgrade"], splash,
-                            0, 90 if info.get("apps") else 100)
+    end = 90 if info.get("apps") else 100
+    mid = 0
+    if info.get("install"):   # e.g. NovaOS 2: the new packages first, then the other updates
+        mid = 70 if end == 100 else 60
+        rc = _apt_with_progress(["--no-download", "install", *info["install"]], splash, 0, mid)
+        if rc != 0:
+            errors.append(f"apt-get install {' '.join(info['install'])}: exit code {rc}")
+            _run(["dpkg", "--configure", "-a", "--force-confdef", "--force-confold"])
+    rc = _apt_with_progress(["--no-download", "--ignore-missing", "full-upgrade"], splash, mid, end)
     if rc != 0:
         errors.append(f"apt-get full-upgrade: exit code {rc}")
         # leave dpkg in a consistent state in any case
@@ -323,8 +350,11 @@ def install_offline() -> int:
         os.unlink(PREPARED)
     except FileNotFoundError:
         pass
-    splash.message(_("Updates installed – restarting …") if not errors else
-                   _("Some updates could not be installed – restarting …"))
+    if info.get("title") and not errors:
+        splash.message(_("{title} is installed – restarting …").format(title=info["title"]))
+    else:
+        splash.message(_("Updates installed – restarting …") if not errors else
+                       _("Some updates could not be installed – restarting …"))
     time.sleep(3)
     os.sync()
     subprocess.run(["systemctl", "reboot", "--no-block"])
@@ -357,7 +387,10 @@ def main(argv: list[str] | None = None) -> int:
         return check(force="--force" in args)
     if cmd == "offline":
         return install_offline()
-    print("usage: nova-scheduled-update [status|check [--force]|offline]", file=sys.stderr)
+    if cmd == "novaos2":
+        # "NovaOS 2 holen": download NovaOS 2 and everything else, install it at the next restart
+        return check(force=True, install=["novaos-2"], title="NovaOS 2")
+    print("usage: nova-scheduled-update [status|check [--force]|offline|novaos2]", file=sys.stderr)
     return 2
 
 

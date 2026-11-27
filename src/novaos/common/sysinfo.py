@@ -107,3 +107,15 @@ def summary() -> dict[str, str]:
         "disk": f"{human_size(free)} / {human_size(total)}",
         "hostname": socket.gethostname(),
     }
+
+
+EDITION_FILE = "/usr/share/novaos/edition"
+
+
+def edition(path: str | None = None) -> int:
+    """The NovaOS generation on this computer: 2 after "NovaOS 2 holen" (package novaos-2), else 1."""
+    try:
+        with open(path or EDITION_FILE, encoding="utf-8") as fh:
+            return int(fh.read().strip().split(".")[0])
+    except (OSError, ValueError):
+        return 1

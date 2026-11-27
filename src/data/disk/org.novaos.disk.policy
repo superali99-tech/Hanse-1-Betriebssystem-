@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>NovaOS</vendor>
+  <action id="org.novaos.disk.helper">
+    <description>Read drives to rescue files or check their health</description>
+    <description xml:lang="de">Laufwerke lesen, um Dateien zu retten oder ihren Zustand zu prüfen</description>
+    <message>Authentication is required to read a whole drive</message>
+    <message xml:lang="de">Zum Lesen eines ganzen Laufwerks ist eine Authentifizierung erforderlich</message>
+    <icon_name>nova-disk</icon_name>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/libexec/novaos/nova-disk-helper</annotate>
+  </action>
+</policyconfig>

@@ -1,0 +1,17 @@
+Package: novaos-2
+Version: @VERSION@
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: NovaOS Project <novaos@localhost>
+Depends: novaos-base, novaos-desktop, novaos-apps, novaos-browser, novaos-disk
+Nova-App: NovaOS 2
+Nova-News: NovaOS 2: Nova Disk (Festplattenanalyse und Datenrettung), neuer Nova Store, Design „Nebula“, neuer Start- und Anmeldebildschirm
+Nova-News-En: NovaOS 2: Nova Disk (disk analysis and file rescue), new Nova Store, "Nebula" design, new start and login screen
+Description: NovaOS 2 "Nebula"
+ Turns NovaOS into NovaOS 2: the new apps and the new look. Installed with
+ "NovaOS 2 holen" in Software-Update (at the next restart).
+  * Nova Disk: disk analysis and file rescue
+  * the new Nova Store (app of the day, category tiles)
+  * wallpaper "Nebula", boot screen and login screen of NovaOS 2
+ Removing this package goes back to the NovaOS 1 look; the apps stay.

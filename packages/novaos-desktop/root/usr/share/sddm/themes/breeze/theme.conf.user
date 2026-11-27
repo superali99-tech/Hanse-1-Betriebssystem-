@@ -1,6 +1,6 @@
 # NovaOS login screen (Breeze SDDM theme): soft glass background, NovaOS logo, clock
 [General]
-background=/usr/share/novaos/artwork/login-background.jpg
+background=/usr/share/novaos/artwork/login-background-current.jpg
 type=image
 color=#0b1020
 showlogo=shown

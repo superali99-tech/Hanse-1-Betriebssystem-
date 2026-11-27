@@ -2,7 +2,12 @@
 set -e
 
 if [ "$1" = configure ]; then
-	ln -sf /usr/lib/novaos/os-release /usr/lib/os-release
+	# NovaOS 2 (package novaos-2) brings its own os-release
+	if [ -e /usr/lib/novaos/os-release-2 ]; then
+		ln -sf /usr/lib/novaos/os-release-2 /usr/lib/os-release
+	else
+		ln -sf /usr/lib/novaos/os-release /usr/lib/os-release
+	fi
 	# /etc/os-release must point to /usr/lib/os-release (it can be a plain
 	# copy after debootstrap).
 	if [ ! -L /etc/os-release ]; then

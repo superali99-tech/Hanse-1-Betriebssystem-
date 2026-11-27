@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Name=Nova Disk
+Name[de]=Nova Disk
+GenericName=Disk analysis and file rescue
+GenericName[de]=Festplattenanalyse und Datenrettung
+Comment=See what fills your disk and rescue deleted files
+Comment[de]=Sehen, was die Festplatte füllt, und gelöschte Dateien retten
+Exec=nova-disk
+Icon=nova-disk
+Terminal=false
+Categories=Qt;System;Utility;
+Keywords=disk;drive;storage;space;recover;rescue;undelete;photorec;smart;trash;
+Keywords[de]=Festplatte;Laufwerk;Speicher;Platz;Datenrettung;wiederherstellen;gelöscht;Papierkorb;SSD;USB;

@@ -1,0 +1,8 @@
+{
+    "KPlugin": {
+        "Authors": [{ "Name": "NovaOS Project" }],
+        "Id": "NovaNebula",
+        "License": "CC-BY-SA-4.0",
+        "Name": "Nova Nebula"
+    }
+}

@@ -1,5 +1,32 @@
 # Changelog
 
+## NovaOS 2 „Nebula“ (PC 0.1.1.98)
+
+NovaOS 2 kommt als **freiwilliges Upgrade** über den PC-Update-Kanal – installierte PCs bleiben bei NovaOS 1,
+bis man es holt.
+
+* **„NovaOS 2 holen“ in Software-Update:** Nova Updates (Systemeinstellungen → System → Software-Update) zeigt die
+  Karte „NovaOS 2“ mit den Neuerungen, sobald das Paket `novaos-2` im Kanal ist. „NovaOS 2 holen“ lädt alles im
+  Hintergrund (`nova-apt-helper novaos2` → `nova-scheduled-update novaos2`: Paketlisten, alle Updates und
+  `novaos-2` mit Abhängigkeiten herunterladen) und installiert es beim nächsten Neustart vor dem Start wie ein
+  großes Update: Fortschritt im Startbildschirm „NovaOS 2 wird installiert – … %“, danach „NovaOS 2 ist
+  installiert – Neustart …“. Dateien, Einstellungen und Apps bleiben. `prepared` merkt sich `install` und
+  `title`; Nova Updates zeigt „NovaOS 2 ist bereit – bitte neu starten“ mit „Neu starten und installieren“.
+* **Paket `novaos-2`:** Datei `/usr/share/novaos/edition` (2), Name „NovaOS 2 (Nebula)“ (`os-release`, bleibt bei
+  Updates von `novaos-base`), Startbildschirm `novaos2` (Plymouth, Schriftzug „NovaOS 2“), Anmeldehintergrund
+  (Alternative `novaos-login-background`, Priorität 20), Hintergrundbild **„Nova Nebula“** (hell und dunkel,
+  `artwork/generate_nova2.py`). Entfernen geht zum Aussehen von NovaOS 1 zurück.
+* **Nova Disk (neu, Paket `novaos-disk`):** Festplattenanalyse und Datenrettung – Laufwerke mit Belegung und
+  Zustand (SMART über `smartctl`), „Was füllt deine Festplatte?“ (nach Dateiart, größte Ordner und Dateien, in den
+  Papierkorb verschieben), Papierkorb mit Wiederherstellen, **Dateien retten** mit PhotoRec (Fotos, Videos,
+  Dokumente, Musik, Archive; USB-Sticks und Speicherkarten zuerst; liest das Laufwerk nur, speichert auf ein
+  anderes Laufwerk, Warnung bei gleichem Laufwerk, Abbrechen jederzeit; Helfer `nova-disk-helper` über pkexec).
+* **Neuer Nova Store** (bei NovaOS 2): Startseite mit „App des Tages“ und bunten Kategorie-Kacheln.
+* **Willkommen bei NovaOS 2:** einmalige Tour nach dem Upgrade (Nova Welcome, Einstellung `seen_edition`) mit
+  „Nova Disk öffnen“, „Nova Store öffnen“, „Hintergrundbild ändern“.
+* **Hintergrund „Nebula“ für jeden Benutzer:** `nova-look-update` setzt bei NovaOS 2 einmalig (`look-edition`)
+  Nebula auf dem Desktop und dem Sperrbildschirm – nur wo noch das NovaOS-Standardbild eingestellt ist.
+
 ## 0.1.1 „Aurora“ – in Arbeit
 
 * **Updates alle 14 Tage, Installation beim Neustart:** NovaOS sucht alle 14 Tage nach
