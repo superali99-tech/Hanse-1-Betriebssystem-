@@ -14,6 +14,11 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **Moderne Taskleiste (0.1.1.97):** schwebendes Glas-Dock in der Mitte, so breit wie sein Inhalt
+  (`lengthMode = "fit"`, `alignment = "center"`), etwas höher, mit Start, Apps, Trenner, Statussymbolen und Uhr –
+  ohne Platzhalter, Arbeitsflächen-Umschalter und „Desktop anzeigen“. Neue Benutzer bekommen es aus dem
+  NovaOS-Layout, eingerichtete PCs einmalig bei der nächsten Anmeldung (`nova-look-update` Version 3: entfernt nur
+  diese drei Elemente aus der unteren Leiste, andere Leisten bleiben unberührt).
 * **Nova Browser 0.1.1.96:** neuer Tab ohne gesponserte Kacheln und Geschichten, keine „Trend“-Vorschläge in der
   Adressleiste (`novaos-browser`, Preferences-Richtlinie) – zum Ausprobieren von „Aktualisieren“ im Nova Store.
 * **Nova Browser fest im Nova Store (0.1.1.94):** neuer Bereich „NovaOS-Apps“ auf der Startseite (und in der

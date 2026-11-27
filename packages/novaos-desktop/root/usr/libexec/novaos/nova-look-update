@@ -1,19 +1,33 @@
 #!/bin/sh
-# NovaOS glass design for desktops that were set up before it: once per user and
-# design version, at login, make the NovaOS taskbar (bottom panel) floating and
-# see-through, and let KWin reload its settings (blur, shadows, no shake cursor).
+# NovaOS design for desktops that were set up before it: once per user and design
+# version, at login. Version 2: the NovaOS taskbar (bottom panel) floating and
+# see-through. Version 3: a modern dock - in the middle, as wide as its content,
+# a little higher, without spacers, desktop pager and "show desktop" button.
+# KWin reloads its settings (blur, shadows, no shake cursor).
 # New users get all of this from the NovaOS layout directly. Never blocks the login.
-VERSION=2
+VERSION=3
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/novaos"
 [ "$(cat "$STATE/look-version" 2>/dev/null)" = "$VERSION" ] && exit 0
 command -v busctl >/dev/null 2>&1 || exit 0
 SCRIPT='var ps = panels();
 for (var i = 0; i < ps.length; i++) {
     var p = ps[i];
-    if (p.location == "bottom") {
-        p.floating = true;
-        p.opacity = "translucent";
+    if (p.location != "bottom") {
+        continue;
     }
+    var ws = p.widgets();
+    for (var j = 0; j < ws.length; j++) {
+        var t = ws[j].type;
+        if (t == "org.kde.plasma.panelspacer" || t == "org.kde.plasma.pager" || t == "org.kde.plasma.showdesktop") {
+            ws[j].remove();
+        }
+    }
+    p.floating = true;
+    p.opacity = "translucent";
+    p.lengthMode = "fit";
+    p.alignment = "center";
+    var gu = (typeof gridUnit !== "undefined") ? gridUnit : 18;
+    p.height = 2 * Math.floor(gu * 3.1 / 2);
 }'
 # Plasma may still be starting: try for about a minute
 i=0

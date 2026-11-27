@@ -32,10 +32,11 @@ for (var i = 0; i < desktops.length; i++) {
     }
 }
 
-// ---- Floating bottom panel, centred start button + pinned apps ----
+// ---- Modern dock: one floating glass bar in the middle, as wide as its content ----
+// start button, pinned apps, (separator), status icons, clock - no spacers, no pager
 var panel = new Panel;
 panel.location = "bottom";
-panel.height = 2 * Math.floor(gridUnit * 2.8 / 2);
+panel.height = 2 * Math.floor(gridUnit * 3.1 / 2);
 if ("floating" in panel) {
     panel.floating = true;
 }
@@ -43,9 +44,11 @@ if ("floating" in panel) {
 if ("opacity" in panel) {
     panel.opacity = "translucent";
 }
+if ("lengthMode" in panel) {
+    panel.lengthMode = "fit";
+}
+panel.alignment = "center";
 panel.hiding = "none";
-
-panel.addWidget("org.kde.plasma.panelspacer");
 
 var kickoff = panel.addWidget("org.kde.plasma.kickoff");
 kickoff.currentConfigGroup = ["General"];
@@ -63,12 +66,15 @@ tasks.writeConfig("launchers", [
     "applications:org.novaos.Notes.desktop",
     "applications:systemsettings.desktop"
 ]);
+tasks.writeConfig("iconSpacing", 2);
 
-panel.addWidget("org.kde.plasma.panelspacer");
-panel.addWidget("org.kde.plasma.pager");
+try {
+    panel.addWidget("org.kde.plasma.marginsseparator");
+} catch (e) {
+    print("NovaOS layout: no separator: " + e);
+}
 panel.addWidget("org.kde.plasma.systemtray");
 var clock = panel.addWidget("org.kde.plasma.digitalclock");
 clock.currentConfigGroup = ["Appearance"];
 clock.writeConfig("showDate", "true");
 clock.writeConfig("dateFormat", "shortDate");
-panel.addWidget("org.kde.plasma.showdesktop");

@@ -192,6 +192,12 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**Moderne Taskleiste (0.1.1.97):** Plasma-Skripte mit einem Nachbau der Plasma-Skript-Schnittstelle in Node
+geprüft (Namen geprüft im Quelltext von Plasma 6.3: `Panel.lengthMode/alignment/floating/opacity/height`,
+`Widget.type/remove()`): alte NovaOS-Leiste → „Start, Apps, Statussymbole, Uhr“, mittig, schwebend, Glas,
+Höhe 54 px; obere Leisten unberührt; neues Layout → mit Trenner ✅. `nova-look-update`: PC mit Version 2 wird
+einmal umgestellt, danach kein Aufruf mehr ✅. **Nicht getestet:** Aussehen auf einem echten Plasma-Desktop.
+
 **NovaOS-Apps im Store (0.1.1.94; der Bau 0.1.1.93 scheiterte an einer defekten Fremdquelle auf dem GitHub-Rechner, behoben):** Kachel offscreen – mit Update „Neu: …“ + „Aktualisieren“, ohne Update
 „Öffnen“ + Version ✅ (`docs/screenshots/glass/13`); zuerst war „Aktualisieren“ abgeschnitten und die Version
 unlesbar → Hinweis entfernt, Kachel breiter, behoben; Suche „Browser“/„Firefox“ findet Nova Browser (Unit-Test) ✅.
