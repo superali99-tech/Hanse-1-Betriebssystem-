@@ -44,7 +44,9 @@ jobs:
 
       - name: Tools
         run: |
-          sudo apt-get update -q
+          # a broken third-party source preinstalled on the runner (e.g. packages.microsoft.com
+          # answering 403) must not stop the build: the Ubuntu lists are what is needed
+          sudo apt-get update -q || echo "::warning::apt-get update reported errors (third-party source) - continuing"
           sudo apt-get install -y -q apt-utils rsync gnupg jq python3-pytest python3-yaml python3-icalendar python3-pyqt6 desktop-file-utils
 
       - name: Tests
