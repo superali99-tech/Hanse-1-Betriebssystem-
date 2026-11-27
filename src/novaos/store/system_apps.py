@@ -20,11 +20,34 @@ class SystemApp:
     name: str
     icon: str
     packages: tuple[str, ...]   # the first one carries the NovaOS news
+    summary_de: str = ""
+    summary_en: str = ""
+    open_cmd: tuple[str, ...] = ()
+
+    def summary(self, german: bool) -> str:
+        return self.summary_de if german else self.summary_en
 
 
 SYSTEM_APPS = (
-    SystemApp("browser", "Nova Browser", "nova-browser", ("novaos-browser", "firefox-esr")),
+    SystemApp("browser", "Nova Browser", "nova-browser", ("novaos-browser", "firefox-esr"),
+              "Schneller, privater Browser von NovaOS – blockiert Tracker, nur HTTPS",
+              "Fast, private browser of NovaOS – blocks trackers, HTTPS only",
+              ("firefox-esr", "firefox")),
 )
+
+
+def search(query: str) -> list[SystemApp]:
+    q = query.strip().lower()
+    return [a for a in SYSTEM_APPS if q and (q in a.name.lower() or q in a.key or (a.key == "browser" and q in ("firefox", "internet")))]
+
+
+def installed_version(app: SystemApp) -> str:
+    try:
+        res = subprocess.run(["dpkg-query", "-W", "-f=${Version}", app.packages[0]], capture_output=True, text=True,
+                             timeout=10)
+        return res.stdout.strip() if res.returncode == 0 else ""
+    except (OSError, subprocess.SubprocessError):
+        return ""
 
 
 @dataclass

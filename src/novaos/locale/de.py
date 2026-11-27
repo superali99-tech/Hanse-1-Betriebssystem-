@@ -4,6 +4,8 @@ Check completeness with:  python3 tools/extract-strings.py --missing de
 """
 
 MESSAGES = {
+    'NovaOS apps': 'NovaOS-Apps',
+    'Part of NovaOS – updates appear here and under “Updates”.': 'Teil von NovaOS – Updates erscheinen hier und unter „Updates“.',
     'Updating…': 'Wird aktualisiert …',
     '{app} is up to date': '{app} ist auf dem neuesten Stand',
     '{app} could not be updated (code {c}).': '{app} konnte nicht aktualisiert werden (Code {c}).',

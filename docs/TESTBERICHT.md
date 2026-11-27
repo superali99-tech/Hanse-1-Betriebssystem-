@@ -192,6 +192,10 @@ versteckte Netze, Fehlermeldungen); Willkommensseite offscreen mit simulierten N
 Auswahl, „Das Passwort stimmt nicht“ bei falschem Passwort ✅. **Nicht getestet:** echtes WLAN (die Testumgebung hat
 keins). `shakecursorEnabled=false` laut KWin-6.3-Quelltext (eingebauter Effekt `shakecursor`).
 
+**NovaOS-Apps im Store (0.1.1.93):** Kachel offscreen – mit Update „Neu: …“ + „Aktualisieren“, ohne Update
+„Öffnen“ + Version ✅ (`docs/screenshots/glass/13`); zuerst war „Aktualisieren“ abgeschnitten und die Version
+unlesbar → Hinweis entfernt, Kachel breiter, behoben; Suche „Browser“/„Firefox“ findet Nova Browser (Unit-Test) ✅.
+
 **Nova Browser im Store (0.1.1.92):** Im Debian-13-System: `novaos-desktop` 0.1.1.91 → 0.1.1.92 +
 `novaos-browser` 0.1.1.92 – die Datei `/etc/firefox/policies/policies.json` wechselt ohne Konflikt zu
 `novaos-browser`, mit den neuen Einstellungen ✅. Lokaler Kanal: die Store-Logik findet „Nova Browser“ mit

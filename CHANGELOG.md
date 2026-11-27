@@ -14,6 +14,10 @@
   richten den Kanal einmal mit `novaos-update-einrichten.deb` ein. **„Software-Update“ in den
   KDE-Systemeinstellungen** (Kategorie System) öffnet Nova Updates; Knopf heißt jetzt „Nach Updates suchen“.
   Beim Update von 0.1.0 bleiben die täglichen Sicherheitsupdates an (0.1.0 hatte sie an).
+* **Nova Browser fest im Nova Store (0.1.1.93):** neuer Bereich „NovaOS-Apps“ auf der Startseite (und in der
+  Suche: „Browser“, „Firefox“) – Nova Browser mit „Öffnen“ und Version oder, wenn ein Update wartet, „Neu: …“ und
+  „Aktualisieren“. Neue Browser-Version: weicheres Scrollen (`general.smoothScroll.msdPhysics.enabled`), inaktive
+  Tabs bei knappem Speicher schon nach 5 Minuten entladbar.
 * **Nova Browser im Nova Store aktualisieren (0.1.1.92):** neues Paket `novaos-browser` (übernimmt die
   Firefox-Richtlinien von `novaos-desktop`, Breaks/Replaces `<< 0.1.1.92`): **Optimierung und
   Stabilitätsverbesserung** – inaktive Tabs werden bei knappem Speicher entladen, Hardware-Videodekodierung

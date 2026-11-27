@@ -33,7 +33,7 @@ from novaos.store.details import DetailsPage
 from novaos.store.images import ImageLoader
 from novaos.store import system_apps, webapps, worker
 from novaos.updates import apt as sysapt
-from novaos.store.tiles import AppTile, InstalledRow, Section, WebAppTile, app_pixmap
+from novaos.store.tiles import AppTile, InstalledRow, Section, SystemAppTile, WebAppTile, app_pixmap
 
 CATEGORY_ITEMS = [
     ("games", _("Games"), "applications-games"),
@@ -169,6 +169,7 @@ class StoreWindow(QMainWindow):
         c.op_queued.connect(lambda k: self._queue_progress(k, 0, _("Waiting…")))
         # NovaOS apps that are system packages (Nova Browser): their updates appear in "Updates" too
         self.sys_updates: list = []
+        self.sys_versions: dict = {}
         self.sys_busy: str | None = None
         self.sys_proc: QProcess | None = None
         QTimer.singleShot(1500, self._load_system_updates)
@@ -379,11 +380,13 @@ class StoreWindow(QMainWindow):
             return
         results = self.c.catalog.search(q)
         web = webapps.search(q)
-        n = len(results) + len(web)
+        n = len(results) + len(web) + len(system_apps.search(q))
         sub = _("{n} results").format(n=n) if n else _("No apps found. Try a different search term.")
         self._show_list(f"“{q}”", sub, results)
         for w in reversed(web):  # the official web apps first
             self.list_section.flow.insertWidget(0, WebAppTile(w, _german()))
+        for a in reversed(system_apps.search(q)):  # and NovaOS apps before them
+            self.list_section.flow.insertWidget(0, self._system_tile(a))
 
     # ------------------------------------------------------------ controller
     def _show_loading(self, text: str) -> None:
@@ -449,6 +452,12 @@ class StoreWindow(QMainWindow):
         hl.addLayout(chips)
         lay.addWidget(hero)
 
+        # NovaOS apps that are part of the system (Nova Browser): always here, "Update" when one is waiting
+        sec = Section(_("NovaOS apps"), _("Part of NovaOS – updates appear here and under “Updates”."))
+        for a in system_apps.SYSTEM_APPS:
+            sec.add(self._system_tile(a))
+        lay.addWidget(sec)
+
         # Claude, ChatGPT, WhatsApp: no Linux apps exist - the official web versions in their own window
         sec = Section(_("Web apps"), _("No Linux app exists for these – NovaOS opens the official website in its own "
                                        "window, with its own entry in the start menu and taskbar."))
@@ -490,12 +499,23 @@ class StoreWindow(QMainWindow):
             self._fill_updates()
 
     # ------------------------------------------------- NovaOS apps (Nova Browser)
+    def _system_tile(self, a) -> SystemAppTile:
+        pend = next((p for p, _n in self.sys_updates if p.app.key == a.key), None)
+        news = next((n for p, n in self.sys_updates if p.app.key == a.key), "")
+        tile = SystemAppTile(a, (_("New: {news}").format(news=news) if pend else a.summary(_german())),
+                             self.sys_versions.get(a.key, ""), pend, self.sys_busy == a.key)
+        tile.update_clicked.connect(self._update_system)
+        return tile
+
     def _load_system_updates(self) -> None:
         worker.run(lambda: system_apps.load(_german()), on_done=self._system_loaded, on_error=lambda e: None)
 
     def _system_loaded(self, items) -> None:
         self.sys_updates = items or []
+        self.sys_versions = {a.key: system_apps.installed_version(a) for a in system_apps.SYSTEM_APPS}
         self._updates_changed()
+        if self.stack.currentWidget() is self.home_page:
+            self._refresh_home()
 
     def _check_all(self) -> None:
         """"Check for updates": refresh the package lists (password), then apps and NovaOS apps."""
@@ -514,6 +534,8 @@ class StoreWindow(QMainWindow):
             return
         self.sys_busy = pending.app.key
         self._fill_updates()
+        if self.stack.currentWidget() is self.home_page:
+            self._refresh_home()
         self.sys_proc = QProcess(self)
         self.sys_proc.finished.connect(lambda code, _st, p=pending: self._system_updated(p, code))
         self.sys_proc.start("/usr/bin/pkexec", [sysapt.HELPER, "install", *pending.packages])

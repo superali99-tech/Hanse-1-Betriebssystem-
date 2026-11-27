@@ -1,5 +1,5 @@
 # What's new in the current NovaOS PC update, shown in Nova Updates ("Deutsch|English").
-Nova Browser: Optimierung und Stabilitätsverbesserung – im Nova Store unter „Updates“ aktualisieren|Nova Browser: optimisation and stability improvements – update it in Nova Store under "Updates"
+Nova Browser steht jetzt fest im Nova Store (NovaOS-Apps): Optimierung und Stabilitätsverbesserung, weicheres Scrollen – dort mit „Aktualisieren“|Nova Browser is now in Nova Store (NovaOS apps): optimisation and stability improvements, smoother scrolling – with "Update" there
 Nova Store: Claude, ChatGPT und WhatsApp als Web-Apps (offizielle Webseiten im eigenen Fenster)|Nova Store: Claude, ChatGPT and WhatsApp as web apps (official websites in their own window)
 Mein Konto: E-Mail-Adresse hinzufügen und mit einem Code per E-Mail bestätigen (Systemeinstellungen → System)|My account: add your e-mail address and confirm it with a code by e-mail (System Settings → System)
 Nach dem Update fragt NovaOS „Jetzt neu starten?“ – wie am Handy, mit „Fertig – bitte neu starten“|After an update NovaOS asks "Restart now?" – like on a phone, with "Done – please restart"

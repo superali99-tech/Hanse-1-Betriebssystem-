@@ -225,3 +225,61 @@ class WebAppTile(Card):
     def _remove(self) -> None:
         self.webapps.uninstall(self.app)
         self._update()
+
+
+class SystemAppTile(Card):
+    """A NovaOS app that is part of the system (Nova Browser): always in the store, with
+    "Aktualisieren" when an update is waiting, otherwise "Öffnen"."""
+
+    WIDTH, HEIGHT = 330, 120
+    update_clicked = pyqtSignal(object)
+
+    def __init__(self, app, summary: str, version: str, pending=None, busy: bool = False,
+                 parent: QWidget | None = None):
+        super().__init__(parent, clickable=False)
+        self.app, self.pending = app, pending
+        self.setFixedSize(self.WIDTH, self.HEIGHT)
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(14, 12, 14, 12)
+        lay.setSpacing(12)
+        icon = QLabel()
+        icon.setFixedSize(60, 60)
+        icon.setPixmap(QIcon.fromTheme(app.icon, QIcon.fromTheme("internet-web-browser")).pixmap(60, 60))
+        lay.addWidget(icon, 0, Qt.AlignmentFlag.AlignTop)
+        text = QVBoxLayout()
+        text.setSpacing(2)
+        name = QLabel(app.name)
+        f = name.font()
+        f.setBold(True)
+        f.setPointSizeF(f.pointSizeF() * 1.08)
+        name.setFont(f)
+        text.addWidget(name)
+        s = QLabel(summary)
+        s.setObjectName("NovaMuted")
+        s.setWordWrap(True)
+        s.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        text.addWidget(s, 1)
+        row = QHBoxLayout()
+        row.setSpacing(6)
+        btn = QPushButton(_("Updating…") if busy else (_("Update") if pending else _("Open")))
+        btn.setObjectName("NovaPrimary")
+        btn.setEnabled(not busy)
+        btn.clicked.connect(self._clicked)
+        btn.setMinimumWidth(btn.sizeHint().width())
+        row.addWidget(btn)
+        if version and not pending:  # with an update waiting, "New: ..." above says it
+            v = QLabel(_("Version {v}").format(v=version))
+            v.setObjectName("NovaMuted")
+            row.addWidget(v)
+        row.addStretch(1)
+        text.addLayout(row)
+        lay.addLayout(text, 1)
+
+    def _clicked(self) -> None:
+        if self.pending:
+            self.update_clicked.emit(self.pending)
+        else:
+            from PyQt6.QtCore import QProcess
+            for exe in self.app.open_cmd:
+                if QProcess.startDetached(exe, []):
+                    break

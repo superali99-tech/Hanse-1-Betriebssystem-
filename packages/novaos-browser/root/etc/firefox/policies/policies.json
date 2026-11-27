@@ -33,6 +33,14 @@
       "media.ffmpeg.vaapi.enabled": {
         "Value": true,
         "Status": "default"
+      },
+      "general.smoothScroll.msdPhysics.enabled": {
+        "Value": true,
+        "Status": "default"
+      },
+      "browser.tabs.min_inactive_duration_before_unload": {
+        "Value": 300000,
+        "Status": "default"
       }
     }
   }

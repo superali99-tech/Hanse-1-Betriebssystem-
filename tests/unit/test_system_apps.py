@@ -37,3 +37,11 @@ def test_new_novaos_package_counts_as_update():
     found = system_apps.with_new_packages([], policy_of=lambda pkg: ("", "0.1.1.92"))
     assert len(found) == 1 and found[0].packages == ["novaos-browser"] and found[0].version == "0.1.1.92"
     assert system_apps.with_new_packages([], policy_of=lambda pkg: ("0.1.1.92", "0.1.1.92")) == []
+
+
+def test_nova_browser_found_by_search_and_has_texts():
+    assert [a.name for a in system_apps.search("browser")] == ["Nova Browser"]
+    assert [a.name for a in system_apps.search("Firefox")] == ["Nova Browser"]
+    assert system_apps.search("") == [] and system_apps.search("xyz") == []
+    a = system_apps.SYSTEM_APPS[0]
+    assert a.summary(True) and a.summary(False) and a.open_cmd[0] == "firefox-esr"
